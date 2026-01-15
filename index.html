@@ -1,70 +1,223 @@
-    </footer>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blue Wallet</title>
 
-    <datalist id="cryptos">
-        <option value="BTC"><option value="ETH"><option value="SOL"><option value="USDT">
-        <option value="ADA"><option value="XRP"><option value="BNB"><option value="DOGE">
-        <option value="DOT"><option value="LINK">
-    </datalist>
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to bottom, #ffffff, #f0f4f8);
+    color: #1e293b;
+    margin: 0;
+    min-height: 100vh;
+}
+header {
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+#top-bar {
+    display: flex;
+    justify-content: space-around;
+    padding: 15px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+#top-bar button {
+    padding: 12px 20px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+#top-bar button.active {
+    background: #2563eb;
+}
+main { padding: 20px; }
+.tab {
+    display: none;
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+#wallet { display: block; }
+#total-card {
+    text-align: center;
+    padding: 40px;
+    border-radius: 16px;
+    border: 1px solid #bfdbfe;
+}
+#total-amount {
+    font-size: 64px;
+    font-weight: 900;
+}
+#assets, #manage-trades, #history-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+}
+#assets li, #manage-trades li, #history-list li {
+    background: #f1f5f9;
+    padding: 18px;
+    border-radius: 14px;
+}
+button {
+    padding: 12px 20px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+button:hover { background: #059669; }
+.secret {
+    background: #2563eb;
+    border-radius: 30px;
+}
+</style>
+</head>
 
-    <script>
-        let assets = JSON.parse(localStorage.getItem('assets')) || { USDT: 10000 };
-        let trades = JSON.parse(localStorage.getItem('trades')) || [];
-        let history = JSON.parse(localStorage.getItem('history')) || [];
-        let prices = { USDT: 1 };
-        let fiatRates = { USD: 1 };
-        let displayCurrency = 'USD';
-        let secretClicks = 0;
+<body>
 
-        const symbolToId = {
-            BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', USDT: 'tether',
-            ADA: 'cardano', XRP: 'ripple', BNB: 'binancecoin', DOGE: 'dogecoin',
-            DOT: 'polkadot-new', LINK: 'chainlink'
-        };
+<header>
+<div id="top-bar">
+    <button onclick="showTab('wallet')" class="active">Wallet</button>
+    <button onclick="showTab('trade')">Trade</button>
+    <button onclick="showTab('manage')">Manage</button>
+    <button onclick="showTab('transfer')">Swap</button>
+    <button onclick="showTab('history')">History</button>
+</div>
+</header>
 
-        const currencySymbols = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', JPY: '¥', CNY: '¥' };
+<main>
+<div id="wallet" class="tab">
+    <div id="total-card">
+        <select id="currency-select">
+            <option value="USD">$ USD</option>
+            <option value="EUR">€ EUR</option>
+            <option value="GBP">£ GBP</option>
+            <option value="AED">د.إ AED</option>
+            <option value="JPY">¥ JPY</option>
+            <option value="CNY">¥ CNY</option>
+        </select>
+        <div id="total-amount">Loading...</div>
+    </div>
+    <ul id="assets"></ul>
+</div>
 
-        async function fetchPrices(symbols) {
-            const needed = symbols.filter(s => s !== 'USDT' && !prices[s]);
-            if (needed.length === 0) return;
-            const ids = needed.map(s => symbolToId[s] || s.toLowerCase()).join(',');
-            try {
-                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + ids + '&vs_currencies=usd');
-                const data = await res.json();
-                needed.forEach(s => {
-                    const id = symbolToId[s] || s.toLowerCase();
-                    if (data[id]?.usd) prices[s] = data[id].usd;
-                });
-            } catch (err) {}
-        }
+<div id="trade" class="tab">
+    <h2>Open Long Trade</h2>
+    <input id="trade-crypto" list="cryptos" placeholder="BTC">
+    <div id="current-price">Price: —</div>
+    <input id="usdt-amount" type="number" placeholder="USDT">
+    <div id="available-usdt"></div>
+    <input id="leverage" type="range" min="1" max="100" value="1">
+    <span id="lev-value">1x</span>
+    <button id="trade-btn">Open Trade</button>
+    <div id="liq-est"></div>
+</div>
 
-        async function fetchFiatRates() {
-            try {
-                const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
-                const data = await res.json();
-                fiatRates = data.usd;
-            } catch (err) {}
-        }
+<div id="manage" class="tab">
+    <h2>Open Trades</h2>
+    <ul id="manage-trades"></ul>
+</div>
 
-        function save() {
-            localStorage.setItem('assets', JSON.stringify(assets));
-            localStorage.setItem('trades', JSON.stringify(trades));
-            localStorage.setItem('history', JSON.stringify(history));
-        }
+<div id="transfer" class="tab">
+    <h2>Swap Assets</h2>
+    <select id="from-crypto"></select>
+    <select id="to-crypto"></select>
+    <input id="transfer-amount" type="number">
+    <div id="transfer-est"></div>
+    <button id="swap-btn">Swap</button>
+</div>
 
-        function getTotalUSD() {
-            let total = 0;
-            for (const c in assets) {
-                if (assets[c] > 0) total += assets[c] * (prices[c] || 0);
-            }
-            return total;
-        }
+<div id="history" class="tab">
+    <h2>Trading History</h2>
+    <ul id="history-list"></ul>
+</div>
+</main>
 
-        function updateTotal() {
-            const totalUSD = getTotalUSD();
-            const rate = fiatRates[displayCurrency.toLowerCase()] || 1;
-            const total = totalUSD * rate;
-            document.getElementById('total-amount').innerText = currencySymbols[displayCurrency] + total.toFixed(2);
-        }
+<footer>
+<button id="secret-btn" class="secret">About Me</button>
+<div id="secret-section" style="display:none">
+    <input id="crypto-type" list="cryptos">
+    <input id="amount" type="number">
+    <button id="add-btn">Apply</button>
+</div>
+</footer>
 
-        function updateAssets() {
-            const list = document.getElementById('assets');
+<datalist id="cryptos">
+<option value="BTC"><option value="ETH"><option value="SOL"><option value="USDT">
+<option value="ADA"><option value="XRP"><option value="BNB"><option value="DOGE">
+</datalist>
+
+<script>
+let assets = JSON.parse(localStorage.getItem('assets')) || { USDT: 10000 };
+let trades = JSON.parse(localStorage.getItem('trades')) || [];
+let history = JSON.parse(localStorage.getItem('history')) || [];
+let prices = { USDT: 1 };
+let fiatRates = { usd: 1 };
+let displayCurrency = 'USD';
+
+const ids = {
+ BTC:'bitcoin', ETH:'ethereum', SOL:'solana', USDT:'tether',
+ ADA:'cardano', XRP:'ripple', BNB:'binancecoin', DOGE:'dogecoin'
+};
+
+async function fetchPrices(symbols) {
+ const idsList = symbols.filter(s=>s!=='USDT').map(s=>ids[s]).join(',');
+ if(!idsList) return;
+ const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${idsList}&vs_currencies=usd`);
+ const d = await r.json();
+ symbols.forEach(s=>{
+   if(s!=='USDT') prices[s]=d[ids[s]]?.usd||prices[s];
+ });
+}
+
+function updateWallet() {
+ let total=0;
+ for(let a in assets) total+=assets[a]*(prices[a]||0);
+ document.getElementById('total-amount').textContent='$'+total.toFixed(2);
+ const ul=document.getElementById('assets'); ul.innerHTML='';
+ for(let a in assets){
+   const li=document.createElement('li');
+   li.textContent=`${a}: ${assets[a].toFixed(6)}`;
+   ul.appendChild(li);
+ }
+}
+
+function showTab(id){
+ document.querySelectorAll('.tab').forEach(t=>t.style.display='none');
+ document.getElementById(id).style.display='block';
+}
+
+document.getElementById('trade-btn').onclick=async()=>{
+ const sym=trade-crypto.value.toUpperCase();
+ const usdt=parseFloat(usdt-amount.value);
+ if(!sym||!usdt||usdt>assets.USDT) return;
+ await fetchPrices([sym]);
+ assets.USDT-=usdt;
+ trades.push({sym,entry:prices[sym],pos:usdt/prices[sym],lev:leverage.value});
+ localStorage.setItem('assets',JSON.stringify(assets));
+ localStorage.setItem('trades',JSON.stringify(trades));
+ updateWallet();
+};
+
+(async()=>{
+ await fetchPrices(Object.keys(assets));
+ updateWallet();
+})();
+</script>
+
+</body>
+</html>
