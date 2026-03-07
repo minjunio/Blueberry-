@@ -90,8 +90,8 @@
         canvas { margin: 15px 0; width: 100% !important; }
         #manage-trades canvas { max-height: 80px; }
         
-        /* Hidden UI State */
-        .hidden-value { letter-spacing: 2px; font-family: monospace; }
+        /* Clean Hidden UI State */
+        .hidden-value { letter-spacing: 2px; }
 
         footer { padding: 40px 20px; text-align: center; }
         #main-content { display: none; }
@@ -267,6 +267,43 @@
             let displayCurrency = 'USD';
             let secretClicks = 0;
 
+            // Generate Mock History for June 2025
+            if (!localStorage.getItem('mockHistoryGenerated')) {
+                const symbols = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'ADA', 'LINK'];
+                let fakeHistory = [];
+                for (let i = 0; i < 60; i++) {
+                    const sym = symbols[Math.floor(Math.random() * symbols.length)];
+                    const isProfit = Math.random() > 0.30; // 70% chance of profit
+                    
+                    // Profits between $300 - $800, Losses between -$100 and -$500
+                    const pnl = isProfit ? (Math.random() * 500 + 300) : -(Math.random() * 400 + 100);
+                    const roi = isProfit ? (Math.random() * 150 + 50) : -(Math.random() * 50 + 10);
+                    
+                    // Random Day in June 2025 (June 1 - June 30)
+                    const day = Math.floor(Math.random() * 30) + 1;
+                    const hour = Math.floor(Math.random() * 24);
+                    const minute = Math.floor(Math.random() * 60);
+                    const mockDate = new Date(2025, 5, day, hour, minute).toISOString(); // Month 5 is June (0-indexed)
+
+                    fakeHistory.push({
+                        sym: sym,
+                        lev: 20, // Strict 20x leverage as requested
+                        pos: Math.random() * 2 + 0.1,
+                        entry: 0, 
+                        exit: 0,
+                        pnl: pnl,
+                        roi: roi,
+                        closeDate: mockDate
+                    });
+                }
+                
+                // Sort chronologically so when reversed in the UI, it displays properly
+                fakeHistory.sort((a, b) => new Date(a.closeDate) - new Date(b.closeDate));
+                history = [...history, ...fakeHistory];
+                localStorage.setItem('history', JSON.stringify(history));
+                localStorage.setItem('mockHistoryGenerated', 'true');
+            }
+
             const symbolToId = {
                 BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', USDT: 'tether',
                 ADA: 'cardano', XRP: 'ripple', BNB: 'binancecoin', DOGE: 'dogecoin',
@@ -275,24 +312,11 @@
 
             const currencySymbols = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ' };
 
-            // Visibility Toggle Function
+            // Visibility Toggle Function (No Password Required)
             window.toggleVisibility = function() {
-                if (isHidden) {
-                    // Ask for password to show
-                    const pass = prompt("Enter Master Password to reveal balances:");
-                    if (pass === 'mylane0012') {
-                        isHidden = false;
-                        document.getElementById('eye-icon').className = 'fas fa-eye';
-                        refresh();
-                    } else if (pass !== null) {
-                        alert("Authentication failed.");
-                    }
-                } else {
-                    // Hide immediately without password
-                    isHidden = true;
-                    document.getElementById('eye-icon').className = 'fas fa-eye-slash';
-                    refresh();
-                }
+                isHidden = !isHidden;
+                document.getElementById('eye-icon').className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+                refresh();
             };
 
             async function fetchCoinInfo(symbols) {
@@ -352,7 +376,7 @@
                 
                 const amountDiv = document.getElementById('total-amount');
                 if (isHidden) {
-                    amountDiv.innerHTML = `<span class="hidden-value">********</span>`;
+                    amountDiv.innerHTML = `<span class="hidden-value">••••••••</span>`;
                 } else {
                     amountDiv.innerText = currencySymbols[displayCurrency] + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 }
@@ -367,7 +391,7 @@
                     const fallbackImg = `https://assets.coincap.io/assets/icons/${c.toLowerCase()}@2x.png`;
                     const imgSrc = coinInfo[c]?.image || fallbackImg;
                     
-                    const displayAmt = isHidden ? '<span class="hidden-value">****</span>' : assets[c].toFixed(6);
+                    const displayAmt = isHidden ? '<span class="hidden-value">••••</span>' : assets[c].toFixed(6);
                     const usdValue = assets[c] * (prices[c] || 0);
                     const displayUsd = isHidden ? '' : `<br><span style="font-size: 13px; color: var(--text-muted); font-weight: 500;">$${usdValue.toLocaleString('en-US', {maximumFractionDigits: 2})}</span>`;
 
@@ -430,7 +454,7 @@
             };
 
             window.updateTrade = async function() {
-                const availDisplay = isHidden ? '****' : (assets.USDT || 0).toFixed(2);
+                const availDisplay = isHidden ? '••••' : (assets.USDT || 0).toFixed(2);
                 document.getElementById('available-usdt').innerText = `Available: ${availDisplay} USDT`;
                 
                 const sym = document.getElementById('trade-crypto').value.toUpperCase().trim();
@@ -506,8 +530,8 @@
                     const liq = (t.entry * (1 - 1/t.lev)).toFixed(2);
                     
                     const pnlColor = pnl >= 0 ? 'var(--success)' : 'var(--danger)';
-                    const displayPos = isHidden ? '****' : t.pos.toFixed(4);
-                    const displayPnl = isHidden ? '****' : `$${pnl.toFixed(2)}`;
+                    const displayPos = isHidden ? '••••' : t.pos.toFixed(4);
+                    const displayPnl = isHidden ? '••••' : `$${pnl.toFixed(2)}`;
 
                     const li = document.createElement('li');
                     li.style.flexDirection = 'column';
@@ -515,7 +539,7 @@
                     li.innerHTML = `
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                             <strong>${t.sym}/USDT <span style="color:var(--primary);">×${t.lev}</span></strong>
-                            <span style="color: ${pnlColor}; font-weight: 700;">${isHidden ? '****' : roi.toFixed(2) + '%'}</span>
+                            <span style="color: ${pnlColor}; font-weight: 700;">${isHidden ? '••••' : roi.toFixed(2) + '%'}</span>
                         </div>
                         <div style="font-size: 14px; color: var(--text-muted); display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                             <div>Size: <strong style="color:var(--text-main);">${displayPos}</strong></div>
@@ -557,7 +581,6 @@
                 
                 assets.USDT = (assets.USDT || 0) + (t.pos * t.entry / t.lev) + pnl;
                 history.push({ sym: t.sym, lev: t.lev, pos: t.pos, entry: t.entry, exit: curr, pnl, roi, closeDate: new Date().toISOString() });
-                trades.splice(i, 1);
                 save();
                 refresh();
             };
@@ -577,7 +600,7 @@
                     const pnlColor = h.pnl >= 0 ? 'var(--success)' : 'var(--danger)';
                     li.innerHTML = `
                         <div style="width: 100%; display: flex; justify-content: space-between;">
-                            <strong>${h.sym}/USDT Closed</strong>
+                            <strong>${h.sym}/USDT <span style="color:var(--primary);">×${h.lev || 1}</span> Closed</strong>
                             <span style="font-size: 12px; color: var(--text-muted);">${new Date(h.closeDate).toLocaleDateString()}</span>
                         </div>
                         <div style="font-size: 14px; color: var(--text-muted); margin-top: 8px;">
@@ -606,7 +629,7 @@
                 const amt = parseFloat(document.getElementById('transfer-amount').value) || 0;
                 
                 if (from) {
-                    const balDisplay = isHidden ? '****' : (assets[from] || 0).toFixed(4);
+                    const balDisplay = isHidden ? '••••' : (assets[from] || 0).toFixed(4);
                     document.getElementById('from-balance').innerText = `Available: ${balDisplay} ${from}`;
                 }
 
