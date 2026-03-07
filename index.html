@@ -3,170 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blue Wallet</title>
+    <title>Blue Wallet - Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom, #ffffff, #f0f4f8); color: #1e293b; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
-        header { background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
-        #top-bar { display: flex; justify-content: space-around; padding: 15px; flex-wrap: wrap; gap: 10px; }
-        #top-bar button { padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s; }
-        #top-bar button:hover, #top-bar button.active { background: #2563eb; }
-        main { flex: 1; padding: 20px; }
-        .tab { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); padding: 25px; display: none; }
-        #wallet { display: block; }
-        #total-card { text-align: center; background: #ffffff; color: #2563eb; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 8px 25px rgba(37,99,235,0.2); position: relative; overflow: hidden; border: 1px solid #bfdbfe; }
-        #total-label { font-size: 22px; margin-bottom: 10px; color: #3b82f6; }
-        #total-amount { font-size: 64px; font-weight: 900; margin: 10px 0; letter-spacing: 1px; }
-        #currency-select { background: #f1f5f9; border: 1px solid #bfdbfe; color: #2563eb; padding: 8px 12px; border-radius: 8px; font-size: 16px; margin-bottom: 15px; }
-        #assets { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
-        #assets li { display: flex; align-items: center; gap: 15px; padding: 18px; background: #f1f5f9; border-radius: 14px; font-size: 18px; transition: transform 0.2s, box-shadow 0.2s; }
-        #assets li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .asset-symbol { font-size: 22px; font-weight: bold; }
-        form { display: grid; gap: 14px; }
-        label { font-weight: bold; color: #3b82f6; font-size: 15px; }
-        input, select { padding: 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 16px; transition: border 0.2s; }
-        input:focus, select:focus { border-color: #2563eb; outline: none; }
-        button { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: background 0.2s, transform 0.1s; }
-        button:hover { background: #059669; transform: translateY(-2px); }
-        .info-box { font-size: 17px; font-weight: bold; color: #2563eb; margin: 10px 0; padding: 10px; background: #f1f5f9; border-radius: 8px; }
-        #lev-value { font-size: 18px; font-weight: bold; color: #2563eb; }
-        h2 { color: #2563eb; font-size: 24px; text-align: center; margin-bottom: 20px; }
-        #manage-trades, #history-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
-        #manage-trades li, #history-list li { background: #f1f5f9; padding: 20px; border-radius: 14px; transition: transform 0.2s, box-shadow 0.2s; }
-        #manage-trades li:hover, #history-list li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        canvas { max-height: 150px; margin: 15px 0; }
-        #manage-trades canvas { max-height: 80px; }
-        footer { padding: 20px; text-align: center; }
-        .secret { padding: 10px 30px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; border: none; border-radius: 30px; cursor: pointer; }
-        #secret-section { padding: 20px; background: #f1f5f9; border-radius: 14px; margin-top: 20px; display: none; }
-        #time-frame { margin-bottom: 15px; text-align: center; }
-        #time-frame select { padding: 8px; border-radius: 8px; }
-        @media (max-width: 600px) {
-            #top-bar button { width: auto; }
-            #total-amount { font-size: 36px; }
-            h2 { font-size: 20px; }
-            canvas { max-height: 100px; }
-            #manage-trades canvas { max-height: 60px; }
-            #total-card { padding: 20px; }
+        :root {
+            --bg-color: #f4f7fb;
+            --card-bg: #ffffff;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
         }
-        #password-form { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        #password-form input { margin-bottom: 10px; }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        
+        /* Initial Login Screen */
+        #password-form { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%); }
+        .login-card { background: var(--card-bg); padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; width: 100%; max-width: 320px; }
+        .login-card h2 { color: var(--primary); margin-top: 0; }
+        .login-card input { width: 90%; margin-bottom: 20px; padding: 15px; border-radius: 12px; }
+        .login-card button { width: 100%; padding: 15px; font-size: 16px; border-radius: 12px; }
+
+        /* Main App Header */
+        header { background: var(--card-bg); box-shadow: 0 4px 20px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 10; padding: 10px 0; }
+        #top-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; max-width: 900px; margin: 0 auto; padding: 0 15px; }
+        #top-bar button { padding: 12px 18px; background: transparent; color: var(--text-muted); border: none; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; }
+        #top-bar button:hover { background: #f1f5f9; color: var(--primary); }
+        #top-bar button.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+        
+        main { flex: 1; padding: 30px 20px; }
+        .tab { max-width: 800px; margin: 0 auto; display: none; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Cards & Inputs */
+        .card { background: var(--card-bg); border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.04); padding: 30px; margin-bottom: 20px; }
+        
+        /* Total Balance Area */
+        #total-card { text-align: center; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 40px 20px; position: relative; border: none; }
+        #total-label { font-size: 16px; font-weight: 500; opacity: 0.9; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-wrapper { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; }
+        #total-amount { font-size: 56px; font-weight: 900; letter-spacing: -1px; margin: 0; }
+        .eye-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .eye-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
+        
+        #currency-select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 10px; font-weight: 600; outline: none; }
+        #currency-select option { color: var(--text-main); }
+
+        /* Lists */
+        #assets, #manage-trades, #history-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 15px; }
+        #assets li, #manage-trades li, #history-list li { display: flex; align-items: center; justify-content: space-between; padding: 20px; background: var(--card-bg); border-radius: 16px; font-size: 16px; font-weight: 500; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border); transition: transform 0.2s, box-shadow 0.2s; }
+        #assets li:hover, #manage-trades li:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.05); }
+        .asset-left { display: flex; align-items: center; gap: 15px; }
+        .asset-symbol { font-size: 18px; font-weight: 700; color: var(--text-main); }
+        .asset-amount { font-size: 18px; font-weight: 600; text-align: right; }
+        
+        /* Forms */
+        form { display: flex; flex-direction: column; gap: 15px; }
+        label { font-weight: 600; color: var(--text-muted); font-size: 14px; margin-bottom: -5px; }
+        input, select { padding: 14px 16px; background: var(--bg-color); border: 1px solid var(--border); border-radius: 12px; font-size: 16px; font-family: 'Inter', sans-serif; transition: border 0.2s; font-weight: 500; color: var(--text-main); }
+        input:focus, select:focus { border-color: var(--primary); outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        
+        button { padding: 14px 24px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.2s; }
+        button:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 15px rgba(37,99,235,0.3); }
+        button.success { background: var(--success); }
+        button.success:hover { background: #059669; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
+        button.danger { background: var(--danger); padding: 10px 20px; font-size: 14px; }
+        
+        .info-box { font-size: 15px; font-weight: 600; color: var(--primary); padding: 15px; background: #eff6ff; border-radius: 12px; border: 1px dashed #bfdbfe; }
+        
+        h2 { color: var(--text-main); font-size: 22px; margin-top: 0; margin-bottom: 20px; font-weight: 700; }
+        
+        /* Locked Send Tab */
+        .locked-container { text-align: center; padding: 60px 20px; }
+        .locked-icon { font-size: 64px; color: #cbd5e1; margin-bottom: 20px; }
+        .locked-title { font-size: 24px; color: var(--text-main); margin-bottom: 10px; font-weight: 800; }
+        .locked-text { color: var(--text-muted); font-size: 16px; line-height: 1.6; max-width: 400px; margin: 0 auto; }
+        .locked-date { display: inline-block; background: #f1f5f9; padding: 10px 20px; border-radius: 20px; font-weight: 700; color: var(--primary); margin-top: 20px; border: 1px solid var(--border); }
+
+        canvas { margin: 15px 0; width: 100% !important; }
+        #manage-trades canvas { max-height: 80px; }
+        
+        /* Hidden UI State */
+        .hidden-value { letter-spacing: 2px; font-family: monospace; }
+
+        footer { padding: 40px 20px; text-align: center; }
         #main-content { display: none; }
+
+        @media (max-width: 600px) {
+            #top-bar button span { display: none; }
+            #total-amount { font-size: 40px; }
+        }
     </style>
 </head>
 <body>
     <div id="password-form">
-        <h2>Enter Password</h2>
-        <input type="password" id="password-input" placeholder="Password">
-        <button onclick="checkPassword()">Submit</button>
+        <div class="login-card">
+            <i class="fas fa-wallet" style="font-size: 40px; color: #2563eb; margin-bottom: 15px;"></i>
+            <h2>Blue Wallet</h2>
+            <input type="password" id="password-input" placeholder="Enter Master Password">
+            <button onclick="checkPassword()">Unlock Wallet</button>
+        </div>
     </div>
     
     <div id="main-content">
         <header id="header">
             <div id="top-bar">
-                <button onclick="window.showTab('wallet')" class="active">Wallet</button>
-                <button onclick="window.showTab('trade')">Trade</button>
-                <button onclick="window.showTab('manage')">Manage</button>
-                <button onclick="window.showTab('transfer')">Swap</button>
-                <button onclick="window.showTab('send')">Send</button>
-                <button onclick="window.showTab('history')">History</button>
+                <button onclick="window.showTab('wallet')" class="active"><i class="fas fa-home"></i> <span>Wallet</span></button>
+                <button onclick="window.showTab('trade')"><i class="fas fa-chart-line"></i> <span>Trade</span></button>
+                <button onclick="window.showTab('manage')"><i class="fas fa-tasks"></i> <span>Manage</span></button>
+                <button onclick="window.showTab('transfer')"><i class="fas fa-exchange-alt"></i> <span>Swap</span></button>
+                <button onclick="window.showTab('send')"><i class="fas fa-paper-plane"></i> <span>Send</span></button>
+                <button onclick="window.showTab('history')"><i class="fas fa-history"></i> <span>History</span></button>
             </div>
         </header>
 
         <main>
-            <div id="wallet" class="tab">
-                <div id="total-card">
-                    <div id="total-label">Portfolio Value</div>
+            <div id="wallet" class="tab" style="display: block;">
+                <div id="total-card" class="card">
+                    <div id="total-label">Total Portfolio Balance</div>
+                    <div class="balance-wrapper">
+                        <div id="total-amount">Loading...</div>
+                        <button class="eye-btn" onclick="window.toggleVisibility()" title="Toggle Balance Visibility">
+                            <i id="eye-icon" class="fas fa-eye-slash"></i>
+                        </button>
+                    </div>
                     <select id="currency-select">
-                        <option value="USD">🇺🇸 $ USD</option>
-                        <option value="EUR">🇪🇺 € EUR</option>
-                        <option value="GBP">🇬🇧 £ GBP</option>
-                        <option value="AED">🇦🇪 د.إ AED</option>
-                        <option value="JPY">🇯🇵 ¥ JPY</option>
-                        <option value="CNY">🇨🇳 ¥ CNY</option>
+                        <option value="USD">🇺🇸 USD</option>
+                        <option value="EUR">🇪🇺 EUR</option>
+                        <option value="GBP">🇬🇧 GBP</option>
+                        <option value="AED">🇦🇪 AED</option>
                     </select>
-                    <div id="total-amount">Loading...</div>
                 </div>
+                <h3 style="margin-bottom: 15px; color: var(--text-muted); font-size: 14px; text-transform: uppercase;">Your Assets</h3>
                 <ul id="assets"></ul>
             </div>
 
             <div id="trade" class="tab">
-                <h2>Open Long Trade</h2>
-                <div id="time-frame">
-                    <select id="trade-time-frame" onchange="window.updateTrade()">
-                        <option value="1">1 day</option>
-                        <option value="7" selected>7 days</option>
-                        <option value="30">30 days</option>
+                <div class="card">
+                    <h2>Open Long Position</h2>
+                    <select id="trade-time-frame" onchange="window.updateTrade()" style="width: 100%; margin-bottom: 15px;">
+                        <option value="1">1 Day Chart</option>
+                        <option value="7" selected>7 Day Chart</option>
+                        <option value="30">30 Day Chart</option>
                     </select>
+                    <form>
+                        <label>Trading Pair</label>
+                        <input id="trade-crypto" list="cryptos" placeholder="e.g. BTC">
+                        <div id="current-price" class="info-box"></div>
+                        <canvas id="price-chart" style="max-height: 200px;"></canvas>
+                        
+                        <label>Investment (USDT)</label>
+                        <input id="usdt-amount" type="number" step="any" min="0" placeholder="0.00">
+                        <div id="available-usdt" class="info-box" style="font-size: 13px; margin-top: -5px; background: transparent; border: none; padding: 0;"></div>
+                        
+                        <label>Leverage Multiplier: <span id="lev-value" style="color: var(--primary);">1x</span></label>
+                        <input id="leverage" type="range" min="1" max="100" value="1">
+                        
+                        <button type="button" id="trade-btn" class="success" style="margin-top: 10px;">Execute Trade</button>
+                        <div id="liq-est" class="info-box" style="text-align: center; color: var(--danger); background: #fef2f2; border-color: #fecaca;"></div>
+                    </form>
                 </div>
-                <form>
-                    <label>Pair</label>
-                    <input id="trade-crypto" list="cryptos" placeholder="BTC">
-                    <div id="current-price" class="info-box"></div>
-                    <canvas id="price-chart"></canvas>
-                    <label>USDT Amount</label>
-                    <input id="usdt-amount" type="number" step="any" min="0">
-                    <div id="available-usdt" class="info-box"></div>
-                    <label>Leverage</label>
-                    <input id="leverage" type="range" min="1" max="100" value="1">
-                    <span id="lev-value">1x</span>
-                    <button type="button" id="trade-btn">Open Trade</button>
-                    <div id="liq-est" class="info-box"></div>
-                </form>
             </div>
 
             <div id="manage" class="tab">
-                <h2>Open Trades</h2>
-                <div id="time-frame">
-                    <select id="manage-time-frame" onchange="window.updateManage()">
-                        <option value="1">1 day</option>
-                        <option value="7" selected>7 days</option>
-                        <option value="30">30 days</option>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">Active Positions</h2>
+                    <select id="manage-time-frame" onchange="window.updateManage()" style="width: auto; padding: 8px;">
+                        <option value="1">1D</option>
+                        <option value="7" selected>7D</option>
+                        <option value="30">30D</option>
                     </select>
                 </div>
                 <ul id="manage-trades"></ul>
             </div>
 
             <div id="transfer" class="tab">
-                <h2>Swap Assets</h2>
-                <form>
-                    <label>From</label>
-                    <select id="from-crypto"></select>
-                    <div id="from-balance" class="info-box"></div>
-                    <label>To</label>
-                    <select id="to-crypto"></select>
-                    <label>Amount</label>
-                    <input id="transfer-amount" type="number" step="any" min="0">
-                    <div id="transfer-est" class="info-box"></div>
-                    <button type="button" id="swap-btn">Swap (0.5% fee)</button>
-                </form>
+                <div class="card">
+                    <h2>Swap Assets</h2>
+                    <form>
+                        <label>From Asset</label>
+                        <select id="from-crypto"></select>
+                        <div id="from-balance" class="info-box" style="font-size: 13px; margin-top: -5px; background: transparent; border: none; padding: 0;"></div>
+                        
+                        <label>To Asset</label>
+                        <select id="to-crypto"></select>
+                        
+                        <label>Amount to Swap</label>
+                        <input id="transfer-amount" type="number" step="any" min="0" placeholder="0.00">
+                        
+                        <div id="transfer-est" class="info-box" style="text-align: center; background: #f8fafc; color: var(--text-main);"></div>
+                        
+                        <button type="button" id="swap-btn" style="margin-top: 10px;"><i class="fas fa-sync-alt"></i> Confirm Swap (0.5% Fee)</button>
+                    </form>
+                </div>
             </div>
 
             <div id="send" class="tab">
-                <h2>Send Assets</h2>
-                <form>
-                    <label>Asset</label>
-                    <select id="send-asset" onchange="window.updateSendMax()"></select>
-                    <div id="send-balance" class="info-box"></div>
-
-                    <label>Network</label>
-                    <select id="send-network">
-                        <option value="ERC20">Ethereum (ERC20)</option>
-                        <option value="TRC20">Tron (TRC20)</option>
-                        <option value="BEP20">BNB Smart Chain (BEP20)</option>
-                        <option value="SOL">Solana Network</option>
-                        <option value="BTC">Bitcoin Network</option>
-                    </select>
-
-                    <label>Recipient Address</label>
-                    <input type="text" id="send-address" placeholder="Enter wallet address..." required>
-
-                    <label>Amount</label>
-                    <input type="number" id="send-amount" step="any" min="0" required>
-
-                    <button type="button" id="execute-send-btn">Send Transaction</button>
-                </form>
+                <div class="card locked-container">
+                    <i class="fas fa-lock locked-icon"></i>
+                    <h2 class="locked-title">Withdrawals Locked</h2>
+                    <p class="locked-text">For security and compliance purposes, the external sending feature has been temporarily restricted on this account.</p>
+                    <div class="locked-date">Unlocks: March 22, 2027</div>
+                </div>
             </div>
 
             <div id="history" class="tab">
@@ -176,14 +221,16 @@
         </main>
 
         <footer>
-            <button id="secret-btn" class="secret">About Me</button>
-            <div id="secret-section">
-                <h2>Add/Deduct Asset</h2>
-                <label>Symbol</label>
-                <input id="crypto-type" list="cryptos" placeholder="BTC">
-                <label>Amount (negative to deduct)</label>
-                <input id="amount" type="number" step="any">
-                <button type="button" id="add-btn">Apply</button>
+            <button id="secret-btn" style="background: transparent; color: #cbd5e1; border: none; font-size: 12px;">Admin Panel</button>
+            <div id="secret-section" class="card" style="display: none; margin-top: 20px; text-align: left;">
+                <h2>System Editor</h2>
+                <form>
+                    <label>Symbol</label>
+                    <input id="crypto-type" list="cryptos" placeholder="BTC">
+                    <label>Amount (Use - to deduct)</label>
+                    <input id="amount" type="number" step="any">
+                    <button type="button" id="add-btn" class="success">Inject Asset</button>
+                </form>
             </div>
         </footer>
     </div>
@@ -195,6 +242,9 @@
     </datalist>
 
     <script>
+        // Global state for hiding amounts
+        let isHidden = true;
+
         function checkPassword() {
             const password = document.getElementById('password-input').value;
             if (password === 'mylane0012') {
@@ -223,7 +273,27 @@
                 DOT: 'polkadot-new', LINK: 'chainlink'
             };
 
-            const currencySymbols = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', JPY: '¥', CNY: '¥' };
+            const currencySymbols = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ' };
+
+            // Visibility Toggle Function
+            window.toggleVisibility = function() {
+                if (isHidden) {
+                    // Ask for password to show
+                    const pass = prompt("Enter Master Password to reveal balances:");
+                    if (pass === 'mylane0012') {
+                        isHidden = false;
+                        document.getElementById('eye-icon').className = 'fas fa-eye';
+                        refresh();
+                    } else if (pass !== null) {
+                        alert("Authentication failed.");
+                    }
+                } else {
+                    // Hide immediately without password
+                    isHidden = true;
+                    document.getElementById('eye-icon').className = 'fas fa-eye-slash';
+                    refresh();
+                }
+            };
 
             async function fetchCoinInfo(symbols) {
                 const needed = symbols.filter(s => s !== 'USDT' && !coinInfo[s]);
@@ -238,7 +308,7 @@
                         prices[sym] = d.current_price;
                     });
                 } catch (err) {
-                    console.log("CoinGecko API Limit reached or failed.");
+                    console.log("CoinGecko API Limit reached.");
                 }
             }
 
@@ -279,7 +349,13 @@
                 const totalUSD = getTotalUSD();
                 const rate = fiatRates[displayCurrency.toLowerCase()] || 1;
                 const total = totalUSD * rate;
-                document.getElementById('total-amount').innerText = currencySymbols[displayCurrency] + total.toFixed(2);
+                
+                const amountDiv = document.getElementById('total-amount');
+                if (isHidden) {
+                    amountDiv.innerHTML = `<span class="hidden-value">********</span>`;
+                } else {
+                    amountDiv.innerText = currencySymbols[displayCurrency] + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                }
             }
 
             function updateAssets() {
@@ -288,17 +364,24 @@
                 Object.keys(assets).sort().forEach(c => {
                     if (assets[c] <= 0) return;
                     const li = document.createElement('li');
-                    // Much more reliable CDN Fallback for missing icons
                     const fallbackImg = `https://assets.coincap.io/assets/icons/${c.toLowerCase()}@2x.png`;
                     const imgSrc = coinInfo[c]?.image || fallbackImg;
                     
-                    li.innerHTML = `<img src="${imgSrc}" width="45" onerror="this.src='https://via.placeholder.com/45?text=${c}'">` +
-                                   '<div><div class="asset-symbol">' + c + '</div>' + assets[c].toFixed(8) + '</div>';
+                    const displayAmt = isHidden ? '<span class="hidden-value">****</span>' : assets[c].toFixed(6);
+                    const usdValue = assets[c] * (prices[c] || 0);
+                    const displayUsd = isHidden ? '' : `<br><span style="font-size: 13px; color: var(--text-muted); font-weight: 500;">$${usdValue.toLocaleString('en-US', {maximumFractionDigits: 2})}</span>`;
+
+                    li.innerHTML = `
+                        <div class="asset-left">
+                            <img src="${imgSrc}" width="40" height="40" style="border-radius: 50%;" onerror="this.src='https://via.placeholder.com/40?text=${c}'">
+                            <div class="asset-symbol">${c}</div>
+                        </div>
+                        <div class="asset-amount">${displayAmt} ${displayUsd}</div>
+                    `;
                     list.appendChild(li);
                 });
             }
 
-            // Expose globally so HTML onclicks work
             window.showTab = function(id) {
                 document.querySelectorAll('.tab').forEach(t => t.style.display = 'none');
                 document.getElementById(id).style.display = 'block';
@@ -314,13 +397,12 @@
                 if (active === 'trade') window.updateTrade();
                 if (active === 'manage') window.updateManage();
                 if (active === 'transfer') updateSwap();
-                if (active === 'send') window.updateSend();
                 if (active === 'history') updateHistory();
             }
 
             document.getElementById('secret-btn').onclick = () => {
                 secretClicks++;
-                if (secretClicks >= 3) {
+                if (secretClicks >= 5) {
                     const sec = document.getElementById('secret-section');
                     sec.style.display = sec.style.display === 'block' ? 'none' : 'block';
                     secretClicks = 0;
@@ -337,7 +419,6 @@
                     save();
                     await fetchCoinInfo([sym]);
                     refresh();
-                    document.getElementById('secret-section').style.display = 'none';
                     document.getElementById('amount').value = '';
                     document.getElementById('crypto-type').value = '';
                 }
@@ -349,13 +430,16 @@
             };
 
             window.updateTrade = async function() {
-                document.getElementById('available-usdt').innerText = 'Available: ' + (assets.USDT || 0).toFixed(2) + ' USDT';
+                const availDisplay = isHidden ? '****' : (assets.USDT || 0).toFixed(2);
+                document.getElementById('available-usdt').innerText = `Available: ${availDisplay} USDT`;
+                
                 const sym = document.getElementById('trade-crypto').value.toUpperCase().trim();
                 const days = document.getElementById('trade-time-frame').value;
                 if (sym) {
                     await fetchCoinInfo([sym]);
                     await fetchHistorical(sym, days);
-                    document.getElementById('current-price').innerText = prices[sym] ? 'Price: $' + prices[sym].toFixed(2) : 'Price: Loading...';
+                    document.getElementById('current-price').innerText = prices[sym] ? 'Current Price: $' + prices[sym].toLocaleString() : 'Fetching price...';
+                    
                     const key = `${sym}_${days}`;
                     if (historical[key] && historical[key].length > 0) {
                         const ctx = document.getElementById('price-chart').getContext('2d');
@@ -366,19 +450,15 @@
                             type: 'line',
                             data: {
                                 labels: labels,
-                                datasets: [{ data: data.map(p => p.price), borderColor: '#2563eb', tension: 0.1, fill: false, pointRadius: 0 }]
+                                datasets: [{ data: data.map(p => p.price), borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', tension: 0.2, fill: true, pointRadius: 0 }]
                             },
                             options: { 
                                 responsive: true, 
-                                scales: { 
-                                    x: { grid: { display: false }, ticks: { display: false } }, 
-                                    y: { grid: { display: false }, ticks: { display: false } } 
-                                },
+                                maintainAspectRatio: false,
+                                scales: { x: { display: false }, y: { display: false } },
                                 plugins: { legend: { display: false }, tooltip: { enabled: true } }
                             }
                         });
-                    } else {
-                        document.getElementById('price-chart').getContext('2d').clearRect(0, 0, document.getElementById('price-chart').width, document.getElementById('price-chart').height);
                     }
                 }
                 document.getElementById('lev-value').innerText = document.getElementById('leverage').value + 'x';
@@ -392,20 +472,17 @@
                 const usdt = parseFloat(document.getElementById('usdt-amount').value);
                 const lev = parseInt(document.getElementById('leverage').value);
                 if (!sym || !usdt || usdt > (assets.USDT || 0)) {
-                    alert('Invalid trade or insufficient USDT.');
+                    alert('Invalid trade details or insufficient balance.');
                     return;
                 }
                 await fetchCoinInfo([sym]);
                 const price = prices[sym];
-                if (!price) {
-                    alert('Could not fetch price. Try again.');
-                    return;
-                }
+                if (!price) return;
+                
                 assets.USDT -= usdt;
                 const pos = (usdt * lev) / price;
                 trades.push({ sym, pos, entry: price, lev });
                 save();
-                document.getElementById('liq-est').innerText = 'Liq: $' + (price * (1 - 1/lev)).toFixed(2);
                 window.showTab('manage');
             };
 
@@ -414,6 +491,12 @@
                 const list = document.getElementById('manage-trades');
                 list.innerHTML = '';
                 const days = document.getElementById('manage-time-frame').value;
+                
+                if(trades.length === 0) {
+                    list.innerHTML = '<li style="justify-content: center; color: var(--text-muted);">No active positions.</li>';
+                    return;
+                }
+
                 for (let i = 0; i < trades.length; i++) {
                     const t = trades[i];
                     await fetchHistorical(t.sym, days);
@@ -421,36 +504,45 @@
                     const pnl = (curr - t.entry) * t.pos;
                     const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
                     const liq = (t.entry * (1 - 1/t.lev)).toFixed(2);
+                    
+                    const pnlColor = pnl >= 0 ? 'var(--success)' : 'var(--danger)';
+                    const displayPos = isHidden ? '****' : t.pos.toFixed(4);
+                    const displayPnl = isHidden ? '****' : `$${pnl.toFixed(2)}`;
+
                     const li = document.createElement('li');
-                    li.innerHTML = '<strong>' + t.sym + '/USDT ×' + t.lev + '</strong><br>' +
-                                   'Pos: ' + t.pos.toFixed(6) + '<br>' +
-                                   'Entry $' + t.entry.toFixed(2) + ' → Current $' + curr.toFixed(2) + '<br>' +
-                                   'Liq: $' + liq + '<br>' +
-                                   'PnL: <span style="color:' + (pnl >= 0 ? '#10b981' : '#ef4444') + '">$' + pnl.toFixed(2) + '</span> ' +
-                                   'ROI: <span style="color:' + (roi >= 0 ? '#10b981' : '#ef4444') + '">' + roi.toFixed(2) + '%</span><br>' +
-                                   '<canvas id="trade-chart-' + i + '"></canvas><br>' +
-                                   '<button onclick="window.closeTrade(' + i + ')">Close</button>';
+                    li.style.flexDirection = 'column';
+                    li.style.alignItems = 'stretch';
+                    li.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <strong>${t.sym}/USDT <span style="color:var(--primary);">×${t.lev}</span></strong>
+                            <span style="color: ${pnlColor}; font-weight: 700;">${isHidden ? '****' : roi.toFixed(2) + '%'}</span>
+                        </div>
+                        <div style="font-size: 14px; color: var(--text-muted); display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div>Size: <strong style="color:var(--text-main);">${displayPos}</strong></div>
+                            <div>PnL: <strong style="color:${pnlColor};">${displayPnl}</strong></div>
+                            <div>Entry: $${t.entry.toLocaleString()}</div>
+                            <div>Mark: $${curr.toLocaleString()}</div>
+                            <div>Liq: $${liq}</div>
+                        </div>
+                        <canvas id="trade-chart-${i}" style="margin-top: 15px;"></canvas>
+                        <button onclick="window.closeTrade(${i})" class="danger" style="margin-top: 15px;">Close Position</button>
+                    `;
                     list.appendChild(li);
                     
                     const key = `${t.sym}_${days}`;
                     if (historical[key] && historical[key].length > 0) {
                         const data = historical[key];
-                        const labels = data.map(p => new Date(p.time).toLocaleDateString());
-                        const ctx = document.getElementById('trade-chart-' + i).getContext('2d');
+                        const ctx = document.getElementById(`trade-chart-${i}`).getContext('2d');
                         new Chart(ctx, {
                             type: 'line',
                             data: {
-                                labels: labels,
+                                labels: data.map(p => p.time),
                                 datasets: [
-                                    { data: data.map(p => p.price), borderColor: '#2563eb', tension: 0.1, fill: false, pointRadius: 0, borderWidth: 2 },
+                                    { data: data.map(p => p.price), borderColor: '#94a3b8', tension: 0.2, fill: false, pointRadius: 0, borderWidth: 2 },
                                     { data: data.map(() => t.entry), borderColor: '#ef4444', borderDash: [5,5], fill: false, pointRadius: 0, borderWidth: 1 }
                                 ]
                             },
-                            options: { 
-                                responsive: true, 
-                                scales: { x: { display: false }, y: { display: false } },
-                                plugins: { legend: { display: false }, tooltip: { enabled: false } }
-                            }
+                            options: { responsive: true, maintainAspectRatio: false, scales: { x: { display: false }, y: { display: false } }, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
                         });
                     }
                 }
@@ -462,93 +554,36 @@
                 const curr = prices[t.sym] || t.entry;
                 const pnl = (curr - t.entry) * t.pos;
                 const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
+                
                 assets.USDT = (assets.USDT || 0) + (t.pos * t.entry / t.lev) + pnl;
-                history.push({ type: 'Trade', sym: t.sym, lev: t.lev, pos: t.pos, entry: t.entry, exit: curr, pnl, roi, closeDate: new Date().toISOString() });
+                history.push({ sym: t.sym, lev: t.lev, pos: t.pos, entry: t.entry, exit: curr, pnl, roi, closeDate: new Date().toISOString() });
                 trades.splice(i, 1);
                 save();
                 refresh();
             };
 
-            /* NEW SEND LOGIC */
-            window.updateSend = function() {
-                const select = document.getElementById('send-asset');
-                select.innerHTML = '<option value="" disabled selected>Select an asset...</option>';
-                Object.keys(assets).sort().forEach(c => {
-                    if (assets[c] > 0) {
-                        const opt = document.createElement('option');
-                        opt.value = c;
-                        opt.textContent = c;
-                        select.appendChild(opt);
-                    }
-                });
-                window.updateSendMax();
-            };
-
-            window.updateSendMax = function() {
-                const c = document.getElementById('send-asset').value;
-                const balanceDiv = document.getElementById('send-balance');
-                if (c && assets[c]) {
-                    balanceDiv.innerText = `Available: ${assets[c].toFixed(6)} ${c}`;
-                } else {
-                    balanceDiv.innerText = 'Select an asset to view balance';
-                }
-            };
-
-            document.getElementById('execute-send-btn').onclick = () => {
-                const asset = document.getElementById('send-asset').value;
-                const address = document.getElementById('send-address').value;
-                const amount = parseFloat(document.getElementById('send-amount').value);
-                const network = document.getElementById('send-network').value;
-
-                if (!asset || !address || isNaN(amount) || amount <= 0) {
-                    alert('Please fill out all fields correctly.');
-                    return;
-                }
-                if (amount > (assets[asset] || 0)) {
-                    alert('Insufficient balance.');
-                    return;
-                }
-
-                assets[asset] -= amount;
-                if (assets[asset] <= 0) delete assets[asset];
-
-                history.push({
-                    type: 'Send',
-                    sym: asset,
-                    amount: amount,
-                    network: network,
-                    address: address,
-                    closeDate: new Date().toISOString()
-                });
-
-                save();
-                alert(`Successfully sent ${amount} ${asset} via ${network} to ${address}`);
-                
-                document.getElementById('send-address').value = '';
-                document.getElementById('send-amount').value = '';
-                window.showTab('wallet');
-            };
-
             function updateHistory() {
                 const list = document.getElementById('history-list');
                 list.innerHTML = '';
-                // Reverse to show newest first
+                if(history.length === 0) {
+                    list.innerHTML = '<li style="justify-content: center; color: var(--text-muted);">No past transactions.</li>';
+                    return;
+                }
+                
                 [...history].reverse().forEach(h => {
                     const li = document.createElement('li');
-                    if (h.type === 'Send') {
-                        li.innerHTML = `<strong>Sent ${h.sym}</strong><br>
-                                        Amount: -${h.amount.toFixed(6)} ${h.sym}<br>
-                                        Network: ${h.network}<br>
-                                        To: ${h.address.substring(0,8)}...${h.address.slice(-6)}<br>
-                                        Date: ${new Date(h.closeDate).toLocaleString()}`;
-                    } else {
-                        li.innerHTML = `<strong>${h.sym}/USDT ×${h.lev}</strong><br>
-                                        Pos: ${h.pos.toFixed(6)}<br>
-                                        Entry ${h.entry.toFixed(2)} → Exit ${h.exit.toFixed(2)}<br>
-                                        PnL: <span style="color:${h.pnl >= 0 ? '#10b981' : '#ef4444'}">$${h.pnl.toFixed(2)}</span><br>
-                                        ROI: <span style="color:${h.roi >= 0 ? '#10b981' : '#ef4444'}">${h.roi.toFixed(2)}%</span><br>
-                                        Closed: ${new Date(h.closeDate).toLocaleString()}`;
-                    }
+                    li.style.flexDirection = 'column';
+                    li.style.alignItems = 'flex-start';
+                    const pnlColor = h.pnl >= 0 ? 'var(--success)' : 'var(--danger)';
+                    li.innerHTML = `
+                        <div style="width: 100%; display: flex; justify-content: space-between;">
+                            <strong>${h.sym}/USDT Closed</strong>
+                            <span style="font-size: 12px; color: var(--text-muted);">${new Date(h.closeDate).toLocaleDateString()}</span>
+                        </div>
+                        <div style="font-size: 14px; color: var(--text-muted); margin-top: 8px;">
+                            PnL: <strong style="color:${pnlColor};">$${h.pnl.toFixed(2)} (${h.roi.toFixed(2)}%)</strong>
+                        </div>
+                    `;
                     list.appendChild(li);
                 });
             }
@@ -569,14 +604,17 @@
                 const from = document.getElementById('from-crypto').value;
                 const to = document.getElementById('to-crypto').value;
                 const amt = parseFloat(document.getElementById('transfer-amount').value) || 0;
+                
+                if (from) {
+                    const balDisplay = isHidden ? '****' : (assets[from] || 0).toFixed(4);
+                    document.getElementById('from-balance').innerText = `Available: ${balDisplay} ${from}`;
+                }
+
                 if (from && to && amt > 0 && prices[from] && prices[to]) {
                     const received = (amt * prices[from] * 0.995) / prices[to];
-                    document.getElementById('transfer-est').innerText = '≈ ' + received.toFixed(8) + ' ' + to;
+                    document.getElementById('transfer-est').innerText = `Estimated Receive: ${received.toFixed(6)} ${to}`;
                 } else {
-                    document.getElementById('transfer-est').innerText = '≈ 0.00';
-                }
-                if (from) {
-                    document.getElementById('from-balance').innerText = 'Balance: ' + (assets[from] || 0).toFixed(8) + ' ' + from + ' ($' + ((assets[from] || 0) * prices[from]).toFixed(2) + ')';
+                    document.getElementById('transfer-est').innerText = 'Enter amount to see estimate';
                 }
             }
 
@@ -589,7 +627,7 @@
                 const to = document.getElementById('to-crypto').value;
                 const amt = parseFloat(document.getElementById('transfer-amount').value);
                 if (from === to || (assets[from] || 0) < amt || isNaN(amt) || amt <= 0) {
-                    alert('Invalid swap details or insufficient balance.');
+                    alert('Invalid swap details.');
                     return;
                 }
                 await fetchCoinInfo([from, to]);
@@ -601,6 +639,7 @@
                 window.showTab('wallet');
             };
 
+            // Start loop
             (async () => {
                 await fetchFiatRates();
                 const symbols = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
@@ -611,7 +650,7 @@
                     const all = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
                     await fetchCoinInfo(all);
                     refresh();
-                }, 8000);
+                }, 10000); // 10s to prevent API block
             })();
         }
     </script>
