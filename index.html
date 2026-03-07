@@ -186,6 +186,7 @@
             let trades = JSON.parse(localStorage.getItem('trades')) || [];
             let history = JSON.parse(localStorage.getItem('history')) || [];
             let prices = { USDT: 1 };
+            let coinInfo = { USDT: { price: 1, image: 'https://assets.coingecko.com/coins/images/325/thumb/Tether.png' } };
             let historical = {};
             let fiatRates = { USD: 1 };
             let displayCurrency = 'USD';
@@ -199,16 +200,17 @@
 
             const currencySymbols = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', JPY: '¥', CNY: '¥' };
 
-            async function fetchPrices(symbols) {
-                const needed = symbols.filter(s => s !== 'USDT' && !prices[s]);
+            async function fetchCoinInfo(symbols) {
+                const needed = symbols.filter(s => s !== 'USDT' && !coinInfo[s]);
                 if (needed.length === 0) return;
                 const ids = needed.map(s => symbolToId[s] || s.toLowerCase()).join(',');
                 try {
-                    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + ids + '&vs_currencies=usd');
+                    const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=' + ids);
                     const data = await res.json();
-                    needed.forEach(s => {
-                        const id = symbolToId[s] || s.toLowerCase();
-                        if (data[id]?.usd) prices[s] = data[id].usd;
+                    data.forEach(d => {
+                        const sym = Object.keys(symbolToId).find(k => symbolToId[k] === d.id) || d.symbol.toUpperCase();
+                        coinInfo[sym] = { price: d.current_price, image: d.image };
+                        prices[sym] = d.current_price;
                     });
                 } catch (err) {}
             }
@@ -258,9 +260,9 @@
                 list.innerHTML = '';
                 Object.keys(assets).sort().forEach(c => {
                     if (assets[c] <= 0) return;
-                    const id = symbolToId[c] || c.toLowerCase();
                     const li = document.createElement('li');
-                    li.innerHTML = '<img src="https://cryptologos.cc/logos/' + id + '-' + c.toLowerCase() + '-logo.png?v=029" width="45" onerror="this.src=\'https://via.placeholder.com/45\'">' +
+                    const imgSrc = coinInfo[c]?.image || 'https://via.placeholder.com/45';
+                    li.innerHTML = `<img src="${imgSrc}" width="45" onerror="this.src='https://via.placeholder.com/45'">` +
                                    '<div><div class="asset-symbol">' + c + '</div>' + assets[c].toFixed(8) + '</div>';
                     list.appendChild(li);
                 });
@@ -301,7 +303,7 @@
                     assets[sym] += amt;
                     if (assets[sym] <= 0) delete assets[sym];
                     save();
-                    await fetchPrices([sym]);
+                    await fetchCoinInfo([sym]);
                     refresh();
                     document.getElementById('secret-section').style.display = 'none';
                     document.getElementById('amount').value = '';
@@ -319,7 +321,7 @@
                 const sym = document.getElementById('trade-crypto').value.toUpperCase().trim();
                 const days = document.getElementById('trade-time-frame').value;
                 if (sym) {
-                    await fetchPrices([sym]);
+                    await fetchCoinInfo([sym]);
                     await fetchHistorical(sym, days);
                     document.getElementById('current-price').innerText = prices[sym] ? 'Price: $' + prices[sym].toFixed(2) : '';
                     const key = `\( {sym}_ \){days}`;
@@ -359,7 +361,7 @@
                 const usdt = parseFloat(document.getElementById('usdt-amount').value);
                 const lev = parseInt(document.getElementById('leverage').value);
                 if (!sym || !usdt || usdt > (assets.USDT || 0)) return;
-                await fetchPrices([sym]);
+                await fetchCoinInfo([sym]);
                 const price = prices[sym];
                 if (!price) return;
                 assets.USDT -= usdt;
@@ -371,7 +373,7 @@
             };
 
             async function updateManage() {
-                await fetchPrices(trades.map(t => t.sym));
+                await fetchCoinInfo(trades.map(t => t.sym));
                 const list = document.getElementById('manage-trades');
                 list.innerHTML = '';
                 const days = document.getElementById('manage-time-frame').value;
@@ -451,7 +453,7 @@
 
             window.closeTrade = async (i) => {
                 const t = trades[i];
-                await fetchPrices([t.sym]);
+                await fetchCoinInfo([t.sym]);
                 const curr = prices[t.sym] || t.entry;
                 const pnl = (curr - t.entry) * t.pos;
                 const roi = (pnl / (t.pos * t.entry / t.lev)) * 100;
@@ -513,7 +515,7 @@
                 const to = document.getElementById('to-crypto').value;
                 const amt = parseFloat(document.getElementById('transfer-amount').value);
                 if (from === to || (assets[from] || 0) < amt) return;
-                await fetchPrices([from, to]);
+                await fetchCoinInfo([from, to]);
                 const received = (amt * prices[from] * 0.995) / prices[to];
                 assets[from] -= amt;
                 if (assets[from] <= 0) delete assets[from];
@@ -525,12 +527,12 @@
             (async () => {
                 await fetchFiatRates();
                 const symbols = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
-                await fetchPrices(symbols);
+                await fetchCoinInfo(symbols);
                 refresh();
                 setInterval(async () => {
                     await fetchFiatRates();
                     const all = [...new Set([...Object.keys(assets), ...trades.map(t => t.sym)])];
-                    await fetchPrices(all);
+                    await fetchCoinInfo(all);
                     refresh();
                 }, 8000);
             })();
