@@ -3,22 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlueNest Real Estate | Premium Property Management</title>
+    <title>Azure Crest Properties | Premium Real Estate Management</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* CSS Variables for the Blue Book Theme */
+        /* Modern Color Palette & Variables */
         :root {
-            --primary-blue: #0A2342; /* Deep Navy */
-            --secondary-blue: #173F5F;
-            --accent-blue: #2A75D3;
-            --paper-white: #FDFDFD;
-            --light-gray: #F0F4F8;
-            --text-dark: #2C3E50;
-            --gold-accent: #D4AF37;
+            --primary-navy: #0F172A;     /* Deep slate blue */
+            --accent-blue: #2563EB;      /* Bright modern blue */
+            --bg-light: #F8FAFC;         /* Off-white background */
+            --text-main: #334155;        /* Soft dark gray for text */
+            --gold-accent: #D97706;      /* Premium bronze/gold */
             --trustpilot-green: #00B67A;
-            --trustpilot-dark: #191919;
+            --white: #FFFFFF;
         }
 
+        /* Base Resets & Typography */
         * {
             margin: 0;
             padding: 0;
@@ -26,256 +31,315 @@
         }
 
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--paper-white);
-            color: var(--text-dark);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Typography */
         h1, h2, h3, .logo-text {
-            font-family: 'Georgia', serif; 
+            font-family: 'Playfair Display', serif;
+            color: var(--primary-navy);
         }
 
         /* Navbar */
         nav {
-            background-color: var(--paper-white);
-            padding: 20px 50px;
+            background-color: var(--white);
+            padding: 20px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: var(--primary-blue);
+            gap: 12px;
             font-size: 1.8rem;
-            font-weight: bold;
+            text-decoration: none;
         }
 
         .logo i {
             color: var(--accent-blue);
         }
 
+        .nav-tagline {
+            font-weight: 600;
+            color: var(--accent-blue);
+            font-size: 0.95rem;
+            display: none; /* Hidden on very small screens */
+        }
+
         /* Hero Section */
         header {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
-            color: white;
-            padding: 100px 20px;
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #1E293B 100%);
+            color: var(--white);
+            padding: 120px 5% 100px;
             text-align: center;
-            border-bottom: 6px solid var(--gold-accent);
+            border-bottom: 4px solid var(--gold-accent);
         }
 
         header h1 {
+            color: var(--white);
             font-size: 3.5rem;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
+            margin-bottom: 24px;
+            line-height: 1.2;
         }
 
         header p {
             font-size: 1.2rem;
-            max-width: 700px;
-            margin: 0 auto 40px auto;
-            color: #E8F0F2;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            color: #CBD5E1;
+            font-weight: 300;
         }
 
         /* Trustpilot Widget */
-        .trustpilot-box {
-            background: white;
-            border-radius: 8px;
+        .trustpilot-widget {
+            background: var(--white);
+            border-radius: 50px;
             display: inline-flex;
             align-items: center;
             gap: 15px;
-            padding: 15px 25px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            color: var(--trustpilot-dark);
+            padding: 12px 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            color: var(--primary-navy);
+            transition: transform 0.3s ease;
+        }
+
+        .trustpilot-widget:hover {
+            transform: translateY(-2px);
         }
 
         .tp-stars i {
-            color: white;
+            color: var(--white);
             background-color: var(--trustpilot-green);
-            padding: 4px;
-            margin: 0 2px;
-            font-size: 1.2rem;
+            padding: 5px;
+            margin: 0 1px;
+            border-radius: 2px;
+            font-size: 1rem;
         }
 
         .tp-text {
             text-align: left;
+            line-height: 1.3;
         }
 
         .tp-rating {
-            font-weight: bold;
-            font-size: 1.1rem;
+            font-weight: 700;
+            font-size: 1.05rem;
         }
 
         .tp-reviews {
             font-size: 0.85rem;
-            color: #666;
+            color: #64748B;
         }
 
-        /* Main Container */
+        /* Layout Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 80px 20px;
+            padding: 80px 5%;
         }
 
-        .section-title {
+        .section-header {
             text-align: center;
-            font-size: 2.5rem;
-            color: var(--primary-blue);
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 2.8rem;
             margin-bottom: 15px;
         }
 
-        .section-subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 50px;
-            font-size: 1.1rem;
+        .section-header p {
+            font-size: 1.15rem;
+            color: #64748B;
         }
 
         /* Services Grid */
         .services-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 40px;
-            margin-bottom: 80px;
         }
 
         .service-card {
-            background: white;
+            background: var(--white);
             padding: 50px 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            text-align: center;
-            transition: transform 0.3s ease;
-            border-top: 5px solid var(--accent-blue);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #E2E8F0;
         }
 
         .service-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1);
+            border-color: var(--accent-blue);
         }
 
-        .service-icon {
-            font-size: 3.5rem;
-            color: var(--primary-blue);
-            margin-bottom: 25px;
+        .icon-wrapper {
+            width: 70px;
+            height: 70px;
+            background: #EFF6FF;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .icon-wrapper i {
+            font-size: 2rem;
+            color: var(--accent-blue);
         }
 
         .service-card h3 {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            color: var(--primary-blue);
+            font-size: 1.6rem;
+            margin-bottom: 15px;
         }
 
         /* Pricing Section */
         .pricing-section {
-            background-color: var(--light-gray);
-            padding: 80px 20px;
+            background-color: var(--white);
+            padding: 100px 5%;
+            border-top: 1px solid #E2E8F0;
         }
 
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 30px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
         .price-card {
-            background: var(--primary-blue);
-            color: white;
+            background: var(--bg-light);
             padding: 40px 30px;
-            border-radius: 8px;
+            border-radius: 16px;
             text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-            overflow: hidden;
+            border: 1px solid #E2E8F0;
         }
 
-        .price-card.gold {
-            background: var(--secondary-blue);
-            border-color: var(--gold-accent);
+        .price-card.featured {
+            background: var(--primary-navy);
+            color: var(--white);
+            transform: scale(1.05);
+            border: none;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
         }
 
-        .price-card.gold::before {
-            content: 'NEW';
-            position: absolute;
-            top: 15px;
-            right: -30px;
-            background: var(--gold-accent);
-            color: var(--primary-blue);
-            padding: 5px 40px;
-            transform: rotate(45deg);
-            font-weight: bold;
-            font-size: 0.8rem;
+        .price-card.featured h3, 
+        .price-card.featured p {
+            color: var(--bg-light);
         }
 
-        .price-card i {
+        .price-icon {
             font-size: 2.5rem;
+            color: var(--accent-blue);
             margin-bottom: 20px;
+        }
+
+        .price-card.featured .price-icon {
             color: var(--gold-accent);
         }
 
         .percentage {
             font-size: 3.5rem;
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            margin: 15px 0;
-            color: white;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            margin: 10px 0;
+            color: var(--primary-navy);
+            line-height: 1;
         }
 
-        .price-card h3 {
+        .price-card.featured .percentage {
             color: var(--gold-accent);
-            font-size: 1.4rem;
         }
 
         /* Contact Section */
         .contact-section {
             text-align: center;
-            padding: 100px 20px;
-            background: white;
+            padding: 100px 5%;
+            background: linear-gradient(to bottom, var(--bg-light) 0%, #E2E8F0 100%);
         }
 
         .contact-box {
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
-            background: var(--light-gray);
-            padding: 50px;
-            border-radius: 12px;
-            border-left: 5px solid var(--primary-blue);
+            background: var(--white);
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1);
         }
 
         .email-btn {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            background-color: var(--primary-blue);
-            color: white;
-            padding: 18px 45px;
-            font-size: 1.2rem;
+            gap: 12px;
+            background-color: var(--accent-blue);
+            color: var(--white);
+            padding: 20px 50px;
+            font-size: 1.1rem;
             text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
+            border-radius: 50px;
+            font-weight: 600;
             transition: all 0.3s ease;
-            margin-top: 30px;
+            margin-top: 35px;
         }
 
         .email-btn:hover {
-            background-color: var(--accent-blue);
-            box-shadow: 0 8px 20px rgba(42, 117, 211, 0.4);
+            background-color: #1D4ED8;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+            transform: translateY(-2px);
         }
 
-        /* Responsive */
-        @media (max-width: 900px) {
-            .services-grid, .pricing-grid {
-                grid-template-columns: 1fr;
+        /* Mobile Responsiveness */
+        @media (min-width: 768px) {
+            .nav-tagline {
+                display: block; /* Show tagline on larger screens */
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 80px 5% 60px;
+            }
+
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-header h2 {
+                font-size: 2.2rem;
+            }
+
+            .price-card.featured {
+                transform: scale(1); /* Remove scale pop-out on mobile so it fits the screen */
+            }
+
+            .trustpilot-widget {
+                padding: 10px 20px;
+                flex-direction: column;
+                gap: 5px;
+                border-radius: 16px;
+            }
+
+            .tp-text {
+                text-align: center;
+            }
+
+            .contact-box {
+                padding: 40px 20px;
             }
         }
     </style>
@@ -283,20 +347,20 @@
 <body>
 
     <nav>
-        <div class="logo">
-            <i class="fa-solid fa-book-open"></i>
-            <span class="logo-text">BlueNest</span>
-        </div>
-        <div style="font-weight: bold; color: var(--accent-blue);">
-            Premium Real Estate Services
+        <a href="#" class="logo">
+            <i class="fa-solid fa-gem"></i>
+            <span class="logo-text">Azure Crest</span>
+        </a>
+        <div class="nav-tagline">
+            Intelligent Real Estate Solutions
         </div>
     </nav>
 
     <header>
-        <h1>Maximize Your Property's Potential</h1>
-        <p>We combine lightning-fast real estate transactions with innovative maintenance savings to ensure your property generates the highest possible profit.</p>
+        <h1>Maximize Property Returns.<br>Minimize the Hassle.</h1>
+        <p>We combine high-yield real estate sales and rentals with strategic maintenance solutions to ensure your property performs at its absolute peak.</p>
         
-        <div class="trustpilot-box">
+        <div class="trustpilot-widget">
             <div class="tp-stars">
                 <i class="fa-solid fa-star"></i>
                 <i class="fa-solid fa-star"></i>
@@ -306,66 +370,78 @@
             </div>
             <div class="tp-text">
                 <div class="tp-rating">TrustScore 4.7/5</div>
-                <div class="tp-reviews">Based on <strong>377</strong> reviews</div>
+                <div class="tp-reviews">Verified by <strong>377</strong> property owners</div>
             </div>
         </div>
     </header>
 
     <div class="container">
-        <h2 class="section-title">Our Dual-Advantage Approach</h2>
-        <p class="section-subtitle">We don't just sell and rent; we protect your bottom line.</p>
+        <div class="section-header">
+            <h2>Our Dual-Advantage Approach</h2>
+            <p>A seamless, two-pronged strategy designed entirely around raising your profits.</p>
+        </div>
 
         <div class="services-grid">
             <div class="service-card">
-                <i class="fa-solid fa-building service-icon"></i>
-                <h3>Sales & High-Yield Rentals</h3>
-                <p><strong>Speed meets profitability.</strong> Our rapid-response marketing process means your property is never sitting empty. We aggressively target premium markets to ensure we rent or sell your spaces at the highest possible prices to boost your immediate profits.</p>
+                <div class="icon-wrapper">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <h3>High-Yield Sales & Rentals</h3>
+                <p>We leverage cutting-edge marketing and rapid vetting protocols to ensure your property doesn't sit empty. We secure the highest possible market prices for rentals and sales with unmatched speed.</p>
             </div>
 
             <div class="service-card">
-                <i class="fa-solid fa-wrench service-icon"></i>
-                <h3>Landlord Maintenance Savings</h3>
-                <p><strong>Don't let repairs drain your income.</strong> We source the highest quality, most cost-effective solutions for property maintenance and repairs. We handle the headaches, negotiate the cheaper rates, and keep your property in top shape.</p>
+                <div class="icon-wrapper">
+                    <i class="fa-solid fa-tools"></i>
+                </div>
+                <h3>Maintenance Cost-Saver</h3>
+                <p>Repairs shouldn't erode your profits. We actively source high-quality, cost-effective solutions for property maintenance, negotiating directly with vendors to secure significantly cheaper rates for you.</p>
             </div>
         </div>
     </div>
 
     <div class="pricing-section">
-        <h2 class="section-title">Transparent, Results-Based Fees</h2>
-        <p class="section-subtitle">You only pay for success and savings.</p>
+        <div class="section-header">
+            <h2>Transparent, Fair Structures</h2>
+            <p>You only pay for success and the money we actively save you.</p>
+        </div>
 
         <div class="pricing-grid">
             <div class="price-card">
-                <i class="fa-solid fa-house-circle-check"></i>
+                <i class="fa-solid fa-handshake price-icon"></i>
                 <h3>Property Sold</h3>
                 <div class="percentage">1.5%</div>
-                <p>Commission fee upon successful sale</p>
+                <p>Commission fee applied only upon successful sale and closing.</p>
             </div>
             
-            <div class="price-card">
-                <i class="fa-solid fa-key"></i>
-                <h3>Property Rented</h3>
-                <div class="percentage">2.5%</div>
-                <p>Commission fee upon successful lease</p>
+            <div class="price-card featured">
+                <i class="fa-solid fa-piggy-bank price-icon"></i>
+                <h3>Maintenance Savings</h3>
+                <div class="percentage">15%</div>
+                <p>Of the total amount we successfully save you on repair bills versus standard rates.</p>
             </div>
 
-            <div class="price-card gold">
-                <i class="fa-solid fa-hand-holding-dollar"></i>
-                <h3 style="color: white;">Maintenance Savings</h3>
-                <div class="percentage" style="color: var(--gold-accent);">15%</div>
-                <p>Of the total money we save you on repairs vs standard market rates</p>
+            <div class="price-card">
+                <i class="fa-solid fa-key price-icon"></i>
+                <h3>Property Rented</h3>
+                <div class="percentage">2.5%</div>
+                <p>Commission fee applied only upon successfully placing a vetted tenant.</p>
             </div>
         </div>
     </div>
 
     <div class="contact-section">
         <div class="contact-box">
-            <h2 class="section-title" style="font-size: 2rem;">Ready to Raise Your Profits?</h2>
-            <p>Reach out to our expert team today to list your property or enroll in our maintenance savings program.</p>
-            <a href="mailto:minjunnios@gmail.com?subject=Inquiry: Selling, Renting, or Maintenance Savings" class="email-btn">
-                <i class="fa-solid fa-envelope"></i> Email Us Now
+            <h2 class="logo-text" style="font-size: 2.2rem; margin-bottom: 15px;">Ready to Elevate Your Portfolio?</h2>
+            <p style="color: #64748B; margin-bottom: 10px;">Reach out today to list your property or enroll in our maintenance savings program.</p>
+            
+            <a href="mailto:minjunnios@gmail.com?subject=Inquiry: Azure Crest Real Estate Services" class="email-btn">
+                <i class="fa-solid fa-paper-plane"></i> Contact Our Team
             </a>
-            <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">minjunnios@gmail.com</p>
+            
+            <p style="margin-top: 20px; font-size: 0.9rem; font-weight: 600; color: var(--primary-navy);">
+                minjunnios@gmail.com
+            </p>
         </div>
     </div>
 
