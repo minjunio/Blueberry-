@@ -283,6 +283,8 @@
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
 
+        .required-asterisk { color: #EF4444; margin-left: 3px; }
+
         /* Premium Radio Buttons */
         .radio-group {
             display: flex;
@@ -510,21 +512,20 @@
     <div class="contact-section">
         <div class="section-header">
             <h2 class="logo-text">Ready to Elevate Your Portfolio?</h2>
-            <p>Tell us a bit about your property. All fields are optional—just provide what you can.</p>
+            <p>Tell us a bit about your property. All details are optional, just provide an email so we can reach you.</p>
         </div>
 
         <div class="form-container">
             <form action="https://getform.io/f/qzkq5o431ll" method="POST" enctype="multipart/form-data">
                 
-                <input type="hidden" name="form_source" value="Azure Crest Property Intake - All Optional">
                 <input type="hidden" name="_gotcha" style="display:none !important"> <div class="form-row">
                     <div class="form-group">
                         <label for="fullName">Full Name</label>
                         <input type="text" id="fullName" name="fullName" placeholder="John Doe">
                     </div>
                     <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" placeholder="john@example.com">
+                        <label for="email">Email Address <span class="required-asterisk">*</span></label>
+                        <input type="email" id="email" name="email" placeholder="john@example.com" required>
                     </div>
                 </div>
 
