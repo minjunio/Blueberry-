@@ -14,21 +14,16 @@
     <style>
         /* Modern Color Palette & Variables */
         :root {
-            --primary-navy: #0F172A;     /* Deep slate blue */
-            --accent-blue: #2563EB;      /* Bright modern blue */
-            --bg-light: #F8FAFC;         /* Off-white background */
-            --text-main: #334155;        /* Soft dark gray for text */
-            --gold-accent: #D97706;      /* Premium bronze/gold */
+            --primary-navy: #0F172A;     
+            --accent-blue: #2563EB;      
+            --bg-light: #F8FAFC;         
+            --text-main: #334155;        
+            --gold-accent: #D97706;      
             --trustpilot-green: #00B67A;
             --white: #FFFFFF;
         }
 
-        /* Base Resets & Typography */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -64,9 +59,7 @@
             text-decoration: none;
         }
 
-        .logo i {
-            color: var(--accent-blue);
-        }
+        .logo i { color: var(--accent-blue); }
 
         .nav-tagline {
             font-weight: 600;
@@ -112,9 +105,7 @@
             transition: transform 0.3s ease;
         }
 
-        .trustpilot-widget:hover {
-            transform: translateY(-2px);
-        }
+        .trustpilot-widget:hover { transform: translateY(-2px); }
 
         .tp-stars i {
             color: var(--white);
@@ -125,20 +116,9 @@
             font-size: 1rem;
         }
 
-        .tp-text {
-            text-align: left;
-            line-height: 1.3;
-        }
-
-        .tp-rating {
-            font-weight: 700;
-            font-size: 1.05rem;
-        }
-
-        .tp-reviews {
-            font-size: 0.85rem;
-            color: #64748B;
-        }
+        .tp-text { text-align: left; line-height: 1.3; }
+        .tp-rating { font-weight: 700; font-size: 1.05rem; }
+        .tp-reviews { font-size: 0.85rem; color: #64748B; }
 
         /* Layout Container */
         .container {
@@ -197,15 +177,8 @@
             margin-bottom: 30px;
         }
 
-        .icon-wrapper i {
-            font-size: 2rem;
-            color: var(--accent-blue);
-        }
-
-        .service-card h3 {
-            font-size: 1.6rem;
-            margin-bottom: 15px;
-        }
+        .icon-wrapper i { font-size: 2rem; color: var(--accent-blue); }
+        .service-card h3 { font-size: 1.6rem; margin-bottom: 15px; }
 
         /* Pricing Section */
         .pricing-section {
@@ -235,23 +208,13 @@
             color: var(--white);
             transform: scale(1.05);
             border: none;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
         }
 
         .price-card.featured h3, 
-        .price-card.featured p {
-            color: var(--bg-light);
-        }
-
-        .price-icon {
-            font-size: 2.5rem;
-            color: var(--accent-blue);
-            margin-bottom: 20px;
-        }
-
-        .price-card.featured .price-icon {
-            color: var(--gold-accent);
-        }
+        .price-card.featured p { color: var(--bg-light); }
+        .price-icon { font-size: 2.5rem; color: var(--accent-blue); margin-bottom: 20px; }
+        .price-card.featured .price-icon { color: var(--gold-accent); }
 
         .percentage {
             font-size: 3.5rem;
@@ -262,46 +225,40 @@
             line-height: 1;
         }
 
-        .price-card.featured .percentage {
-            color: var(--gold-accent);
-        }
+        .price-card.featured .percentage { color: var(--gold-accent); }
 
-        /* Form Section */
+        /* Form Section - Enhanced */
         .contact-section {
             padding: 100px 5%;
             background: linear-gradient(to bottom, var(--bg-light) 0%, #E2E8F0 100%);
         }
 
         .form-container {
-            max-width: 800px;
+            max-width: 850px;
             margin: 0 auto;
             background: var(--white);
-            padding: 50px;
-            border-radius: 20px;
+            padding: 60px;
+            border-radius: 24px;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1);
+            border: 1px solid #E2E8F0;
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 25px;
+            margin-bottom: 25px;
         }
 
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
+        .form-group { text-align: left; }
+        .form-group.full-width { grid-column: 1 / -1; }
 
         label {
             display: block;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             color: var(--primary-navy);
+            font-size: 0.95rem;
         }
 
         input[type="text"],
@@ -309,21 +266,24 @@
         input[type="email"],
         select {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #CBD5E1;
-            border-radius: 8px;
+            padding: 14px 18px;
+            border: 2px solid #E2E8F0;
+            border-radius: 10px;
             font-family: 'Inter', sans-serif;
             font-size: 1rem;
-            transition: border-color 0.3s;
-            background-color: var(--white);
+            transition: all 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-main);
         }
 
         input:focus, select:focus {
             outline: none;
             border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background-color: var(--white);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
 
+        /* Premium Radio Buttons */
         .radio-group {
             display: flex;
             gap: 20px;
@@ -333,9 +293,69 @@
         .radio-label {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-weight: 400;
+            gap: 10px;
+            font-weight: 500;
             cursor: pointer;
+            padding: 10px 0;
+        }
+
+        .radio-label input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-blue);
+            cursor: pointer;
+        }
+
+        /* Modern File Upload Box */
+        .file-upload-box {
+            position: relative;
+            border: 2px dashed #CBD5E1;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            background-color: var(--bg-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-box:hover {
+            border-color: var(--accent-blue);
+            background-color: #EFF6FF;
+        }
+
+        .file-upload-box input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--accent-blue);
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 5px;
+        }
+
+        .upload-subtext {
+            font-size: 0.85rem;
+            color: #64748B;
+        }
+
+        .file-count {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--trustpilot-green);
+            font-weight: 600;
         }
 
         /* Dynamic Requirements Box */
@@ -343,9 +363,9 @@
             display: none;
             background: #EFF6FF;
             border-left: 4px solid var(--accent-blue);
-            padding: 20px;
-            border-radius: 0 8px 8px 0;
-            margin: 20px 0;
+            padding: 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 30px 0;
             text-align: left;
         }
 
@@ -354,18 +374,18 @@
             margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            font-size: 1.1rem;
         }
 
-        .requirements-list {
-            list-style: none;
-        }
+        .requirements-list { list-style: none; }
 
         .requirements-list li {
             position: relative;
-            padding-left: 25px;
-            margin-bottom: 8px;
+            padding-left: 28px;
+            margin-bottom: 10px;
             font-size: 0.95rem;
+            color: var(--text-main);
         }
 
         .requirements-list li::before {
@@ -381,14 +401,14 @@
             width: 100%;
             background-color: var(--accent-blue);
             color: var(--white);
-            padding: 16px;
-            font-size: 1.1rem;
+            padding: 18px;
+            font-size: 1.15rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 10px;
+            margin-top: 15px;
         }
 
         .submit-btn:hover {
@@ -398,20 +418,15 @@
         }
 
         /* Mobile Responsiveness */
-        @media (min-width: 768px) {
-            .nav-tagline {
-                display: block;
-            }
-        }
-
+        @media (min-width: 768px) { .nav-tagline { display: block; } }
         @media (max-width: 768px) {
             header { padding: 80px 5% 60px; }
             header h1 { font-size: 2.5rem; }
             .section-header h2 { font-size: 2.2rem; }
             .price-card.featured { transform: scale(1); }
             .form-row { grid-template-columns: 1fr; gap: 0; }
-            .form-container { padding: 30px 20px; }
-            .radio-group { flex-direction: column; gap: 10px; }
+            .form-container { padding: 40px 25px; }
+            .radio-group { flex-direction: column; gap: 5px; }
         }
     </style>
 </head>
@@ -422,9 +437,7 @@
             <i class="fa-solid fa-gem"></i>
             <span class="logo-text">Azure Crest</span>
         </a>
-        <div class="nav-tagline">
-            Intelligent Real Estate Solutions
-        </div>
+        <div class="nav-tagline">Intelligent Real Estate Solutions</div>
     </nav>
 
     <header>
@@ -454,17 +467,12 @@
 
         <div class="services-grid">
             <div class="service-card">
-                <div class="icon-wrapper">
-                    <i class="fa-solid fa-chart-line"></i>
-                </div>
+                <div class="icon-wrapper"><i class="fa-solid fa-chart-line"></i></div>
                 <h3>High-Yield Sales & Rentals</h3>
                 <p>We leverage cutting-edge marketing and rapid vetting protocols to ensure your property doesn't sit empty. We secure the highest possible market prices for rentals and sales with unmatched speed.</p>
             </div>
-
             <div class="service-card">
-                <div class="icon-wrapper">
-                    <i class="fa-solid fa-tools"></i>
-                </div>
+                <div class="icon-wrapper"><i class="fa-solid fa-tools"></i></div>
                 <h3>Maintenance Cost-Saver</h3>
                 <p>Repairs shouldn't erode your profits. We actively source high-quality, cost-effective solutions for property maintenance, negotiating directly with vendors to secure significantly cheaper rates for you.</p>
             </div>
@@ -484,14 +492,12 @@
                 <div class="percentage">1.5%</div>
                 <p>Commission fee applied only upon successful sale and closing.</p>
             </div>
-            
             <div class="price-card featured">
                 <i class="fa-solid fa-piggy-bank price-icon"></i>
                 <h3>Maintenance Savings</h3>
                 <div class="percentage">15%</div>
                 <p>Of the total amount we successfully save you on repair bills versus standard rates.</p>
             </div>
-
             <div class="price-card">
                 <i class="fa-solid fa-key price-icon"></i>
                 <h3>Property Rented</h3>
@@ -504,27 +510,28 @@
     <div class="contact-section">
         <div class="section-header">
             <h2 class="logo-text">Ready to Elevate Your Portfolio?</h2>
-            <p>Tell us a bit about your property, and we'll tell you exactly what we need to get started.</p>
+            <p>Tell us a bit about your property. All fields are optional—just provide what you can.</p>
         </div>
 
         <div class="form-container">
             <form action="https://getform.io/f/qzkq5o431ll" method="POST" enctype="multipart/form-data">
                 
-                <div class="form-row">
+                <input type="hidden" name="form_source" value="Azure Crest Property Intake - All Optional">
+                <input type="hidden" name="_gotcha" style="display:none !important"> <div class="form-row">
                     <div class="form-group">
                         <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" name="fullName" required placeholder="John Doe">
+                        <input type="text" id="fullName" name="fullName" placeholder="John Doe">
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required placeholder="john@example.com">
+                        <input type="email" id="email" name="email" placeholder="john@example.com">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="country">Property Location</label>
-                        <select id="country" name="country" required onchange="updateRequirements()">
+                        <select id="country" name="country" onchange="updateRequirements()">
                             <option value="" disabled selected>Select a country...</option>
                             <option value="US">United States</option>
                             <option value="UK">United Kingdom</option>
@@ -535,7 +542,7 @@
                         <label>Property Intent</label>
                         <div class="radio-group">
                             <label class="radio-label">
-                                <input type="radio" name="intent" value="Sell" required onchange="updateRequirements()"> Sell
+                                <input type="radio" name="intent" value="Sell" onchange="updateRequirements()"> Sell
                             </label>
                             <label class="radio-label">
                                 <input type="radio" name="intent" value="Rent" onchange="updateRequirements()"> Rent Out
@@ -547,7 +554,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="targetPrice">Target Price / Monthly Rent</label>
-                        <input type="number" id="targetPrice" name="targetPrice" required placeholder="e.g. 500000">
+                        <input type="number" id="targetPrice" name="targetPrice" placeholder="e.g. 500000">
                     </div>
                     <div class="form-group">
                         <label for="maintenanceFees">Avg. Current Yearly Maintenance Fees</label>
@@ -558,7 +565,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="propertyCondition">Current Condition</label>
-                        <select id="propertyCondition" name="propertyCondition" required>
+                        <select id="propertyCondition" name="propertyCondition">
                             <option value="" disabled selected>Select condition...</option>
                             <option value="Excellent">Excellent (Move-in ready)</option>
                             <option value="Good">Good (Minor cosmetic wear)</option>
@@ -566,33 +573,50 @@
                             <option value="Poor">Needs Significant Work (Fixer-upper)</option>
                         </select>
                     </div>
+                    
                     <div class="form-group">
-                        <label for="propertyImages">Upload Photos (Multiple allowed)</label>
-                        <input type="file" id="propertyImages" name="propertyImages" accept="image/*" multiple required style="padding: 9px 15px; background: #EFF6FF;">
+                        <label>Property Photos</label>
+                        <div class="file-upload-box">
+                            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                            <div class="upload-text">Click or drag photos here</div>
+                            <div class="upload-subtext">Supports JPG, PNG (Multiple allowed)</div>
+                            <input type="file" id="propertyImages" name="propertyImages" accept="image/*" multiple onchange="updateFileCount(this)">
+                            <span id="fileCountText" class="file-count"></span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group full-width">
                     <label>Do you want us to take over maintenance to save you money?</label>
-                    <div class="radio-group">
-                        <label class="radio-label"><input type="radio" name="maintenanceOptIn" value="Yes" required> Yes, optimize my costs</label>
+                    <div class="radio-group" style="background: var(--bg-light); padding: 15px 20px; border-radius: 10px; border: 2px solid #E2E8F0;">
+                        <label class="radio-label"><input type="radio" name="maintenanceOptIn" value="Yes"> Yes, optimize my costs</label>
                         <label class="radio-label"><input type="radio" name="maintenanceOptIn" value="No"> No, I will handle it</label>
                     </div>
                 </div>
 
                 <div id="requirementsBox" class="requirements-box">
-                    <h4><i class="fa-solid fa-file-signature"></i> Required Documents Check</h4>
-                    <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 10px;">Based on your selection, here is what we'll need to legally process your property:</p>
+                    <h4><i class="fa-solid fa-file-signature"></i> Legal Requirements Preview</h4>
+                    <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 12px;">Based on your selection, here is what we'll eventually need to legally process your property:</p>
                     <ul id="requirementsList" class="requirements-list">
                         </ul>
                 </div>
 
-                <button type="submit" class="submit-btn">Submit Property Details <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i></button>
+                <button type="submit" class="submit-btn">Submit Details <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i></button>
             </form>
         </div>
     </div>
 
     <script>
+        // Update file count text when images are selected
+        function updateFileCount(input) {
+            const countText = document.getElementById('fileCountText');
+            if (input.files && input.files.length > 0) {
+                countText.textContent = `${input.files.length} file(s) selected ready to upload.`;
+            } else {
+                countText.textContent = '';
+            }
+        }
+
         const requirementsData = {
             universal: [
                 "Proof of Identity (Govt. Issued ID)",
@@ -620,14 +644,12 @@
 
             if (country && intentEl) {
                 const intent = intentEl.value;
-                reqList.innerHTML = ''; // Clear previous
+                reqList.innerHTML = ''; 
 
-                // Add universal requirements
                 requirementsData.universal.forEach(req => {
                     reqList.innerHTML += `<li>${req}</li>`;
                 });
 
-                // Add specific requirements
                 requirementsData[country][intent].forEach(req => {
                     reqList.innerHTML += `<li>${req}</li>`;
                 });
