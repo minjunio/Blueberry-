@@ -8,9 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <script src="https://forminit.com/sdk/v1/forminit.js"></script>
+
     <style>
         /* Modern Color Palette & Variables */
         :root {
@@ -227,7 +228,7 @@
 
         .price-card.featured .percentage { color: var(--gold-accent); }
 
-        /* Form Section - Enhanced */
+        /* Form Section */
         .contact-section {
             padding: 100px 5%;
             background: linear-gradient(to bottom, var(--bg-light) 0%, #E2E8F0 100%);
@@ -418,6 +419,19 @@
             box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
             transform: translateY(-2px);
         }
+        
+        .submit-btn:disabled {
+            background-color: #94A3B8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Response Message Box */
+        #result {
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
 
         /* Mobile Responsiveness */
         @media (min-width: 768px) { .nav-tagline { display: block; } }
@@ -512,20 +526,27 @@
     <div class="contact-section">
         <div class="section-header">
             <h2 class="logo-text">Ready to Elevate Your Portfolio?</h2>
-            <p>Tell us a bit about your property. All details are optional, just provide an email so we can reach you.</p>
+            <p>Tell us a bit about your property. Property details are entirely optional.</p>
         </div>
 
         <div class="form-container">
-            <form action="https://getform.io/f/qzkq5o431ll" method="POST" enctype="multipart/form-data">
+            <form id="contact-form">
                 
-                <input type="hidden" name="_gotcha" style="display:none !important"> <div class="form-row">
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" name="fullName" placeholder="John Doe">
+                        <label for="firstName">First Name <span class="required-asterisk">*</span></label>
+                        <input type="text" id="firstName" name="fi-sender-firstName" placeholder="John" required>
                     </div>
                     <div class="form-group">
+                        <label for="lastName">Last Name <span class="required-asterisk">*</span></label>
+                        <input type="text" id="lastName" name="fi-sender-lastName" placeholder="Doe" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group full-width">
                         <label for="email">Email Address <span class="required-asterisk">*</span></label>
-                        <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                        <input type="email" id="email" name="fi-sender-email" placeholder="john.doe@example.com" required>
                     </div>
                 </div>
 
@@ -598,17 +619,18 @@
                 <div id="requirementsBox" class="requirements-box">
                     <h4><i class="fa-solid fa-file-signature"></i> Legal Requirements Preview</h4>
                     <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 12px;">Based on your selection, here is what we'll eventually need to legally process your property:</p>
-                    <ul id="requirementsList" class="requirements-list">
-                        </ul>
+                    <ul id="requirementsList" class="requirements-list"></ul>
                 </div>
 
-                <button type="submit" class="submit-btn">Submit Details <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i></button>
+                <button type="submit" id="submitBtn" class="submit-btn">Submit Details <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i></button>
+                
+                <div id="result"></div>
             </form>
         </div>
     </div>
 
     <script>
-        // Update file count text when images are selected
+        // File upload UI update
         function updateFileCount(input) {
             const countText = document.getElementById('fileCountText');
             if (input.files && input.files.length > 0) {
@@ -618,6 +640,7 @@
             }
         }
 
+        // Requirements logic
         const requirementsData = {
             universal: [
                 "Proof of Identity (Govt. Issued ID)",
@@ -660,6 +683,45 @@
                 reqBox.style.display = 'none';
             }
         }
+
+        // Forminit Integration Script
+        const forminit = new Forminit();
+        const FORM_ID = "qzkq5o431ll";
+
+        document.getElementById("contact-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // Setup loading state on button
+            const submitBtn = document.getElementById("submitBtn");
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'Sending... <i class="fa-solid fa-spinner fa-spin" style="margin-left: 8px;"></i>';
+            submitBtn.disabled = true;
+
+            const formData = new FormData(e.target);
+            const result = document.getElementById("result");
+
+            try {
+                // Submit form data
+                const { data, error } = await forminit.submit(FORM_ID, formData);
+
+                if (error) {
+                    result.innerHTML = `<div style="color: #EF4444; background: #FEF2F2; padding: 15px; border-radius: 8px; border: 1px solid #FCA5A5;"><i class="fa-solid fa-circle-exclamation"></i> ${error.message}</div>`;
+                } else {
+                    result.innerHTML = `<div style="color: #00B67A; background: #ECFDF5; padding: 15px; border-radius: 8px; border: 1px solid #6EE7B7;"><i class="fa-solid fa-circle-check"></i> Details sent successfully! Our team will be in touch shortly.</div>`;
+                    
+                    // Reset form and UI
+                    e.target.reset();
+                    document.getElementById('fileCountText').textContent = '';
+                    document.getElementById('requirementsBox').style.display = 'none';
+                }
+            } catch (err) {
+                result.innerHTML = `<div style="color: #EF4444; background: #FEF2F2; padding: 15px; border-radius: 8px; border: 1px solid #FCA5A5;"><i class="fa-solid fa-circle-exclamation"></i> An unexpected error occurred. Please try again later.</div>`;
+            } finally {
+                // Revert button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
     </script>
 </body>
 </html>
