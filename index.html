@@ -315,6 +315,7 @@
             font-family: 'Inter', sans-serif;
             font-size: 1rem;
             transition: border-color 0.3s;
+            background-color: var(--white);
         }
 
         input:focus, select:focus {
@@ -410,6 +411,7 @@
             .price-card.featured { transform: scale(1); }
             .form-row { grid-template-columns: 1fr; gap: 0; }
             .form-container { padding: 30px 20px; }
+            .radio-group { flex-direction: column; gap: 10px; }
         }
     </style>
 </head>
@@ -506,23 +508,23 @@
         </div>
 
         <div class="form-container">
-            <form id="propertyForm" onsubmit="event.preventDefault(); alert('Form submitted successfully! Our team will contact you shortly.');">
+            <form action="https://getform.io/f/qzkq5o431ll" method="POST" enctype="multipart/form-data">
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" required placeholder="John Doe">
+                        <input type="text" id="fullName" name="fullName" required placeholder="John Doe">
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address</label>
-                        <input type="email" id="email" required placeholder="john@example.com">
+                        <input type="email" id="email" name="email" required placeholder="john@example.com">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="country">Property Location</label>
-                        <select id="country" required onchange="updateRequirements()">
+                        <select id="country" name="country" required onchange="updateRequirements()">
                             <option value="" disabled selected>Select a country...</option>
                             <option value="US">United States</option>
                             <option value="UK">United Kingdom</option>
@@ -545,11 +547,28 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="targetPrice">Target Price / Monthly Rent</label>
-                        <input type="number" id="targetPrice" required placeholder="e.g. 500000">
+                        <input type="number" id="targetPrice" name="targetPrice" required placeholder="e.g. 500000">
                     </div>
                     <div class="form-group">
                         <label for="maintenanceFees">Avg. Current Yearly Maintenance Fees</label>
-                        <input type="number" id="maintenanceFees" placeholder="e.g. 2500">
+                        <input type="number" id="maintenanceFees" name="maintenanceFees" placeholder="e.g. 2500">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="propertyCondition">Current Condition</label>
+                        <select id="propertyCondition" name="propertyCondition" required>
+                            <option value="" disabled selected>Select condition...</option>
+                            <option value="Excellent">Excellent (Move-in ready)</option>
+                            <option value="Good">Good (Minor cosmetic wear)</option>
+                            <option value="Fair">Fair (Needs some updating/repairs)</option>
+                            <option value="Poor">Needs Significant Work (Fixer-upper)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="propertyImages">Upload Photos (Multiple allowed)</label>
+                        <input type="file" id="propertyImages" name="propertyImages" accept="image/*" multiple required style="padding: 9px 15px; background: #EFF6FF;">
                     </div>
                 </div>
 
