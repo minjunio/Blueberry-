@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Admin Panel</title>
+    <title>Blog CMS Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         .hidden { display: none !important; }
-        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
+        .content-block { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans antialiased text-slate-800">
@@ -16,276 +17,184 @@
     <div id="login-screen" class="flex items-center justify-center min-h-screen bg-slate-900">
         <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md text-center">
             <h1 class="text-2xl font-bold text-slate-800 mb-2">System Login</h1>
-            <p class="text-slate-500 mb-6 text-sm">Enter your passcode to access the CMS.</p>
+            <p class="text-slate-500 mb-6 text-sm">Enter passcode to start building.</p>
             <input type="password" id="passcode" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4" placeholder="Passcode">
             <button onclick="attemptLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200">
-                Enter Dashboard
+                Enter Generator
             </button>
             <p id="login-error" class="text-red-500 text-sm mt-3 hidden">Incorrect passcode.</p>
         </div>
     </div>
 
-    <div id="dashboard" class="hidden">
-        <nav class="bg-white shadow-sm border-b border-slate-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16 items-center">
-                    <div class="flex items-center space-x-3">
-                        <i class="fas fa-layer-group text-blue-600 text-xl"></i>
-                        <span class="font-bold text-xl tracking-tight">Blog CMS</span>
-                    </div>
-                    <button onclick="logout()" class="text-slate-500 hover:text-slate-800 font-medium text-sm">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
+    <div id="dashboard" class="hidden pb-20">
+        <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
+            <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-layer-group text-blue-600 text-xl"></i>
+                    <span class="font-bold text-xl tracking-tight">Static Page Generator</span>
                 </div>
+                <button onclick="exportPage()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition flex items-center">
+                    <i class="fas fa-download mr-2"></i> Export HTML File
+                </button>
             </div>
         </nav>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex gap-8">
-            
-            <div class="w-1/3">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                        <h2 class="font-semibold text-slate-800">Your Pages</h2>
-                        <button onclick="createNewPage()" class="text-blue-600 hover:bg-blue-50 p-2 rounded-md transition">
-                            <i class="fas fa-plus"></i> New
-                        </button>
-                    </div>
-                    <ul id="page-list" class="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
-                        </ul>
-                </div>
-            </div>
-
-            <div class="w-2/3">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hidden" id="editor-container">
-                    <h2 class="text-2xl font-bold mb-6" id="editor-title">Create New Page</h2>
-                    
-                    <div class="space-y-4 mb-8">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Page Title (H1)</label>
-                            <input type="text" id="page-title" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">URL Subdirectory (e.g., my-first-post)</label>
-                            <input type="text" id="page-slug" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-8">
-                        <h3 class="text-sm font-bold text-slate-800 mb-3 uppercase tracking-wider flex items-center"><i class="fas fa-search mr-2 text-blue-500"></i> SEO Settings</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">SEO Meta Title</label>
-                                <input type="text" id="seo-title" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Search Keywords (comma separated)</label>
-                                <input type="text" id="seo-keywords" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" placeholder="blog, technology, news">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Meta Description</label>
-                                <textarea id="seo-desc" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="border-b border-slate-200 mb-4">
-                        <nav class="flex space-x-6" aria-label="Tabs">
-                            <button onclick="switchTab('template')" id="tab-template" class="tab-active py-2 px-1 text-sm font-medium">Visual Template</button>
-                            <button onclick="switchTab('code')" id="tab-code" class="text-slate-500 hover:text-slate-700 py-2 px-1 text-sm font-medium">Insert Code</button>
-                        </nav>
-                    </div>
-
-                    <div id="mode-template" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Featured Image URL</label>
-                            <input type="text" id="page-image" class="w-full px-4 py-2 border border-slate-300 rounded-lg" placeholder="https://...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Content Sections (Paragraphs)</label>
-                            <textarea id="page-content" rows="8" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Write your blog post here..."></textarea>
-                        </div>
-                    </div>
-
-                    <div id="mode-code" class="hidden">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Custom HTML/CSS</label>
-                        <textarea id="page-code" rows="10" class="w-full px-4 py-3 font-mono text-sm border border-slate-300 rounded-lg bg-slate-900 text-green-400 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="<h1>Hello World</h1>"></textarea>
-                    </div>
-
-                    <div class="mt-8 flex justify-end gap-3 border-t border-slate-200 pt-5">
-                        <button onclick="hideEditor()" class="px-5 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium">Cancel</button>
-                        <button onclick="savePage()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium shadow-sm"><i class="fas fa-save mr-2"></i> Save Page</button>
-                    </div>
-
-                </div>
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
                 
-                <div id="empty-state" class="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
-                    <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                        <i class="fas fa-pen-nib"></i>
+                <h2 class="text-xl font-bold mb-4 border-b pb-2">1. Page Setup & SEO</h2>
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">URL Path / File Name</label>
+                        <input type="text" id="page-slug" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="e.g., Chinesecar">
+                        <p class="text-xs text-slate-500 mt-1">This becomes your URL: bluecrypto.ink/[name]</p>
                     </div>
-                    <h3 class="text-lg font-medium text-slate-900 mb-2">No page selected</h3>
-                    <p class="text-slate-500 mb-4">Select a page from the sidebar or create a new one to start editing.</p>
-                    <button onclick="createNewPage()" class="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 font-medium">Create New Page</button>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Main Page Title (H1)</label>
+                        <input type="text" id="page-title" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="My Awesome Post">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">SEO Meta Title</label>
+                        <input type="text" id="seo-title" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">SEO Keywords</label>
+                        <input type="text" id="seo-keywords" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="crypto, cars, news">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">SEO Meta Description</label>
+                        <textarea id="seo-desc" rows="2" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
                 </div>
+
+                <h2 class="text-xl font-bold mb-4 border-b pb-2">2. Build Content</h2>
+                <div id="content-blocks" class="space-y-4 mb-6">
+                    </div>
+
+                <div class="flex gap-3 mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg justify-center">
+                    <span class="text-sm text-slate-500 self-center mr-2">Add new section:</span>
+                    <button onclick="addTextBlock()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 font-medium shadow-sm">
+                        <i class="fas fa-align-left mr-1"></i> Text Body
+                    </button>
+                    <button onclick="addImageBlock()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 font-medium shadow-sm">
+                        <i class="fas fa-image mr-1"></i> Image
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
 
     <script>
-        // --- System State ---
-        let pages = JSON.parse(localStorage.getItem('blog_pages')) || [];
-        let currentEditId = null;
-
-        // --- Authentication ---
+        // Login Logic
         function attemptLogin() {
-            const pass = document.getElementById('passcode').value;
-            if(pass === 'monterysasd') {
+            if(document.getElementById('passcode').value === 'monterysasd') {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
-                renderPageList();
+                addTextBlock(); // Start with one text block
             } else {
                 document.getElementById('login-error').classList.remove('hidden');
             }
         }
 
-        function logout() {
-            document.getElementById('passcode').value = '';
-            document.getElementById('dashboard').classList.add('hidden');
-            document.getElementById('login-screen').classList.remove('hidden');
+        // Block Builder Logic
+        const container = document.getElementById('content-blocks');
+
+        function addTextBlock() {
+            const div = document.createElement('div');
+            div.className = "content-block bg-slate-50 p-4 border border-slate-200 rounded-lg relative group";
+            div.innerHTML = `
+                <button onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition"><i class="fas fa-times"></i></button>
+                <label class="block text-sm font-bold text-slate-700 mb-2"><i class="fas fa-align-left text-blue-500 mr-2"></i>Text Block</label>
+                <textarea class="block-data w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 h-32" placeholder="Write your paragraph here..." data-type="text"></textarea>
+            `;
+            container.appendChild(div);
         }
 
-        // --- Editor UI Logic ---
-        function switchTab(tab) {
-            if(tab === 'template') {
-                document.getElementById('tab-template').classList.add('tab-active');
-                document.getElementById('tab-template').classList.remove('text-slate-500');
-                document.getElementById('tab-code').classList.remove('tab-active');
-                document.getElementById('tab-code').classList.add('text-slate-500');
-                document.getElementById('mode-template').classList.remove('hidden');
-                document.getElementById('mode-code').classList.add('hidden');
-            } else {
-                document.getElementById('tab-code').classList.add('tab-active');
-                document.getElementById('tab-code').classList.remove('text-slate-500');
-                document.getElementById('tab-template').classList.remove('tab-active');
-                document.getElementById('tab-template').classList.add('text-slate-500');
-                document.getElementById('mode-code').classList.remove('hidden');
-                document.getElementById('mode-template').classList.add('hidden');
-            }
+        function addImageBlock() {
+            const div = document.createElement('div');
+            div.className = "content-block bg-slate-50 p-4 border border-slate-200 rounded-lg relative group";
+            div.innerHTML = `
+                <button onclick="this.parentElement.remove()" class="absolute top-2 right-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition"><i class="fas fa-times"></i></button>
+                <label class="block text-sm font-bold text-slate-700 mb-2"><i class="fas fa-image text-green-500 mr-2"></i>Image Block</label>
+                <input type="text" class="block-data w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-2" placeholder="Paste Image URL (https://...)" data-type="image-url">
+                <input type="text" class="block-data w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Image Caption (Optional)" data-type="image-caption">
+            `;
+            container.appendChild(div);
         }
 
-        function createNewPage() {
-            currentEditId = null;
-            document.getElementById('editor-title').innerText = "Create New Page";
-            clearForm();
-            showEditor();
-        }
+        // Export & Generate HTML Logic
+        function exportPage() {
+            const slug = document.getElementById('page-slug').value || 'untitled';
+            const title = document.getElementById('page-title').value || 'Untitled Page';
+            const seoTitle = document.getElementById('seo-title').value || title;
+            const seoDesc = document.getElementById('seo-desc').value;
+            const seoKeys = document.getElementById('seo-keywords').value;
 
-        function showEditor() {
-            document.getElementById('empty-state').classList.add('hidden');
-            document.getElementById('editor-container').classList.remove('hidden');
-            switchTab('template');
-        }
-
-        function hideEditor() {
-            document.getElementById('editor-container').classList.add('hidden');
-            document.getElementById('empty-state').classList.remove('hidden');
-        }
-
-        function clearForm() {
-            document.getElementById('page-title').value = '';
-            document.getElementById('page-slug').value = '';
-            document.getElementById('seo-title').value = '';
-            document.getElementById('seo-keywords').value = '';
-            document.getElementById('seo-desc').value = '';
-            document.getElementById('page-image').value = '';
-            document.getElementById('page-content').value = '';
-            document.getElementById('page-code').value = '';
-        }
-
-        // --- Data Management ---
-        function savePage() {
-            const pageData = {
-                id: currentEditId || Date.now().toString(),
-                title: document.getElementById('page-title').value || 'Untitled',
-                slug: document.getElementById('page-slug').value || 'untitled',
-                seo: {
-                    title: document.getElementById('seo-title').value,
-                    keywords: document.getElementById('seo-keywords').value,
-                    desc: document.getElementById('seo-desc').value
-                },
-                template: {
-                    image: document.getElementById('page-image').value,
-                    content: document.getElementById('page-content').value
-                },
-                code: document.getElementById('page-code').value,
-                date: new Date().toLocaleDateString()
-            };
-
-            if (currentEditId) {
-                const index = pages.findIndex(p => p.id === currentEditId);
-                pages[index] = pageData;
-            } else {
-                pages.push(pageData);
-            }
-
-            localStorage.setItem('blog_pages', JSON.stringify(pages));
-            renderPageList();
-            hideEditor();
-            alert("Page saved to local storage!");
-        }
-
-        function loadPage(id) {
-            const page = pages.find(p => p.id === id);
-            if(!page) return;
-
-            currentEditId = page.id;
-            document.getElementById('editor-title').innerText = "Edit: " + page.title;
+            // Generate the dynamic HTML body from our blocks
+            let generatedBodyHTML = '';
+            const blocks = document.querySelectorAll('.content-block');
             
-            document.getElementById('page-title').value = page.title;
-            document.getElementById('page-slug').value = page.slug;
-            document.getElementById('seo-title').value = page.seo.title;
-            document.getElementById('seo-keywords').value = page.seo.keywords;
-            document.getElementById('seo-desc').value = page.seo.desc;
-            document.getElementById('page-image').value = page.template.image;
-            document.getElementById('page-content').value = page.template.content;
-            document.getElementById('page-code').value = page.code;
-
-            showEditor();
-        }
-
-        function deletePage(id, event) {
-            event.stopPropagation();
-            if(confirm("Are you sure you want to delete this page?")) {
-                pages = pages.filter(p => p.id !== id);
-                localStorage.setItem('blog_pages', JSON.stringify(pages));
-                if(currentEditId === id) hideEditor();
-                renderPageList();
-            }
-        }
-
-        function renderPageList() {
-            const list = document.getElementById('page-list');
-            list.innerHTML = '';
-            
-            if(pages.length === 0) {
-                list.innerHTML = '<li class="p-4 text-sm text-slate-500 text-center italic">No pages created yet.</li>';
-                return;
-            }
-
-            pages.forEach(page => {
-                const li = document.createElement('li');
-                li.className = "p-4 hover:bg-slate-50 cursor-pointer flex justify-between items-center group transition";
-                li.onclick = () => loadPage(page.id);
-                li.innerHTML = `
-                    <div>
-                        <div class="font-medium text-slate-800">${page.title}</div>
-                        <div class="text-xs text-slate-400 mt-1">/${page.slug} • ${page.date}</div>
-                    </div>
-                    <button onclick="deletePage('${page.id}', event)" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition p-2">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `;
-                list.appendChild(li);
+            blocks.forEach(block => {
+                const inputs = block.querySelectorAll('.block-data');
+                if(inputs.length === 1 && inputs[0].dataset.type === 'text') {
+                    // It's a text block
+                    const text = inputs[0].value.replace(/\n/g, '<br>');
+                    if(text) generatedBodyHTML += `<p class="text-lg text-slate-700 leading-relaxed mb-6">${text}</p>\n`;
+                } else if(inputs.length === 2 && inputs[0].dataset.type === 'image-url') {
+                    // It's an image block
+                    const url = inputs[0].value;
+                    const caption = inputs[1].value;
+                    if(url) {
+                        generatedBodyHTML += `
+                            <figure class="my-8">
+                                <img src="${url}" alt="${caption}" class="w-full rounded-xl shadow-md">
+                                ${caption ? `<figcaption class="text-center text-sm text-slate-500 mt-3">${caption}</figcaption>` : ''}
+                            </figure>\n`;
+                    }
+                }
             });
+
+            // The template for the final exported page
+            const finalHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${seoTitle}</title>
+    <meta name="description" content="${seoDesc}">
+    <meta name="keywords" content="${seoKeys}">
+    <script src="https://cdn.tailwindcss.com"><\/script>
+</head>
+<body class="bg-white antialiased">
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 py-16">
+        <article>
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-12 text-center">${title}</h1>
+            <div class="prose prose-lg mx-auto">
+                ${generatedBodyHTML}
+            </div>
+        </article>
+        
+        <div class="mt-16 pt-8 border-t border-slate-200 text-center">
+            <a href="/" class="text-blue-600 hover:underline font-medium">&larr; Back to Home</a>
+        </div>
+    </main>
+</body>
+</html>`;
+
+            // Trigger the download
+            const blob = new Blob([finalHTML], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            
+            // Note: If they want clean URLs on Render (bluecrypto.ink/Chinesecar)
+            // They should name the file index.html and put it in a folder named Chinesecar.
+            // For simplicity, we export as Chinesecar.html here.
+            link.download = `${slug}.html`; 
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
