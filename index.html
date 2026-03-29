@@ -32,7 +32,6 @@
             background: linear-gradient(180deg, #A1C4FD 0%, #C2E9FB 50%, #FDFBFB 100%);
             color: #1e293b;
             min-height: 100vh;
-            /* Strict overflow management to lock mobile view */
             overflow-x: hidden;
             width: 100%;
             max-width: 100vw;
@@ -163,6 +162,21 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="glass-card p-6 md:p-8 relative overflow-hidden group">
+                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-200 rounded-full blur-3xl opacity-50 group-hover:bg-indigo-300 transition duration-500"></div>
+                    
+                    <h3 class="text-xl md:text-2xl font-black text-anime-textMain mb-3 flex items-center gap-2 relative z-10">
+                        Contract Preview 📄
+                    </h3>
+                    <p class="text-xs md:text-sm text-anime-textDark leading-relaxed mb-5 font-bold relative z-10">
+                        Transparency is important to us. Download and review our standard Independent Contractor & NDA Agreement below so you know exactly what to expect if you join the bluenovel team.
+                    </p>
+                    <a href="bluenovel_contract.pdf" download class="relative z-10 inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-white hover:bg-indigo-50 text-indigo-600 border-2 border-indigo-200 hover:border-indigo-400 font-black py-3 px-6 rounded-xl transition-all duration-300 shadow-sm text-sm md:text-base hover:shadow-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Download Agreement (PDF)
+                    </a>
                 </div>
 
                 <div class="glass-card p-6 md:p-8">
