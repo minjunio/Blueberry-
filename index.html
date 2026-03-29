@@ -13,12 +13,12 @@
                     fontFamily: { sans: ['Nunito', 'sans-serif'] },
                     colors: {
                         brand: {
-                            dark: '#080d1e',
-                            base: '#111a30',
-                            card: '#1a2440',
-                            blue: '#3a506b',
-                            accent: '#00e5ff',
-                            light: '#e0fbfc'
+                            sky: '#89CFF0',      /* Baby Blue */
+                            cloud: '#FDFBFB',    /* Soft White */
+                            textMain: '#1e293b', /* Slate 800 for high readability */
+                            textMuted: '#475569',/* Slate 600 */
+                            accent: '#38BDF8',   /* Vibrant Sky Blue */
+                            pink: '#FBCFE8'      /* Sunset cloud pink */
                         },
                         trustpilot: '#00b67a'
                     }
@@ -28,60 +28,69 @@
     </script>
     <style>
         body {
-            background-color: #080d1e;
-            color: #e0fbfc;
+            /* Anime Sky Gradient */
+            background: linear-gradient(180deg, #89CFF0 0%, #E2F0F9 40%, #FDFBFB 100%);
+            color: #1e293b;
+            min-height: 100vh;
         }
+        
+        /* Light Frosted Glass for Readability */
         .glass-card {
-            background: rgba(26, 36, 64, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(58, 80, 107, 0.4);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
         }
-        .text-glow {
-            text-shadow: 0 0 16px rgba(0, 229, 255, 0.6);
-        }
-        .grid-bg {
-            background-size: 40px 40px;
-            background-image: linear-gradient(to right, rgba(58, 80, 107, 0.1) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(58, 80, 107, 0.1) 1px, transparent 1px);
+
+        /* Abstract CSS Clouds */
+        .cloud-shape {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: 0;
+            pointer-events: none;
         }
     </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col font-sans relative grid-bg">
+<body class="antialiased flex flex-col font-sans relative overflow-x-hidden">
     
-    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-brand-accent rounded-full mix-blend-screen filter blur-[200px] opacity-10 pointer-events-none"></div>
+    <div class="cloud-shape w-[600px] h-[400px] top-[-100px] left-[-150px] opacity-80"></div>
+    <div class="cloud-shape w-[800px] h-[500px] top-[20%] right-[-200px] opacity-70"></div>
+    <div class="cloud-shape w-[500px] h-[300px] bottom-[10%] left-[10%] opacity-60 bg-brand-pink/40"></div>
 
     <nav class="py-6 px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
         <div class="flex items-center gap-3">
-            <svg class="w-8 h-8 text-brand-accent drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            <div class="text-2xl font-black tracking-tight text-white">
-                blue<span class="text-brand-accent text-glow">novel</span>
+            <svg class="w-8 h-8 text-brand-accent drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <div class="text-2xl font-black tracking-tight text-brand-textMain">
+                blue<span class="text-brand-accent">novel</span>
             </div>
         </div>
-        <a href="#apply" class="bg-brand-accent hover:bg-white text-brand-dark font-black py-2.5 px-6 rounded-lg transition-all duration-300 shadow-[0_0_15px_rgba(0,229,255,0.4)] hover:scale-105">
+        <a href="#apply" class="bg-white hover:bg-brand-accent hover:text-white text-brand-textMain border border-brand-accent/20 font-black py-2.5 px-6 rounded-full transition-all duration-300 shadow-md hover:scale-105">
             APPLY NOW
         </a>
     </nav>
 
-    <header class="flex flex-col justify-center items-center text-center px-4 pt-16 pb-24 relative z-10">
-        <span class="bg-brand-accent/10 border border-brand-accent/30 text-brand-accent py-1.5 px-5 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
+    <header class="flex flex-col justify-center items-center text-center px-4 pt-12 pb-24 relative z-10">
+        <span class="bg-white/80 border border-brand-accent/30 text-brand-accent py-1.5 px-5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 shadow-sm">
             Hiring Remote Artists
         </span>
-        <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight text-white">
+        <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight text-brand-textMain drop-shadow-sm">
             Illustrate Our Next <br>
-            <span class="text-brand-accent text-glow">3 Visual Novels</span>
+            <span class="text-brand-accent">3 Visual Novels</span>
         </h1>
-        <p class="text-lg md:text-xl text-brand-light/80 max-w-2xl mx-auto font-medium leading-relaxed">
+        <p class="text-lg md:text-xl text-brand-textMuted max-w-2xl mx-auto font-semibold leading-relaxed">
             Join the bluenovel art team. We are actively recruiting talented character designers, background illustrators, and UI artists.
         </p>
     </header>
 
     <main class="flex-grow flex flex-col items-center px-4 relative z-20 pb-24">
         
-        <div class="glass-card rounded-2xl p-8 max-w-5xl w-full -mt-16 mb-16 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-brand-blue/30">
+        <div class="glass-card rounded-3xl p-8 max-w-5xl w-full -mt-16 mb-16 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-gray-300/50">
             
             <div class="flex-1 flex flex-col items-center justify-center w-full pt-4 md:pt-0">
-                <div class="text-white font-bold text-lg mb-1">Excellent</div>
+                <div class="text-brand-textMain font-black text-lg mb-1">Excellent</div>
                 <div class="flex gap-1 mb-2">
                     <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
                     <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
@@ -89,25 +98,25 @@
                     <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
                     <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
                 </div>
-                <div class="text-sm font-medium text-gray-400">Score <strong class="text-white">4.4/5</strong> • 301 Reviews</div>
+                <div class="text-sm font-semibold text-brand-textMuted">Score <strong class="text-brand-textMain">4.4/5</strong> • 301 Reviews</div>
             </div>
 
             <div class="flex-1 flex flex-col items-center justify-center w-full pt-4 md:pt-0">
-                <div class="text-trustpilot text-4xl font-black mb-1">$40k+</div>
-                <div class="text-sm font-bold text-gray-300 uppercase tracking-wide">Verified Payouts</div>
-                <div class="text-xs text-gray-500 mt-1">Total Paid (USD)</div>
+                <div class="text-trustpilot text-4xl font-black mb-1 drop-shadow-sm">$40k+</div>
+                <div class="text-sm font-bold text-brand-textMain uppercase tracking-wide">Verified Payouts</div>
+                <div class="text-xs text-brand-textMuted mt-1 font-medium">Total Paid (USD)</div>
             </div>
 
             <div class="flex-1 flex flex-col items-center justify-center w-full pt-4 md:pt-0">
-                <div class="text-yellow-400 text-4xl font-black mb-1">$15/hr</div>
-                <div class="text-sm font-bold text-gray-300 uppercase tracking-wide">Starting Rate</div>
-                <div class="text-xs text-gray-500 mt-1">Competitive Base Pay</div>
+                <div class="text-yellow-500 text-4xl font-black mb-1 drop-shadow-sm">$15/hr</div>
+                <div class="text-sm font-bold text-brand-textMain uppercase tracking-wide">Starting Rate</div>
+                <div class="text-xs text-brand-textMuted mt-1 font-medium">Competitive Base Pay</div>
             </div>
 
             <div class="flex-1 flex flex-col items-center justify-center w-full pt-4 md:pt-0">
-                <div class="text-brand-accent text-4xl font-black mb-1">12</div>
-                <div class="text-sm font-bold text-gray-300 uppercase tracking-wide">Positions Open</div>
-                <div class="text-xs text-gray-500 mt-1">2 out of 14 Filled</div>
+                <div class="text-brand-accent text-4xl font-black mb-1 drop-shadow-sm">12</div>
+                <div class="text-sm font-bold text-brand-textMain uppercase tracking-wide">Positions Open</div>
+                <div class="text-xs text-brand-textMuted mt-1 font-medium">2 out of 14 Filled</div>
             </div>
         </div>
 
@@ -115,85 +124,83 @@
             
             <div class="space-y-8">
                 
-                <div class="glass-card rounded-2xl p-6">
-                    <h3 class="text-xl font-bold text-white mb-6 border-b border-brand-blue/50 pb-3">Important Requirements</h3>
+                <div class="glass-card rounded-3xl p-8">
+                    <h3 class="text-2xl font-black text-brand-textMain mb-6 border-b border-gray-300/60 pb-4">Requirements</h3>
                     
-                    <div class="space-y-5">
-                        <div class="flex gap-4 items-start">
-                            <div class="bg-brand-blue/20 p-3 rounded-lg text-xl">🎂</div>
+                    <div class="space-y-6">
+                        <div class="flex gap-4 items-start bg-white/60 p-4 rounded-2xl border border-white">
+                            <div class="bg-red-100 text-red-500 p-3 rounded-xl text-xl shadow-sm">🎂</div>
                             <div>
-                                <h4 class="text-brand-light font-bold">Age Restrictions</h4>
-                                <p class="text-sm text-gray-400 leading-relaxed mt-1">You must be <strong class="text-white">14+</strong> to apply for general roles. Select mature visual novel projects strictly require applicants to be <strong class="text-white">18+</strong>.</p>
+                                <h4 class="text-brand-textMain font-black">Age Restrictions</h4>
+                                <p class="text-sm text-brand-textMuted leading-relaxed mt-1 font-medium">You must be <strong class="text-red-500">14+</strong> to apply for general roles. Select mature visual novel projects strictly require applicants to be <strong class="text-red-500">18+</strong>.</p>
                             </div>
                         </div>
                         
-                        <div class="flex gap-4 items-start">
-                            <div class="bg-brand-blue/20 p-3 rounded-lg text-xl">💳</div>
+                        <div class="flex gap-4 items-start bg-white/60 p-4 rounded-2xl border border-white">
+                            <div class="bg-blue-100 text-blue-500 p-3 rounded-xl text-xl shadow-sm">💳</div>
                             <div>
-                                <h4 class="text-brand-light font-bold">Accepted Payment Methods</h4>
-                                <p class="text-sm text-gray-400 leading-relaxed mt-1">All verified payments are processed exclusively via <strong class="text-white">PayPal</strong> or direct <strong class="text-white">Bank Transfer</strong>.</p>
+                                <h4 class="text-brand-textMain font-black">Payment Methods</h4>
+                                <p class="text-sm text-brand-textMuted leading-relaxed mt-1 font-medium">All verified payments are processed exclusively via <strong class="text-blue-600">PayPal</strong> or direct <strong class="text-blue-600">Bank Transfer</strong>.</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-card rounded-2xl p-6">
-                    <h3 class="text-xl font-bold text-white mb-4 border-b border-brand-blue/50 pb-3 flex justify-between items-center">
+                <div class="glass-card rounded-3xl p-8">
+                    <h3 class="text-2xl font-black text-brand-textMain mb-6 border-b border-gray-300/60 pb-4 flex justify-between items-center">
                         Available Roles
-                        <span class="text-xs bg-brand-accent/20 text-brand-accent px-2 py-1 rounded">12 Left</span>
+                        <span class="text-xs bg-brand-accent text-white px-3 py-1.5 rounded-full shadow-sm">12 Left</span>
                     </h3>
                     
-                    <ul class="space-y-3">
-                        <li class="bg-brand-base border border-brand-blue/30 rounded-lg p-4 flex justify-between items-center">
+                    <ul class="space-y-4">
+                        <li class="bg-white/70 border border-white rounded-2xl p-5 flex justify-between items-center shadow-sm hover:shadow-md transition">
                             <div>
-                                <div class="font-bold text-white">Character / Sprite Artist</div>
-                                <div class="text-xs text-gray-400">Visual Novel #1 & #3</div>
+                                <div class="font-black text-brand-textMain">Character / Sprite Artist</div>
+                                <div class="text-sm text-brand-textMuted font-medium">Visual Novel #1 & #3</div>
                             </div>
-                            <span class="bg-brand-blue/40 text-brand-light text-xs font-bold px-3 py-1.5 rounded-md">Age 14+</span>
+                            <span class="bg-brand-sky/20 text-blue-700 text-xs font-black px-4 py-2 rounded-full">Age 14+</span>
                         </li>
-                        <li class="bg-brand-base border border-brand-blue/30 rounded-lg p-4 flex justify-between items-center">
+                        <li class="bg-white/70 border border-white rounded-2xl p-5 flex justify-between items-center shadow-sm hover:shadow-md transition">
                             <div>
-                                <div class="font-bold text-white">Background Illustrator</div>
-                                <div class="text-xs text-gray-400">All Projects</div>
+                                <div class="font-black text-brand-textMain">Background Illustrator</div>
+                                <div class="text-sm text-brand-textMuted font-medium">All Projects</div>
                             </div>
-                            <span class="bg-brand-blue/40 text-brand-light text-xs font-bold px-3 py-1.5 rounded-md">Age 14+</span>
+                            <span class="bg-brand-sky/20 text-blue-700 text-xs font-black px-4 py-2 rounded-full">Age 14+</span>
                         </li>
-                        <li class="bg-red-500/5 border border-red-500/20 rounded-lg p-4 flex justify-between items-center">
+                        <li class="bg-red-50/80 border border-red-100 rounded-2xl p-5 flex justify-between items-center shadow-sm hover:shadow-md transition">
                             <div>
-                                <div class="font-bold text-red-100">CG Event Artist (Mature)</div>
-                                <div class="text-xs text-red-300/60">Visual Novel #2</div>
+                                <div class="font-black text-red-700">CG Event Artist (Mature)</div>
+                                <div class="text-sm text-red-500/80 font-medium">Visual Novel #2</div>
                             </div>
-                            <span class="bg-red-500/20 text-red-400 text-xs font-bold px-3 py-1.5 rounded-md border border-red-500/30">Strictly 18+</span>
+                            <span class="bg-red-100 text-red-600 text-xs font-black px-4 py-2 rounded-full border border-red-200">Strictly 18+</span>
                         </li>
-                        <li class="bg-brand-base border border-brand-blue/30 rounded-lg p-4 flex justify-between items-center">
+                        <li class="bg-white/70 border border-white rounded-2xl p-5 flex justify-between items-center shadow-sm hover:shadow-md transition">
                             <div>
-                                <div class="font-bold text-white">UI & Menus Designer</div>
-                                <div class="text-xs text-gray-400">All Projects</div>
+                                <div class="font-black text-brand-textMain">UI & Menus Designer</div>
+                                <div class="text-sm text-brand-textMuted font-medium">All Projects</div>
                             </div>
-                            <span class="bg-brand-blue/40 text-brand-light text-xs font-bold px-3 py-1.5 rounded-md">Age 14+</span>
+                            <span class="bg-brand-sky/20 text-blue-700 text-xs font-black px-4 py-2 rounded-full">Age 14+</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
             <div id="apply" class="relative h-full">
-                <div class="absolute -inset-1 bg-gradient-to-br from-brand-accent/30 to-blue-600/20 rounded-3xl blur-xl opacity-50 pointer-events-none"></div>
-                
-                <form action="https://formsubmit.co/minjunnios@gmail.com" method="POST" class="glass-card p-8 rounded-3xl h-full flex flex-col relative z-10">
+                <form action="https://formsubmit.co/minjunnios@gmail.com" method="POST" class="glass-card p-8 md:p-10 rounded-3xl h-full flex flex-col relative z-10 border-t-4 border-t-brand-accent">
                     
-                    <div class="mb-6">
-                        <h2 class="text-3xl font-black text-white mb-2">Submit Portfolio</h2>
-                        <p class="text-sm text-gray-400">Apply below. Our lead art director will review your submission and email you within 48 hours.</p>
+                    <div class="mb-8 text-center">
+                        <h2 class="text-3xl font-black text-brand-textMain mb-3">Submit Portfolio</h2>
+                        <p class="text-sm text-brand-textMuted font-semibold">Our lead art director will review your submission and email you within 48 hours.</p>
                     </div>
 
                     <input type="hidden" name="_subject" value="New Artist Application - bluenovel">
                     <input type="hidden" name="_next" value="https://your-render-url.onrender.com"> 
                     <input type="hidden" name="_captcha" value="false">
 
-                    <div class="space-y-5 flex-grow">
+                    <div class="space-y-6 flex-grow">
                         <div>
-                            <label class="block text-sm font-bold mb-2 text-brand-light">Age Verification <span class="text-brand-accent">*</span></label>
-                            <select name="age_group" required class="w-full bg-brand-base border border-brand-blue/50 rounded-lg p-3.5 text-white focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition appearance-none">
+                            <label class="block text-sm font-black mb-2 text-brand-textMain">Age Verification <span class="text-brand-accent">*</span></label>
+                            <select name="age_group" required class="w-full bg-white/80 border border-gray-300 rounded-xl p-3.5 text-brand-textMain focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30 transition appearance-none shadow-sm font-medium">
                                 <option value="" disabled selected>Select your age group...</option>
                                 <option value="14-17">I am between 14 and 17 years old</option>
                                 <option value="18+">I am 18 years old or older</option>
@@ -202,34 +209,34 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-sm font-bold mb-2 text-brand-light">Artist Alias / Name</label>
-                                <input type="text" name="name" required placeholder="Your chosen name" class="w-full bg-brand-base border border-brand-blue/50 rounded-lg p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition">
+                                <label class="block text-sm font-black mb-2 text-brand-textMain">Artist Alias / Name</label>
+                                <input type="text" name="name" required placeholder="Your chosen name" class="w-full bg-white/80 border border-gray-300 rounded-xl p-3.5 text-brand-textMain placeholder-gray-400 focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30 transition shadow-sm font-medium">
                             </div>
                             <div>
-                                <label class="block text-sm font-bold mb-2 text-brand-light">Email Address</label>
-                                <input type="email" name="email" required placeholder="you@example.com" class="w-full bg-brand-base border border-brand-blue/50 rounded-lg p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition">
+                                <label class="block text-sm font-black mb-2 text-brand-textMain">Email Address</label>
+                                <input type="email" name="email" required placeholder="you@example.com" class="w-full bg-white/80 border border-gray-300 rounded-xl p-3.5 text-brand-textMain placeholder-gray-400 focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30 transition shadow-sm font-medium">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-bold mb-2 text-brand-light">Portfolio Link</label>
-                            <input type="url" name="portfolio" required placeholder="Pixiv, Twitter/X, ArtStation, Drive, etc." class="w-full bg-brand-base border border-brand-blue/50 rounded-lg p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition">
+                            <label class="block text-sm font-black mb-2 text-brand-textMain">Portfolio Link</label>
+                            <input type="url" name="portfolio" required placeholder="Pixiv, Twitter/X, ArtStation, Drive, etc." class="w-full bg-white/80 border border-gray-300 rounded-xl p-3.5 text-brand-textMain placeholder-gray-400 focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30 transition shadow-sm font-medium">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-bold mb-2 text-brand-light">Briefly describe your style & desired role</label>
-                            <textarea name="message" rows="4" required placeholder="I specialize in..." class="w-full bg-brand-base border border-brand-blue/50 rounded-lg p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition resize-none"></textarea>
+                            <label class="block text-sm font-black mb-2 text-brand-textMain">Describe your style & desired role</label>
+                            <textarea name="message" rows="4" required placeholder="I specialize in..." class="w-full bg-white/80 border border-gray-300 rounded-xl p-3.5 text-brand-textMain placeholder-gray-400 focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30 transition resize-none shadow-sm font-medium"></textarea>
                         </div>
 
-                        <div class="flex items-start gap-3 bg-brand-base/50 p-4 rounded-lg border border-brand-blue/30">
-                            <input type="checkbox" name="payment_acknowledgement" required id="payment_ack" class="mt-1 w-4 h-4 accent-brand-accent bg-brand-base border-brand-blue rounded cursor-pointer">
-                            <label for="payment_ack" class="text-sm text-gray-300 leading-tight cursor-pointer">
-                                I verify that I can accept payments via <strong class="text-white">PayPal</strong> or <strong class="text-white">Bank Transfer</strong>.
+                        <div class="flex items-start gap-3 bg-blue-50/80 p-5 rounded-xl border border-blue-100 shadow-sm">
+                            <input type="checkbox" name="payment_acknowledgement" required id="payment_ack" class="mt-1 w-5 h-5 accent-brand-accent bg-white border-gray-300 rounded cursor-pointer">
+                            <label for="payment_ack" class="text-sm text-brand-textMuted leading-tight cursor-pointer font-bold">
+                                I verify that I can accept payments via <strong class="text-blue-700">PayPal</strong> or <strong class="text-blue-700">Bank Transfer</strong>.
                             </label>
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full mt-6 bg-brand-accent hover:bg-white text-brand-dark font-black py-4 rounded-xl transition-all duration-300 text-lg shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:scale-[1.02]">
+                    <button type="submit" class="w-full mt-8 bg-brand-accent hover:bg-blue-400 text-white font-black py-4 rounded-xl transition-all duration-300 text-lg shadow-[0_8px_20px_rgba(56,189,248,0.4)] hover:shadow-[0_12px_25px_rgba(56,189,248,0.6)] hover:-translate-y-1 tracking-wide">
                         SUBMIT APPLICATION
                     </button>
                 </form>
@@ -238,12 +245,12 @@
         </div>
     </main>
 
-    <footer class="w-full border-t border-brand-blue/30 py-8 text-center text-brand-blue text-sm relative z-10 bg-brand-base/30">
+    <footer class="w-full py-8 text-center text-brand-textMuted text-sm relative z-10 bg-white/40 backdrop-blur-md border-t border-white/60">
         <div class="flex justify-center items-center gap-2 mb-3">
             <svg class="w-5 h-5 text-brand-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            <span class="font-bold text-brand-light tracking-wide">bluenovel</span>
+            <span class="font-black text-brand-textMain tracking-wide">bluenovel</span>
         </div>
-        <p class="opacity-70">&copy; 2026 bluenovel Studios. All Rights Reserved.</p>
+        <p class="font-semibold">&copy; 2026 bluenovel Studios. All Rights Reserved.</p>
     </footer>
 
 </body>
