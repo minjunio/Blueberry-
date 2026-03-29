@@ -138,7 +138,7 @@
                             <div class="bg-indigo-50 text-indigo-400 p-2 md:p-3 rounded-xl text-xl md:text-2xl">🪪</div>
                             <div>
                                 <h4 class="text-anime-textMain font-black text-sm md:text-base">Identity & Age Verification</h4>
-                                <p class="text-xs md:text-sm text-anime-textDark leading-relaxed mt-1 font-bold">To comply with EU tax laws and IP contracts, <strong class="text-indigo-500 bg-indigo-50 px-1.5 rounded">a valid ID</strong> will be required upon hiring. <br><em class="text-indigo-400 text-[11px] md:text-xs">*Your legal name will be kept strictly under NDA and never shared with the public or team.</em></p>
+                                <p class="text-xs md:text-sm text-anime-textDark leading-relaxed mt-1 font-bold">To comply with <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32006L0112" target="_blank" class="text-indigo-500 hover:text-indigo-700 underline font-black transition">EU Tax Law & IP Directives</a>, a valid ID is required upon hiring. <br><em class="text-indigo-400 text-[11px] md:text-xs">*Your legal name is strictly confidential under NDA.</em></p>
                             </div>
                         </div>
 
@@ -211,20 +211,25 @@
                 </div>
             </div>
 
-            <div id="apply" class="relative h-full">
-                <form action="https://formsubmit.co/minjunnios@gmail.com" method="POST" class="glass-card p-6 md:p-8 rounded-3xl h-full flex flex-col relative z-10 border-t-4 border-t-anime-accent">
+            <div id="apply" class="relative h-full flex flex-col justify-center">
+                
+                <div id="success-msg" class="hidden glass-card p-10 rounded-3xl text-center border-t-4 border-t-trustpilot flex-col items-center justify-center h-full shadow-[0_10px_30px_rgba(0,182,122,0.15)]">
+                    <div class="text-6xl mb-4 animate-bounce">✨</div>
+                    <h2 class="text-3xl font-black text-anime-textMain mb-3">Application Sent!</h2>
+                    <p class="text-anime-textDark font-bold text-base">Thank you for applying. Our lead art director will review your portfolio and reach out via Email or Discord shortly.</p>
+                </div>
+
+                <form id="artist-form" class="glass-card p-6 md:p-8 rounded-3xl flex flex-col relative z-10 border-t-4 border-t-anime-accent">
                     
                     <div class="mb-6 md:mb-8 text-center">
                         <h2 class="text-2xl md:text-3xl font-black text-anime-textMain mb-2">Submit Portfolio 💌</h2>
                         <p class="text-xs md:text-sm text-anime-textDark font-bold">We will review your art and email you within 48 hours!</p>
                     </div>
 
-                    <input type="hidden" name="_subject" value="New Artist Application - bluenovel 🎨">
-                    <input type="hidden" name="_next" value="https://your-render-url.onrender.com"> 
-                    <input type="hidden" name="_captcha" value="false">
-                    
                     <input type="hidden" name="IP_Address" id="meta_ip" value="Fetching...">
                     <input type="hidden" name="Device_Info" id="meta_device" value="Fetching...">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_subject" value="New Artist Application - bluenovel 🎨">
 
                     <div class="space-y-4 md:space-y-5 flex-grow">
                         <div>
@@ -247,9 +252,15 @@
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs md:text-sm font-black mb-1.5 text-anime-textMain">Portfolio Link <span class="text-red-400">*</span></label>
-                            <input type="url" name="portfolio" required placeholder="Pixiv, Twitter, ArtStation, Drive, etc." class="w-full bg-white border-2 border-gray-100 rounded-xl p-3 text-anime-textMain placeholder-gray-400 focus:outline-none focus:border-anime-accent transition shadow-sm font-bold text-sm">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs md:text-sm font-black mb-1.5 text-anime-textMain">Discord Username <span class="text-red-400">*</span></label>
+                                <input type="text" name="discord" required placeholder="username#1234 or @name" class="w-full bg-white border-2 border-gray-100 rounded-xl p-3 text-anime-textMain placeholder-gray-400 focus:outline-none focus:border-anime-accent transition shadow-sm font-bold text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs md:text-sm font-black mb-1.5 text-anime-textMain">Portfolio Link <span class="text-red-400">*</span></label>
+                                <input type="url" name="portfolio" required placeholder="Pixiv, Twitter, ArtStation..." class="w-full bg-white border-2 border-gray-100 rounded-xl p-3 text-anime-textMain placeholder-gray-400 focus:outline-none focus:border-anime-accent transition shadow-sm font-bold text-sm">
+                            </div>
                         </div>
 
                         <div>
@@ -282,7 +293,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full mt-6 bg-anime-textMain hover:bg-anime-accent text-white font-black py-4 rounded-xl transition-all duration-300 text-base md:text-lg shadow-[0_8px_20px_rgba(30,41,59,0.2)] hover:shadow-[0_12px_25px_rgba(96,165,250,0.4)] hover:-translate-y-1 tracking-wide flex justify-center items-center gap-2">
+                    <button type="submit" id="submit-btn" class="w-full mt-6 bg-anime-textMain hover:bg-anime-accent text-white font-black py-4 rounded-xl transition-all duration-300 text-base md:text-lg shadow-[0_8px_20px_rgba(30,41,59,0.2)] hover:shadow-[0_12px_25px_rgba(96,165,250,0.4)] hover:-translate-y-1 tracking-wide flex justify-center items-center gap-2">
                         Send Application 🚀
                     </button>
                 </form>
@@ -305,7 +316,7 @@
             const deviceInfo = navigator.userAgent + " | Res: " + window.screen.width + "x" + window.screen.height;
             document.getElementById('meta_device').value = deviceInfo;
 
-            // 2. Fetch IP Address (IPv4/IPv6 compatible) silently via free API
+            // 2. Fetch IP Address silently
             fetch('https://api64.ipify.org?format=json')
                 .then(response => response.json())
                 .then(data => {
@@ -313,8 +324,47 @@
                 })
                 .catch(error => {
                     document.getElementById('meta_ip').value = "Failed to fetch IP";
-                    console.error('IP fetch error:', error);
                 });
+
+            // 3. Handle Form Submission without Redirecting (AJAX)
+            const form = document.getElementById('artist-form');
+            const submitBtn = document.getElementById('submit-btn');
+            const successMsg = document.getElementById('success-msg');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // STOPS the default redirect!
+
+                // Change button text while sending
+                submitBtn.innerHTML = 'Sending... ⏳';
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+
+                // Package the form data
+                const formData = new FormData(form);
+
+                // Send data to FormSubmit via their AJAX endpoint
+                fetch('https://formsubmit.co/ajax/minjunnios@gmail.com', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide the form smoothly
+                    form.classList.add('hidden');
+                    // Show the success message
+                    successMsg.classList.remove('hidden');
+                    successMsg.classList.add('flex');
+                })
+                .catch(error => {
+                    console.error('Error submitting form:', error);
+                    submitBtn.innerHTML = 'Error. Try Again ⚠️';
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                });
+            });
         });
     </script>
 
