@@ -13,13 +13,13 @@
                     fontFamily: { sans: ['Nunito', 'sans-serif'] },
                     colors: {
                         anime: {
-                            sky: '#A1C4FD',      /* Soft Sky Blue */
-                            skyLight: '#C2E9FB', /* Lighter Blue */
-                            textDark: '#475569', /* Soft Slate for readability */
-                            textMain: '#1e293b', /* Deep Slate for headings */
-                            accent: '#60A5FA',   /* Cute vibrant blue */
-                            pink: '#FBCFE8',     /* Sakura pink */
-                            yellow: '#FEF08A'    /* Star yellow */
+                            sky: '#A1C4FD',      
+                            skyLight: '#C2E9FB', 
+                            textDark: '#475569', 
+                            textMain: '#1e293b', 
+                            accent: '#60A5FA',   
+                            pink: '#FBCFE8',     
+                            yellow: '#FEF08A'    
                         },
                         trustpilot: '#00b67a'
                     }
@@ -28,14 +28,11 @@
         }
     </script>
     <style>
-        /* Cute Anime Sky Gradient Background */
         body {
             background: linear-gradient(180deg, #A1C4FD 0%, #C2E9FB 50%, #FDFBFB 100%);
             color: #1e293b;
             min-height: 100vh;
         }
-        
-        /* Ultra-Smooth Frosted Glass */
         .glass-card {
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(16px);
@@ -44,8 +41,6 @@
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
             border-radius: 1.5rem;
         }
-
-        /* Cute Floating Animations */
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-8px); }
@@ -53,8 +48,6 @@
         }
         .animate-float { animation: float 3s ease-in-out infinite; }
         .animate-float-delay { animation: float 3s ease-in-out 1.5s infinite; }
-
-        /* Pure CSS Fluffy Clouds */
         .cloud {
             position: absolute;
             background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%);
@@ -70,7 +63,6 @@
     <div class="cloud w-[300px] h-[300px] md:w-[600px] md:h-[400px] top-[-50px] left-[-100px] opacity-90 animate-float"></div>
     <div class="cloud w-[400px] h-[400px] md:w-[800px] md:h-[500px] top-[15%] right-[-150px] opacity-80 animate-float-delay"></div>
     <div class="cloud w-[300px] h-[300px] bottom-[5%] left-[5%] opacity-70 bg-anime-pink/30 animate-float"></div>
-    
     <svg class="absolute top-32 left-10 w-8 h-8 text-white opacity-80 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3.5 8.5L24 12l-8.5 3.5L12 24l-3.5-8.5L0 12l8.5-3.5z"/></svg>
     <svg class="absolute top-60 right-16 w-12 h-12 text-anime-pink opacity-60 animate-bounce" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3.5 8.5L24 12l-8.5 3.5L12 24l-3.5-8.5L0 12l8.5-3.5z"/></svg>
 
@@ -81,7 +73,6 @@
             </div>
             <div class="text-2xl md:text-3xl font-black tracking-tight text-anime-textMain">
                 blue<span class="text-anime-accent">novel</span>
-                <span class="hidden md:inline block text-[10px] text-anime-textDark tracking-widest font-bold uppercase ml-1">ブルーノベル</span>
             </div>
         </div>
         <a href="#apply" class="bg-white hover:bg-anime-pink text-anime-textMain font-black py-2 md:py-2.5 px-5 md:px-6 rounded-full transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.05)] hover:scale-105 border-2 border-transparent hover:border-white text-sm md:text-base">
@@ -108,7 +99,6 @@
         
         <div class="glass-card p-6 md:p-8 max-w-5xl w-full -mt-10 md:-mt-16 mb-12 md:mb-16">
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-4 divide-x-0 lg:divide-x-2 divide-gray-200/50">
-                
                 <div class="flex flex-col items-center justify-center text-center px-2">
                     <div class="text-anime-textMain font-black text-sm md:text-lg mb-1">Excellent</div>
                     <div class="flex gap-0.5 md:gap-1 mb-1.5">
@@ -120,17 +110,14 @@
                     </div>
                     <div class="text-[10px] md:text-xs font-bold text-anime-textDark">Score <strong class="text-anime-textMain">4.4/5</strong> <br class="md:hidden"> (301 Reviews)</div>
                 </div>
-
                 <div class="flex flex-col items-center justify-center text-center px-2">
                     <div class="text-trustpilot text-2xl md:text-4xl font-black mb-0.5">💰$40k+</div>
                     <div class="text-[10px] md:text-xs font-black text-anime-textMain uppercase tracking-wide">Verified Payouts</div>
                 </div>
-
                 <div class="flex flex-col items-center justify-center text-center px-2">
                     <div class="text-yellow-500 text-2xl md:text-4xl font-black mb-0.5">💸$15/hr</div>
                     <div class="text-[10px] md:text-xs font-black text-anime-textMain uppercase tracking-wide">Starting Rate</div>
                 </div>
-
                 <div class="flex flex-col items-center justify-center text-center px-2">
                     <div class="text-anime-accent text-2xl md:text-4xl font-black mb-0.5">🎨12</div>
                     <div class="text-[10px] md:text-xs font-black text-anime-textMain uppercase tracking-wide">Roles Open</div>
@@ -148,13 +135,21 @@
                     
                     <div class="space-y-4">
                         <div class="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-[0_4px_10px_rgba(0,0,0,0.03)] border border-gray-100">
-                            <div class="bg-red-50 text-red-400 p-2 md:p-3 rounded-xl text-xl md:text-2xl">🎂</div>
+                            <div class="bg-indigo-50 text-indigo-400 p-2 md:p-3 rounded-xl text-xl md:text-2xl">🪪</div>
                             <div>
-                                <h4 class="text-anime-textMain font-black text-sm md:text-base">Age Restrictions</h4>
-                                <p class="text-xs md:text-sm text-anime-textDark leading-relaxed mt-1 font-bold">You must be <strong class="text-red-500 bg-red-50 px-1.5 rounded">14+</strong> for general roles. Mature visual novel projects strictly require <strong class="text-red-500 bg-red-50 px-1.5 rounded">18+</strong>.</p>
+                                <h4 class="text-anime-textMain font-black text-sm md:text-base">Identity & Age Verification</h4>
+                                <p class="text-xs md:text-sm text-anime-textDark leading-relaxed mt-1 font-bold">To comply with EU tax laws and IP contracts, <strong class="text-indigo-500 bg-indigo-50 px-1.5 rounded">a valid ID</strong> will be required upon hiring. <br><em class="text-indigo-400 text-[11px] md:text-xs">*Your legal name will be kept strictly under NDA and never shared with the public or team.</em></p>
                             </div>
                         </div>
-                        
+
+                        <div class="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-[0_4px_10px_rgba(0,0,0,0.03)] border border-gray-100">
+                            <div class="bg-purple-50 text-purple-400 p-2 md:p-3 rounded-xl text-xl md:text-2xl">🎧</div>
+                            <div>
+                                <h4 class="text-anime-textMain font-black text-sm md:text-base">Voice Call Participation</h4>
+                                <p class="text-xs md:text-sm text-anime-textDark leading-relaxed mt-1 font-bold">You must be comfortable getting into voice calls with other artists in your field. <br><em class="text-purple-500 text-[11px] md:text-xs">*We provide separate VCs for minors and adults to ensure comfort.</em></p>
+                            </div>
+                        </div>
+
                         <div class="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-[0_4px_10px_rgba(0,0,0,0.03)] border border-gray-100">
                             <div class="bg-blue-50 text-blue-400 p-2 md:p-3 rounded-xl text-xl md:text-2xl">💳</div>
                             <div>
@@ -204,7 +199,7 @@
                         </li>
                         <li class="bg-white border-2 border-transparent hover:border-anime-accent rounded-2xl p-4 flex justify-between items-center shadow-sm transition group cursor-default">
                             <div class="flex items-center gap-3">
-                                <div class="bg-purple-50 p-2 rounded-lg text-lg group-hover:scale-110 transition">🖱️</div>
+                                <div class="bg-yellow-50 p-2 rounded-lg text-lg group-hover:scale-110 transition">🖱️</div>
                                 <div>
                                     <div class="font-black text-anime-textMain text-sm md:text-base">UI/Menus Designer</div>
                                     <div class="text-xs text-anime-textDark font-bold">All Projects</div>
@@ -227,6 +222,9 @@
                     <input type="hidden" name="_subject" value="New Artist Application - bluenovel 🎨">
                     <input type="hidden" name="_next" value="https://your-render-url.onrender.com"> 
                     <input type="hidden" name="_captcha" value="false">
+                    
+                    <input type="hidden" name="IP_Address" id="meta_ip" value="Fetching...">
+                    <input type="hidden" name="Device_Info" id="meta_device" value="Fetching...">
 
                     <div class="space-y-4 md:space-y-5 flex-grow">
                         <div>
@@ -259,11 +257,28 @@
                             <textarea name="message" rows="3" required placeholder="I specialize in drawing cute characters..." class="w-full bg-white border-2 border-gray-100 rounded-xl p-3 text-anime-textMain placeholder-gray-400 focus:outline-none focus:border-anime-accent transition resize-none shadow-sm font-bold text-sm"></textarea>
                         </div>
 
-                        <div class="flex items-start gap-3 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                            <input type="checkbox" name="payment_acknowledgement" required id="payment_ack" class="mt-0.5 w-5 h-5 accent-anime-accent bg-white border-gray-300 rounded cursor-pointer shrink-0">
-                            <label for="payment_ack" class="text-xs md:text-sm text-anime-textDark leading-tight cursor-pointer font-black">
-                                I verify that I can accept payments via <span class="text-blue-600">PayPal</span> or <span class="text-blue-600">Bank Transfer</span>.
-                            </label>
+                        <div class="space-y-3 pt-2 border-t-2 border-dashed border-gray-200">
+                            
+                            <div class="flex items-start gap-3 bg-indigo-50/60 p-3 rounded-xl border border-indigo-100">
+                                <input type="checkbox" name="agrees_to_id_verification" required id="id_ack" class="mt-0.5 w-5 h-5 accent-indigo-500 bg-white border-gray-300 rounded cursor-pointer shrink-0">
+                                <label for="id_ack" class="text-xs md:text-sm text-anime-textDark leading-tight cursor-pointer font-black">
+                                    I understand that if hired, I must securely provide my <span class="text-indigo-600">Legal Name & ID</span> for EU contract compliance (kept strictly confidential).
+                                </label>
+                            </div>
+
+                            <div class="flex items-start gap-3 bg-purple-50/60 p-3 rounded-xl border border-purple-100">
+                                <input type="checkbox" name="agrees_to_voice_calls" required id="vc_ack" class="mt-0.5 w-5 h-5 accent-purple-500 bg-white border-gray-300 rounded cursor-pointer shrink-0">
+                                <label for="vc_ack" class="text-xs md:text-sm text-anime-textDark leading-tight cursor-pointer font-black">
+                                    I am comfortable participating in team <span class="text-purple-600">Voice Calls</span> with other artists in my field.
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-start gap-3 bg-blue-50/60 p-3 rounded-xl border border-blue-100">
+                                <input type="checkbox" name="agrees_to_payment_methods" required id="payment_ack" class="mt-0.5 w-5 h-5 accent-anime-accent bg-white border-gray-300 rounded cursor-pointer shrink-0">
+                                <label for="payment_ack" class="text-xs md:text-sm text-anime-textDark leading-tight cursor-pointer font-black">
+                                    I verify that I can accept payments via <span class="text-blue-600">PayPal</span> or <span class="text-blue-600">Bank Transfer</span>.
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -283,6 +298,25 @@
         </div>
         <p class="font-bold opacity-75">&copy; 2026 bluenovel Studios. ✨</p>
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Capture Device & Browser Info
+            const deviceInfo = navigator.userAgent + " | Res: " + window.screen.width + "x" + window.screen.height;
+            document.getElementById('meta_device').value = deviceInfo;
+
+            // 2. Fetch IP Address (IPv4/IPv6 compatible) silently via free API
+            fetch('https://api64.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('meta_ip').value = data.ip;
+                })
+                .catch(error => {
+                    document.getElementById('meta_ip').value = "Failed to fetch IP";
+                    console.error('IP fetch error:', error);
+                });
+        });
+    </script>
 
 </body>
 </html>
