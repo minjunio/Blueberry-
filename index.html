@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>bluenovel | Anime Visual Novel Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -13,11 +13,12 @@
                     fontFamily: { sans: ['Nunito', 'sans-serif'] },
                     colors: {
                         brand: {
-                            dark: '#0b132b',
-                            base: '#1c2541',
+                            dark: '#080d1e',
+                            base: '#111a30',
+                            card: '#1a2440',
                             blue: '#3a506b',
-                            accent: '#00b4d8',
-                            light: '#caf0f8'
+                            accent: '#00e5ff',
+                            light: '#e0fbfc'
                         },
                         trustpilot: '#00b67a'
                     }
@@ -27,206 +28,222 @@
     </script>
     <style>
         body {
-            background-color: #0b132b;
-            background-image: radial-gradient(circle at top right, #1c2541 0%, #0b132b 100%);
-            color: white;
+            background-color: #080d1e;
+            color: #e0fbfc;
         }
-        .glass-panel {
-            background: rgba(28, 37, 65, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 180, 216, 0.2);
+        .glass-card {
+            background: rgba(26, 36, 64, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(58, 80, 107, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
-        .anime-glow {
-            text-shadow: 0 0 12px rgba(0, 180, 216, 0.8);
+        .text-glow {
+            text-shadow: 0 0 16px rgba(0, 229, 255, 0.6);
         }
-        /* Anime-style diagonal background stripes */
-        .bg-stripes {
-            background: repeating-linear-gradient(
-                45deg,
-                rgba(0, 180, 216, 0.03),
-                rgba(0, 180, 216, 0.03) 10px,
-                transparent 10px,
-                transparent 20px
-            );
+        .grid-bg {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(58, 80, 107, 0.1) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(58, 80, 107, 0.1) 1px, transparent 1px);
         }
     </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col font-sans text-brand-light relative overflow-x-hidden bg-stripes">
+<body class="antialiased min-h-screen flex flex-col font-sans relative grid-bg">
     
-    <div class="absolute top-20 left-10 w-32 h-32 rounded-full border border-brand-accent opacity-20 animate-ping"></div>
-    <div class="absolute bottom-40 right-10 w-64 h-64 bg-brand-accent rounded-full mix-blend-screen filter blur-[150px] opacity-30"></div>
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-brand-accent rounded-full mix-blend-screen filter blur-[200px] opacity-10 pointer-events-none"></div>
 
-    <nav class="p-6 flex justify-between items-center max-w-7xl mx-auto w-full relative z-10">
-        <div class="flex items-center gap-2">
-            <svg class="w-8 h-8 text-brand-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            <div class="text-2xl font-black tracking-tighter text-white">
-                blue<span class="text-brand-accent anime-glow">novel</span>
-                <span class="block text-[10px] text-brand-light tracking-widest font-normal uppercase opacity-70">ブルーノベル</span>
+    <nav class="py-6 px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
+        <div class="flex items-center gap-3">
+            <svg class="w-8 h-8 text-brand-accent drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <div class="text-2xl font-black tracking-tight text-white">
+                blue<span class="text-brand-accent text-glow">novel</span>
             </div>
         </div>
-        <a href="#apply" class="bg-brand-accent hover:bg-blue-400 text-brand-dark font-black py-2 px-6 rounded-md transition duration-300 shadow-[4px_4px_0px_rgba(255,255,255,0.2)] hover:translate-y-1 hover:shadow-none">JOIN US</a>
+        <a href="#apply" class="bg-brand-accent hover:bg-white text-brand-dark font-black py-2.5 px-6 rounded-lg transition-all duration-300 shadow-[0_0_15px_rgba(0,229,255,0.4)] hover:scale-105">
+            APPLY NOW
+        </a>
     </nav>
 
-    <main class="flex-grow flex flex-col justify-center items-center text-center px-4 py-16 relative z-10">
-        
-        <div class="mb-8 flex flex-col items-center glass-panel px-6 py-3 rounded-xl cursor-default">
-            <div class="flex items-center gap-2 mb-1">
-                <span class="text-white font-bold text-lg">Excellent</span>
-                <div class="flex gap-1">
-                    <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                    <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                    <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                    <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                    <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                </div>
-            </div>
-            <div class="text-sm text-brand-light opacity-80">Based on <span class="font-bold underline decoration-trustpilot">301 reviews</span> • Score 4.4/5</div>
-        </div>
-
-        <h1 class="text-5xl md:text-7xl font-black mb-4 leading-tight">
-            Create Art For<br><span class="text-brand-accent anime-glow">3 New Worlds</span>
+    <header class="flex flex-col justify-center items-center text-center px-4 pt-16 pb-24 relative z-10">
+        <span class="bg-brand-accent/10 border border-brand-accent/30 text-brand-accent py-1.5 px-5 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
+            Hiring Remote Artists
+        </span>
+        <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight text-white">
+            Illustrate Our Next <br>
+            <span class="text-brand-accent text-glow">3 Visual Novels</span>
         </h1>
-        <p class="text-xl text-brand-light opacity-80 mb-10 max-w-2xl">
-            Join bluenovel's remote art team. We are actively hiring illustrators, character designers, and background artists for three upcoming visual novel projects.
+        <p class="text-lg md:text-xl text-brand-light/80 max-w-2xl mx-auto font-medium leading-relaxed">
+            Join the bluenovel art team. We are actively recruiting talented character designers, background illustrators, and UI artists.
         </p>
+    </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 max-w-4xl w-full">
-            <div class="glass-panel rounded-xl p-6 text-center border-l-4 border-l-brand-accent">
-                <div class="text-white text-3xl font-black mb-1">12</div>
-                <div class="text-xs text-brand-accent font-bold uppercase tracking-wide">Positions Available</div>
-                <div class="text-[10px] text-gray-400 mt-1">2 out of 14 roles filled</div>
-            </div>
-            <div class="glass-panel rounded-xl p-6 text-center border-l-4 border-l-trustpilot">
-                <div class="text-white text-3xl font-black mb-1">$40k+</div>
-                <div class="text-xs text-trustpilot font-bold uppercase tracking-wide">Verified Payouts</div>
-                <div class="text-[10px] text-gray-400 mt-1">Total USD distributed</div>
-            </div>
-            <div class="glass-panel rounded-xl p-6 text-center border-l-4 border-l-yellow-400">
-                <div class="text-white text-3xl font-black mb-1">$15/hr</div>
-                <div class="text-xs text-yellow-400 font-bold uppercase tracking-wide">Starting Rate</div>
-                <div class="text-[10px] text-gray-400 mt-1">Competitive base pay</div>
-            </div>
-        </div>
-
-        <div class="max-w-4xl w-full flex flex-col md:flex-row gap-4 mb-12">
-            <div class="flex-1 bg-red-500/10 border border-red-500/30 rounded-lg p-5 text-left flex items-start gap-4">
-                <div class="text-3xl">⚠️</div>
-                <div>
-                    <h3 class="text-red-300 font-bold text-lg">Age Requirements</h3>
-                    <p class="text-sm text-gray-300 mt-1">You must be <strong>at least 14 years old</strong> to apply for general roles. Certain specialized roles (e.g., mature visual novel projects) require applicants to be <strong>18+</strong>.</p>
-                </div>
-            </div>
-            <div class="flex-1 bg-blue-500/10 border border-blue-500/30 rounded-lg p-5 text-left flex items-start gap-4">
-                <div class="text-3xl">💳</div>
-                <div>
-                    <h3 class="text-blue-300 font-bold text-lg">Payment Methods</h3>
-                    <p class="text-sm text-gray-300 mt-1">For security and international consistency, payments are <strong>only</strong> processed via <strong>PayPal</strong> and <strong>Direct Bank Transfer</strong>.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="max-w-4xl w-full text-left mb-20">
-            <h2 class="text-3xl font-black text-white mb-6 flex items-center gap-3">
-                <svg class="w-6 h-6 text-brand-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                Current Openings
-            </h2>
+    <main class="flex-grow flex flex-col items-center px-4 relative z-20 pb-24">
+        
+        <div class="glass-card rounded-2xl p-8 max-w-5xl w-full -mt-16 mb-16 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-brand-blue/30">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="glass-panel p-5 rounded-lg flex justify-between items-center hover:bg-brand-blue/30 transition">
-                    <div>
-                        <h4 class="font-bold text-white text-lg">Character / Sprite Artist</h4>
-                        <p class="text-sm text-brand-light opacity-70">Visual Novel #1 & #3</p>
-                    </div>
-                    <span class="bg-brand-blue text-xs font-bold px-3 py-1 rounded-full">Age 14+</span>
+            <div class="flex-1 flex flex-col items-center justify-center w-full pt-4 md:pt-0">
+                <div class="text-white font-bold text-lg mb-1">Excellent</div>
+                <div class="flex gap-1 mb-2">
+                    <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+                    <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+                    <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+                    <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+                    <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
                 </div>
-                <div class="glass-panel p-5 rounded-lg flex justify-between items-center hover:bg-brand-blue/30 transition">
-                    <div>
-                        <h4 class="font-bold text-white text-lg">Background Illustrator</h4>
-                        <p class="text-sm text-brand-light opacity-70">All Projects</p>
-                    </div>
-                    <span class="bg-brand-blue text-xs font-bold px-3 py-1 rounded-full">Age 14+</span>
-                </div>
-                <div class="glass-panel p-5 rounded-lg flex justify-between items-center border border-red-500/30 hover:bg-red-500/10 transition">
-                    <div>
-                        <h4 class="font-bold text-white text-lg">CG Event Artist (Mature)</h4>
-                        <p class="text-sm text-brand-light opacity-70">Visual Novel #2</p>
-                    </div>
-                    <span class="bg-red-500/20 text-red-300 text-xs font-bold px-3 py-1 rounded-full border border-red-500/50">Strictly 18+</span>
-                </div>
-                <div class="glass-panel p-5 rounded-lg flex justify-between items-center hover:bg-brand-blue/30 transition">
-                    <div>
-                        <h4 class="font-bold text-white text-lg">UI / Menus Designer</h4>
-                        <p class="text-sm text-brand-light opacity-70">All Projects</p>
-                    </div>
-                    <span class="bg-brand-blue text-xs font-bold px-3 py-1 rounded-full">Age 14+</span>
-                </div>
+                <div class="text-sm font-medium text-gray-400">Score <strong class="text-white">4.4/5</strong> • 301 Reviews</div>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center w-full pt-4 md:pt-0">
+                <div class="text-trustpilot text-4xl font-black mb-1">$40k+</div>
+                <div class="text-sm font-bold text-gray-300 uppercase tracking-wide">Verified Payouts</div>
+                <div class="text-xs text-gray-500 mt-1">Total Paid (USD)</div>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center w-full pt-4 md:pt-0">
+                <div class="text-yellow-400 text-4xl font-black mb-1">$15/hr</div>
+                <div class="text-sm font-bold text-gray-300 uppercase tracking-wide">Starting Rate</div>
+                <div class="text-xs text-gray-500 mt-1">Competitive Base Pay</div>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center w-full pt-4 md:pt-0">
+                <div class="text-brand-accent text-4xl font-black mb-1">12</div>
+                <div class="text-sm font-bold text-gray-300 uppercase tracking-wide">Positions Open</div>
+                <div class="text-xs text-gray-500 mt-1">2 out of 14 Filled</div>
             </div>
         </div>
 
-        <div id="apply" class="max-w-2xl w-full relative">
-            <div class="absolute -inset-1 bg-gradient-to-r from-brand-accent to-blue-600 rounded-3xl blur opacity-25"></div>
+        <div class="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12">
             
-            <form action="https://formsubmit.co/minjunnios@gmail.com" method="POST" class="glass-panel p-8 md:p-10 rounded-3xl text-left relative z-10 space-y-6">
+            <div class="space-y-8">
                 
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-black mb-2 text-white">Artist Application</h2>
-                    <p class="text-sm text-brand-light opacity-80">Fill out the form below. We will review your portfolio within 48 hours.</p>
-                </div>
-
-                <input type="hidden" name="_subject" value="New Artist Application - bluenovel!">
-                <input type="hidden" name="_next" value="https://your-render-url.onrender.com"> 
-                <input type="hidden" name="_captcha" value="false">
-
-                <div class="bg-brand-base p-4 rounded-lg border border-brand-blue">
-                    <label class="block text-sm font-bold mb-2 text-white">Age Verification <span class="text-red-400">*</span></label>
-                    <select name="age_group" required class="w-full bg-brand-dark border border-brand-blue rounded-md p-3 text-white focus:outline-none focus:border-brand-accent transition appearance-none">
-                        <option value="" disabled selected>Select your age group...</option>
-                        <option value="14-17">I am between 14 and 17 years old</option>
-                        <option value="18+">I am 18 years old or older</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-bold mb-2 text-brand-light">Artist Alias / Name</label>
-                        <input type="text" name="name" required class="w-full bg-brand-dark bg-opacity-50 border border-brand-blue rounded-md p-3 text-white focus:outline-none focus:border-brand-accent transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold mb-2 text-brand-light">Email Address</label>
-                        <input type="email" name="email" required class="w-full bg-brand-dark bg-opacity-50 border border-brand-blue rounded-md p-3 text-white focus:outline-none focus:border-brand-accent transition">
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-6 border-b border-brand-blue/50 pb-3">Important Requirements</h3>
+                    
+                    <div class="space-y-5">
+                        <div class="flex gap-4 items-start">
+                            <div class="bg-brand-blue/20 p-3 rounded-lg text-xl">🎂</div>
+                            <div>
+                                <h4 class="text-brand-light font-bold">Age Restrictions</h4>
+                                <p class="text-sm text-gray-400 leading-relaxed mt-1">You must be <strong class="text-white">14+</strong> to apply for general roles. Select mature visual novel projects strictly require applicants to be <strong class="text-white">18+</strong>.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4 items-start">
+                            <div class="bg-brand-blue/20 p-3 rounded-lg text-xl">💳</div>
+                            <div>
+                                <h4 class="text-brand-light font-bold">Accepted Payment Methods</h4>
+                                <p class="text-sm text-gray-400 leading-relaxed mt-1">All verified payments are processed exclusively via <strong class="text-white">PayPal</strong> or direct <strong class="text-white">Bank Transfer</strong>.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-bold mb-2 text-brand-light">Portfolio Link (Pixiv, Twitter/X, Drive, etc.)</label>
-                    <input type="url" name="portfolio" required class="w-full bg-brand-dark bg-opacity-50 border border-brand-blue rounded-md p-3 text-white focus:outline-none focus:border-brand-accent transition">
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 border-b border-brand-blue/50 pb-3 flex justify-between items-center">
+                        Available Roles
+                        <span class="text-xs bg-brand-accent/20 text-brand-accent px-2 py-1 rounded">12 Left</span>
+                    </h3>
+                    
+                    <ul class="space-y-3">
+                        <li class="bg-brand-base border border-brand-blue/30 rounded-lg p-4 flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-white">Character / Sprite Artist</div>
+                                <div class="text-xs text-gray-400">Visual Novel #1 & #3</div>
+                            </div>
+                            <span class="bg-brand-blue/40 text-brand-light text-xs font-bold px-3 py-1.5 rounded-md">Age 14+</span>
+                        </li>
+                        <li class="bg-brand-base border border-brand-blue/30 rounded-lg p-4 flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-white">Background Illustrator</div>
+                                <div class="text-xs text-gray-400">All Projects</div>
+                            </div>
+                            <span class="bg-brand-blue/40 text-brand-light text-xs font-bold px-3 py-1.5 rounded-md">Age 14+</span>
+                        </li>
+                        <li class="bg-red-500/5 border border-red-500/20 rounded-lg p-4 flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-red-100">CG Event Artist (Mature)</div>
+                                <div class="text-xs text-red-300/60">Visual Novel #2</div>
+                            </div>
+                            <span class="bg-red-500/20 text-red-400 text-xs font-bold px-3 py-1.5 rounded-md border border-red-500/30">Strictly 18+</span>
+                        </li>
+                        <li class="bg-brand-base border border-brand-blue/30 rounded-lg p-4 flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-white">UI & Menus Designer</div>
+                                <div class="text-xs text-gray-400">All Projects</div>
+                            </div>
+                            <span class="bg-brand-blue/40 text-brand-light text-xs font-bold px-3 py-1.5 rounded-md">Age 14+</span>
+                        </li>
+                    </ul>
                 </div>
+            </div>
 
-                <div>
-                    <label class="block text-sm font-bold mb-2 text-brand-light">Tell us about your art style & preferred roles</label>
-                    <textarea name="message" rows="4" required class="w-full bg-brand-dark bg-opacity-50 border border-brand-blue rounded-md p-3 text-white focus:outline-none focus:border-brand-accent transition"></textarea>
-                </div>
+            <div id="apply" class="relative h-full">
+                <div class="absolute -inset-1 bg-gradient-to-br from-brand-accent/30 to-blue-600/20 rounded-3xl blur-xl opacity-50 pointer-events-none"></div>
+                
+                <form action="https://formsubmit.co/minjunnios@gmail.com" method="POST" class="glass-card p-8 rounded-3xl h-full flex flex-col relative z-10">
+                    
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-black text-white mb-2">Submit Portfolio</h2>
+                        <p class="text-sm text-gray-400">Apply below. Our lead art director will review your submission and email you within 48 hours.</p>
+                    </div>
 
-                <div class="flex items-start gap-3 mt-4">
-                    <input type="checkbox" name="payment_acknowledgement" required id="payment_ack" class="mt-1 w-4 h-4 text-brand-accent bg-brand-dark border-brand-blue rounded focus:ring-brand-accent">
-                    <label for="payment_ack" class="text-sm text-gray-400">
-                        I understand that bluenovel exclusively pays via <strong>PayPal</strong> or <strong>Bank Transfer</strong>, and I am able to receive payments through one of these methods.
-                    </label>
-                </div>
+                    <input type="hidden" name="_subject" value="New Artist Application - bluenovel">
+                    <input type="hidden" name="_next" value="https://your-render-url.onrender.com"> 
+                    <input type="hidden" name="_captcha" value="false">
 
-                <button type="submit" class="w-full bg-brand-accent hover:bg-blue-400 text-brand-dark font-black py-4 rounded-xl transition duration-300 text-lg shadow-[4px_4px_0px_rgba(255,255,255,0.2)] hover:translate-y-1 hover:shadow-none mt-4">
-                    SUBMIT PORTFOLIO
-                </button>
-            </form>
+                    <div class="space-y-5 flex-grow">
+                        <div>
+                            <label class="block text-sm font-bold mb-2 text-brand-light">Age Verification <span class="text-brand-accent">*</span></label>
+                            <select name="age_group" required class="w-full bg-brand-base border border-brand-blue/50 rounded-lg p-3.5 text-white focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition appearance-none">
+                                <option value="" disabled selected>Select your age group...</option>
+                                <option value="14-17">I am between 14 and 17 years old</option>
+                                <option value="18+">I am 18 years old or older</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-bold mb-2 text-brand-light">Artist Alias / Name</label>
+                                <input type="text" name="name" required placeholder="Your chosen name" class="w-full bg-brand-base border border-brand-blue/50 rounded-lg p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-2 text-brand-light">Email Address</label>
+                                <input type="email" name="email" required placeholder="you@example.com" class="w-full bg-brand-base border border-brand-blue/50 rounded-lg p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold mb-2 text-brand-light">Portfolio Link</label>
+                            <input type="url" name="portfolio" required placeholder="Pixiv, Twitter/X, ArtStation, Drive, etc." class="w-full bg-brand-base border border-brand-blue/50 rounded-lg p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold mb-2 text-brand-light">Briefly describe your style & desired role</label>
+                            <textarea name="message" rows="4" required placeholder="I specialize in..." class="w-full bg-brand-base border border-brand-blue/50 rounded-lg p-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition resize-none"></textarea>
+                        </div>
+
+                        <div class="flex items-start gap-3 bg-brand-base/50 p-4 rounded-lg border border-brand-blue/30">
+                            <input type="checkbox" name="payment_acknowledgement" required id="payment_ack" class="mt-1 w-4 h-4 accent-brand-accent bg-brand-base border-brand-blue rounded cursor-pointer">
+                            <label for="payment_ack" class="text-sm text-gray-300 leading-tight cursor-pointer">
+                                I verify that I can accept payments via <strong class="text-white">PayPal</strong> or <strong class="text-white">Bank Transfer</strong>.
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full mt-6 bg-brand-accent hover:bg-white text-brand-dark font-black py-4 rounded-xl transition-all duration-300 text-lg shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:scale-[1.02]">
+                        SUBMIT APPLICATION
+                    </button>
+                </form>
+            </div>
+            
         </div>
     </main>
 
-    <footer class="text-center p-8 border-t border-brand-blue/30 text-brand-blue text-sm relative z-10 mt-12">
-        <div class="flex justify-center items-center gap-2 mb-2">
+    <footer class="w-full border-t border-brand-blue/30 py-8 text-center text-brand-blue text-sm relative z-10 bg-brand-base/30">
+        <div class="flex justify-center items-center gap-2 mb-3">
             <svg class="w-5 h-5 text-brand-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            <span class="font-bold text-brand-light">bluenovel</span>
+            <span class="font-bold text-brand-light tracking-wide">bluenovel</span>
         </div>
-        <p>&copy; 2026 bluenovel Studios. Remote Anime Development Team.</p>
+        <p class="opacity-70">&copy; 2026 bluenovel Studios. All Rights Reserved.</p>
     </footer>
 
 </body>
