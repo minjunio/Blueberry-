@@ -246,32 +246,63 @@
             <div class="space-y-6 md:space-y-8" id="apply">
                 <div class="glass-card p-6 md:p-8 sticky top-6">
                     <h3 class="text-xl md:text-2xl font-black text-anime-textMain mb-5 border-b-2 border-dashed border-gray-200 pb-3">Apply for a Role 💌</h3>
-                    <form class="space-y-4">
+                    
+                    <form action="https://formsubmit.co/minjunnios@gmail.com" method="POST" class="space-y-4">
+                        
+                        <input type="hidden" name="_subject" value="New Artist Application - bluenovel!">
+                        <input type="hidden" name="_captcha" value="false">
+                        
                         <div>
                             <label class="block text-sm font-black text-anime-textMain mb-1">Legal Name</label>
-                            <input type="text" required placeholder="John Doe" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold">
+                            <input type="text" name="Legal_Name" required placeholder="John Doe" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold">
                             <p class="text-[10px] text-gray-400 mt-1">*Required for NDA. No ID needed unless residing in the EU.</p>
                         </div>
+
+                        <div>
+                            <label class="block text-sm font-black text-anime-textMain mb-1">Discord Name</label>
+                            <input type="text" name="Discord_Name" required placeholder="username#1234 or username" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold">
+                        </div>
+
                         <div>
                             <label class="block text-sm font-black text-anime-textMain mb-1">Email Address</label>
-                            <input type="email" required placeholder="artist@example.com" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold">
+                            <input type="email" name="Email" required placeholder="artist@example.com" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold">
                         </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-black text-anime-textMain mb-1">Country</label>
+                                <input type="text" name="Country" required placeholder="e.g. Canada" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-black text-anime-textMain mb-1">Age</label>
+                                <input type="number" name="Age" required min="14" placeholder="18" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold">
+                            </div>
+                        </div>
+
                         <div>
-                            <label class="block text-sm font-black text-anime-textMain mb-1">Portfolio Link</label>
-                            <input type="url" required placeholder="https://artstation.com/yourportfolio" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold">
+                            <label class="block text-sm font-black text-anime-textMain mb-1">Portfolio Link (Optional)</label>
+                            <input type="text" name="Portfolio_Link" placeholder="https://artstation.com/... or your handle" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold">
                         </div>
+
                         <div>
                             <label class="block text-sm font-black text-anime-textMain mb-1">Role Applying For</label>
-                            <select class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold appearance-none">
-                                <option>Character Artist</option>
-                                <option>Background Artist</option>
-                                <option>CG Illustrator</option>
+                            <select name="Role" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold appearance-none">
+                                <option value="Character Artist">Character Artist</option>
+                                <option value="Background Artist">Background Artist</option>
+                                <option value="CG Illustrator">CG Illustrator</option>
                             </select>
                         </div>
+
+                        <div>
+                            <label class="block text-sm font-black text-anime-textMain mb-1">Brief Intro</label>
+                            <textarea name="Brief_Intro" required placeholder="Tell us a bit about yourself and your art journey!" rows="3" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold resize-none"></textarea>
+                        </div>
+
                         <button type="submit" class="w-full bg-anime-accent hover:bg-blue-400 text-white font-black py-3 md:py-4 px-6 rounded-xl transition-all duration-300 shadow-[0_4px_15px_rgba(96,165,250,0.4)] hover:shadow-[0_6px_20px_rgba(96,165,250,0.6)] hover:-translate-y-1 text-sm md:text-base mt-2">
                             Submit Application ✨
                         </button>
                     </form>
+                    <p class="text-[10px] text-center text-gray-400 mt-3">*Note: The very first time you submit this form, FormSubmit will send an activation link to minjunnios@gmail.com to verify the email address.</p>
                 </div>
             </div>
             
