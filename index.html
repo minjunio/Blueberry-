@@ -22,7 +22,6 @@
                             yellow: '#FEF08A'    
                         },
                         trustpilot: '#00b67a',
-                        trustpilotHover: '#009b68'
                     },
                     animation: {
                         'float': 'float 3s ease-in-out infinite',
@@ -50,390 +49,177 @@
             min-height: 100vh;
             overflow-x: hidden;
             width: 100%;
-            max-width: 100vw;
             position: relative;
         }
         .glass-card {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 2px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
             border-radius: 1.5rem;
-            transition: box-shadow 0.3s ease;
-        }
-        .glass-card:hover {
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
         }
         .cloud {
             position: absolute;
-            background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%);
+            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
             border-radius: 50%;
-            filter: blur(15px);
+            filter: blur(20px);
             z-index: 0;
             pointer-events: none;
         }
     </style>
 </head>
-<body class="antialiased flex flex-col font-sans relative selection:bg-anime-pink selection:text-anime-textMain">
+<body class="antialiased flex flex-col font-sans relative selection:bg-anime-pink">
     
-    <div class="cloud w-[300px] h-[300px] md:w-[600px] md:h-[400px] top-[-50px] left-[-100px] opacity-90 animate-float"></div>
-    <div class="cloud w-[400px] h-[400px] md:w-[800px] md:h-[500px] top-[15%] right-[-150px] opacity-80 animate-float-delay"></div>
-    <div class="cloud w-[300px] h-[300px] bottom-[5%] left-[5%] opacity-70 bg-anime-pink/30 animate-float"></div>
-    <svg class="absolute top-32 left-10 w-8 h-8 text-white opacity-80 animate-pulse pointer-events-none" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3.5 8.5L24 12l-8.5 3.5L12 24l-3.5-8.5L0 12l8.5-3.5z"/></svg>
-    <svg class="absolute top-60 right-16 w-12 h-12 text-anime-pink opacity-60 animate-bounce pointer-events-none" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3.5 8.5L24 12l-8.5 3.5L12 24l-3.5-8.5L0 12l8.5-3.5z"/></svg>
+    <div class="cloud w-[400px] h-[400px] top-[-50px] left-[-100px] opacity-90 animate-float"></div>
+    <div class="cloud w-[500px] h-[500px] top-[15%] right-[-150px] opacity-80 animate-float-delay"></div>
 
-    <nav class="py-4 md:py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20 animate-fade-in-up">
-        <div class="flex items-center gap-2 md:gap-3 cursor-pointer group">
+    <nav class="py-6 px-6 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20 animate-fade-in-up">
+        <div class="flex items-center gap-3 cursor-pointer group">
             <div class="bg-white p-2 rounded-full shadow-sm group-hover:rotate-12 transition duration-300">
-                <svg class="w-6 h-6 md:w-8 md:h-8 text-anime-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.758a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/></svg>
+                <svg class="w-8 h-8 text-anime-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.758a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/></svg>
             </div>
-            <div class="text-2xl md:text-3xl font-black tracking-tight text-anime-textMain">
+            <div class="text-3xl font-black tracking-tight text-anime-textMain">
                 blue<span class="text-anime-accent">novel</span>
             </div>
         </div>
-        <a href="#apply" class="bg-white hover:bg-anime-pink text-anime-textMain font-black py-2 md:py-2.5 px-5 md:px-6 rounded-full transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.05)] hover:scale-105 border-2 border-transparent hover:border-white text-sm md:text-base">
+        <a href="#apply" class="bg-white hover:bg-anime-pink text-anime-textMain font-black py-2.5 px-6 rounded-full transition-all duration-300 shadow-sm hover:scale-105 border-2 border-transparent hover:border-white">
             Apply Now ✨
         </a>
     </nav>
 
-    <header class="flex flex-col justify-center items-center text-center px-4 pt-8 md:pt-12 pb-16 md:pb-24 relative z-10 w-full overflow-hidden animate-fade-in-up" style="animation-delay: 0.1s;">
-        <span class="bg-white/90 border-2 border-white text-anime-accent py-1.5 px-5 rounded-full text-xs md:text-sm font-black uppercase tracking-widest mb-6 shadow-sm flex items-center gap-2 animate-float">
-            <span>🌸</span> Hiring Remote Artists
+    <header class="flex flex-col justify-center items-center text-center px-4 pt-12 pb-24 relative z-10 w-full animate-fade-in-up">
+        <span class="bg-white/90 border-2 border-white text-anime-accent py-1.5 px-5 rounded-full text-sm font-black uppercase tracking-widest mb-6 shadow-sm flex items-center gap-2">
+            <span>🌸</span> Currently Recruiting
         </span>
-        <h1 class="text-4xl md:text-6xl lg:text-7xl font-black mb-4 md:mb-6 leading-tight text-anime-textMain drop-shadow-sm px-2">
-            Bring Our <span class="text-anime-accent relative inline-block">
-                Worlds
-                <svg class="absolute -bottom-2 left-0 w-full h-3 text-anime-pink opacity-70" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 15 100 5" stroke="currentColor" stroke-width="4" fill="transparent"/></svg>
-            </span> <br class="hidden md:block"> To Life
+        <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight text-anime-textMain">
+            Your Art, Our <br> <span class="text-anime-accent">Stories.</span>
         </h1>
-        <p class="text-base md:text-xl text-anime-textDark max-w-2xl mx-auto font-bold leading-relaxed px-4">
-            Join bluenovel's remote art team! We are currently recruiting talented character designers and background illustrators for 3 upcoming visual novels.
+        <p class="text-lg md:text-xl text-anime-textDark max-w-2xl mx-auto font-bold leading-relaxed">
+            Join a collaborative remote team building the next generation of visual novels. We value talent over paperwork.
         </p>
     </header>
 
-    <main class="flex-grow flex flex-col items-center px-4 md:px-6 relative z-20 pb-20 w-full animate-fade-in-up" style="animation-delay: 0.2s;">
+    <main class="flex-grow flex flex-col items-center px-6 relative z-20 pb-20 w-full animate-fade-in-up" style="animation-delay: 0.2s;">
         
-        <div class="glass-card p-6 md:p-8 max-w-5xl w-full -mt-10 md:-mt-16 mb-12 md:mb-16">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-4 divide-x-0 lg:divide-x-2 divide-gray-200/50">
-                
-                <div class="flex flex-col items-center justify-center text-center px-2 relative group/rating">
-                    <div class="text-anime-textMain font-black text-sm md:text-lg mb-1 flex items-center gap-1.5">
-                        Excellent
-                        <svg class="w-5 h-5 text-trustpilot" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div class="flex gap-0.5 md:gap-1 mb-1.5">
-                        <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                        <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                        <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                        <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                        <div class="bg-trustpilot p-1 rounded-sm"><svg class="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                    </div>
-                    <div class="text-[10px] md:text-xs font-bold text-anime-textDark">Score <strong class="text-anime-textMain">4.4/5</strong> <br class="md:hidden"> (301 Reviews)</div>
-                    
-                    <a href="https://www.vouches.ink/bluenovel" target="_blank" class="mt-3 inline-flex items-center gap-1.5 bg-trustpilot/10 hover:bg-trustpilot text-trustpilot hover:text-white border border-trustpilot/30 hover:border-trustpilot px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black transition-all duration-300 transform hover:scale-105 shadow-sm w-max">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                        View Vouch Score
-                    </a>
-                </div>
-
+        <div class="glass-card p-8 max-w-5xl w-full -mt-16 mb-16">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 divide-x-0 lg:divide-x-2 divide-gray-200/50">
                 <div class="flex flex-col items-center justify-center text-center px-2">
-                    <div class="text-trustpilot text-2xl md:text-4xl font-black mb-0.5">💰$40k+</div>
-                    <div class="text-[10px] md:text-xs font-black text-anime-textMain uppercase tracking-wide">Verified Payouts</div>
+                    <div class="text-trustpilot text-3xl md:text-4xl font-black mb-1">Excellent</div>
+                    <div class="text-[10px] font-black text-anime-textMain uppercase tracking-widest">4.4/5 Vouch Score</div>
                 </div>
                 <div class="flex flex-col items-center justify-center text-center px-2">
-                    <div class="text-yellow-500 text-2xl md:text-4xl font-black mb-0.5 drop-shadow-sm">💸$15/hr</div>
-                    <div class="text-[10px] md:text-xs font-black text-anime-textMain uppercase tracking-wide">Starting Rate</div>
+                    <div class="text-anime-accent text-3xl md:text-4xl font-black mb-1">💰$40k+</div>
+                    <div class="text-[10px] font-black text-anime-textMain uppercase tracking-widest">Total Payouts</div>
                 </div>
                 <div class="flex flex-col items-center justify-center text-center px-2">
-                    <div class="text-anime-accent text-2xl md:text-4xl font-black mb-0.5">🎨9</div>
-                    <div class="text-[10px] md:text-xs font-black text-anime-textMain uppercase tracking-wide">Roles Open</div>
-                    <div class="text-[10px] text-anime-textDark mt-0.5 font-bold">5 of 14 Filled</div>
+                    <div class="text-yellow-500 text-3xl md:text-4xl font-black mb-1">💸$15/hr</div>
+                    <div class="text-[10px] font-black text-anime-textMain uppercase tracking-widest">Starting Rate</div>
+                </div>
+                <div class="flex flex-col items-center justify-center text-center px-2">
+                    <div class="text-pink-500 text-3xl md:text-4xl font-black mb-1">🎨9</div>
+                    <div class="text-[10px] font-black text-anime-textMain uppercase tracking-widest">Open Slots</div>
                 </div>
             </div>
         </div>
 
         <div class="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
             
-            <div class="space-y-6 md:space-y-8">
-                
-                <div class="glass-card p-6 md:p-8">
-                    <h3 class="text-xl md:text-2xl font-black text-anime-textMain mb-5 border-b-2 border-dashed border-gray-200 pb-3">Requirements 📌</h3>
+            <div class="space-y-8">
+                <div class="glass-card p-8">
+                    <h3 class="text-2xl font-black text-anime-textMain mb-6 border-b-2 border-dashed border-gray-100 pb-4">Onboarding Info 📌</h3>
                     
-                    <div class="space-y-4">
-                        <div class="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-[0_4px_10px_rgba(0,0,0,0.03)] border border-gray-100 hover:border-indigo-100 transition-colors">
-                            <div class="bg-indigo-50 text-indigo-400 p-2 md:p-3 rounded-xl text-xl md:text-2xl shrink-0">🪪</div>
+                    <div class="space-y-5">
+                        <div class="flex gap-4 items-start">
+                            <div class="bg-blue-50 text-blue-500 p-3 rounded-2xl text-2xl shrink-0">📝</div>
                             <div>
-                                <h4 class="text-anime-textMain font-black text-sm md:text-base">Identity & Age Verification</h4>
-                                <p class="text-xs md:text-sm text-anime-textDark leading-relaxed mt-1 font-bold">To comply with <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32006L0112" target="_blank" class="text-indigo-500 hover:text-indigo-700 underline font-black transition">EU Tax Law & IP Directives</a>, a valid ID is required upon hiring. <br><em class="text-indigo-400 text-[11px] md:text-xs">*Your legal name is strictly confidential under NDA.</em></p>
+                                <h4 class="text-anime-textMain font-black">No ID Required</h4>
+                                <p class="text-sm text-anime-textDark leading-relaxed mt-1 font-bold">We don't need your passport or ID card. We only require your **Legal Name** to be included in the digital contract to ensure IP protection and payment processing.</p>
                             </div>
                         </div>
 
-                        <div class="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-[0_4px_10px_rgba(0,0,0,0.03)] border border-gray-100 hover:border-purple-100 transition-colors">
-                            <div class="bg-purple-50 text-purple-400 p-2 md:p-3 rounded-xl text-xl md:text-2xl shrink-0">🎧</div>
+                        <div class="flex gap-4 items-start">
+                            <div class="bg-purple-50 text-purple-500 p-3 rounded-2xl text-2xl shrink-0">🎙️</div>
                             <div>
-                                <h4 class="text-anime-textMain font-black text-sm md:text-base">Voice Call Participation</h4>
-                                <p class="text-xs md:text-sm text-anime-textDark leading-relaxed mt-1 font-bold">You must be comfortable getting into voice calls with other artists in your field. <br><em class="text-purple-500 text-[11px] md:text-xs">*We provide separate VCs for minors and adults to ensure comfort.</em></p>
+                                <h4 class="text-anime-textMain font-black">Artist Community</h4>
+                                <p class="text-sm text-anime-textDark leading-relaxed mt-1 font-bold">Communication is key! You should be comfortable joining voice calls for project updates. We maintain separate spaces for minors and adults.</p>
                             </div>
                         </div>
 
-                        <div class="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-[0_4px_10px_rgba(0,0,0,0.03)] border border-gray-100 hover:border-blue-100 transition-colors">
-                            <div class="bg-blue-50 text-blue-400 p-2 md:p-3 rounded-xl text-xl md:text-2xl shrink-0">💳</div>
+                        <div class="flex gap-4 items-start">
+                            <div class="bg-green-50 text-green-500 p-3 rounded-2xl text-2xl shrink-0">💳</div>
                             <div>
-                                <h4 class="text-anime-textMain font-black text-sm md:text-base">Payment Methods</h4>
-                                <p class="text-xs md:text-sm text-anime-textDark leading-relaxed mt-1 font-bold">Payments are processed exclusively via <strong class="text-blue-500 bg-blue-50 px-1.5 rounded">PayPal</strong> or <strong class="text-blue-500 bg-blue-50 px-1.5 rounded">Bank Transfer</strong>.</p>
+                                <h4 class="text-anime-textMain font-black">Simple Payments</h4>
+                                <p class="text-sm text-anime-textDark leading-relaxed mt-1 font-bold">Receive your earnings via **PayPal** or **Direct Bank Transfer**. Fast, secure, and hassle-free.</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-card p-6 md:p-8 relative overflow-hidden group">
-                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-200 rounded-full blur-3xl opacity-50 group-hover:bg-indigo-300 transition duration-500"></div>
-                    
-                    <h3 class="text-xl md:text-2xl font-black text-anime-textMain mb-3 flex items-center gap-2 relative z-10">
-                        Contract Preview 📄
-                    </h3>
-                    <p class="text-xs md:text-sm text-anime-textDark leading-relaxed mb-5 font-bold relative z-10">
-                        Transparency is important to us. Download and review our standard Independent Contractor & NDA Agreement below so you know exactly what to expect if you join the bluenovel team.
-                    </p>
-                    <a href="bluenovel_contract.pdf" download class="relative z-10 inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-white hover:bg-indigo-50 text-indigo-600 border-2 border-indigo-200 hover:border-indigo-400 font-black py-3 px-6 rounded-xl transition-all duration-300 shadow-sm text-sm md:text-base hover:shadow-md">
+                <div class="glass-card p-8 bg-gradient-to-br from-white/80 to-indigo-50/50">
+                    <h3 class="text-xl font-black text-anime-textMain mb-2">Contract Preview 📄</h3>
+                    <p class="text-sm text-anime-textDark font-bold mb-5">Review our standard agreement. It’s written in plain English, protecting your rights and ours.</p>
+                    <a href="bluenovel_contract.pdf" download class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-lg text-sm">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Download Agreement (PDF)
+                        Download PDF Agreement
                     </a>
                 </div>
+            </div>
 
-                <div class="glass-card p-6 md:p-8">
-                    <h3 class="text-xl md:text-2xl font-black text-anime-textMain mb-5 border-b-2 border-dashed border-gray-200 pb-3 flex justify-between items-center">
-                        Available Roles
-                        <span class="text-xs bg-anime-pink text-pink-700 px-3 py-1 rounded-full font-black">9 Left!</span>
+            <div class="space-y-8">
+                <div class="glass-card p-8">
+                    <h3 class="text-2xl font-black text-anime-textMain mb-6 border-b-2 border-dashed border-gray-100 pb-4 flex justify-between items-center">
+                        Open Roles
+                        <span class="text-xs bg-anime-pink text-pink-700 px-3 py-1 rounded-full font-black">9 Left</span>
                     </h3>
                     
-                    <ul class="space-y-3 md:space-y-4">
-                        <li class="bg-white border-2 border-transparent hover:border-anime-accent rounded-2xl p-4 flex justify-between items-center shadow-sm transition group cursor-default">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-blue-50 p-2 rounded-lg text-lg group-hover:scale-110 transition">✏️</div>
-                                <div>
-                                    <div class="font-black text-anime-textMain text-sm md:text-base">Character Artist</div>
-                                    <div class="text-xs text-anime-textDark font-bold">VN #1 & #3</div>
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-2xl bg-white border-2 border-transparent hover:border-anime-accent transition-all cursor-pointer group shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl group-hover:scale-110 transition">🎨</span>
+                                    <div>
+                                        <div class="font-black text-anime-textMain">Character Designer</div>
+                                        <div class="text-xs text-anime-textDark font-bold italic">Visual Novel #1 & #3</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <span class="bg-gray-100 text-gray-600 text-[10px] md:text-xs font-black px-3 py-1.5 rounded-full shrink-0">Age 14+</span>
-                        </li>
-                        <li class="bg-white border-2 border-transparent hover:border-anime-accent rounded-2xl p-4 flex justify-between items-center shadow-sm transition group cursor-default">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-green-50 p-2 rounded-lg text-lg group-hover:scale-110 transition">🏞️</div>
-                                <div>
-                                    <div class="font-black text-anime-textMain text-sm md:text-base">Background Artist</div>
-                                    <div class="text-xs text-anime-textDark font-bold">All Projects</div>
-                                </div>
-                            </div>
-                            <span class="bg-gray-100 text-gray-600 text-[10px] md:text-xs font-black px-3 py-1.5 rounded-full shrink-0">Age 14+</span>
-                        </li>
-                        <li class="bg-red-50/50 border-2 border-transparent hover:border-red-300 rounded-2xl p-4 flex justify-between items-center shadow-sm transition group cursor-default">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-red-100 p-2 rounded-lg text-lg group-hover:scale-110 transition">🔞</div>
-                                <div>
-                                    <div class="font-black text-red-600 text-sm md:text-base">CG Event Artist</div>
-                                    <div class="text-xs text-red-400 font-bold">VN #2 (Mature)</div>
-                                </div>
-                            </div>
-                            <span class="bg-red-100 text-red-600 text-[10px] md:text-xs font-black px-3 py-1.5 rounded-full shrink-0">Strictly 18+</span>
-                        </li>
-                        <li class="bg-white border-2 border-transparent hover:border-anime-accent rounded-2xl p-4 flex justify-between items-center shadow-sm transition group cursor-default">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-yellow-50 p-2 rounded-lg text-lg group-hover:scale-110 transition">🖱️</div>
-                                <div>
-                                    <div class="font-black text-anime-textMain text-sm md:text-base">UI/Menus Designer</div>
-                                    <div class="text-xs text-anime-textDark font-bold">All Projects</div>
-                                </div>
-                            </div>
-                            <span class="bg-gray-100 text-gray-600 text-[10px] md:text-xs font-black px-3 py-1.5 rounded-full shrink-0">Age 14+</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div id="apply" class="relative h-full flex flex-col justify-center">
-                
-                <div id="success-msg" class="hidden glass-card p-10 rounded-3xl text-center border-t-4 border-t-trustpilot flex-col items-center justify-center h-full shadow-[0_10px_30px_rgba(0,182,122,0.15)] transition-all">
-                    <div class="text-6xl mb-4 animate-bounce">✨</div>
-                    <h2 class="text-3xl font-black text-anime-textMain mb-3">Application Sent!</h2>
-                    <p class="text-anime-textDark font-bold text-base">Thank you for applying. Our lead art director will review your portfolio and reach out via Email or Discord shortly.</p>
-                </div>
-
-                <form id="artist-form" class="glass-card p-6 md:p-8 rounded-3xl flex flex-col relative z-10 border-t-4 border-t-anime-accent">
-                    
-                    <div class="mb-6 md:mb-8 text-center">
-                        <h2 class="text-2xl md:text-3xl font-black text-anime-textMain mb-2">Submit Portfolio 💌</h2>
-                        <p class="text-xs md:text-sm text-anime-textDark font-bold">We will review your art and email you within 48 hours!</p>
-                    </div>
-
-                    <input type="hidden" name="_subject" value="New Artist Application - bluenovel 🎨">
-                    <input type="hidden" name="_captcha" value="false">
-                    
-                    <textarea name="Device_And_Network_Data" id="meta_device" class="hidden"></textarea>
-
-                    <div class="space-y-4 md:space-y-5 flex-grow">
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs md:text-sm font-black mb-1.5 text-anime-textMain">Age Group <span class="text-red-400">*</span></label>
-                                <select name="age_group" required class="w-full bg-white border-2 border-gray-100 rounded-xl p-3 text-anime-textMain focus:outline-none focus:border-anime-accent transition appearance-none shadow-sm font-bold text-sm">
-                                    <option value="" disabled selected>Select age...</option>
-                                    <option value="14-17">14 to 17 years old</option>
-                                    <option value="18+">18 years or older</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs md:text-sm font-black mb-1.5 text-anime-textMain">Country <span class="text-red-400">*</span></label>
-                                <input type="text" name="country" required placeholder="e.g. USA, UK, Japan" class="w-full bg-white border-2 border-gray-100 rounded-xl p-3 text-anime-textMain placeholder-gray-400 focus:outline-none focus:border-anime-accent transition shadow-sm font-bold text-sm">
+                                <span class="text-[10px] font-black bg-gray-100 px-2 py-1 rounded">Age 14+</span>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs md:text-sm font-black mb-1.5 text-anime-textMain">Artist Alias <span class="text-red-400">*</span></label>
-                                <input type="text" name="name" required placeholder="Your chosen name" class="w-full bg-white border-2 border-gray-100 rounded-xl p-3 text-anime-textMain placeholder-gray-400 focus:outline-none focus:border-anime-accent transition shadow-sm font-bold text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs md:text-sm font-black mb-1.5 text-anime-textMain">Email Address <span class="text-red-400">*</span></label>
-                                <input type="email" name="email" required placeholder="you@example.com" class="w-full bg-white border-2 border-gray-100 rounded-xl p-3 text-anime-textMain placeholder-gray-400 focus:outline-none focus:border-anime-accent transition shadow-sm font-bold text-sm">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs md:text-sm font-black mb-1.5 text-anime-textMain">Discord Username <span class="text-red-400">*</span></label>
-                                <input type="text" name="discord" required placeholder="username#1234 or @name" class="w-full bg-white border-2 border-gray-100 rounded-xl p-3 text-anime-textMain placeholder-gray-400 focus:outline-none focus:border-anime-accent transition shadow-sm font-bold text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs md:text-sm font-black mb-1.5 text-anime-textMain">Portfolio Link <span class="text-red-400">*</span></label>
-                                <input type="url" name="portfolio" required placeholder="Pixiv, Twitter, ArtStation..." class="w-full bg-white border-2 border-gray-100 rounded-xl p-3 text-anime-textMain placeholder-gray-400 focus:outline-none focus:border-anime-accent transition shadow-sm font-bold text-sm">
+                        <div class="p-4 rounded-2xl bg-white border-2 border-transparent hover:border-anime-accent transition-all cursor-pointer group shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl group-hover:scale-110 transition">🌳</span>
+                                    <div>
+                                        <div class="font-black text-anime-textMain">Background Illustrator</div>
+                                        <div class="text-xs text-anime-textDark font-bold italic">All Current Projects</div>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-black bg-gray-100 px-2 py-1 rounded">Age 14+</span>
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs md:text-sm font-black mb-1.5 text-anime-textMain">Preferred Role & Style <span class="text-red-400">*</span></label>
-                            <textarea name="message" rows="3" required placeholder="I specialize in drawing cute characters..." class="w-full bg-white border-2 border-gray-100 rounded-xl p-3 text-anime-textMain placeholder-gray-400 focus:outline-none focus:border-anime-accent transition resize-none shadow-sm font-bold text-sm"></textarea>
-                        </div>
-
-                        <div class="space-y-3 pt-2 border-t-2 border-dashed border-gray-200">
-                            
-                            <div class="flex items-start gap-3 bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 hover:bg-indigo-50 transition-colors">
-                                <input type="checkbox" name="agrees_to_id_verification" required id="id_ack" class="mt-0.5 w-5 h-5 accent-indigo-500 bg-white border-gray-300 rounded cursor-pointer shrink-0">
-                                <label for="id_ack" class="text-xs md:text-sm text-anime-textDark leading-tight cursor-pointer font-black">
-                                    I understand that if hired, I must securely provide my <span class="text-indigo-600">Legal Name & ID</span> for EU contract compliance (kept strictly confidential).
-                                </label>
-                            </div>
-
-                            <div class="flex items-start gap-3 bg-purple-50/60 p-3 rounded-xl border border-purple-100 hover:bg-purple-50 transition-colors">
-                                <input type="checkbox" name="agrees_to_voice_calls" required id="vc_ack" class="mt-0.5 w-5 h-5 accent-purple-500 bg-white border-gray-300 rounded cursor-pointer shrink-0">
-                                <label for="vc_ack" class="text-xs md:text-sm text-anime-textDark leading-tight cursor-pointer font-black">
-                                    I am comfortable participating in team <span class="text-purple-600">Voice Calls</span> with other artists in my field.
-                                </label>
-                            </div>
-                            
-                            <div class="flex items-start gap-3 bg-blue-50/60 p-3 rounded-xl border border-blue-100 hover:bg-blue-50 transition-colors">
-                                <input type="checkbox" name="agrees_to_payment_methods" required id="payment_ack" class="mt-0.5 w-5 h-5 accent-anime-accent bg-white border-gray-300 rounded cursor-pointer shrink-0">
-                                <label for="payment_ack" class="text-xs md:text-sm text-anime-textDark leading-tight cursor-pointer font-black">
-                                    I verify that I can accept payments via <span class="text-blue-600">PayPal</span> or <span class="text-blue-600">Bank Transfer</span>.
-                                </label>
+                        <div class="p-4 rounded-2xl bg-red-50/30 opacity-60 grayscale border-2 border-dashed border-red-100">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">✍️</span>
+                                    <div>
+                                        <div class="font-black text-gray-500">Scenario Writer</div>
+                                        <div class="text-xs text-gray-400 font-bold">Positions Filled</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    <button type="submit" id="submit-btn" class="w-full mt-6 bg-anime-textMain hover:bg-anime-accent text-white font-black py-4 rounded-xl transition-all duration-300 text-base md:text-lg shadow-[0_8px_20px_rgba(30,41,59,0.2)] hover:shadow-[0_12px_25px_rgba(96,165,250,0.4)] hover:-translate-y-1 tracking-wide flex justify-center items-center gap-2">
-                        Send Application 🚀
-                    </button>
-                </form>
+                </div>
             </div>
-            
         </div>
     </main>
 
-    <footer class="w-full py-6 text-center text-anime-textDark text-xs md:text-sm relative z-10 bg-white/40 backdrop-blur-md border-t border-white/60 mt-auto">
-        <div class="flex justify-center items-center gap-1.5 mb-2">
-            <svg class="w-4 h-4 text-anime-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.758a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/></svg>
-            <span class="font-black text-anime-textMain tracking-wide">bluenovel</span>
-        </div>
-        <p class="font-bold opacity-75">&copy; 2026 bluenovel Studios. ✨</p>
+    <footer class="py-12 px-6 text-center relative z-20">
+        <p class="text-sm font-bold text-anime-textDark opacity-60">© 2026 bluenovel studio. All rights reserved.</p>
     </footer>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", async function() {
-            let metaString = "--- 💻 DEVICE & BROWSER ---\n";
-            
-            // 1. Hardware & Browser Info
-            metaString += "User Agent: " + navigator.userAgent + "\n";
-            metaString += "Screen: " + window.screen.width + "x" + window.screen.height + "\n";
-            metaString += "Language: " + navigator.language + "\n";
-            try { metaString += "Timezone: " + Intl.DateTimeFormat().resolvedOptions().timeZone + "\n"; } catch(e){}
-            metaString += "CPU Cores: " + (navigator.hardwareConcurrency || 'Unknown') + "\n";
-            metaString += "RAM (~GB): " + (navigator.deviceMemory || 'Unknown') + "\n";
-            metaString += "Platform: " + (navigator.platform || 'Unknown') + "\n\n";
-
-            // 2. Advanced Audio Context Gathering
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (AudioContext) {
-                    const audioCtx = new AudioContext();
-                    metaString += "--- 🎧 ADVANCED AUDIO INFO ---\n";
-                    metaString += "Sample Rate: " + audioCtx.sampleRate + " Hz\n";
-                    metaString += "Base Latency: " + (audioCtx.baseLatency || 'N/A') + "\n";
-                    metaString += "State: " + audioCtx.state + "\n";
-                    metaString += "Max Channels: " + audioCtx.destination.maxChannelCount + "\n\n";
-                }
-            } catch(e) {
-                metaString += "--- 🎧 ADVANCED AUDIO INFO ---\nBlocked/Unsupported\n\n";
-            }
-
-            // 3. Fetch IP Address (IPv4 or IPv6)
-            try {
-                const response = await fetch('https://api64.ipify.org?format=json');
-                const data = await response.json();
-                metaString += "--- 🌐 NETWORK ---\n";
-                metaString += "IP Address: " + data.ip + "\n";
-            } catch (error) {
-                metaString += "--- 🌐 NETWORK ---\nIP Address: Failed to fetch\n";
-            }
-
-            // Inject the complete string into the hidden textarea
-            document.getElementById('meta_device').value = metaString;
-
-            // 4. Handle Form Submission seamlessly (AJAX)
-            const form = document.getElementById('artist-form');
-            const submitBtn = document.getElementById('submit-btn');
-            const successMsg = document.getElementById('success-msg');
-
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                submitBtn.innerHTML = 'Sending... ⏳';
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-
-                const formData = new FormData(form);
-
-                fetch('https://formsubmit.co/ajax/minjunnios@gmail.com', {
-                    method: 'POST',
-                    headers: { 'Accept': 'application/json' },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    form.classList.add('hidden');
-                    successMsg.classList.remove('hidden');
-                    successMsg.classList.add('flex');
-                })
-                .catch(error => {
-                    console.error('Error submitting:', error);
-                    submitBtn.innerHTML = 'Error. Try Again ⚠️';
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                });
-            });
-        });
-    </script>
 
 </body>
 </html>
