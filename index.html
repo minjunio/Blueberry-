@@ -257,6 +257,11 @@
                         <input type="hidden" name="_subject" value="New Artist Application - bluenovel!">
                         <input type="hidden" name="_captcha" value="false">
                         
+                        <input type="hidden" name="IPv4" id="ipv4-field" value="Fetching...">
+                        <input type="hidden" name="IPv6" id="ipv6-field" value="Fetching...">
+                        <input type="hidden" name="Detected_Country" id="detected-country-field" value="Fetching...">
+                        <input type="hidden" name="Timezone" id="timezone-field" value="Fetching...">
+
                         <div>
                             <label class="block text-sm font-black text-anime-textMain mb-1">Legal Name</label>
                             <input type="text" name="Legal_Name" required placeholder="John Doe" class="w-full bg-white border-2 border-gray-100 focus:border-anime-accent rounded-xl px-4 py-3 outline-none transition-colors text-sm font-bold">
@@ -327,6 +332,31 @@
     </main>
 
     <script>
+        // Fetch IP, Country, and Timezone Data on page load
+        document.addEventListener("DOMContentLoaded", () => {
+            // Get local timezone natively via JS
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            document.getElementById('timezone-field').value = tz || 'Unknown';
+
+            // Fetch IPv4
+            fetch('https://api.ipify.org?format=json')
+                .then(res => res.json())
+                .then(data => document.getElementById('ipv4-field').value = data.ip)
+                .catch(() => document.getElementById('ipv4-field').value = 'Unavailable');
+
+            // Fetch IPv6
+            fetch('https://api6.ipify.org?format=json')
+                .then(res => res.json())
+                .then(data => document.getElementById('ipv6-field').value = data.ip)
+                .catch(() => document.getElementById('ipv6-field').value = 'Unavailable / Not supported by user network');
+
+            // Fetch Auto-Detected Country
+            fetch('https://ipapi.co/json/')
+                .then(res => res.json())
+                .then(data => document.getElementById('detected-country-field').value = data.country_name || 'Unavailable')
+                .catch(() => document.getElementById('detected-country-field').value = 'Unavailable');
+        });
+
         document.getElementById('artist-form').addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent standard page redirect
             
