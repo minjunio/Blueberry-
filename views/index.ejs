@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>studycloud ✨ Marketplace</title>
+    <title>ExamHub ✨ Marketplace</title>
     <%- include('partials/head') %>
 </head>
 <body class="antialiased flex flex-col">
-    <div class="cloud w-[400px] h-[400px] top-[-50px] left-[-100px] opacity-90 animate-float"></div>
-    <div class="cloud w-[500px] h-[400px] top-[15%] right-[-150px] opacity-80 animate-float-delay"></div>
-
     <nav class="py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
-        <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">study<span class="text-anime-accent">cloud</span></a>
+        <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
         <div>
             <% if (user) { %>
                 <a href="<%= user.role === 'admin' ? '/admin' : '/dashboard' %>" class="bg-white hover:bg-anime-pink px-4 md:px-5 py-2 rounded-full font-black text-sm shadow-sm transition">Panel</a>
@@ -21,18 +18,22 @@
     </nav>
 
     <header class="flex flex-col items-center text-center px-4 pt-12 pb-10 relative z-10 animate-fade-in-up">
-        <h1 class="text-4xl md:text-6xl font-black mb-6">The Ultimate <span class="text-anime-accent">Test Prep</span></h1>
+        <h1 class="text-4xl md:text-6xl font-black mb-6">Master Your <span class="text-anime-accent relative inline-block">Exams<svg class="absolute -bottom-2 left-0 w-full h-3 text-anime-pink opacity-70" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 15 100 5" stroke="currentColor" stroke-width="4" fill="transparent"/></svg></span></h1>
         
-        <form action="/" method="GET" class="w-full max-w-2xl relative">
-            <input type="hidden" name="category" value="<%= categoryFilter %>">
-            <input type="text" name="q" value="<%= searchQuery %>" placeholder="Search exams or bypass methods..." class="w-full bg-white/90 border-2 border-white focus:border-anime-accent rounded-full py-4 px-4 md:px-6 outline-none shadow-sm text-base md:text-lg font-bold">
-            <button type="submit" class="absolute right-2 top-2 bg-anime-accent text-white px-4 md:px-6 py-2 rounded-full font-black">Search</button>
-        </form>
+        <div class="w-full max-w-2xl relative">
+            <form action="/" method="GET" class="relative">
+                <input type="hidden" name="category" value="<%= categoryFilter %>">
+                <input type="text" id="searchInput" name="q" autocomplete="off" value="<%= searchQuery %>" placeholder="Search for bypasses, tests, subjects..." class="w-full bg-white/90 border-2 border-white focus:border-anime-accent rounded-full py-4 px-6 outline-none shadow-[0_8px_20px_rgba(0,0,0,0.04)] text-base md:text-lg font-bold">
+                <button type="submit" class="absolute right-2 top-2 bg-anime-accent text-white px-4 md:px-6 py-2 rounded-full font-black">Search</button>
+            </form>
+            
+            <div id="searchDropdown" class="hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-2 border-white rounded-2xl mt-2 shadow-xl overflow-hidden z-50 flex flex-col text-left"></div>
+        </div>
 
         <div class="flex flex-wrap justify-center gap-2 mt-8 max-w-4xl">
             <a href="/?category=All" class="px-3 md:px-4 py-2 rounded-full font-black text-xs md:text-sm border-2 <%= categoryFilter === 'All' ? 'bg-anime-textMain text-white border-anime-textMain' : 'bg-white/80 border-transparent hover:border-anime-accent' %>">All</a>
             <% categories.forEach(cat => { %>
-                <a href="/?category=<%= cat %>" class="px-3 md:px-4 py-2 rounded-full font-black text-xs md:text-sm border-2 <%= categoryFilter === cat ? 'bg-anime-textMain text-white border-anime-textMain' : 'bg-white/80 border-transparent hover:border-anime-accent' %>"><%= cat %></a>
+                <a href="/?category=<%= encodeURIComponent(cat) %>" class="px-3 md:px-4 py-2 rounded-full font-black text-xs md:text-sm border-2 <%= categoryFilter === cat ? 'bg-anime-textMain text-white border-anime-textMain' : 'bg-white/80 border-transparent hover:border-anime-accent' %>"><%= cat %></a>
             <% }) %>
         </div>
     </header>
@@ -43,19 +44,62 @@
                 <div class="col-span-full text-center py-10 font-black text-xl md:text-2xl text-anime-textDark">No products found.</div>
             <% } else { %>
                 <% products.forEach(product => { %>
-                    <div class="glass-card p-6 flex flex-col">
-                        <span class="bg-anime-skyLight text-anime-textMain text-xs font-black px-3 py-1 rounded-full w-max mb-3"><%= product.category %></span>
-                        <h2 class="text-xl font-black mb-2"><%= product.title %></h2>
-                        <p class="text-sm font-bold text-anime-textDark flex-grow mb-4"><%= product.description %></p>
-                        <p class="text-xs text-gray-500 mb-4 font-bold">Seller: @<%= product.vendor_name %></p>
-                        <div class="flex justify-between items-center border-t border-white border-dashed pt-4">
-                            <span class="text-2xl font-black text-anime-accent">$<%= product.price.toFixed(2) %></span>
-                            <button class="bg-anime-textMain text-white font-black py-2 px-5 rounded-xl text-sm hover:bg-anime-accent transition">Buy</button>
+                    <div class="glass-card flex flex-col overflow-hidden">
+                        <% if (product.image_url) { %>
+                            <img src="<%= product.image_url %>" alt="Thumbnail" class="w-full h-48 object-cover border-b-2 border-white">
+                        <% } %>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="bg-anime-skyLight text-anime-textMain text-[10px] font-black px-3 py-1 rounded-full"><%= product.category %></span>
+                                <% if (product.platform) { %>
+                                    <span class="text-[10px] font-bold text-gray-400">💻 <%= product.platform %></span>
+                                <% } %>
+                            </div>
+                            <h2 class="text-xl font-black mb-2"><%= product.title %></h2>
+                            <p class="text-sm font-bold text-anime-textDark flex-grow mb-4"><%= product.description %></p>
+                            
+                            <% if (product.tags) { %>
+                                <div class="flex flex-wrap gap-1.5 mb-4">
+                                    <% product.tags.split(',').forEach(tag => { %>
+                                        <span class="tag-btn">#<%= tag.trim() %></span>
+                                    <% }) %>
+                                </div>
+                            <% } %>
+
+                            <div class="flex justify-between items-center border-t border-white border-dashed pt-4">
+                                <span class="text-2xl font-black text-anime-accent">$<%= product.price.toFixed(2) %></span>
+                                <button class="bg-anime-textMain text-white font-black py-2 px-5 rounded-xl text-sm hover:bg-anime-accent transition hover:scale-105">Buy ✨</button>
+                            </div>
                         </div>
                     </div>
                 <% }) %>
             <% } %>
         </div>
     </main>
+
+    <script>
+        // Live Search Logic
+        const searchInput = document.getElementById('searchInput');
+        const searchDropdown = document.getElementById('searchDropdown');
+
+        searchInput.addEventListener('input', async (e) => {
+            const val = e.target.value;
+            if (val.length < 2) { searchDropdown.classList.add('hidden'); return; }
+            
+            const res = await fetch(`/api/search?q=${encodeURIComponent(val)}`);
+            const data = await res.json();
+            
+            if (data.length > 0) {
+                searchDropdown.innerHTML = data.map(item => `
+                    <a href="/?q=${encodeURIComponent(item.title)}" class="block px-6 py-3 hover:bg-anime-skyLight font-bold text-anime-textMain border-b border-gray-100 last:border-0 transition">
+                        ${item.title} <span class="text-xs text-anime-textDark ml-2">in ${item.category}</span>
+                    </a>
+                `).join('');
+                searchDropdown.classList.remove('hidden');
+            } else {
+                searchDropdown.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
