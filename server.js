@@ -37,7 +37,8 @@ db.serialize(() => {
     db.get("SELECT COUNT(*) as count FROM categories", (err, row) => {
         if (row.count === 0) {
             const defaultCats = ['SAT', 'PSAT', 'AP', 'DSAT', 'LSAT', 'Honorlock', 'Lockdown Browser', 'Proctorio'];
-            defaultCats.forEach(cat => db.run("INSERT IGNORE INTO categories (name) VALUES (?)", [cat]));
+            // FIXED: Changed INSERT IGNORE to INSERT OR IGNORE for SQLite
+            defaultCats.forEach(cat => db.run("INSERT OR IGNORE INTO categories (name) VALUES (?)", [cat]));
         }
     });
 });
