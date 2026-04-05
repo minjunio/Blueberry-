@@ -1,31 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Vendor Dashboard - studycloud</title>
+    <title>Post Dashboard - ExamHub</title>
     <%- include('partials/head') %>
 </head>
 <body class="p-4 md:p-8 flex items-center justify-center min-h-screen">
-    <div class="cloud w-[600px] h-[400px] top-10 left-10 opacity-70 animate-float"></div>
-    
-    <div class="glass-card p-6 md:p-8 w-full max-w-2xl relative z-10">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <h1 class="text-2xl md:text-3xl font-black text-anime-textMain">Post a Product 📦</h1>
-            <a href="/" class="text-sm font-bold text-anime-accent hover:underline">View Store</a>
+    <div class="glass-card p-6 md:p-8 w-full max-w-3xl relative z-10 my-10">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b-2 border-dashed border-white pb-4">
+            <h1 class="text-2xl md:text-3xl font-black text-anime-textMain flex items-center gap-2">
+                <span class="bg-anime-skyLight p-2 rounded-xl">✨</span> Create a Post
+            </h1>
+            <a href="<%= user.role === 'admin' ? '/admin' : '/' %>" class="text-sm font-bold text-anime-accent hover:underline">← Go Back</a>
         </div>
         
-        <form action="/dashboard/add-product" method="POST" class="space-y-4">
-            <div>
-                <label class="block text-sm font-black mb-1">Product Title</label>
-                <input type="text" name="title" required placeholder="e.g. Honorlock Bypass Guide" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+        <form action="/dashboard/add-product" method="POST" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-black mb-1">Post Title</label>
+                    <input type="text" name="title" required placeholder="e.g. Honorlock Ultimate Bypass" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-black mb-1">Thumbnail Image Link (Optional)</label>
+                    <input type="url" name="image_url" placeholder="https://imgur.com/image.png" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div>
-                    <label class="block text-sm font-black mb-1">Exam / Category</label>
+                    <label class="block text-sm font-black mb-1">Category</label>
                     <select name="category" required class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent appearance-none text-sm">
                         <% categories.forEach(cat => { %>
-                            <option value="<%= cat %>"><%= cat %></option>
+                            <option value="<%= cat %>" <%= cat === preselectedCategory ? 'selected' : '' %>><%= cat %></option>
                         <% }) %>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-black mb-1">Platform</label>
+                    <select name="platform" required class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent appearance-none text-sm">
+                        <option value="All Devices">All Devices</option>
+                        <option value="Windows Only">Windows Only</option>
+                        <option value="Macbook Only">Macbook Only</option>
+                        <option value="Chromebook">Chromebook</option>
                     </select>
                 </div>
                 <div>
@@ -35,11 +50,18 @@
             </div>
 
             <div>
-                <label class="block text-sm font-black mb-1">Description</label>
-                <textarea name="description" required rows="3" placeholder="What does this include?" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent resize-none text-sm"></textarea>
+                <label class="block text-sm font-black mb-1">Tags (Comma Separated)</label>
+                <input type="text" name="tags" placeholder="e.g. extension, script, undetectable" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
             </div>
 
-            <button type="submit" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:shadow-lg transition mt-4 text-sm md:text-base">Publish to Store ✨</button>
+            <div>
+                <label class="block text-sm font-black mb-1">Detailed Description</label>
+                <textarea name="description" required rows="4" placeholder="Explain the product, how it works, and delivery method..." class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent resize-none text-sm"></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:scale-[1.02] hover:shadow-lg transition-all mt-4 text-base shadow-sm border-2 border-transparent hover:border-white">
+                Publish to ExamHub ✨
+            </button>
         </form>
     </div>
 </body>
