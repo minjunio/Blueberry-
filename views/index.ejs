@@ -23,10 +23,9 @@
         <div class="w-full max-w-2xl relative">
             <form action="/" method="GET" class="relative">
                 <input type="hidden" name="category" value="<%= categoryFilter %>">
-                <input type="text" id="searchInput" name="q" autocomplete="off" value="<%= searchQuery %>" placeholder="Search for bypasses, tests, subjects..." class="w-full bg-white/90 border-2 border-white focus:border-anime-accent rounded-full py-4 px-6 outline-none shadow-[0_8px_20px_rgba(0,0,0,0.04)] text-base md:text-lg font-bold">
+                <input type="text" id="searchInput" name="q" autocomplete="off" value="<%= searchQuery %>" placeholder="Search exams, bypasses..." class="w-full bg-white/90 border-2 border-white focus:border-anime-accent rounded-full py-4 pl-6 pr-24 outline-none shadow-[0_8px_20px_rgba(0,0,0,0.04)] text-base md:text-lg font-bold">
                 <button type="submit" class="absolute right-2 top-2 bg-anime-accent text-white px-4 md:px-6 py-2 rounded-full font-black">Search</button>
             </form>
-            
             <div id="searchDropdown" class="hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-2 border-white rounded-2xl mt-2 shadow-xl overflow-hidden z-50 flex flex-col text-left"></div>
         </div>
 
@@ -44,31 +43,34 @@
                 <div class="col-span-full text-center py-10 font-black text-xl md:text-2xl text-anime-textDark">No products found.</div>
             <% } else { %>
                 <% products.forEach(product => { %>
-                    <div class="glass-card flex flex-col overflow-hidden">
-                        <% if (product.image_url) { %>
-                            <img src="<%= product.image_url %>" alt="Thumbnail" class="w-full h-48 object-cover border-b-2 border-white">
+                    <div class="glass-card flex flex-col overflow-hidden relative group">
+                        
+                        <% if (user && user.role === 'admin') { %>
+                            <form action="/admin/delete-product" method="POST" class="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition">
+                                <input type="hidden" name="id" value="<%= product.id %>">
+                                <button type="submit" class="bg-red-500 text-white text-xs font-black px-2 py-1 rounded shadow-sm hover:bg-red-600">Delete</button>
+                            </form>
                         <% } %>
+
+                        <img src="<%= product.image_url || 'https://images.unsplash.com/photo-1538370965046-79c0d6907d47?q=80&w=800&auto=format&fit=crop' %>" alt="Thumbnail" class="w-full h-40 object-cover border-b-2 border-white">
+                        
                         <div class="p-6 flex flex-col flex-grow">
                             <div class="flex justify-between items-center mb-3">
                                 <span class="bg-anime-skyLight text-anime-textMain text-[10px] font-black px-3 py-1 rounded-full"><%= product.category %></span>
-                                <% if (product.platform) { %>
-                                    <span class="text-[10px] font-bold text-gray-400">💻 <%= product.platform %></span>
-                                <% } %>
+                                <% if (product.platform) { %><span class="text-[10px] font-bold text-gray-400">💻 <%= product.platform %></span><% } %>
                             </div>
                             <h2 class="text-xl font-black mb-2"><%= product.title %></h2>
                             <p class="text-sm font-bold text-anime-textDark flex-grow mb-4"><%= product.description %></p>
                             
                             <% if (product.tags) { %>
                                 <div class="flex flex-wrap gap-1.5 mb-4">
-                                    <% product.tags.split(',').forEach(tag => { %>
-                                        <span class="tag-btn">#<%= tag.trim() %></span>
-                                    <% }) %>
+                                    <% product.tags.split(',').forEach(tag => { %><span class="tag-btn">#<%= tag.trim() %></span><% }) %>
                                 </div>
                             <% } %>
 
                             <div class="flex justify-between items-center border-t border-white border-dashed pt-4">
                                 <span class="text-2xl font-black text-anime-accent">$<%= product.price.toFixed(2) %></span>
-                                <button class="bg-anime-textMain text-white font-black py-2 px-5 rounded-xl text-sm hover:bg-anime-accent transition hover:scale-105">Buy ✨</button>
+                                <button onclick="openBuyModal('<%= product.title.replace(/'/g, "\\'") %>')" class="bg-anime-textMain text-white font-black py-2 px-5 rounded-xl text-sm hover:bg-anime-accent transition hover:scale-105">Buy ✨</button>
                             </div>
                         </div>
                     </div>
@@ -77,28 +79,109 @@
         </div>
     </main>
 
+    <div id="buyModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4">
+        <div class="absolute inset-0 bg-anime-textMain/40 backdrop-blur-sm" onclick="closeBuyModal()"></div>
+        <div class="glass-card bg-white/95 p-6 md:p-8 w-full max-w-md relative z-10 animate-pop-in">
+            <button onclick="closeBuyModal()" class="absolute top-4 right-4 text-gray-400 hover:text-anime-pink">✖</button>
+            
+            <div id="buyFormContainer">
+                <h3 class="text-2xl font-black text-anime-textMain mb-2">Request Purchase 💌</h3>
+                <p class="text-sm text-anime-textDark font-bold mb-6">You are requesting: <span id="displayProductName" class="text-anime-accent"></span></p>
+
+                <form id="buyForm" class="space-y-4">
+                    <input type="hidden" name="Requested_Product" id="modalProductTitle">
+                    <input type="hidden" name="_subject" value="New Purchase Request on ExamHub!">
+                    <input type="hidden" name="_captcha" value="false">
+
+                    <div>
+                        <label class="block text-sm font-black mb-1">Email <span class="text-red-400">*</span></label>
+                        <input type="email" name="Email" required placeholder="your@email.com" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm focus:border-anime-accent">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm font-black mb-1">Contact Via</label>
+                            <select name="Contact_Method" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm appearance-none focus:border-anime-accent">
+                                <option value="Email Only">Email Only</option>
+                                <option value="Discord">Discord</option>
+                                <option value="Instagram">Instagram</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black mb-1">Username (Opt)</label>
+                            <input type="text" name="Username" placeholder="@handle" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm focus:border-anime-accent">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-black mb-1">Inquiry / Notes (Opt)</label>
+                        <textarea name="Inquiry" rows="2" placeholder="Any questions?" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none resize-none text-sm focus:border-anime-accent"></textarea>
+                    </div>
+
+                    <button type="submit" id="submitBuyBtn" class="w-full bg-anime-accent text-white font-black py-3 rounded-xl mt-2 hover:shadow-lg transition">Send Request ✨</button>
+                </form>
+            </div>
+
+            <div id="buySuccess" class="hidden flex-col items-center justify-center text-center py-6">
+                <div class="w-20 h-20 bg-green-50 border-4 border-green-400 rounded-full flex items-center justify-center text-green-500 mb-4">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h4 class="text-2xl font-black text-anime-textMain mb-2">Successfully Submitted!</h4>
+                <p class="text-sm font-bold text-anime-textDark">We've sent your request to the admin. You will be contacted shortly.</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Live Search Logic
         const searchInput = document.getElementById('searchInput');
         const searchDropdown = document.getElementById('searchDropdown');
-
         searchInput.addEventListener('input', async (e) => {
             const val = e.target.value;
             if (val.length < 2) { searchDropdown.classList.add('hidden'); return; }
-            
             const res = await fetch(`/api/search?q=${encodeURIComponent(val)}`);
             const data = await res.json();
-            
             if (data.length > 0) {
-                searchDropdown.innerHTML = data.map(item => `
-                    <a href="/?q=${encodeURIComponent(item.title)}" class="block px-6 py-3 hover:bg-anime-skyLight font-bold text-anime-textMain border-b border-gray-100 last:border-0 transition">
-                        ${item.title} <span class="text-xs text-anime-textDark ml-2">in ${item.category}</span>
-                    </a>
-                `).join('');
+                searchDropdown.innerHTML = data.map(item => `<a href="/?q=${encodeURIComponent(item.title)}" class="block px-6 py-3 hover:bg-anime-skyLight font-bold text-anime-textMain border-b border-gray-100 transition">${item.title}</a>`).join('');
                 searchDropdown.classList.remove('hidden');
-            } else {
-                searchDropdown.classList.add('hidden');
-            }
+            } else { searchDropdown.classList.add('hidden'); }
+        });
+
+        // Modal Logic
+        function openBuyModal(productName) {
+            document.getElementById('modalProductTitle').value = productName;
+            document.getElementById('displayProductName').innerText = productName;
+            document.getElementById('buyFormContainer').classList.remove('hidden');
+            document.getElementById('buySuccess').classList.add('hidden');
+            document.getElementById('buyModal').classList.remove('hidden');
+            document.getElementById('buyModal').classList.add('flex');
+        }
+
+        function closeBuyModal() {
+            document.getElementById('buyModal').classList.add('hidden');
+            document.getElementById('buyModal').classList.remove('flex');
+            document.getElementById('buyForm').reset();
+            document.getElementById('submitBuyBtn').innerText = 'Send Request ✨';
+            document.getElementById('submitBuyBtn').disabled = false;
+        }
+
+        // FormSubmit AJAX
+        document.getElementById('buyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBuyBtn');
+            btn.innerText = 'Sending... ⏳';
+            btn.disabled = true;
+
+            fetch('https://formsubmit.co/ajax/minjunnios@gmail.com', {
+                method: 'POST', body: new FormData(this), headers: { 'Accept': 'application/json' }
+            }).then(res => res.json()).then(data => {
+                document.getElementById('buyFormContainer').classList.add('hidden');
+                document.getElementById('buySuccess').classList.remove('hidden');
+                document.getElementById('buySuccess').classList.add('flex');
+            }).catch(err => {
+                btn.innerText = 'Error! Try Again ❌';
+                btn.disabled = false;
+            });
         });
     </script>
 </body>
