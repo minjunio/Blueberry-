@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const sqlite3 = require('sqlite3').verbose();
+const bcrypt = require('bcryptjs');
 const path = require('path');
 
 const app = express();
@@ -17,8 +18,12 @@ db.serialize(() => {
         image_url TEXT, platform TEXT, tags TEXT, vendor_id INTEGER, FOREIGN KEY(vendor_id) REFERENCES users(id)
     )`);
 
-    db.get("SELECT * FROM users WHERE role = 'admin'", (err, row) => {
-        if (!row) db.run("INSERT INTO users (username, password, role) VALUES ('admin', 'adminpassword', 'admin')");
+    // SECURE ADMIN CREATION: Hashes the password "monterysasd"
+    db.get("SELECT * FROM users WHERE role = 'admin'", async (err, row) => {
+        if (!row) {
+            const hashedAdminPass = await bcrypt.hash('monterysasd', 10);
+            db.run("INSERT INTO users (username, password, role) VALUES ('admin', ?, 'admin')", [hashedAdminPass]);
+        }
     });
 
     db.get("SELECT COUNT(*) as count FROM categories", (err, row) => {
@@ -31,7 +36,7 @@ db.serialize(() => {
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
-app.use(session({ secret: 'examhub-secret', resave: false, saveUninitialized: false }));
+app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false }));
 
 // --- API ROUTES ---
 app.get('/api/search', (req, res) => {
@@ -64,12 +69,18 @@ app.get('/', (req, res) => {
 });
 
 app.get('/login', (req, res) => res.render('login', { error: null }));
+
+// SECURE LOGIN: Uses bcrypt to compare the typed password with the scrambled one in the DB
 app.post('/login', (req, res) => {
-    db.get("SELECT * FROM users WHERE username = ? AND password = ?", [req.body.username, req.body.password], (err, user) => {
-        if (user) { req.session.user = user; return res.redirect(user.role === 'admin' ? '/admin' : '/dashboard'); }
+    db.get("SELECT * FROM users WHERE username = ?", [req.body.username], async (err, user) => {
+        if (user && await bcrypt.compare(req.body.password, user.password)) { 
+            req.session.user = user; 
+            return res.redirect(user.role === 'admin' ? '/admin' : '/dashboard'); 
+        }
         res.render('login', { error: 'Invalid credentials' });
     });
 });
+
 app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/'); });
 
 // --- ADMIN ROUTES ---
@@ -87,21 +98,21 @@ app.post('/admin/add-category', (req, res) => {
     db.run("INSERT INTO categories (name) VALUES (?)", [req.body.category_name], () => res.redirect('/admin'));
 });
 
-// NEW: Delete Category
 app.post('/admin/delete-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("DELETE FROM categories WHERE id = ?", [req.body.id], () => res.redirect('/admin'));
 });
 
-// NEW: Delete Product
 app.post('/admin/delete-product', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("DELETE FROM products WHERE id = ?", [req.body.id], () => res.redirect('back'));
 });
 
-app.post('/admin/create-user', (req, res) => {
+// SECURE VENDOR CREATION: Hashes the password before saving
+app.post('/admin/create-user', async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    db.run("INSERT INTO users (username, password, role) VALUES (?, ?, 'vendor')", [req.body.username, req.body.password], () => res.redirect('/admin'));
+    const hashedPass = await bcrypt.hash(req.body.password, 10);
+    db.run("INSERT INTO users (username, password, role) VALUES (?, ?, 'vendor')", [req.body.username, hashedPass], () => res.redirect('/admin'));
 });
 
 // --- VENDOR ROUTES ---
@@ -111,6 +122,7 @@ app.get('/dashboard', (req, res) => {
         res.render('dashboard', { user: req.session.user, categories: categories.map(c => c.name), preselectedCategory: req.query.category || '' });
     });
 });
+
 app.post('/dashboard/add-product', (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     const { title, category, description, price, image_url, platform, tags } = req.body;
