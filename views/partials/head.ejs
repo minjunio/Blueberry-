@@ -7,68 +7,23 @@
         theme: {
             extend: {
                 fontFamily: { sans: ['Nunito', 'sans-serif'] },
-                colors: {
-                    anime: {
-                        sky: '#A1C4FD',      
-                        skyLight: '#C2E9FB', 
-                        textDark: '#475569', 
-                        textMain: '#1e293b', 
-                        accent: '#60A5FA',   
-                        pink: '#FBCFE8',     
-                        yellow: '#FEF08A'    
-                    }
-                },
-                animation: {
-                    'float': 'float 3s ease-in-out infinite',
-                    'float-delay': 'float 3s ease-in-out 1.5s infinite',
-                    'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
-                    'pop-in': 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'
-                },
-                keyframes: {
-                    float: {
-                        '0%, 100%': { transform: 'translateY(0px)' },
-                        '50%': { transform: 'translateY(-8px)' },
-                    },
-                    fadeInUp: {
-                        '0%': { opacity: '0', transform: 'translateY(20px)' },
-                        '100%': { opacity: '1', transform: 'translateY(0)' },
-                    },
-                    popIn: {
-                        '0%': { opacity: '0', transform: 'scale(0.8)' },
-                        '100%': { opacity: '1', transform: 'scale(1)' },
-                    }
-                }
+                colors: { anime: { sky: '#A1C4FD', skyLight: '#C2E9FB', textDark: '#475569', textMain: '#1e293b', accent: '#60A5FA', pink: '#FBCFE8', yellow: '#FEF08A' } },
+                animation: { 'float': 'float 3s ease-in-out infinite', 'float-delay': 'float 3s ease-in-out 1.5s infinite', 'fade-in-up': 'fadeInUp 0.6s ease-out forwards', 'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite' },
+                keyframes: { float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-8px)' } }, fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
             }
         }
     }
 </script>
 <style>
-    body {
-        background: linear-gradient(180deg, #A1C4FD 0%, #C2E9FB 50%, #FDFBFB 100%);
-        color: #1e293b;
-        min-height: 100vh;
-        overflow-x: hidden;
-        position: relative;
-    }
-    .glass-card {
-        background: rgba(255, 255, 255, 0.75);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 2px solid rgba(255, 255, 255, 0.9);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
-        border-radius: 1.5rem;
-        transition: box-shadow 0.3s ease, transform 0.3s ease;
-    }
-    .glass-card:hover {
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-        transform: translateY(-4px);
-    }
-    .cloud {
-        position: absolute;
-        background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%);
-        border-radius: 50%;
-        filter: blur(15px);
-        z-index: 0;
-        pointer-events: none;
-    }
+    body { background: linear-gradient(180deg, #A1C4FD 0%, #C2E9FB 50%, #FDFBFB 100%); color: #1e293b; min-height: 100vh; overflow-x: hidden; position: relative; }
+    .glass-card { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(16px); border: 2px solid rgba(255, 255, 255, 0.9); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06); border-radius: 1.5rem; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .glass-card:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); }
+    .cloud { position: absolute; background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; filter: blur(15px); z-index: 0; pointer-events: none; }
+    .tag-btn { background: rgba(255, 255, 255, 0.9); border: 1px solid #C2E9FB; padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 800; color: #60A5FA; display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
 </style>
+
+<div class="cloud w-[300px] h-[300px] md:w-[600px] md:h-[400px] top-[-50px] left-[-100px] opacity-90 animate-float"></div>
+<div class="cloud w-[400px] h-[400px] md:w-[800px] md:h-[500px] top-[15%] right-[-150px] opacity-80 animate-float-delay"></div>
+<div class="cloud w-[300px] h-[300px] bottom-[5%] left-[5%] opacity-70 bg-anime-pink/30 animate-float"></div>
+<svg class="absolute top-32 left-10 w-8 h-8 text-white opacity-80 animate-pulse-slow pointer-events-none z-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3.5 8.5L24 12l-8.5 3.5L12 24l-3.5-8.5L0 12l8.5-3.5z"/></svg>
+<svg class="absolute top-60 right-16 w-12 h-12 text-anime-pink opacity-60 animate-bounce pointer-events-none z-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3.5 8.5L24 12l-8.5 3.5L12 24l-3.5-8.5L0 12l8.5-3.5z"/></svg>
