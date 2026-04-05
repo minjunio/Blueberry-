@@ -6,6 +6,9 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Set your contact email here
+const CONTACT_EMAIL = "minjunnios@gmail.com";
+
 // Setup Database
 const db = new sqlite3.Database('./database.sqlite');
 
@@ -37,7 +40,6 @@ db.serialize(() => {
     db.get("SELECT COUNT(*) as count FROM categories", (err, row) => {
         if (row.count === 0) {
             const defaultCats = ['SAT', 'PSAT', 'AP', 'DSAT', 'LSAT', 'Honorlock', 'Lockdown Browser', 'Proctorio'];
-            // FIXED: Changed INSERT IGNORE to INSERT OR IGNORE for SQLite
             defaultCats.forEach(cat => db.run("INSERT OR IGNORE INTO categories (name) VALUES (?)", [cat]));
         }
     });
@@ -47,13 +49,17 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: 'examhub-secret', resave: false, saveUninitialized: false }));
 
-// --- API ROUTES (For Live Search Dropdown) ---
+// --- API ROUTES (For Live Search & Contact Info) ---
 app.get('/api/search', (req, res) => {
     const q = req.query.q || '';
     if (q.length < 1) return res.json([]);
     db.all("SELECT title, category FROM products WHERE title LIKE ? LIMIT 5", [`%${q}%`], (err, rows) => {
         res.json(rows || []);
     });
+});
+
+app.get('/api/config', (req, res) => {
+    res.json({ contactEmail: CONTACT_EMAIL });
 });
 
 // --- UI ROUTES ---
@@ -114,9 +120,27 @@ app.post('/admin/add-category', (req, res) => {
     db.run("INSERT INTO categories (name) VALUES (?)", [req.body.category_name], () => res.redirect('/admin'));
 });
 
+// ⚠️ DELETE CATEGORY (Admin only)
+app.post('/admin/delete-category', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    db.run("DELETE FROM categories WHERE name = ?", [req.body.category_name], () => res.redirect('/admin'));
+});
+
 app.post('/admin/create-user', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("INSERT INTO users (username, password, role) VALUES (?, ?, 'vendor')", [req.body.username, req.body.password], () => res.redirect('/admin'));
+});
+
+// ⚠️ DELETE PRODUCT (Vendors can delete own, Admin can delete any)
+app.post('/dashboard/delete-product', (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    const user = req.session.user;
+    
+    if (user.role === 'admin') {
+        db.run("DELETE FROM products WHERE id = ?", [req.body.product_id], () => res.redirect('/'));
+    } else {
+        db.run("DELETE FROM products WHERE id = ? AND vendor_id = ?", [req.body.product_id, user.id], () => res.redirect('/'));
+    }
 });
 
 // 4. Dashboard (Admin and Vendors can post)
