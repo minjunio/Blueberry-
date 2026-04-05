@@ -23,10 +23,17 @@
 
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <% categories.forEach(cat => { %>
-                        <a href="/dashboard?category=<%= encodeURIComponent(cat.name) %>" class="bg-white/80 hover:bg-anime-skyLight border-2 border-transparent hover:border-anime-accent p-4 rounded-xl text-center group transition cursor-pointer">
-                            <h3 class="font-black text-anime-textMain text-sm md:text-base"><%= cat.name %></h3>
-                            <p class="text-[10px] text-anime-accent mt-1 opacity-0 group-hover:opacity-100 font-bold transition">+ Make Post</p>
-                        </a>
+                        <div class="bg-white/80 hover:bg-anime-skyLight border-2 border-transparent hover:border-anime-accent p-4 rounded-xl text-center group transition relative">
+                            <form action="/admin/delete-category" method="POST" class="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition z-20">
+                                <input type="hidden" name="id" value="<%= cat.id %>">
+                                <button type="submit" class="text-red-500 font-black text-[10px] hover:underline">Drop</button>
+                            </form>
+
+                            <a href="/dashboard?category=<%= encodeURIComponent(cat.name) %>" class="block w-full h-full">
+                                <h3 class="font-black text-anime-textMain text-sm md:text-base"><%= cat.name %></h3>
+                                <p class="text-[10px] text-anime-accent mt-1 opacity-0 group-hover:opacity-100 font-bold transition">+ Make Post</p>
+                            </a>
+                        </div>
                     <% }) %>
                 </div>
             </div>
