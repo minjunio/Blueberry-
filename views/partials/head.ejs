@@ -1,5 +1,5 @@
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script>
@@ -15,11 +15,22 @@
     }
 </script>
 <style>
-    body { background: linear-gradient(180deg, #A1C4FD 0%, #C2E9FB 50%, #FDFBFB 100%); color: #1e293b; min-height: 100vh; overflow-x: hidden; position: relative; }
-    .glass-card { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(16px); border: 2px solid rgba(255, 255, 255, 0.9); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06); border-radius: 1.5rem; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    /* FIX: Prevents swiping into empty space on mobile */
+    html, body { 
+        max-width: 100vw; 
+        overflow-x: hidden; 
+        background: linear-gradient(180deg, #A1C4FD 0%, #C2E9FB 50%, #FDFBFB 100%); 
+        color: #1e293b; 
+        min-height: 100vh; 
+        position: relative; 
+    }
+    .glass-card { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 2px solid rgba(255, 255, 255, 0.9); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06); border-radius: 1.5rem; transition: transform 0.3s ease, box-shadow 0.3s ease; }
     .glass-card:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); }
     .cloud { position: absolute; background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; filter: blur(15px); z-index: 0; pointer-events: none; }
     .tag-btn { background: rgba(255, 255, 255, 0.9); border: 1px solid #C2E9FB; padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 800; color: #60A5FA; display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+    /* Hide scrollbar for modals */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #C2E9FB; border-radius: 10px; }
 </style>
 
 <div class="cloud w-[300px] h-[300px] md:w-[600px] md:h-[400px] top-[-50px] left-[-100px] opacity-90 animate-float"></div>
