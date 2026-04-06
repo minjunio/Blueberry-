@@ -70,15 +70,16 @@
                             <div class="flex-grow pt-1">
                                 <h3 class="font-black text-lg md:text-xl text-anime-textMain leading-tight mb-2 pr-12 break-words"><%= product.title %></h3>
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="bg-green-100 text-green-700 font-black text-sm px-2 py-0.5 rounded-lg">From $<%= Number(product.price_standard || product.price || 0).toFixed(2) %></span>
-                                    <p class="text-xs font-bold text-gray-400 flex items-center gap-1">@<%= product.vendor_name %></p>
+                                    <span class="bg-green-100 text-green-700 font-black text-sm px-2 py-0.5 rounded-lg">$<%= Number(product.price || 0).toFixed(2) %></span>
+                                    
+                                    <span class="bg-purple-100 text-purple-700 font-black text-xs px-2 py-1 rounded-lg uppercase tracking-wider"><%= product.tier || 'Standard' %></span>
                                 </div>
                             </div>
                         </div>
                         <div class="text-sm font-medium text-gray-600 mb-6 flex-grow leading-relaxed break-words"><%- formatPostText(product.description) %></div>
                         <div class="mt-auto pt-4 border-t-2 border-dashed border-gray-100">
                             <div class="flex gap-2">
-                                <button onclick="openBuyModal('<%= product.id %>', '<%= product.title %>')" class="flex-grow bg-anime-textMain text-white font-black py-2.5 rounded-xl text-sm hover:bg-gray-800 transition">Buy Now / Select Tier</button>
+                                <button onclick="openBuyModal('<%= product.id %>', '<%= product.title %>', '<%= product.tier || 'Standard' %>')" class="flex-grow bg-anime-textMain text-white font-black py-2.5 rounded-xl text-sm hover:bg-gray-800 transition">Buy Now</button>
                             </div>
                         </div>
                     </div>
@@ -91,7 +92,7 @@
         <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in-up">
             <div id="buyFormContainer" class="p-6 md:p-8">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-black text-anime-textMain">Select Package</h2>
+                    <h2 class="text-2xl font-black text-anime-textMain">Checkout</h2>
                     <button onclick="closeBuyModal()" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
                 </div>
                 
@@ -99,6 +100,8 @@
 
                 <form id="buyForm" action="/checkout" method="POST" class="space-y-4">
                     <input type="hidden" id="hiddenProductId" name="product_id">
+                    
+                    <input type="hidden" id="hiddenProductTier" name="tier">
 
                     <div>
                         <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Your Email Address *</label>
@@ -109,15 +112,6 @@
                         <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Discord Username (Optional)</label>
                         <input type="text" name="discord_username" placeholder="user#1234 or @user" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
                     </div>
-                    
-                    <div>
-                        <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Package Tier</label>
-                        <select name="tier" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm appearance-none cursor-pointer">
-                            <option value="Standard">Standard Tier</option>
-                            <option value="Pro">Pro Tier</option>
-                            <option value="Premium">Premium Tier</option>
-                        </select>
-                    </div>
 
                     <div>
                         <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Payment Method</label>
@@ -127,7 +121,7 @@
                         </select>
                     </div>
                     
-                    <button type="submit" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md mt-4">Proceed to Checkout →</button>
+                    <button type="submit" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md mt-4">Proceed to Secure Checkout →</button>
                 </form>
             </div>
         </div>
@@ -148,9 +142,11 @@
             } else { searchDropdown.classList.add('hidden'); }
         });
 
-        function openBuyModal(id, title) {
+        // UPDATED: Now receives the pre-defined tier from the product card
+        function openBuyModal(id, title, tier) {
             document.getElementById('modalItemTitle').innerText = title;
             document.getElementById('hiddenProductId').value = id;
+            document.getElementById('hiddenProductTier').value = tier;
             document.getElementById('buyModal').classList.remove('hidden');
             document.getElementById('buyModal').classList.add('flex');
         }
