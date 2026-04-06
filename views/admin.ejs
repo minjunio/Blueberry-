@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <title>Admin - ExamHub</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
 </head>
 <body class="p-4 md:p-8">
@@ -13,32 +14,63 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             
-            <div class="glass-card p-6 lg:col-span-2">
-                <h2 class="text-xl md:text-2xl font-black mb-4 border-b-2 border-dashed border-white pb-2">Manage Categories</h2>
-                
-                <form action="/admin/add-category" method="POST" class="flex gap-2 mb-6">
-                    <input type="text" name="category_name" placeholder="New Category (e.g., ACT)" required class="flex-grow bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
-                    <button type="submit" class="bg-anime-accent text-white font-black px-4 rounded-xl text-sm">Add</button>
-                </form>
+            <div class="glass-card p-6 lg:col-span-2 mb-6">
+                <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-gray-200 pb-2">
+                    <h2 class="text-xl md:text-2xl font-black">Manage Categories & Directories</h2>
+                    <button onclick="document.getElementById('catModal').classList.remove('hidden')" class="bg-anime-accent text-white font-black px-4 py-2 rounded-xl text-sm hover:scale-105 transition">+ Add Category</button>
+                </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div id="catModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50">
+                    <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">
+                        <h2 class="font-black text-2xl mb-4 text-anime-textMain">New Category SEO 🚀</h2>
+                        <form action="/admin/add-category" method="POST" class="space-y-4">
+                            <div>
+                                <label class="text-xs font-bold text-gray-500">Directory Name</label>
+                                <input type="text" name="category_name" placeholder="e.g. ACT" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500">SEO Page Title</label>
+                                <input type="text" name="seo_title" placeholder="Buy ACT Bypasses - ExamHub" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500">SEO Meta Description</label>
+                                <textarea name="seo_desc" placeholder="The best tools for the ACT exam..." required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></textarea>
+                            </div>
+                            <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
+                                <button type="button" onclick="document.getElementById('catModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
+                                <button type="submit" class="bg-anime-accent text-white font-black px-6 py-2 rounded-xl shadow-md">Create Directory</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
                     <% categories.forEach(cat => { %>
-                        <div class="bg-white/80 hover:bg-anime-skyLight border-2 border-transparent hover:border-anime-accent p-4 rounded-xl text-center group transition relative">
-                            <form action="/admin/delete-category" method="POST" class="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition z-20">
-                                <input type="hidden" name="id" value="<%= cat.id %>">
-                                <button type="submit" class="text-red-500 font-black text-[10px] hover:underline">Drop</button>
+                        <div class="bg-white border-2 border-gray-100 px-3 py-1.5 rounded-xl flex items-center gap-2 group">
+                            <span class="font-bold text-sm"><%= cat.name %></span>
+                            <form action="/admin/delete-category" method="POST" class="inline m-0 p-0">
+                                <input type="hidden" name="category_name" value="<%= cat.name %>">
+                                <button type="submit" class="text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 font-black">×</button>
                             </form>
-
-                            <a href="/dashboard?category=<%= encodeURIComponent(cat.name) %>" class="block w-full h-full">
-                                <h3 class="font-black text-anime-textMain text-sm md:text-base"><%= cat.name %></h3>
-                                <p class="text-[10px] text-anime-accent mt-1 opacity-0 group-hover:opacity-100 font-bold transition">+ Make Post</p>
-                            </a>
                         </div>
                     <% }) %>
                 </div>
             </div>
 
-            <div class="space-y-6">
+            <div class="glass-card p-6 lg:col-span-2">
+                <h2 class="text-xl md:text-2xl font-black mb-4 border-b-2 border-dashed border-gray-200 pb-2">Data Backup & Restore 💾</h2>
+                <div class="flex flex-col md:flex-row gap-4 items-center">
+                    <a href="/admin/export" class="w-full md:w-auto text-center bg-[#00b67a] hover:bg-[#009b68] text-white px-6 py-3 rounded-xl font-black shadow-sm transition">Download JSON Backup</a>
+                    <div class="hidden md:block w-px h-10 bg-gray-200"></div>
+                    <form action="/admin/import" method="POST" enctype="multipart/form-data" class="flex w-full md:w-auto gap-2 items-center">
+                        <input type="file" name="backup" accept=".json" required class="bg-white/80 border-2 border-dashed border-gray-300 px-3 py-2 rounded-xl text-sm font-bold flex-grow text-gray-600">
+                        <button type="submit" class="bg-anime-textMain text-white px-6 py-3 rounded-xl font-black shadow-sm transition hover:bg-gray-800">Load Backup</button>
+                    </form>
+                </div>
+                <p class="text-xs text-gray-400 font-bold mt-3">* Warning: Loading a backup will overwrite the current live database.</p>
+            </div>
+
+            <div class="space-y-6 lg:row-span-2 lg:col-start-3 lg:row-start-1">
                 <div class="glass-card p-6">
                     <h2 class="text-lg font-black mb-4">Create Vendor</h2>
                     <form action="/admin/create-user" method="POST" class="space-y-3">
