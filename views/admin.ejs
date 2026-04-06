@@ -36,6 +36,10 @@
                                 <label class="text-xs font-bold text-gray-500">SEO Meta Description</label>
                                 <textarea name="seo_desc" placeholder="The best tools for the ACT exam..." required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></textarea>
                             </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500">SEO Keywords (Comma Separated)</label>
+                                <input type="text" name="seo_keywords" placeholder="ACT, exam bypass, tools" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                            </div>
                             <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
                                 <button type="button" onclick="document.getElementById('catModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
                                 <button type="submit" class="bg-anime-accent text-white font-black px-6 py-2 rounded-xl shadow-md">Create Directory</button>
@@ -61,6 +65,10 @@
                                 <label class="text-xs font-bold text-gray-500">SEO Meta Description</label>
                                 <textarea id="editSeoDesc" name="seo_desc" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></textarea>
                             </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500">SEO Keywords (Comma Separated)</label>
+                                <input type="text" id="editSeoKeywords" name="seo_keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                            </div>
                             <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
                                 <button type="button" onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
                                 <button type="submit" class="bg-anime-textMain text-white font-black px-6 py-2 rounded-xl shadow-md">Save Changes</button>
@@ -76,6 +84,7 @@
                              data-name="<%= cat.name %>" 
                              data-title="<%= cat.seo_title || '' %>" 
                              data-desc="<%= cat.seo_desc || '' %>"
+                             data-keywords="<%= cat.seo_keywords || '' %>"
                              onclick="openEditCatModal(this)">
                             
                             <span class="font-bold text-sm select-none"><%= cat.name %></span>
@@ -132,6 +141,7 @@
             document.getElementById('editCatName').value = element.getAttribute('data-name');
             document.getElementById('editSeoTitle').value = element.getAttribute('data-title');
             document.getElementById('editSeoDesc').value = element.getAttribute('data-desc');
+            document.getElementById('editSeoKeywords').value = element.getAttribute('data-keywords');
             document.getElementById('editCatModal').classList.remove('hidden');
         }
     </script>
