@@ -1,8 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title><%= (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_title) ? categoryRow.seo_title : 'ExamHub ✨ Marketplace' %></title>
-    <meta name="description" content="<%= (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_desc) ? categoryRow.seo_desc : 'The ultimate exam marketplace' %>">
+    <% 
+        // Safe SEO Fallbacks
+        const seoTitle = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_title) ? categoryRow.seo_title : 'ExamHub ✨ Marketplace';
+        const seoDesc = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_desc) ? categoryRow.seo_desc : 'The ultimate exam marketplace for top-rated study tools and bypasses.';
+        const seoKeywords = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_keywords) ? categoryRow.seo_keywords : 'exams, study tools, bypasses, marketplace, honorlock, lockdown browser';
+    %>
+    
+    <title><%= seoTitle %></title>
+    
+    <meta name="description" content="<%= seoDesc %>">
+    <meta name="keywords" content="<%= seoKeywords %>">
+    <meta name="robots" content="index, follow">
+    
+    <meta property="og:title" content="<%= seoTitle %>">
+    <meta property="og:description" content="<%= seoDesc %>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ExamHub">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= seoTitle %>">
+    <meta name="twitter:description" content="<%= seoDesc %>">
+    
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
 </head>
