@@ -18,27 +18,24 @@ const db = new sqlite3.Database('./data/database.sqlite', (err) => {
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT)`);
     db.run(`CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, seo_title TEXT, seo_desc TEXT, seo_keywords TEXT)`);
+    
+    // UPDATED: Products table now explicitly stores the specific Tier and a single Price
     db.run(`CREATE TABLE IF NOT EXISTS products (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, description TEXT, price REAL,
+        id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, description TEXT, price REAL, tier TEXT DEFAULT 'Standard',
         image_url TEXT, platform TEXT, tags TEXT, vendor_id INTEGER, FOREIGN KEY(vendor_id) REFERENCES users(id)
     )`);
     
-    // Updated Orders table with Email
     db.run(`CREATE TABLE IF NOT EXISTS orders (
         id INTEGER PRIMARY KEY AUTOINCREMENT, order_id TEXT UNIQUE, product_id INTEGER, 
         tier TEXT, payment_method TEXT, email TEXT, discord_username TEXT, status TEXT DEFAULT 'Pending Payment', 
         giftcard_code TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    // Safely add new columns to old tables without crashing
+    // Safely add new columns to old databases without crashing
     db.run("ALTER TABLE categories ADD COLUMN seo_title TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_desc TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_keywords TEXT", () => {});
-    
-    db.run("ALTER TABLE products ADD COLUMN price_standard REAL", () => {});
-    db.run("ALTER TABLE products ADD COLUMN price_pro REAL", () => {});
-    db.run("ALTER TABLE products ADD COLUMN price_premium REAL", () => {});
-    
+    db.run("ALTER TABLE products ADD COLUMN tier TEXT DEFAULT 'Standard'", () => {});
     db.run("ALTER TABLE orders ADD COLUMN email TEXT", () => {});
 
     db.get("SELECT * FROM users WHERE role = 'admin'", async (err, row) => {
@@ -129,7 +126,7 @@ app.get('/category/:name', (req, res) => {
     } catch (e) { res.redirect('/'); }
 });
 
-// --- UPDATED CHECKOUT WITH EMAIL ---
+// CHECKOUT WITH EMAIL & PRE-DEFINED TIER
 app.post('/checkout', (req, res) => {
     const { product_id, email, discord_username, tier, payment_method } = req.body;
     const order_id = Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -143,7 +140,7 @@ app.post('/checkout', (req, res) => {
 });
 
 app.get('/order/:order_id', (req, res) => {
-    db.get("SELECT orders.*, products.title as product_title, products.price_standard, products.price_pro, products.price_premium FROM orders JOIN products ON orders.product_id = products.id WHERE order_id = ?", [req.params.order_id], (err, order) => {
+    db.get("SELECT orders.*, products.title as product_title FROM orders JOIN products ON orders.product_id = products.id WHERE order_id = ?", [req.params.order_id], (err, order) => {
         if (!order || err) return res.redirect('/');
         renderSafe(res, 'order', { order });
     });
@@ -186,11 +183,12 @@ app.post('/admin/close-order', (req, res) => {
     db.run("DELETE FROM orders WHERE order_id = ?", [req.body.order_id], () => res.redirect('/admin'));
 });
 
+// UPDATED: Admins now explicitly set the Tier and a single Price
 app.post('/admin/add-product', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    const { title, category, description, price_standard, price_pro, price_premium, image_url, platform, tags } = req.body;
-    db.run("INSERT INTO products (title, category, description, price_standard, price_pro, price_premium, image_url, platform, tags, vendor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-        [title, category, description, price_standard, price_pro, price_premium, image_url, platform, tags, req.session.user.id], () => res.redirect('/')
+    const { title, category, description, price, tier, image_url, platform, tags } = req.body;
+    db.run("INSERT INTO products (title, category, description, price, tier, image_url, platform, tags, vendor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+        [title, category, description, price, tier || 'Standard', image_url, platform, tags, req.session.user.id], () => res.redirect('/')
     );
 });
 
