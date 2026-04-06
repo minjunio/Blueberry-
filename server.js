@@ -21,7 +21,6 @@ db.serialize(() => {
         image_url TEXT, platform TEXT, tags TEXT, vendor_id INTEGER, FOREIGN KEY(vendor_id) REFERENCES users(id)
     )`);
 
-    // Safely attempt to add SEO columns if table already existed
     db.run("ALTER TABLE categories ADD COLUMN seo_title TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_desc TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_keywords TEXT", () => {});
@@ -46,20 +45,22 @@ db.serialize(() => {
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public')); // Enables the favicon in the /public folder
+app.use(express.static('public')); 
 app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false }));
 
-// --- SITEMAP FOR GOOGLE SEO (Safe Version) ---
-app.get('/sitemap.xml', (req, res) => {
+// --- SITEMAP FOR GOOGLE SEO ---
+app.get('/sitemap.xml', (req, res, next) => {
     try {
-        // Fallback host if Googlebot strips the headers
         const host = req.get('host') || 'www.examhub.shop';
         const baseUrl = host.includes('localhost') ? `http://${host}` : `https://${host}`; 
 
         db.all("SELECT name FROM categories", (err, categories) => {
+            if (err) console.error("Sitemap DB Error:", err);
+            
             let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
             xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
             xml += `  <url>\n    <loc>${baseUrl}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
+            
             if (categories && !err) {
                 categories.forEach(cat => {
                     xml += `  <url>\n    <loc>${baseUrl}/category/${encodeURIComponent(cat.name)}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
@@ -70,78 +71,78 @@ app.get('/sitemap.xml', (req, res) => {
             res.status(200).send(xml);
         });
     } catch (error) {
-        console.error("Sitemap crash prevented:", error);
-        res.status(200).send('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+        next(error);
     }
 });
 
-// --- API ROUTES (For Search Dropdown) ---
 app.get('/api/search', (req, res) => {
     const q = req.query.q || '';
     if (q.length < 1) return res.json([]);
     db.all("SELECT title, category FROM products WHERE title LIKE ? LIMIT 5", [`%${q}%`], (err, rows) => res.json(rows || []));
 });
 
-// --- PUBLIC ROUTES ---
-app.get('/', (req, res) => {
-    try {
-        const searchQuery = req.query.q || '';
-        const categoryFilter = req.query.category || '';
+// --- PUBLIC ROUTES (Bulletproofed) ---
+app.get('/', (req, res, next) => {
+    const searchQuery = req.query.q || '';
+    const categoryFilter = req.query.category || '';
+    
+    let query = "SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE 1=1";
+    let params = [];
+
+    if (searchQuery) {
+        query += " AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)";
+        params.push(`%${searchQuery}%`, `%${searchQuery}%`, `%${searchQuery}%`);
+    }
+    if (categoryFilter && categoryFilter !== 'All') {
+        query += " AND category = ?";
+        params.push(categoryFilter);
+    }
+
+    db.all("SELECT name FROM categories", (err, cats) => {
+        if (err) console.error("DB Error Cats:", err);
         
-        let query = "SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE 1=1";
-        let params = [];
-
-        if (searchQuery) {
-            query += " AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)";
-            params.push(`%${searchQuery}%`, `%${searchQuery}%`, `%${searchQuery}%`);
-        }
-        if (categoryFilter && categoryFilter !== 'All') {
-            query += " AND category = ?";
-            params.push(categoryFilter);
-        }
-
-        db.all("SELECT name FROM categories", (err, cats) => {
-            db.all(query, params, (err, products) => {
+        db.all(query, params, (err, products) => {
+            if (err) console.error("DB Error Prods:", err);
+            
+            try {
                 res.status(200).render('index', { 
                     user: req.session ? req.session.user : null, 
                     products: products || [], 
                     categories: cats ? cats.map(c => c.name) : [],
-                    searchQuery, 
+                    searchQuery: searchQuery || '', 
                     categoryFilter: categoryFilter || 'All',
                     categoryRow: null 
                 });
-            });
+            } catch (renderError) {
+                next(renderError); // Send to global error handler
+            }
         });
-    } catch (error) {
-        console.error("Home route crash prevented:", error);
-        res.status(200).send("Loading...");
-    }
+    });
 });
 
-// --- CATEGORY DIRECTORY & SEO ROUTES (Bulletproof Version) ---
-app.get('/category/:name', (req, res) => {
-    try {
-        // Safely decode URL
-        const categoryName = decodeURIComponent(req.params.name || '');
+// --- CATEGORY DIRECTORY ROUTES (Bulletproofed) ---
+app.get('/category/:name', (req, res, next) => {
+    const categoryName = decodeURIComponent(req.params.name || '');
+    
+    db.get("SELECT * FROM categories WHERE LOWER(name) = LOWER(?)", [categoryName], (err, categoryRow) => {
+        if (err) console.error("Category DB Error:", err);
         
-        // Using LOWER() is 100x safer across different SQLite versions than COLLATE NOCASE
-        db.get("SELECT * FROM categories WHERE LOWER(name) = LOWER(?)", [categoryName], (err, categoryRow) => {
+        if (!categoryRow) {
+            categoryRow = { 
+                name: categoryName,
+                seo_title: `${categoryName} - ExamHub`, 
+                seo_desc: `Browse the best tools and resources for ${categoryName}.`, 
+                seo_keywords: `${categoryName}, exams, tools` 
+            };
+        }
+        
+        db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE LOWER(category) = LOWER(?)", [categoryName], (err, products) => {
+            if (err) console.error("Products DB Error:", err);
             
-            if (err) console.error("DB Error:", err);
-            
-            // Failsafe so Google never gets a 404 or 500 error
-            if (!categoryRow) {
-                categoryRow = { 
-                    name: categoryName,
-                    seo_title: `${categoryName} - ExamHub`, 
-                    seo_desc: `Browse the best tools and resources for ${categoryName}.`, 
-                    seo_keywords: `${categoryName}, exams, tools` 
-                };
-            }
-            
-            db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE LOWER(category) = LOWER(?)", [categoryName], (err, products) => {
+            db.all("SELECT name FROM categories", (err, cats) => {
+                if (err) console.error("Cat List DB Error:", err);
                 
-                db.all("SELECT name FROM categories", (err, cats) => {
+                try {
                     res.status(200).render('index', { 
                         user: req.session ? req.session.user : null, 
                         products: products || [], 
@@ -150,13 +151,12 @@ app.get('/category/:name', (req, res) => {
                         categoryFilter: categoryRow.name,
                         categoryRow: categoryRow 
                     });
-                });
+                } catch (renderError) {
+                    next(renderError); // Send to global error handler
+                }
             });
         });
-    } catch (error) {
-        console.error("Category route crash prevented:", error);
-        res.redirect('/');
-    }
+    });
 });
 
 // --- AUTH ROUTES ---
@@ -184,36 +184,26 @@ app.get('/admin', (req, res) => {
         });
     });
 });
-
 app.post('/admin/add-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    const { category_name, seo_title, seo_desc, seo_keywords } = req.body;
-    db.run("INSERT INTO categories (name, seo_title, seo_desc, seo_keywords) VALUES (?, ?, ?, ?)", [category_name, seo_title, seo_desc, seo_keywords], () => res.redirect('/admin'));
+    db.run("INSERT INTO categories (name, seo_title, seo_desc, seo_keywords) VALUES (?, ?, ?, ?)", [req.body.category_name, req.body.seo_title, req.body.seo_desc, req.body.seo_keywords], () => res.redirect('/admin'));
 });
-
 app.post('/admin/edit-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    const { original_name, category_name, seo_title, seo_desc, seo_keywords } = req.body;
-    
-    db.run("UPDATE categories SET name = ?, seo_title = ?, seo_desc = ?, seo_keywords = ? WHERE name = ?", [category_name, seo_title, seo_desc, seo_keywords, original_name], () => {
-        if (original_name !== category_name) {
-            db.run("UPDATE products SET category = ? WHERE category = ?", [category_name, original_name], () => res.redirect('/admin'));
-        } else {
-            res.redirect('/admin');
-        }
+    db.run("UPDATE categories SET name = ?, seo_title = ?, seo_desc = ?, seo_keywords = ? WHERE name = ?", [req.body.category_name, req.body.seo_title, req.body.seo_desc, req.body.seo_keywords, req.body.original_name], () => {
+        if (req.body.original_name !== req.body.category_name) {
+            db.run("UPDATE products SET category = ? WHERE category = ?", [req.body.category_name, req.body.original_name], () => res.redirect('/admin'));
+        } else { res.redirect('/admin'); }
     });
 });
-
 app.post('/admin/delete-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("DELETE FROM categories WHERE name = ?", [req.body.category_name], () => res.redirect('/admin'));
 });
-
 app.post('/admin/delete-product', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("DELETE FROM products WHERE id = ?", [req.body.id], () => res.redirect('back'));
 });
-
 app.post('/admin/create-user', async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     const hashedPass = await bcrypt.hash(req.body.password, 10);
@@ -224,12 +214,9 @@ app.post('/admin/create-user', async (req, res) => {
 app.get('/admin/export', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     const exportData = {};
-    db.all("SELECT * FROM users", (err, users) => {
-        exportData.users = users;
-        db.all("SELECT * FROM categories", (err, categories) => {
-            exportData.categories = categories;
-            db.all("SELECT * FROM products", (err, products) => {
-                exportData.products = products;
+    db.all("SELECT * FROM users", (err, users) => { exportData.users = users;
+        db.all("SELECT * FROM categories", (err, categories) => { exportData.categories = categories;
+            db.all("SELECT * FROM products", (err, products) => { exportData.products = products;
                 res.header("Content-Type", 'application/json');
                 res.attachment("examhub_backup.json");
                 return res.send(exportData);
@@ -237,31 +224,19 @@ app.get('/admin/export', (req, res) => {
         });
     });
 });
-
 app.post('/admin/import', upload.single('backup'), (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     if (!req.file) return res.redirect('/admin');
-
     const data = JSON.parse(fs.readFileSync(req.file.path, 'utf8'));
-    
     db.serialize(() => {
-        db.run("DELETE FROM products");
-        db.run("DELETE FROM categories");
-        db.run("DELETE FROM users");
-
+        db.run("DELETE FROM products"); db.run("DELETE FROM categories"); db.run("DELETE FROM users");
         const userStmt = db.prepare("INSERT INTO users (id, username, password, role) VALUES (?, ?, ?, ?)");
-        data.users?.forEach(u => userStmt.run(u.id, u.username, u.password, u.role));
-        userStmt.finalize();
-
+        data.users?.forEach(u => userStmt.run(u.id, u.username, u.password, u.role)); userStmt.finalize();
         const catStmt = db.prepare("INSERT INTO categories (id, name, seo_title, seo_desc, seo_keywords) VALUES (?, ?, ?, ?, ?)");
-        data.categories?.forEach(c => catStmt.run(c.id, c.name, c.seo_title, c.seo_desc, c.seo_keywords));
-        catStmt.finalize();
-
+        data.categories?.forEach(c => catStmt.run(c.id, c.name, c.seo_title, c.seo_desc, c.seo_keywords)); catStmt.finalize();
         const prodStmt = db.prepare("INSERT INTO products (id, title, category, description, price, image_url, platform, tags, vendor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        data.products?.forEach(p => prodStmt.run(p.id, p.title, p.category, p.description, p.price, p.image_url, p.platform, p.tags, p.vendor_id));
-        prodStmt.finalize();
+        data.products?.forEach(p => prodStmt.run(p.id, p.title, p.category, p.description, p.price, p.image_url, p.platform, p.tags, p.vendor_id)); prodStmt.finalize();
     });
-
     fs.unlinkSync(req.file.path);
     res.redirect('/admin');
 });
@@ -273,7 +248,6 @@ app.get('/dashboard', (req, res) => {
         res.render('dashboard', { user: req.session.user, categories: categories.map(c => c.name), preselectedCategory: req.query.category || '' });
     });
 });
-
 app.post('/dashboard/add-product', (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     const { title, category, description, price, image_url, platform, tags } = req.body;
@@ -281,6 +255,28 @@ app.post('/dashboard/add-product', (req, res) => {
         [title, category, description, price, image_url, platform, tags, req.session.user.id], 
         () => res.redirect('/')
     );
+});
+
+// ==========================================
+// ULTIMATE FALLBACK: THE GLOBAL ERROR CATCHER
+// ==========================================
+// If anything above crashes, this intercepts it and forces a 200 OK so Google NEVER sees a 5xx error.
+app.use((err, req, res, next) => {
+    console.error("FATAL CRASH PREVENTED:", err.message);
+    res.status(200).send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <title>ExamHub ✨ Marketplace</title>
+            <meta name="description" content="The ultimate exam marketplace for top-rated study tools and bypasses.">
+        </head>
+        <body style="font-family: sans-serif; text-align: center; padding: 50px;">
+            <h1>ExamHub</h1>
+            <p>Loading marketplace...</p>
+            <script>setTimeout(() => window.location.reload(), 3000);</script>
+        </body>
+        </html>
+    `);
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
