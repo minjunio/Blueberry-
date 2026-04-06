@@ -35,7 +35,7 @@ db.serialize(() => {
 
     db.get("SELECT COUNT(*) as count FROM categories", (err, row) => {
         if (row.count === 0) {
-            const defaultCats = ['SAT', 'PSAT', 'AP', 'DSAT', 'LSAT', 'Honorlock'];
+            const defaultCats = ['SAT', 'PSAT', 'AP', 'DSAT', 'LSAT', 'Honorlock', 'Lockdown Browser', 'Proctorio'];
             const stmt = db.prepare("INSERT INTO categories (name, seo_title, seo_desc) VALUES (?, ?, ?)");
             defaultCats.forEach(cat => stmt.run(cat, `${cat} Tools - ExamHub`, `Best bypasses and tools for ${cat}.`));
             stmt.finalize();
@@ -48,6 +48,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public')); // Enables the favicon in the /public folder
 app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false }));
 
+// --- API ROUTES (For Search Dropdown) ---
+app.get('/api/search', (req, res) => {
+    const q = req.query.q || '';
+    if (q.length < 1) return res.json([]);
+    db.all("SELECT title, category FROM products WHERE title LIKE ? LIMIT 5", [`%${q}%`], (err, rows) => res.json(rows || []));
+});
+
 // --- PUBLIC ROUTES ---
 app.get('/', (req, res) => {
     const searchQuery = req.query.q || '';
@@ -57,22 +64,22 @@ app.get('/', (req, res) => {
     let params = [];
 
     if (searchQuery) {
-        query += " AND (title LIKE ? OR tags LIKE ?)";
-        params.push(`%${searchQuery}%`, `%${searchQuery}%`);
+        query += " AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)";
+        params.push(`%${searchQuery}%`, `%${searchQuery}%`, `%${searchQuery}%`);
     }
-    if (categoryFilter) {
+    if (categoryFilter && categoryFilter !== 'All') {
         query += " AND category = ?";
         params.push(categoryFilter);
     }
 
-    db.all(query, params, (err, products) => {
-        db.all("SELECT * FROM categories", (err, categories) => {
+    db.all("SELECT name FROM categories", (err, cats) => {
+        db.all(query, params, (err, products) => {
             res.render('index', { 
                 user: req.session.user, 
                 products: products || [], 
-                categories: categories.map(c => c.name),
+                categories: cats ? cats.map(c => c.name) : [],
                 searchQuery, 
-                categoryFilter,
+                categoryFilter: categoryFilter || 'All',
                 categoryRow: null // No specific SEO on home page
             });
         });
@@ -86,11 +93,11 @@ app.get('/category/:name', (req, res) => {
         if (!categoryRow) return res.redirect('/');
         
         db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE category = ?", [categoryName], (err, products) => {
-            db.all("SELECT * FROM categories", (err, categories) => {
+            db.all("SELECT name FROM categories", (err, cats) => {
                 res.render('index', { 
                     user: req.session.user, 
                     products: products || [], 
-                    categories: categories.map(c => c.name),
+                    categories: cats ? cats.map(c => c.name) : [],
                     searchQuery: '',
                     categoryFilter: categoryName,
                     categoryRow: categoryRow // Passes specific SEO to the frontend
