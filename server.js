@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 const upload = multer({ dest: 'uploads/' });
 
 // Setup Database
-const db = new sqlite3.Database('./database.sqlite');
+const db = new sqlite3.Database('./data/database.sqlite');
 
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT)`);
@@ -49,13 +49,11 @@ app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUn
 
 // ==========================================
 // ULTIMATE FAILSAFE RENDERER
-// This guarantees Google NEVER sees a 5xx error
 // ==========================================
 const renderSafe = (res, view, data) => {
     res.render(view, data, (err, html) => {
         if (err) {
             console.error(`[CRITICAL] EJS Crash prevented on ${view}.ejs:`, err.message);
-            // If the template crashes, we STILL force a 200 OK success to Google
             return res.status(200).send(`<!DOCTYPE html><html lang="en"><head><title>ExamHub ✨ Marketplace</title><meta name="robots" content="index, follow"></head><body><h1>ExamHub</h1><p>Marketplace loading...</p></body></html>`);
         }
         res.status(200).send(html);
@@ -178,6 +176,16 @@ app.get('/admin', (req, res) => {
             });
         });
     });
+});
+
+// NEW: Allows Admins to post products directly from the Admin Panel
+app.post('/admin/add-product', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    const { title, category, description, price, image_url, platform, tags } = req.body;
+    db.run("INSERT INTO products (title, category, description, price, image_url, platform, tags, vendor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+        [title, category, description, price, image_url, platform, tags, req.session.user.id], 
+        () => res.redirect('/')
+    );
 });
 
 app.post('/admin/add-category', (req, res) => {
