@@ -60,7 +60,6 @@
                 <div class="w-full bg-white border-2 border-gray-200 rounded-xl p-4 text-center mb-4 relative">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-2">Send to this Address</p>
                     <p id="cryptoAddress" class="font-bold text-sm text-anime-textMain break-all"></p>
-                    
                     <button onclick="copyAddress(this)" class="mt-3 bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-1.5 rounded-lg text-xs font-black transition">Copy Address</button>
                 </div>
 
@@ -77,10 +76,10 @@
                 else if (order.tier === 'Pro') giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-450-usd-giftmecrypto-key-global-i10000503347304";
                 else if (order.tier === 'Premium') giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-900-usd-giftmecrypto-key-global-i10000503347308";
             %>
-            <div class="bg-[#ffebed] border-2 border-[#ffc2c8] rounded-xl p-5 mb-6 text-center">
-                <p class="text-sm font-black text-[#e83e53] uppercase mb-2">Step 1: Purchase Giftcard</p>
+            <div class="bg-green-50 border-2 border-green-200 rounded-xl p-5 mb-6 text-center">
+                <p class="text-sm font-black text-[#00b67a] uppercase mb-2">Step 1: Purchase Giftcard</p>
                 <p class="text-xs font-bold text-gray-600 mb-4">Click the link below to purchase the exact required $<%= order.product_price %> giftcard for your tier.</p>
-                <a href="<%= giftcardLink %>" target="_blank" class="inline-block bg-[#e83e53] text-white font-black px-6 py-3 rounded-xl shadow-sm hover:scale-105 transition">Buy $<%= order.product_price %> G2A Giftcard ↗</a>
+                <a href="<%= giftcardLink %>" target="_blank" class="inline-block bg-[#00b67a] text-white font-black px-6 py-3 rounded-xl shadow-sm hover:scale-105 transition">Buy $<%= order.product_price %> G2A Giftcard ↗</a>
             </div>
             <div class="bg-gray-50 rounded-xl p-5 border-2 border-gray-100 mb-6">
                 <p class="text-sm font-black text-gray-600 uppercase mb-3">Step 2: Submit Code</p>
@@ -90,7 +89,7 @@
         <% } %>
 
         <div id="successMessage" class="hidden mt-6 bg-green-100 border-2 border-green-200 rounded-xl p-6 text-center">
-            <h3 class="text-xl font-black text-green-700 mb-2">Successfully submitted and waiting for verification!</h3>
+            <h3 class="text-xl font-black text-green-700 mb-2">Successfully submitted and awaiting verification!</h3>
             <p class="text-sm font-bold text-green-600">Please leave this page open. Your order is now visible in our system. You will receive an email shortly with your delivery and tracking details.</p>
         </div>
 
@@ -148,7 +147,6 @@
 
                 const amountToSend = (usdPrice / currentLivePrice).toFixed(decimals);
 
-                // UPDATED: Now passes 'this' element so the copy effect is strictly inline
                 calcArea.innerHTML = `
                     <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-5 text-center shadow-inner relative overflow-hidden">
                         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-anime-accent"></div>
@@ -185,7 +183,6 @@
             if(activeAddress) copyText(activeAddress, btnElement);
         }
 
-        // NEW: Inline copy effect without annoying alert() pop-ups
         function copyText(text, btnElement) {
             navigator.clipboard.writeText(text);
             const originalText = btnElement.innerText;
@@ -233,7 +230,10 @@
             }).then(() => {
                 if (type === 'Giftcard') codeInput.disabled = true;
                 btn.classList.add('hidden');
-                document.getElementById('cryptoDetails').classList.add('hidden');
+                
+                const cryptoDetails = document.getElementById('cryptoDetails');
+                if(cryptoDetails) cryptoDetails.classList.add('hidden');
+                
                 document.getElementById('successMessage').classList.remove('hidden');
             });
         }
