@@ -17,7 +17,12 @@ const db = new sqlite3.Database('./data/database.sqlite', (err) => {
 
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT)`);
-    db.run(`CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, seo_title TEXT, seo_desc TEXT, seo_keywords TEXT)`);
+    
+    // UPDATED: Categories table with FULL Google SEO Suite
+    db.run(`CREATE TABLE IF NOT EXISTS categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, seo_title TEXT, seo_desc TEXT, seo_keywords TEXT, 
+        og_image TEXT, canonical_url TEXT
+    )`);
     
     db.run(`CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, description TEXT, price REAL, tier TEXT DEFAULT 'Standard',
@@ -34,6 +39,8 @@ db.serialize(() => {
     db.run("ALTER TABLE categories ADD COLUMN seo_title TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_desc TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_keywords TEXT", () => {});
+    db.run("ALTER TABLE categories ADD COLUMN og_image TEXT", () => {});
+    db.run("ALTER TABLE categories ADD COLUMN canonical_url TEXT", () => {});
     db.run("ALTER TABLE products ADD COLUMN tier TEXT DEFAULT 'Standard'", () => {});
     db.run("ALTER TABLE orders ADD COLUMN email TEXT", () => {});
 
@@ -47,8 +54,8 @@ db.serialize(() => {
     db.get("SELECT COUNT(*) as count FROM categories", (err, row) => {
         if (row && row.count === 0) {
             const defaultCats = ['SAT', 'PSAT', 'AP', 'DSAT', 'LSAT', 'Honorlock', 'Lockdown Browser', 'Proctorio'];
-            const stmt = db.prepare("INSERT INTO categories (name, seo_title, seo_desc, seo_keywords) VALUES (?, ?, ?, ?)");
-            defaultCats.forEach(cat => stmt.run(cat, `${cat} Tools - ExamHub`, `Best bypasses and tools for ${cat}.`, `${cat}, exam, test, bypass, tools`));
+            const stmt = db.prepare("INSERT INTO categories (name, seo_title, seo_desc, seo_keywords, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?)");
+            defaultCats.forEach(cat => stmt.run(cat, `${cat} Tools - ExamHub`, `Best bypasses and tools for ${cat}.`, `${cat}, exam, test, bypass, tools`, ``, ``));
             stmt.finalize();
         }
     });
@@ -103,9 +110,9 @@ app.get('/', (req, res) => {
         if (searchQuery) { query += " AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)"; params.push(`%${searchQuery}%`, `%${searchQuery}%`, `%${searchQuery}%`); }
         if (categoryFilter && categoryFilter !== 'All') { query += " AND category = ?"; params.push(categoryFilter); }
 
-        db.all("SELECT name FROM categories", (err, cats) => {
+        db.all("SELECT * FROM categories", (err, cats) => {
             db.all(query, params, (err, products) => {
-                renderSafe(res, 'index', { user: req.session ? req.session.user : null, products: products || [], categories: cats ? cats.map(c => c.name) : [], searchQuery: searchQuery || '', categoryFilter: categoryFilter || 'All', categoryRow: null });
+                renderSafe(res, 'index', { user: req.session ? req.session.user : null, products: products || [], categories: cats || [], searchQuery: searchQuery || '', categoryFilter: categoryFilter || 'All', categoryRow: null });
             });
         });
     } catch (e) { res.status(200).send("Loading ExamHub..."); }
@@ -115,17 +122,16 @@ app.get('/category/:name', (req, res) => {
     try {
         const categoryName = decodeURIComponent(req.params.name || '');
         db.get("SELECT * FROM categories WHERE LOWER(name) = LOWER(?)", [categoryName], (err, categoryRow) => {
-            if (!categoryRow) { categoryRow = { name: categoryName, seo_title: `${categoryName} - ExamHub`, seo_desc: `Tools for ${categoryName}.`, seo_keywords: `${categoryName}` }; }
+            if (!categoryRow) { categoryRow = { name: categoryName, seo_title: `${categoryName} - ExamHub`, seo_desc: `Tools for ${categoryName}.`, seo_keywords: `${categoryName}`, og_image: '', canonical_url: '' }; }
             db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE LOWER(category) = LOWER(?)", [categoryName], (err, products) => {
-                db.all("SELECT name FROM categories", (err, cats) => {
-                    renderSafe(res, 'index', { user: req.session ? req.session.user : null, products: products || [], categories: cats ? cats.map(c => c.name) : [], searchQuery: '', categoryFilter: categoryRow.name, categoryRow: categoryRow });
+                db.all("SELECT * FROM categories", (err, cats) => {
+                    renderSafe(res, 'index', { user: req.session ? req.session.user : null, products: products || [], categories: cats || [], searchQuery: '', categoryFilter: categoryRow.name, categoryRow: categoryRow });
                 });
             });
         });
     } catch (e) { res.redirect('/'); }
 });
 
-// CHECKOUT WITH EMAIL & PRE-DEFINED TIER
 app.post('/checkout', (req, res) => {
     const { product_id, email, discord_username, tier, payment_method } = req.body;
     const order_id = Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -138,7 +144,6 @@ app.post('/checkout', (req, res) => {
     );
 });
 
-// ORDER PAGE
 app.get('/order/:order_id', (req, res) => {
     db.get("SELECT orders.*, products.title as product_title, products.price as product_price FROM orders JOIN products ON orders.product_id = products.id WHERE order_id = ?", [req.params.order_id], (err, order) => {
         if (!order || err) return res.redirect('/');
@@ -165,7 +170,6 @@ app.post('/login', (req, res) => {
 });
 app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/'); });
 
-// ADMIN PANEL
 app.get('/admin', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.all("SELECT * FROM categories", (err, categories) => {
@@ -184,7 +188,6 @@ app.post('/admin/close-order', (req, res) => {
     db.run("DELETE FROM orders WHERE order_id = ?", [req.body.order_id], () => res.redirect('/admin'));
 });
 
-// ADD, EDIT, AND DELETE POSTS
 app.post('/admin/add-product', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     const { title, category, description, price, tier, image_url, platform, tags } = req.body;
@@ -206,19 +209,27 @@ app.post('/admin/delete-product', (req, res) => {
     db.run("DELETE FROM products WHERE id = ?", [req.body.id], () => res.redirect('back'));
 });
 
-// CATEGORY MANAGEMENT
+// FULL SEO CATEGORY ENDPOINTS
 app.post('/admin/add-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    db.run("INSERT INTO categories (name, seo_title, seo_desc, seo_keywords) VALUES (?, ?, ?, ?)", [req.body.category_name, req.body.seo_title, req.body.seo_desc, req.body.seo_keywords], () => res.redirect('/admin'));
+    db.run("INSERT INTO categories (name, seo_title, seo_desc, seo_keywords, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?)", 
+        [req.body.category_name, req.body.seo_title, req.body.seo_desc, req.body.seo_keywords, req.body.og_image, req.body.canonical_url], 
+        () => res.redirect('/admin')
+    );
 });
+
 app.post('/admin/edit-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    db.run("UPDATE categories SET name = ?, seo_title = ?, seo_desc = ?, seo_keywords = ? WHERE name = ?", [req.body.category_name, req.body.seo_title, req.body.seo_desc, req.body.seo_keywords, req.body.original_name], () => {
-        if (req.body.original_name !== req.body.category_name) {
-            db.run("UPDATE products SET category = ? WHERE category = ?", [req.body.category_name, req.body.original_name], () => res.redirect('/admin'));
-        } else { res.redirect('/admin'); }
-    });
+    db.run("UPDATE categories SET name = ?, seo_title = ?, seo_desc = ?, seo_keywords = ?, og_image = ?, canonical_url = ? WHERE name = ?", 
+        [req.body.category_name, req.body.seo_title, req.body.seo_desc, req.body.seo_keywords, req.body.og_image, req.body.canonical_url, req.body.original_name], 
+        () => {
+            if (req.body.original_name !== req.body.category_name) {
+                db.run("UPDATE products SET category = ? WHERE category = ?", [req.body.category_name, req.body.original_name], () => res.redirect('/admin'));
+            } else { res.redirect('/admin'); }
+        }
+    );
 });
+
 app.post('/admin/delete-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("DELETE FROM categories WHERE name = ?", [req.body.category_name], () => res.redirect('/admin'));
