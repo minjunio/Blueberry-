@@ -105,8 +105,9 @@
                                     <% if(product.platform) { %>
                                         <span class="bg-gray-100 text-gray-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider"><%= product.platform %></span>
                                     <% } %>
+                                    
                                     <% if(product.tags) { %>
-                                        <% product.tags.split(',').slice(0, 2).forEach(tag => { %>
+                                        <% String(product.tags).split(',').slice(0, 2).forEach(tag => { %>
                                             <span class="bg-anime-skyLight text-anime-sky text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider"><%= tag.trim() %></span>
                                         <% }) %>
                                     <% } %>
