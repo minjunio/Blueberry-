@@ -5,6 +5,8 @@
         const seoTitle = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_title) ? categoryRow.seo_title : 'ExamHub ✨ Marketplace';
         const seoDesc = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_desc) ? categoryRow.seo_desc : 'The ultimate exam marketplace for top-rated study tools and bypasses.';
         const seoKeywords = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_keywords) ? categoryRow.seo_keywords : 'exams, study tools, bypasses, marketplace, honorlock, lockdown browser';
+        const ogImage = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.og_image) ? categoryRow.og_image : 'https://examhub.shop/favicon.png';
+        const canonicalUrl = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.canonical_url) ? categoryRow.canonical_url : '';
 
         function formatPostText(text) {
             if (!text) return '';
@@ -16,9 +18,26 @@
         }
     %>
     <title><%= seoTitle %></title>
+    
     <meta name="description" content="<%= seoDesc %>">
     <meta name="keywords" content="<%= seoKeywords %>">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <% if (canonicalUrl) { %>
+        <link rel="canonical" href="<%= canonicalUrl %>">
+    <% } %>
+
+    <meta property="og:title" content="<%= seoTitle %>">
+    <meta property="og:description" content="<%= seoDesc %>">
+    <meta property="og:image" content="<%= ogImage %>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ExamHub">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= seoTitle %>">
+    <meta name="twitter:description" content="<%= seoDesc %>">
+    <meta name="twitter:image" content="<%= ogImage %>">
+
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
 </head>
@@ -50,7 +69,7 @@
         <div class="flex flex-wrap justify-center gap-2 mt-8 max-w-4xl">
             <a href="/" class="px-3 md:px-4 py-2 rounded-full font-black text-xs md:text-sm border-2 <%= (!categoryFilter || categoryFilter === 'All') ? 'bg-anime-textMain text-white border-anime-textMain' : 'bg-white/80 border-transparent hover:border-anime-accent' %>">All</a>
             <% categories.forEach(cat => { %>
-                <a href="/category/<%= encodeURIComponent(cat) %>" class="px-3 md:px-4 py-2 rounded-full font-black text-xs md:text-sm border-2 <%= categoryFilter === cat ? 'bg-anime-textMain text-white border-anime-textMain' : 'bg-white/80 border-transparent hover:border-anime-accent' %>"><%= cat %></a>
+                <a href="/category/<%= encodeURIComponent(cat.name) %>" class="px-3 md:px-4 py-2 rounded-full font-black text-xs md:text-sm border-2 <%= categoryFilter === cat.name ? 'bg-anime-textMain text-white border-anime-textMain' : 'bg-white/80 border-transparent hover:border-anime-accent' %>"><%= cat.name %></a>
             <% }) %>
         </div>
     </header>
@@ -94,7 +113,6 @@
                     <h2 class="text-2xl font-black text-anime-textMain">Checkout</h2>
                     <button onclick="closeBuyModal()" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
                 </div>
-                
                 <p id="modalItemTitle" class="font-bold text-anime-textMain text-sm mb-6 pb-4 border-b-2 border-dashed border-gray-100 break-words"></p>
 
                 <form id="buyForm" action="/checkout" method="POST" class="space-y-4">
