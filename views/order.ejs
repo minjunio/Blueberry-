@@ -23,12 +23,16 @@
                 <p class="text-xs font-bold text-gray-500">Tier: <span class="text-anime-accent"><%= order.tier %></span></p>
                 <p class="text-xs font-bold text-gray-500">Method: <span class="text-anime-accent"><%= order.payment_method %></span></p>
             </div>
+            <div class="mt-2 text-xs font-bold text-gray-400 truncate">Delivery to: <%= order.email %></div>
         </div>
 
         <% if (order.payment_method === 'Crypto') { %>
-            <div class="bg-blue-50 border-2 border-blue-100 rounded-xl p-4 mb-6">
-                <p class="text-xs font-black text-blue-600 uppercase mb-2">Need to buy Crypto?</p>
-                <p class="text-xs font-bold text-gray-600 mb-2">You can purchase crypto directly using an SSN via these trusted platforms:</p>
+            <div class="bg-blue-50 border-2 border-blue-100 rounded-xl p-4 mb-6 relative">
+                <div class="flex justify-between items-start mb-2">
+                    <p class="text-xs font-black text-blue-600 uppercase">Need to buy Crypto?</p>
+                    <button onclick="document.getElementById('cryptoTutorial').classList.remove('hidden')" class="text-[10px] bg-blue-600 text-white px-2 py-1 rounded shadow-sm font-black hover:scale-105 transition">📖 Learn How</button>
+                </div>
+                <p class="text-xs font-bold text-gray-600 mb-2">You can purchase crypto directly using a credit card / SSN via these trusted platforms:</p>
                 <div class="flex gap-2">
                     <a href="https://www.moonpay.com/" target="_blank" class="bg-white text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg text-[11px] font-black hover:bg-blue-600 hover:text-white transition">MoonPay ↗</a>
                     <a href="https://www.bitpay.com/buy-crypto" target="_blank" class="bg-white text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg text-[11px] font-black hover:bg-blue-600 hover:text-white transition">BitPay ↗</a>
@@ -48,7 +52,7 @@
                 <p id="cryptoAddress" class="font-bold text-sm text-anime-textMain break-all text-center bg-white px-4 py-2 rounded-lg border border-gray-200"></p>
             </div>
 
-            <button onclick="confirmPayment()" id="confirmBtn" class="w-full bg-[#00b67a] text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md hidden">I have sent the Crypto ✓</button>
+            <button onclick="confirmPayment('Crypto')" id="confirmBtn" class="w-full bg-[#00b67a] text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md hidden">I have sent the Crypto ✓</button>
 
         <% } else { %>
             <% 
@@ -72,10 +76,37 @@
         <% } %>
 
         <div id="successMessage" class="hidden mt-6 bg-green-100 border-2 border-green-200 rounded-xl p-6 text-center">
-            <h3 class="text-xl font-black text-green-700 mb-2">Payment Confirmed!</h3>
-            <p class="text-sm font-bold text-green-600">Please leave this page open. Your order is now visible in the Admin Panel. The vendor will contact your Discord shortly to complete the delivery.</p>
+            <h3 class="text-xl font-black text-green-700 mb-2">Successfully submitted and waiting for verification!</h3>
+            <p class="text-sm font-bold text-green-600">Please leave this page open. Your order is now visible in our system. You will receive an email shortly with your delivery and tracking details.</p>
         </div>
 
+    </div>
+
+    <div id="cryptoTutorial" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl p-6 md:p-8 shadow-2xl relative">
+            <button onclick="document.getElementById('cryptoTutorial').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-black font-black text-xl">×</button>
+            
+            <h2 class="text-2xl font-black text-anime-textMain mb-4">How to Buy & Send Crypto 💸</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                    <h3 class="font-black text-blue-700 mb-1">Step 1: Buy Crypto</h3>
+                    <p class="text-xs font-bold text-gray-600">Go to <a href="https://www.moonpay.com/" target="_blank" class="text-blue-500 underline">MoonPay</a> or <a href="https://www.bitpay.com/buy-crypto" target="_blank" class="text-blue-500 underline">BitPay</a>. Select the coin you want to buy (like Bitcoin or Solana). Enter the dollar amount you need for your Tier. You can pay using a credit card, Apple Pay, or bank transfer (SSN verification may be required).</p>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <h3 class="font-black text-gray-700 mb-1">Step 2: Copy the Address</h3>
+                    <p class="text-xs font-bold text-gray-600">On this checkout page, click the button for the coin you just bought (e.g. Bitcoin). A long string of random letters and numbers will appear. <strong>Copy that exact address.</strong></p>
+                </div>
+
+                <div class="bg-green-50 p-4 rounded-xl border border-green-100">
+                    <h3 class="font-black text-green-700 mb-1">Step 3: Paste and Send</h3>
+                    <p class="text-xs font-bold text-gray-600">Go back to MoonPay/BitPay. It will ask "Where do you want to send your crypto?" <strong>Paste the address</strong> you copied into that box. Complete the transaction. Once done, click the green "I have sent the Crypto" button on this page!</p>
+                </div>
+            </div>
+            
+            <button onclick="document.getElementById('cryptoTutorial').classList.add('hidden')" class="w-full mt-6 bg-gray-800 text-white font-black py-3 rounded-xl hover:bg-black transition">Got it! Let's go.</button>
+        </div>
     </div>
 
     <script>
@@ -100,17 +131,18 @@
             btn.innerText = 'Processing...';
             btn.disabled = true;
 
-            // 1. Update the Admin Database live
+            // 1. Update DB live
             await fetch(`/api/order/<%= order.order_id %>/update`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ status: type === 'Giftcard' ? 'Code Submitted' : 'Crypto Sent', giftcard_code: giftcardCode })
             });
 
-            // 2. Email Notification to Admin via Formsubmit
+            // 2. Email Notification to Admin via Formsubmit with Email attached
             const formData = new FormData();
             formData.append('_subject', `New Payment Submitted - Order #<%= order.order_id %>`);
             formData.append('Order ID', '<%= order.order_id %>');
-            formData.append('Discord User', '<%= order.discord_username %>');
+            formData.append('Email', '<%= order.email %>');
+            formData.append('Discord User', '<%= order.discord_username || "Not Provided" %>');
             formData.append('Tier', '<%= order.tier %>');
             formData.append('Method', '<%= order.payment_method %>');
             if (giftcardCode) formData.append('Giftcard Code', giftcardCode);
