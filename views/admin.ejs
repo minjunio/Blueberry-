@@ -9,7 +9,10 @@
     <div class="max-w-6xl mx-auto relative z-10 mt-6">
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <h1 class="text-3xl md:text-4xl font-black text-anime-textMain">ExamHub Admin 🛡️</h1>
-            <a href="/" class="bg-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:bg-anime-pink transition">View Store</a>
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('createPostModal').classList.remove('hidden')" class="bg-anime-accent text-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:scale-105 transition">+ Create Post</button>
+                <a href="/" class="bg-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:bg-anime-pink transition">View Store</a>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
@@ -17,7 +20,7 @@
             <div class="glass-card p-6 lg:col-span-2 mb-6">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-gray-200 pb-2">
                     <h2 class="text-xl md:text-2xl font-black">Manage Categories & Directories</h2>
-                    <button onclick="document.getElementById('catModal').classList.remove('hidden')" class="bg-anime-accent text-white font-black px-4 py-2 rounded-xl text-sm hover:scale-105 transition">+ Add Category</button>
+                    <button onclick="document.getElementById('catModal').classList.remove('hidden')" class="bg-[#00b67a] text-white font-black px-4 py-2 rounded-xl text-sm hover:scale-105 transition">+ Add Category</button>
                 </div>
 
                 <div id="catModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4">
@@ -131,7 +134,55 @@
                     </ul>
                 </div>
             </div>
+        </div>
+    </div>
 
+    <div id="createPostModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-black text-2xl text-anime-textMain">Create New Post ✨</h2>
+                <button onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
+            </div>
+            <form action="/admin/add-product" method="POST" class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Post Title</label>
+                        <input type="text" name="title" required placeholder="e.g. Honorlock Ultimate Bypass" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Category</label>
+                        <select name="category" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm appearance-none">
+                            <% categories.forEach(cat => { %>
+                                <option value="<%= cat.name %>"><%= cat.name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
+                        <input type="number" step="0.01" name="price" required placeholder="15.00" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Platform</label>
+                        <input type="text" name="platform" placeholder="e.g. Windows/Mac" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
+                        <input type="url" name="image_url" placeholder="https://..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Tags (Comma Separated)</label>
+                        <input type="text" name="tags" placeholder="e.g. extension, script, undetectable" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-black mb-1 text-gray-600">Detailed Description</label>
+                    <textarea name="description" required rows="4" placeholder="Explain the product, how it works, and delivery method..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent resize-none text-sm"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
+                    <button type="button" onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
+                    <button type="submit" class="bg-anime-accent text-white font-black px-6 py-2 rounded-xl shadow-md hover:scale-105 transition">Publish Post</button>
+                </div>
+            </form>
         </div>
     </div>
 
