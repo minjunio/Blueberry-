@@ -20,12 +20,20 @@
             <div class="lg:col-span-2 space-y-6">
                 <div class="glass-card p-6">
                     <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-gray-200 pb-2">
-                        <h2 class="text-xl md:text-2xl font-black">Manage Categories</h2>
+                        <h2 class="text-xl md:text-2xl font-black">Manage Categories (Click to Edit SEO)</h2>
                         <button onclick="document.getElementById('catModal').classList.remove('hidden')" class="bg-[#00b67a] text-white font-black px-4 py-2 rounded-xl text-sm hover:scale-105 transition">+ Add Category</button>
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <% categories.forEach(cat => { %>
-                            <div class="bg-white border-2 border-gray-100 px-3 py-1.5 rounded-xl flex items-center gap-2 group cursor-pointer hover:border-anime-accent transition">
+                            <div class="bg-white border-2 border-gray-200 px-3 py-1.5 rounded-xl flex items-center gap-2 group cursor-pointer hover:border-anime-accent transition shadow-sm"
+                                 data-name="<%= cat.name %>" 
+                                 data-title="<%= cat.seo_title || '' %>" 
+                                 data-desc="<%= cat.seo_desc || '' %>"
+                                 data-keywords="<%= cat.seo_keywords || '' %>"
+                                 data-ogimage="<%= cat.og_image || '' %>"
+                                 data-canonical="<%= cat.canonical_url || '' %>"
+                                 onclick="openEditCatModal(this)">
+                                 
                                 <span class="font-bold text-sm"><%= cat.name %></span>
                                 <form action="/admin/delete-category" method="POST" class="inline m-0 p-0 ml-1" onsubmit="event.stopPropagation(); return confirm('Are you sure you want to delete this category?');">
                                     <input type="hidden" name="category_name" value="<%= cat.name %>">
@@ -34,6 +42,7 @@
                             </div>
                         <% }) %>
                     </div>
+                    <p class="text-[10px] font-bold text-gray-400 mt-3">* Click on a category pill above to open its Google SEO settings.</p>
                 </div>
 
                 <div class="glass-card p-6">
@@ -257,20 +266,81 @@
         </div>
     </div>
 
-    <div id="catModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">
+    <div id="catModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl my-8">
             <h2 class="font-black text-2xl mb-4 text-anime-textMain">New Category SEO 🚀</h2>
             <form action="/admin/add-category" method="POST" class="space-y-4">
-                <input type="text" name="category_name" placeholder="e.g. ACT" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm">
-                <div class="flex justify-end gap-2 mt-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Directory Name (e.g. ACT)</label>
+                    <input type="text" name="category_name" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Google Meta Title</label>
+                    <input type="text" name="seo_title" placeholder="Buy ACT Tools - ExamHub" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Google Meta Description</label>
+                    <textarea name="seo_desc" placeholder="The best bypasses and tools for..." required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Meta Keywords (Comma Separated)</label>
+                    <input type="text" name="seo_keywords" placeholder="ACT, exam bypass, tools" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Open Graph Image URL (Discord/Twitter Embed)</label>
+                    <input type="url" name="og_image" placeholder="https://..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Canonical URL (Prevents duplicate content)</label>
+                    <input type="url" name="canonical_url" placeholder="https://www.examhub.shop/category/ACT" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
                     <button type="button" onclick="document.getElementById('catModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-anime-accent text-white font-black px-6 py-2 rounded-xl shadow-md">Create</button>
+                    <button type="submit" class="bg-anime-accent text-white font-black px-6 py-2 rounded-xl shadow-md">Create Directory</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editCatModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl my-8">
+            <h2 class="font-black text-2xl mb-4 text-anime-textMain">Edit Category SEO ✏️</h2>
+            <form action="/admin/edit-category" method="POST" class="space-y-4">
+                <input type="hidden" name="original_name" id="editOriginalName">
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Directory Name</label>
+                    <input type="text" id="editCatName" name="category_name" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Google Meta Title</label>
+                    <input type="text" id="editSeoTitle" name="seo_title" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Google Meta Description</label>
+                    <textarea id="editSeoDesc" name="seo_desc" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Meta Keywords</label>
+                    <input type="text" id="editSeoKeywords" name="seo_keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Open Graph Image URL</label>
+                    <input type="url" id="editOgImage" name="og_image" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Canonical URL</label>
+                    <input type="url" id="editCanonicalUrl" name="canonical_url" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                </div>
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
+                    <button type="button" onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
+                    <button type="submit" class="bg-anime-textMain text-white font-black px-6 py-2 rounded-xl shadow-md">Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
+        // Post Editing Setup
         function openEditPostModal(btn) {
             document.getElementById('editPostId').value = btn.getAttribute('data-id');
             document.getElementById('editPostTitle').value = btn.getAttribute('data-title');
@@ -283,6 +353,20 @@
             
             document.getElementById('editPostModal').classList.remove('hidden');
             document.getElementById('editPostModal').classList.add('flex');
+        }
+
+        // NEW: Category SEO Editing Setup
+        function openEditCatModal(element) {
+            document.getElementById('editOriginalName').value = element.getAttribute('data-name');
+            document.getElementById('editCatName').value = element.getAttribute('data-name');
+            document.getElementById('editSeoTitle').value = element.getAttribute('data-title');
+            document.getElementById('editSeoDesc').value = element.getAttribute('data-desc');
+            document.getElementById('editSeoKeywords').value = element.getAttribute('data-keywords');
+            document.getElementById('editOgImage').value = element.getAttribute('data-ogimage');
+            document.getElementById('editCanonicalUrl').value = element.getAttribute('data-canonical');
+            
+            document.getElementById('editCatModal').classList.remove('hidden');
+            document.getElementById('editCatModal').classList.add('flex');
         }
     </script>
 </body>
