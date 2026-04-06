@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>ExamHub ✨ Marketplace</title>
+    <title><%= (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_title) ? categoryRow.seo_title : 'ExamHub ✨ Marketplace' %></title>
+    <meta name="description" content="<%= (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_desc) ? categoryRow.seo_desc : 'The ultimate exam marketplace' %>">
+    <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
 </head>
 <body class="antialiased flex flex-col">
     <nav class="py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
         <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
-        <div>
+        <div class="flex items-center gap-2">
+            <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-full font-black text-sm shadow-sm transition">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 127.14 96.36"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.31,60,73.31,53s5-12.74,11.43-12.74S96.2,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
+                Discord
+            </a>
             <% if (user) { %>
                 <a href="<%= user.role === 'admin' ? '/admin' : '/dashboard' %>" class="bg-white hover:bg-anime-pink px-4 md:px-5 py-2 rounded-full font-black text-sm shadow-sm transition">Panel</a>
                 <a href="/logout" class="ml-2 text-sm font-bold text-anime-textDark hover:text-red-500">Logout</a>
@@ -18,152 +24,149 @@
     </nav>
 
     <header class="flex flex-col items-center text-center px-4 pt-6 pb-10 relative z-10 animate-fade-in-up">
-        <div class="bg-white/90 backdrop-blur-md border-2 border-white rounded-2xl p-4 shadow-sm mb-6 flex flex-col items-center hover:shadow-md transition-all group">
-            <div class="flex gap-1 mb-1.5">
-                <div class="bg-[#00b67a] p-1 rounded-sm"><svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                <div class="bg-[#00b67a] p-1 rounded-sm"><svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                <div class="bg-[#00b67a] p-1 rounded-sm"><svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                <div class="bg-[#00b67a] p-1 rounded-sm"><svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                <div class="bg-[#00b67a]/70 p-1 rounded-sm"><svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-            </div>
-            <div class="text-xs font-bold text-anime-textDark">Vouch Score <strong class="text-anime-textMain">4.4/5</strong> (301 Reviews)</div>
-            <a href="https://www.vouches.ink/bluebook" target="_blank" class="mt-2.5 inline-flex items-center gap-1.5 bg-[#00b67a]/10 hover:bg-[#00b67a] text-[#00b67a] hover:text-white border border-[#00b67a]/30 px-5 py-1.5 rounded-full text-[11px] font-black transition-all group-hover:scale-105">View Vouch Score</a>
+        <div class="bg-white/90 backdrop-blur-md border-2 border-white rounded-2xl p-4 shadow-sm inline-block mb-6">
+            <span class="font-black text-sm tracking-wider text-anime-accent flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-anime-accent animate-pulse"></span>
+                TRUSTED BY 10,000+ STUDENTS
+            </span>
         </div>
+        <h1 class="text-4xl md:text-6xl font-black text-anime-textMain mb-4 leading-tight">
+            Find the tools you <br class="hidden md:block" />
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-anime-accent to-anime-accentHover">need to succeed.</span>
+        </h1>
+        <p class="text-anime-textDark font-bold max-w-lg mx-auto text-sm md:text-base">
+            Search exams, bypasses, and premium study material from top-rated vendors securely.
+        </p>
 
-        <h1 class="text-4xl md:text-6xl font-black mb-6">Master Your <span class="text-anime-accent relative inline-block">Exams<svg class="absolute -bottom-2 left-0 w-full h-3 text-anime-pink opacity-70" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 15 100 5" stroke="currentColor" stroke-width="4" fill="transparent"/></svg></span></h1>
-        
-        <div class="w-full max-w-2xl relative">
-            <form action="/" method="GET" class="relative">
-                <input type="hidden" name="category" value="<%= categoryFilter %>">
-                <input type="text" id="searchInput" name="q" autocomplete="off" value="<%= searchQuery %>" placeholder="Search exams, bypasses..." class="w-full bg-white/90 border-2 border-white focus:border-anime-accent rounded-full py-4 pl-6 pr-24 outline-none shadow-[0_8px_20px_rgba(0,0,0,0.04)] text-base md:text-lg font-bold">
-                <button type="submit" class="absolute right-2 top-2 bg-anime-accent text-white px-4 md:px-6 py-2 rounded-full font-black">Search</button>
-            </form>
-            <div id="searchDropdown" class="hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-2 border-white rounded-2xl mt-2 shadow-xl overflow-hidden z-50 flex flex-col text-left"></div>
-        </div>
+        <form action="/" method="GET" class="w-full max-w-xl mx-auto mt-8 flex gap-2">
+            <input type="text" name="q" value="<%= searchQuery || '' %>" placeholder="Search for ACT, Honorlock..." class="flex-grow bg-white border-2 border-gray-100 rounded-2xl px-6 py-4 font-bold outline-none focus:border-anime-accent shadow-sm text-sm">
+            <% if (categoryFilter) { %> <input type="hidden" name="category" value="<%= categoryFilter %>"> <% } %>
+            <button type="submit" class="bg-anime-textMain text-white px-8 py-4 rounded-2xl font-black shadow-md hover:bg-gray-800 transition">Search</button>
+        </form>
 
-        <div class="flex flex-wrap justify-center gap-2 mt-8 max-w-4xl">
-            <a href="/?category=All" class="px-3 md:px-4 py-2 rounded-full font-black text-xs md:text-sm border-2 <%= categoryFilter === 'All' ? 'bg-anime-textMain text-white border-anime-textMain' : 'bg-white/80 border-transparent hover:border-anime-accent' %>">All</a>
+        <div class="flex flex-wrap justify-center gap-2 mt-6 max-w-3xl mx-auto">
+            <a href="/" class="<%= !categoryFilter ? 'bg-anime-accent text-white' : 'bg-white text-anime-textDark hover:bg-gray-50' %> px-4 py-2 rounded-xl font-bold text-xs md:text-sm border-2 border-transparent transition shadow-sm">All</a>
             <% categories.forEach(cat => { %>
-                <a href="/?category=<%= encodeURIComponent(cat) %>" class="px-3 md:px-4 py-2 rounded-full font-black text-xs md:text-sm border-2 <%= categoryFilter === cat ? 'bg-anime-textMain text-white border-anime-textMain' : 'bg-white/80 border-transparent hover:border-anime-accent' %>"><%= cat %></a>
+                <a href="/category/<%= cat %>" class="<%= categoryFilter === cat ? 'bg-anime-accent text-white' : 'bg-white text-anime-textDark hover:bg-gray-50' %> px-4 py-2 rounded-xl font-bold text-xs md:text-sm border-2 border-transparent transition shadow-sm">
+                    <%= cat %>
+                </a>
             <% }) %>
         </div>
     </header>
 
-    <main class="flex-grow w-full max-w-6xl mx-auto px-4 md:px-6 relative z-20 pb-20">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            <% if (products.length === 0) { %>
-                <div class="col-span-full text-center py-10 font-black text-xl md:text-2xl text-anime-textDark">No products found.</div>
-            <% } else { %>
+    <main class="max-w-7xl mx-auto px-4 md:px-8 w-full relative z-10 pb-20 flex-grow">
+        <% if (products.length === 0) { %>
+            <div class="text-center py-20 glass-card">
+                <span class="text-4xl mb-4 block">👻</span>
+                <h3 class="text-xl font-black text-anime-textMain mb-2">No products found</h3>
+                <p class="text-gray-500 font-bold text-sm">Try adjusting your search or category filters.</p>
+            </div>
+        <% } else { %>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <% products.forEach(product => { %>
-                    <div class="glass-card flex flex-col overflow-hidden relative group p-6">
-                        
-                        <% if (user && user.role === 'admin') { %>
-                            <form action="/admin/delete-product" method="POST" class="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition">
-                                <input type="hidden" name="id" value="<%= product.id %>">
-                                <button type="submit" class="bg-red-500 text-white text-xs font-black px-2 py-1 rounded shadow-sm hover:bg-red-600">Delete</button>
-                            </form>
-                        <% } %>
-
-                        <div class="flex items-start gap-4 mb-4">
-                            <img src="<%= product.image_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(product.title) + '&background=C2E9FB&color=1e293b&rounded=true&bold=true&size=128' %>" alt="Icon" class="w-14 h-14 rounded-xl object-cover shadow-sm border-2 border-white flex-shrink-0">
-                            
-                            <div class="flex flex-col w-full">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="bg-anime-skyLight text-anime-textMain text-[10px] font-black px-3 py-1 rounded-full"><%= product.category %></span>
-                                    <% if (product.platform) { %><span class="text-[10px] font-bold text-gray-400">💻 <%= product.platform %></span><% } %>
-                                </div>
-                                <h2 class="text-lg md:text-xl font-black leading-tight text-anime-textMain"><%= product.title %></h2>
-                            </div>
+                    <div class="glass-card overflow-hidden group hover:scale-[1.02] transition-all duration-300 flex flex-col h-full">
+                        <div class="h-48 w-full bg-gray-100 relative overflow-hidden">
+                            <img src="<%= product.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title)}&background=random&size=512` %>" alt="<%= product.title %>" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg font-black text-xs text-anime-textMain shadow-sm"><%= product.category %></div>
                         </div>
                         
-                        <p class="text-sm font-bold text-anime-textDark flex-grow mb-4"><%= product.description %></p>
-                        
-                        <% if (product.tags) { %>
-                            <div class="flex flex-wrap gap-1.5 mb-4">
-                                <% product.tags.split(',').forEach(tag => { %><span class="tag-btn">#<%= tag.trim() %></span><% }) %>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-black text-lg text-anime-textMain line-clamp-1 flex-grow pr-2" title="<%= product.title %>"><%= product.title %></h3>
+                                <span class="bg-green-100 text-green-700 font-black text-sm px-2 py-1 rounded-lg shrink-0">$<%= product.price.toFixed(2) %></span>
                             </div>
-                        <% } %>
-
-                        <div class="flex justify-between items-center border-t border-white border-dashed pt-4 mt-auto">
-                            <span class="text-2xl font-black text-anime-accent">$<%= product.price.toFixed(2) %></span>
-                            <button onclick="openBuyModal('<%= product.title.replace(/'/g, "\\'") %>')" class="bg-anime-textMain text-white font-black py-2 px-5 rounded-xl text-sm hover:bg-anime-accent transition hover:scale-105">Buy ✨</button>
+                            <p class="text-xs font-bold text-gray-400 mb-3 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                <%= product.vendor_name %>
+                            </p>
+                            
+                            <p class="text-sm font-medium text-gray-600 mb-4 line-clamp-2 flex-grow"><%= product.description %></p>
+                            
+                            <div class="mt-auto">
+                                <div class="flex gap-2 flex-wrap mb-4">
+                                    <% if(product.platform) { %>
+                                        <span class="bg-gray-100 text-gray-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider"><%= product.platform %></span>
+                                    <% } %>
+                                    <% if(product.tags) { %>
+                                        <% product.tags.split(',').slice(0, 2).forEach(tag => { %>
+                                            <span class="bg-anime-skyLight text-anime-sky text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider"><%= tag.trim() %></span>
+                                        <% }) %>
+                                    <% } %>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="openBuyModal('<%= product.id %>', '<%= product.title %>', '<%= product.price %>')" class="flex-grow bg-anime-textMain text-white font-black py-2.5 rounded-xl text-sm hover:bg-gray-800 transition">Buy Now</button>
+                                    <% if (user && user.role === 'admin') { %>
+                                        <form action="/admin/delete-product" method="POST" class="inline">
+                                            <input type="hidden" name="id" value="<%= product.id %>">
+                                            <button type="submit" class="bg-red-100 text-red-600 p-2.5 rounded-xl hover:bg-red-200 transition" title="Delete Product">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
+                                        </form>
+                                    <% } %>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 <% }) %>
-            <% } %>
-        </div>
+            </div>
+        <% } %>
     </main>
 
-    <div id="buyModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4">
-        <div class="absolute inset-0 bg-anime-textMain/40 backdrop-blur-sm" onclick="closeBuyModal()"></div>
-        <div class="glass-card bg-white/95 p-6 md:p-8 w-full max-w-md relative z-10 animate-pop-in">
-            <button onclick="closeBuyModal()" class="absolute top-4 right-4 text-gray-400 hover:text-anime-pink">✖</button>
-            
-            <div id="buyFormContainer">
-                <h3 class="text-2xl font-black text-anime-textMain mb-2">Request Purchase 💌</h3>
-                <p class="text-sm text-anime-textDark font-bold mb-6">You are requesting: <span id="displayProductName" class="text-anime-accent"></span></p>
+    <div id="buyModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm justify-center items-center z-50 p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in-up">
+            <div id="buyFormContainer" class="p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-black text-anime-textMain">Purchase Request</h2>
+                    <button onclick="closeBuyModal()" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-100 mb-6 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Item</p>
+                        <p id="modalItemTitle" class="font-bold text-anime-textMain text-sm"></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Price</p>
+                        <p id="modalItemPrice" class="font-black text-anime-accent text-lg"></p>
+                    </div>
+                </div>
 
                 <form id="buyForm" class="space-y-4">
-                    <input type="hidden" name="Requested_Product" id="modalProductTitle">
-                    <input type="hidden" name="_subject" value="New Purchase Request on ExamHub!">
+                    <input type="hidden" id="hiddenItemName" name="Item_Name">
+                    <input type="hidden" name="_subject" value="New Purchase Request!">
                     <input type="hidden" name="_captcha" value="false">
 
                     <div>
-                        <label class="block text-sm font-black mb-1">Email <span class="text-red-400">*</span></label>
-                        <input type="email" name="Email" required placeholder="your@email.com" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm focus:border-anime-accent">
+                        <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Your Discord Username</label>
+                        <input type="text" name="Discord_Username" required placeholder="user#1234 or @user" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
                     </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-sm font-black mb-1">Contact Via</label>
-                            <select name="Contact_Method" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm appearance-none focus:border-anime-accent">
-                                <option value="Email Only">Email Only</option>
-                                <option value="Discord">Discord</option>
-                                <option value="Instagram">Instagram</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-black mb-1">Username (Opt)</label>
-                            <input type="text" name="Username" placeholder="@handle" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm focus:border-anime-accent">
-                        </div>
-                    </div>
-
                     <div>
-                        <label class="block text-sm font-black mb-1">Inquiry / Notes (Opt)</label>
-                        <textarea name="Inquiry" rows="2" placeholder="Any questions?" class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none resize-none text-sm focus:border-anime-accent"></textarea>
+                        <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Payment Method</label>
+                        <select name="Payment_Method" required class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm appearance-none cursor-pointer">
+                            <option value="Crypto">Crypto (BTC/LTC/ETH)</option>
+                            <option value="CashApp">CashApp</option>
+                            <option value="Apple Pay">Apple Pay</option>
+                        </select>
                     </div>
-
-                    <button type="submit" id="submitBuyBtn" class="w-full bg-anime-accent text-white font-black py-3 rounded-xl mt-2 hover:shadow-lg transition">Send Request ✨</button>
+                    <button type="submit" id="submitBuyBtn" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md mt-2">Send Request ✨</button>
                 </form>
+                <p class="text-center text-[10px] font-bold text-gray-400 mt-4">A vendor will contact you on Discord to complete the transaction.</p>
             </div>
 
-            <div id="buySuccess" class="hidden flex-col items-center justify-center text-center py-6">
-                <div class="w-20 h-20 bg-green-50 border-4 border-green-400 rounded-full flex items-center justify-center text-green-500 mb-4">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                <h4 class="text-2xl font-black text-anime-textMain mb-2">Successfully Submitted!</h4>
-                <p class="text-sm font-bold text-anime-textDark">We've sent your request to the admin. You will be contacted shortly.</p>
+            <div id="buySuccess" class="hidden p-8 flex-col items-center text-center">
+                <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-4 text-3xl">✓</div>
+                <h3 class="text-2xl font-black text-anime-textMain mb-2">Request Sent!</h3>
+                <p class="text-sm font-bold text-gray-500 mb-6">The vendor has received your request and will DM you on Discord shortly.</p>
+                <button onclick="closeBuyModal()" class="w-full bg-gray-100 text-gray-600 font-black py-3 rounded-xl hover:bg-gray-200 transition">Close Window</button>
             </div>
         </div>
     </div>
 
     <script>
-        const searchInput = document.getElementById('searchInput');
-        const searchDropdown = document.getElementById('searchDropdown');
-        searchInput.addEventListener('input', async (e) => {
-            const val = e.target.value;
-            if (val.length < 2) { searchDropdown.classList.add('hidden'); return; }
-            const res = await fetch(`/api/search?q=${encodeURIComponent(val)}`);
-            const data = await res.json();
-            if (data.length > 0) {
-                searchDropdown.innerHTML = data.map(item => `<a href="/?q=${encodeURIComponent(item.title)}" class="block px-6 py-3 hover:bg-anime-skyLight font-bold text-anime-textMain border-b border-gray-100 transition">${item.title}</a>`).join('');
-                searchDropdown.classList.remove('hidden');
-            } else { searchDropdown.classList.add('hidden'); }
-        });
-
-        function openBuyModal(productName) {
-            document.getElementById('modalProductTitle').value = productName;
-            document.getElementById('displayProductName').innerText = productName;
+        function openBuyModal(id, title, price) {
+            document.getElementById('modalItemTitle').innerText = title;
+            document.getElementById('modalItemPrice').innerText = '$' + parseFloat(price).toFixed(2);
+            document.getElementById('hiddenItemName').value = title;
             document.getElementById('buyFormContainer').classList.remove('hidden');
             document.getElementById('buySuccess').classList.add('hidden');
             document.getElementById('buyModal').classList.remove('hidden');
