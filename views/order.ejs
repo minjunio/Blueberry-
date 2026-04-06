@@ -60,7 +60,8 @@
                 <div class="w-full bg-white border-2 border-gray-200 rounded-xl p-4 text-center mb-4 relative">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-2">Send to this Address</p>
                     <p id="cryptoAddress" class="font-bold text-sm text-anime-textMain break-all"></p>
-                    <button onclick="copyAddress()" class="mt-3 bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-1.5 rounded-lg text-xs font-black transition">Copy Address</button>
+                    
+                    <button onclick="copyAddress(this)" class="mt-3 bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-1.5 rounded-lg text-xs font-black transition">Copy Address</button>
                 </div>
 
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Or Scan QR Code</p>
@@ -122,7 +123,6 @@
         let activeCryptoType = null;
         let activeAddress = null;
 
-        // Fetch Live Price from Binance API
         async function fetchLiveCryptoPrice(symbol) {
             try {
                 const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
@@ -141,21 +141,21 @@
             const currentLivePrice = await fetchLiveCryptoPrice(activeCryptoType);
             
             if (currentLivePrice) {
-                // Calculate exact decimals based on the coin type
-                let decimals = 4; // Default
+                let decimals = 4;
                 if (activeCryptoType === 'BTC') decimals = 8;
                 if (activeCryptoType === 'ETH') decimals = 6;
                 if (activeCryptoType === 'SOL') decimals = 4;
 
                 const amountToSend = (usdPrice / currentLivePrice).toFixed(decimals);
 
+                // UPDATED: Now passes 'this' element so the copy effect is strictly inline
                 calcArea.innerHTML = `
                     <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-5 text-center shadow-inner relative overflow-hidden">
                         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-anime-accent"></div>
                         <p class="text-[10px] font-black uppercase text-blue-500 mb-1 tracking-wider">Exact Amount to Send</p>
                         <div class="flex items-center justify-center gap-3">
                             <span class="text-3xl font-black text-blue-900">${amountToSend} <span class="text-lg">${activeCryptoType}</span></span>
-                            <button onclick="copyText('${amountToSend}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-black transition shadow-sm">Copy</button>
+                            <button onclick="copyText('${amountToSend}', this)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-black transition shadow-sm w-[70px]">Copy</button>
                         </div>
                         <p class="text-[10px] text-blue-400 font-bold mt-2">≈ $${usdPrice.toFixed(2)} USD (Live Price updates every 5m)</p>
                     </div>
@@ -181,16 +181,21 @@
             await updateCryptoAmount();
         }
 
-        function copyAddress() {
-            if(activeAddress) copyText(activeAddress);
+        function copyAddress(btnElement) {
+            if(activeAddress) copyText(activeAddress, btnElement);
         }
 
-        function copyText(text) {
+        // NEW: Inline copy effect without annoying alert() pop-ups
+        function copyText(text, btnElement) {
             navigator.clipboard.writeText(text);
-            alert("Copied successfully!");
+            const originalText = btnElement.innerText;
+            btnElement.innerText = "Copied! ✓";
+            
+            setTimeout(() => {
+                btnElement.innerText = originalText;
+            }, 1500);
         }
 
-        // Auto-Refresh Price Every 5 Minutes (300,000 milliseconds)
         setInterval(() => {
             if (activeCryptoType) updateCryptoAmount();
         }, 300000);
