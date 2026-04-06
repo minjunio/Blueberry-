@@ -23,14 +23,14 @@ db.serialize(() => {
         image_url TEXT, platform TEXT, tags TEXT, vendor_id INTEGER, FOREIGN KEY(vendor_id) REFERENCES users(id)
     )`);
     
-    // NEW: Orders table for the live tracking system
+    // Updated Orders table with Email
     db.run(`CREATE TABLE IF NOT EXISTS orders (
         id INTEGER PRIMARY KEY AUTOINCREMENT, order_id TEXT UNIQUE, product_id INTEGER, 
-        tier TEXT, payment_method TEXT, discord_username TEXT, status TEXT DEFAULT 'Pending Payment', 
+        tier TEXT, payment_method TEXT, email TEXT, discord_username TEXT, status TEXT DEFAULT 'Pending Payment', 
         giftcard_code TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    // Safely add SEO columns and Tier Prices to old tables
+    // Safely add new columns to old tables without crashing
     db.run("ALTER TABLE categories ADD COLUMN seo_title TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_desc TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_keywords TEXT", () => {});
@@ -38,6 +38,8 @@ db.serialize(() => {
     db.run("ALTER TABLE products ADD COLUMN price_standard REAL", () => {});
     db.run("ALTER TABLE products ADD COLUMN price_pro REAL", () => {});
     db.run("ALTER TABLE products ADD COLUMN price_premium REAL", () => {});
+    
+    db.run("ALTER TABLE orders ADD COLUMN email TEXT", () => {});
 
     db.get("SELECT * FROM users WHERE role = 'admin'", async (err, row) => {
         if (!row) {
@@ -58,11 +60,10 @@ db.serialize(() => {
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // Added to parse JSON APIs
+app.use(express.json());
 app.use(express.static('public')); 
 app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false }));
 
-// ULTIMATE FAILSAFE RENDERER
 const renderSafe = (res, view, data) => {
     res.render(view, data, (err, html) => {
         if (err) {
@@ -73,7 +74,6 @@ const renderSafe = (res, view, data) => {
     });
 };
 
-// --- PUBLIC ROUTES ---
 app.get('/sitemap.xml', (req, res) => {
     try {
         const host = req.get('host') || 'www.examhub.shop';
@@ -129,13 +129,12 @@ app.get('/category/:name', (req, res) => {
     } catch (e) { res.redirect('/'); }
 });
 
-// --- NEW CHECKOUT & ORDER ROUTES ---
+// --- UPDATED CHECKOUT WITH EMAIL ---
 app.post('/checkout', (req, res) => {
-    const { product_id, discord_username, tier, payment_method } = req.body;
-    // Generate Random Order ID
+    const { product_id, email, discord_username, tier, payment_method } = req.body;
     const order_id = Math.random().toString(36).substring(2, 10).toUpperCase();
-    db.run("INSERT INTO orders (order_id, product_id, tier, payment_method, discord_username) VALUES (?, ?, ?, ?, ?)", 
-        [order_id, product_id, tier, payment_method, discord_username], 
+    db.run("INSERT INTO orders (order_id, product_id, tier, payment_method, email, discord_username) VALUES (?, ?, ?, ?, ?, ?)", 
+        [order_id, product_id, tier, payment_method, email, discord_username || null], 
         (err) => {
             if (err) return res.redirect('back');
             res.redirect(`/order/${order_id}`);
@@ -158,7 +157,6 @@ app.post('/api/order/:order_id/update', (req, res) => {
     });
 });
 
-// --- AUTH & ADMIN ROUTES ---
 app.get('/login', (req, res) => renderSafe(res, 'login', { error: null }));
 app.post('/login', (req, res) => {
     db.get("SELECT * FROM users WHERE username = ?", [req.body.username], async (err, user) => {
@@ -183,7 +181,6 @@ app.get('/admin', (req, res) => {
     });
 });
 
-// Admin API to close/complete an order
 app.post('/admin/close-order', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("DELETE FROM orders WHERE order_id = ?", [req.body.order_id], () => res.redirect('/admin'));
@@ -223,6 +220,5 @@ app.post('/admin/create-user', async (req, res) => {
     db.run("INSERT INTO users (username, password, role) VALUES (?, ?, 'vendor')", [req.body.username, hashedPass], () => res.redirect('/admin'));
 });
 
-// Final outer net catching absolutely everything
 app.use((err, req, res, next) => { console.error("Express Error:", err.message); res.status(200).send("ExamHub Online"); });
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
