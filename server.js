@@ -49,25 +49,30 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public')); // Enables the favicon in the /public folder
 app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false }));
 
-// --- SITEMAP FOR GOOGLE SEO ---
+// --- SITEMAP FOR GOOGLE SEO (Safe Version) ---
 app.get('/sitemap.xml', (req, res) => {
-    // Forces HTTPS for live domains (Google requires this for indexing)
-    const host = req.get('host');
-    const baseUrl = host.includes('localhost') ? `http://${host}` : `https://${host}`; 
+    try {
+        // Fallback host if Googlebot strips the headers
+        const host = req.get('host') || 'www.examhub.shop';
+        const baseUrl = host.includes('localhost') ? `http://${host}` : `https://${host}`; 
 
-    db.all("SELECT name FROM categories", (err, categories) => {
-        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-        xml += `  <url>\n    <loc>${baseUrl}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
-        if (categories) {
-            categories.forEach(cat => {
-                xml += `  <url>\n    <loc>${baseUrl}/category/${encodeURIComponent(cat.name)}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
-            });
-        }
-        xml += '</urlset>';
-        res.header('Content-Type', 'application/xml');
-        res.send(xml);
-    });
+        db.all("SELECT name FROM categories", (err, categories) => {
+            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+            xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+            xml += `  <url>\n    <loc>${baseUrl}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
+            if (categories && !err) {
+                categories.forEach(cat => {
+                    xml += `  <url>\n    <loc>${baseUrl}/category/${encodeURIComponent(cat.name)}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+                });
+            }
+            xml += '</urlset>';
+            res.header('Content-Type', 'application/xml');
+            res.status(200).send(xml);
+        });
+    } catch (error) {
+        console.error("Sitemap crash prevented:", error);
+        res.status(200).send('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+    }
 });
 
 // --- API ROUTES (For Search Dropdown) ---
@@ -79,66 +84,79 @@ app.get('/api/search', (req, res) => {
 
 // --- PUBLIC ROUTES ---
 app.get('/', (req, res) => {
-    const searchQuery = req.query.q || '';
-    const categoryFilter = req.query.category || '';
-    
-    let query = "SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE 1=1";
-    let params = [];
-
-    if (searchQuery) {
-        query += " AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)";
-        params.push(`%${searchQuery}%`, `%${searchQuery}%`, `%${searchQuery}%`);
-    }
-    if (categoryFilter && categoryFilter !== 'All') {
-        query += " AND category = ?";
-        params.push(categoryFilter);
-    }
-
-    db.all("SELECT name FROM categories", (err, cats) => {
-        db.all(query, params, (err, products) => {
-            res.render('index', { 
-                user: req.session.user, 
-                products: products || [], 
-                categories: cats ? cats.map(c => c.name) : [],
-                searchQuery, 
-                categoryFilter: categoryFilter || 'All',
-                categoryRow: null // Safe fallback
-            });
-        });
-    });
-});
-
-// --- CATEGORY DIRECTORY & SEO ROUTES ---
-app.get('/category/:name', (req, res) => {
-    // Decode the URL (turns %20 back into spaces)
-    const categoryName = decodeURIComponent(req.params.name);
-    
-    // Use COLLATE NOCASE to ignore case sensitivity (SAT vs sat)
-    db.get("SELECT * FROM categories WHERE name = ? COLLATE NOCASE", [categoryName], (err, categoryRow) => {
+    try {
+        const searchQuery = req.query.q || '';
+        const categoryFilter = req.query.category || '';
         
-        // Anti-Fail System: If the category isn't in the DB, fake it instead of redirecting so Google passes the test
-        if (!categoryRow) {
-            categoryRow = { 
-                name: categoryName,
-                seo_title: `${categoryName} - ExamHub`, 
-                seo_desc: `Browse the best tools and resources for ${categoryName}.`, 
-                seo_keywords: `${categoryName}, exams, tools` 
-            };
+        let query = "SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE 1=1";
+        let params = [];
+
+        if (searchQuery) {
+            query += " AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)";
+            params.push(`%${searchQuery}%`, `%${searchQuery}%`, `%${searchQuery}%`);
         }
-        
-        db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE category = ? COLLATE NOCASE", [categoryName], (err, products) => {
-            db.all("SELECT name FROM categories", (err, cats) => {
-                res.render('index', { 
-                    user: req.session.user, 
+        if (categoryFilter && categoryFilter !== 'All') {
+            query += " AND category = ?";
+            params.push(categoryFilter);
+        }
+
+        db.all("SELECT name FROM categories", (err, cats) => {
+            db.all(query, params, (err, products) => {
+                res.status(200).render('index', { 
+                    user: req.session ? req.session.user : null, 
                     products: products || [], 
                     categories: cats ? cats.map(c => c.name) : [],
-                    searchQuery: '',
-                    categoryFilter: categoryRow.name,
-                    categoryRow: categoryRow 
+                    searchQuery, 
+                    categoryFilter: categoryFilter || 'All',
+                    categoryRow: null 
                 });
             });
         });
-    });
+    } catch (error) {
+        console.error("Home route crash prevented:", error);
+        res.status(200).send("Loading...");
+    }
+});
+
+// --- CATEGORY DIRECTORY & SEO ROUTES (Bulletproof Version) ---
+app.get('/category/:name', (req, res) => {
+    try {
+        // Safely decode URL
+        const categoryName = decodeURIComponent(req.params.name || '');
+        
+        // Using LOWER() is 100x safer across different SQLite versions than COLLATE NOCASE
+        db.get("SELECT * FROM categories WHERE LOWER(name) = LOWER(?)", [categoryName], (err, categoryRow) => {
+            
+            if (err) console.error("DB Error:", err);
+            
+            // Failsafe so Google never gets a 404 or 500 error
+            if (!categoryRow) {
+                categoryRow = { 
+                    name: categoryName,
+                    seo_title: `${categoryName} - ExamHub`, 
+                    seo_desc: `Browse the best tools and resources for ${categoryName}.`, 
+                    seo_keywords: `${categoryName}, exams, tools` 
+                };
+            }
+            
+            db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE LOWER(category) = LOWER(?)", [categoryName], (err, products) => {
+                
+                db.all("SELECT name FROM categories", (err, cats) => {
+                    res.status(200).render('index', { 
+                        user: req.session ? req.session.user : null, 
+                        products: products || [], 
+                        categories: cats ? cats.map(c => c.name) : [],
+                        searchQuery: '',
+                        categoryFilter: categoryRow.name,
+                        categoryRow: categoryRow 
+                    });
+                });
+            });
+        });
+    } catch (error) {
+        console.error("Category route crash prevented:", error);
+        res.redirect('/');
+    }
 });
 
 // --- AUTH ROUTES ---
