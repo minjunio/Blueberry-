@@ -80,7 +80,7 @@ app.get('/', (req, res) => {
                 categories: cats ? cats.map(c => c.name) : [],
                 searchQuery, 
                 categoryFilter: categoryFilter || 'All',
-                categoryRow: null // No specific SEO on home page
+                categoryRow: null 
             });
         });
     });
@@ -100,7 +100,7 @@ app.get('/category/:name', (req, res) => {
                     categories: cats ? cats.map(c => c.name) : [],
                     searchQuery: '',
                     categoryFilter: categoryName,
-                    categoryRow: categoryRow // Passes specific SEO to the frontend
+                    categoryRow: categoryRow 
                 });
             });
         });
@@ -108,10 +108,7 @@ app.get('/category/:name', (req, res) => {
 });
 
 // --- AUTH ROUTES ---
-app.get('/login', (req, res) => {
-    res.render('login', { error: null });
-});
-
+app.get('/login', (req, res) => res.render('login', { error: null }));
 app.post('/login', (req, res) => {
     db.get("SELECT * FROM users WHERE username = ?", [req.body.username], async (err, user) => {
         if (user && await bcrypt.compare(req.body.password, user.password)) {
@@ -122,11 +119,7 @@ app.post('/login', (req, res) => {
         }
     });
 });
-
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
-});
+app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/'); });
 
 // --- ADMIN ROUTES ---
 app.get('/admin', (req, res) => {
@@ -144,6 +137,20 @@ app.post('/admin/add-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     const { category_name, seo_title, seo_desc } = req.body;
     db.run("INSERT INTO categories (name, seo_title, seo_desc) VALUES (?, ?, ?)", [category_name, seo_title, seo_desc], () => res.redirect('/admin'));
+});
+
+app.post('/admin/edit-category', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    const { original_name, category_name, seo_title, seo_desc } = req.body;
+    
+    db.run("UPDATE categories SET name = ?, seo_title = ?, seo_desc = ? WHERE name = ?", [category_name, seo_title, seo_desc, original_name], () => {
+        if (original_name !== category_name) {
+            // Update products so they don't lose their category
+            db.run("UPDATE products SET category = ? WHERE category = ?", [category_name, original_name], () => res.redirect('/admin'));
+        } else {
+            res.redirect('/admin');
+        }
+    });
 });
 
 app.post('/admin/delete-category', (req, res) => {
