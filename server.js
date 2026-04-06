@@ -15,7 +15,8 @@ const db = new sqlite3.Database('./database.sqlite');
 
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT)`);
-    db.run(`CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, seo_title TEXT, seo_desc TEXT)`);
+    // Added seo_keywords
+    db.run(`CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, seo_title TEXT, seo_desc TEXT, seo_keywords TEXT)`);
     db.run(`CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, description TEXT, price REAL,
         image_url TEXT, platform TEXT, tags TEXT, vendor_id INTEGER, FOREIGN KEY(vendor_id) REFERENCES users(id)
@@ -24,8 +25,9 @@ db.serialize(() => {
     // Safely attempt to add SEO columns if table already existed
     db.run("ALTER TABLE categories ADD COLUMN seo_title TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_desc TEXT", () => {});
+    db.run("ALTER TABLE categories ADD COLUMN seo_keywords TEXT", () => {});
 
-    // SECURE ADMIN CREATION: Hashes the password "monterysasd"
+    // SECURE ADMIN CREATION
     db.get("SELECT * FROM users WHERE role = 'admin'", async (err, row) => {
         if (!row) {
             const hashedAdminPass = await bcrypt.hash('monterysasd', 10);
@@ -36,8 +38,8 @@ db.serialize(() => {
     db.get("SELECT COUNT(*) as count FROM categories", (err, row) => {
         if (row.count === 0) {
             const defaultCats = ['SAT', 'PSAT', 'AP', 'DSAT', 'LSAT', 'Honorlock', 'Lockdown Browser', 'Proctorio'];
-            const stmt = db.prepare("INSERT INTO categories (name, seo_title, seo_desc) VALUES (?, ?, ?)");
-            defaultCats.forEach(cat => stmt.run(cat, `${cat} Tools - ExamHub`, `Best bypasses and tools for ${cat}.`));
+            const stmt = db.prepare("INSERT INTO categories (name, seo_title, seo_desc, seo_keywords) VALUES (?, ?, ?, ?)");
+            defaultCats.forEach(cat => stmt.run(cat, `${cat} Tools - ExamHub`, `Best bypasses and tools for ${cat}.`, `${cat}, exam, test, bypass, tools`));
             stmt.finalize();
         }
     });
@@ -47,6 +49,24 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public')); // Enables the favicon in the /public folder
 app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false }));
+
+// --- SITEMAP FOR GOOGLE SEO ---
+app.get('/sitemap.xml', (req, res) => {
+    const baseUrl = req.protocol + '://' + req.get('host'); 
+    db.all("SELECT name FROM categories", (err, categories) => {
+        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+        xml += `  <url>\n    <loc>${baseUrl}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
+        if (categories) {
+            categories.forEach(cat => {
+                xml += `  <url>\n    <loc>${baseUrl}/category/${encodeURIComponent(cat.name)}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+            });
+        }
+        xml += '</urlset>';
+        res.header('Content-Type', 'application/xml');
+        res.send(xml);
+    });
+});
 
 // --- API ROUTES (For Search Dropdown) ---
 app.get('/api/search', (req, res) => {
@@ -80,7 +100,7 @@ app.get('/', (req, res) => {
                 categories: cats ? cats.map(c => c.name) : [],
                 searchQuery, 
                 categoryFilter: categoryFilter || 'All',
-                categoryRow: null 
+                categoryRow: null // Safe fallback
             });
         });
     });
@@ -135,17 +155,16 @@ app.get('/admin', (req, res) => {
 
 app.post('/admin/add-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    const { category_name, seo_title, seo_desc } = req.body;
-    db.run("INSERT INTO categories (name, seo_title, seo_desc) VALUES (?, ?, ?)", [category_name, seo_title, seo_desc], () => res.redirect('/admin'));
+    const { category_name, seo_title, seo_desc, seo_keywords } = req.body;
+    db.run("INSERT INTO categories (name, seo_title, seo_desc, seo_keywords) VALUES (?, ?, ?, ?)", [category_name, seo_title, seo_desc, seo_keywords], () => res.redirect('/admin'));
 });
 
 app.post('/admin/edit-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    const { original_name, category_name, seo_title, seo_desc } = req.body;
+    const { original_name, category_name, seo_title, seo_desc, seo_keywords } = req.body;
     
-    db.run("UPDATE categories SET name = ?, seo_title = ?, seo_desc = ? WHERE name = ?", [category_name, seo_title, seo_desc, original_name], () => {
+    db.run("UPDATE categories SET name = ?, seo_title = ?, seo_desc = ?, seo_keywords = ? WHERE name = ?", [category_name, seo_title, seo_desc, seo_keywords, original_name], () => {
         if (original_name !== category_name) {
-            // Update products so they don't lose their category
             db.run("UPDATE products SET category = ? WHERE category = ?", [category_name, original_name], () => res.redirect('/admin'));
         } else {
             res.redirect('/admin');
@@ -202,8 +221,8 @@ app.post('/admin/import', upload.single('backup'), (req, res) => {
         data.users?.forEach(u => userStmt.run(u.id, u.username, u.password, u.role));
         userStmt.finalize();
 
-        const catStmt = db.prepare("INSERT INTO categories (id, name, seo_title, seo_desc) VALUES (?, ?, ?, ?)");
-        data.categories?.forEach(c => catStmt.run(c.id, c.name, c.seo_title, c.seo_desc));
+        const catStmt = db.prepare("INSERT INTO categories (id, name, seo_title, seo_desc, seo_keywords) VALUES (?, ?, ?, ?, ?)");
+        data.categories?.forEach(c => catStmt.run(c.id, c.name, c.seo_title, c.seo_desc, c.seo_keywords));
         catStmt.finalize();
 
         const prodStmt = db.prepare("INSERT INTO products (id, title, category, description, price, image_url, platform, tags, vendor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
