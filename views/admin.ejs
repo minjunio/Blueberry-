@@ -5,8 +5,8 @@
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-6xl mx-auto relative z-10 mt-6">
+<body class="p-4 md:p-8 bg-gray-50">
+    <div class="max-w-7xl mx-auto relative z-10 mt-6">
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <h1 class="text-3xl md:text-4xl font-black text-anime-textMain">ExamHub Admin 🛡️</h1>
             <div class="flex gap-2">
@@ -19,120 +19,72 @@
             
             <div class="glass-card p-6 lg:col-span-2 mb-6">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-gray-200 pb-2">
-                    <h2 class="text-xl md:text-2xl font-black">Manage Categories & Directories</h2>
+                    <h2 class="text-xl md:text-2xl font-black">Manage Categories</h2>
                     <button onclick="document.getElementById('catModal').classList.remove('hidden')" class="bg-[#00b67a] text-white font-black px-4 py-2 rounded-xl text-sm hover:scale-105 transition">+ Add Category</button>
                 </div>
-
-                <div id="catModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-                    <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">
-                        <h2 class="font-black text-2xl mb-4 text-anime-textMain">New Category SEO 🚀</h2>
-                        <form action="/admin/add-category" method="POST" class="space-y-4">
-                            <div>
-                                <label class="text-xs font-bold text-gray-500">Directory Name</label>
-                                <input type="text" name="category_name" placeholder="e.g. ACT" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-500">SEO Page Title</label>
-                                <input type="text" name="seo_title" placeholder="Buy ACT Bypasses - ExamHub" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-500">SEO Meta Description</label>
-                                <textarea name="seo_desc" placeholder="The best tools for the ACT exam..." required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></textarea>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-500">SEO Keywords (Comma Separated)</label>
-                                <input type="text" name="seo_keywords" placeholder="ACT, exam bypass, tools" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
-                            </div>
-                            <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                                <button type="button" onclick="document.getElementById('catModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                                <button type="submit" class="bg-anime-accent text-white font-black px-6 py-2 rounded-xl shadow-md">Create Directory</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div id="editCatModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-                    <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">
-                        <h2 class="font-black text-2xl mb-4 text-anime-textMain">Edit Category SEO ✏️</h2>
-                        <form action="/admin/edit-category" method="POST" class="space-y-4">
-                            <input type="hidden" name="original_name" id="editOriginalName">
-                            <div>
-                                <label class="text-xs font-bold text-gray-500">Directory Name</label>
-                                <input type="text" id="editCatName" name="category_name" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-500">SEO Page Title</label>
-                                <input type="text" id="editSeoTitle" name="seo_title" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-500">SEO Meta Description</label>
-                                <textarea id="editSeoDesc" name="seo_desc" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></textarea>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-500">SEO Keywords (Comma Separated)</label>
-                                <input type="text" id="editSeoKeywords" name="seo_keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm">
-                            </div>
-                            <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                                <button type="button" onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                                <button type="submit" class="bg-anime-textMain text-white font-black px-6 py-2 rounded-xl shadow-md">Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
                 <div class="flex flex-wrap gap-2">
-                    <p class="w-full text-xs text-gray-400 font-bold mb-2">Click a category to edit its SEO settings.</p>
                     <% categories.forEach(cat => { %>
-                        <div class="bg-white border-2 border-gray-100 px-3 py-1.5 rounded-xl flex items-center gap-2 group cursor-pointer hover:border-anime-accent transition"
-                             data-name="<%= cat.name %>" 
-                             data-title="<%= cat.seo_title || '' %>" 
-                             data-desc="<%= cat.seo_desc || '' %>"
-                             data-keywords="<%= cat.seo_keywords || '' %>"
-                             onclick="openEditCatModal(this)">
-                            
-                            <span class="font-bold text-sm select-none"><%= cat.name %></span>
+                        <div class="bg-white border-2 border-gray-100 px-3 py-1.5 rounded-xl flex items-center gap-2 group cursor-pointer hover:border-anime-accent transition">
+                            <span class="font-bold text-sm"><%= cat.name %></span>
                             <form action="/admin/delete-category" method="POST" class="inline m-0 p-0 ml-1" onsubmit="event.stopPropagation(); return confirm('Are you sure you want to delete this category?');">
                                 <input type="hidden" name="category_name" value="<%= cat.name %>">
-                                <button type="submit" class="text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100 font-black" title="Delete">×</button>
+                                <button type="submit" class="text-gray-300 hover:text-red-500 font-black">×</button>
                             </form>
                         </div>
                     <% }) %>
                 </div>
             </div>
 
-            <div class="glass-card p-6 lg:col-span-2">
-                <h2 class="text-xl md:text-2xl font-black mb-4 border-b-2 border-dashed border-gray-200 pb-2">Data Backup & Restore 💾</h2>
-                <div class="flex flex-col md:flex-row gap-4 items-center">
-                    <a href="/admin/export" class="w-full md:w-auto text-center bg-[#00b67a] hover:bg-[#009b68] text-white px-6 py-3 rounded-xl font-black shadow-sm transition">Download JSON Backup</a>
-                    <div class="hidden md:block w-px h-10 bg-gray-200"></div>
-                    <form action="/admin/import" method="POST" enctype="multipart/form-data" class="flex w-full md:w-auto gap-2 items-center">
-                        <input type="file" name="backup" accept=".json" required class="bg-white/80 border-2 border-dashed border-gray-300 px-3 py-2 rounded-xl text-sm font-bold flex-grow text-gray-600">
-                        <button type="submit" class="bg-anime-textMain text-white px-6 py-3 rounded-xl font-black shadow-sm transition hover:bg-gray-800">Load Backup</button>
-                    </form>
-                </div>
-                <p class="text-xs text-gray-400 font-bold mt-3">* Warning: Loading a backup will overwrite the current live database.</p>
-            </div>
-
             <div class="space-y-6 lg:row-span-2 lg:col-start-3 lg:row-start-1">
-                <div class="glass-card p-6">
-                    <h2 class="text-lg font-black mb-4">Create Vendor</h2>
-                    <form action="/admin/create-user" method="POST" class="space-y-3">
-                        <input type="text" name="username" placeholder="Username" required class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm">
-                        <input type="password" name="password" placeholder="Password" required class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm">
-                        <button type="submit" class="w-full bg-anime-textMain text-white font-black py-2 rounded-xl text-sm">Create</button>
-                    </form>
+                <div class="bg-white rounded-3xl p-6 shadow-xl border-4 border-anime-skyLight relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-anime-accent to-anime-pink"></div>
+                    <h2 class="text-xl font-black mb-4 flex items-center gap-2">
+                        <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span> Active Orders
+                    </h2>
+                    
+                    <div class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                        <% if (orders && orders.length > 0) { %>
+                            <% orders.forEach(order => { %>
+                                <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-100 relative group">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <span class="text-xs font-black bg-anime-textMain text-white px-2 py-0.5 rounded-md">#<%= order.order_id %></span>
+                                        <form action="/admin/close-order" method="POST" class="inline">
+                                            <input type="hidden" name="order_id" value="<%= order.order_id %>">
+                                            <button type="submit" class="text-[10px] bg-red-100 text-red-600 font-black px-2 py-1 rounded-md hover:bg-red-500 hover:text-white transition">Close</button>
+                                        </form>
+                                    </div>
+                                    <p class="text-xs font-bold text-anime-accent truncate mb-1">@<%= order.discord_username %></p>
+                                    <p class="text-xs font-bold text-gray-500 truncate mb-2"><%= order.product_title %></p>
+                                    <div class="flex gap-2 mb-2">
+                                        <span class="text-[10px] bg-gray-200 text-gray-700 font-black px-2 py-0.5 rounded-md"><%= order.tier %></span>
+                                        <span class="text-[10px] bg-blue-100 text-blue-700 font-black px-2 py-0.5 rounded-md"><%= order.payment_method %></span>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 p-2 rounded-lg text-center">
+                                        <p class="text-[10px] font-black uppercase text-gray-400 mb-1">Status</p>
+                                        <p class="text-xs font-black <%= order.status === 'Pending Payment' ? 'text-yellow-500' : 'text-green-500' %>"><%= order.status %></p>
+                                    </div>
+                                    <% if (order.giftcard_code) { %>
+                                        <div class="mt-2 bg-yellow-50 border border-yellow-200 p-2 rounded-lg">
+                                            <p class="text-[10px] font-black uppercase text-yellow-600 mb-1">Code Submitted:</p>
+                                            <p class="text-xs font-bold font-mono text-gray-800 break-all"><%= order.giftcard_code %></p>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <p class="text-sm font-bold text-gray-400 text-center py-6">No active orders right now.</p>
+                        <% } %>
+                    </div>
                 </div>
-
-                <div class="glass-card p-6">
-                    <h2 class="text-lg font-black mb-3">Active Vendors</h2>
-                    <ul class="space-y-2 max-h-48 overflow-y-auto">
-                        <% users.forEach(u => { %>
-                            <li class="bg-white p-2 rounded-xl font-bold flex justify-between text-xs">
-                                <span>@<%= u.username %></span>
-                            </li>
-                        <% }) %>
-                    </ul>
-                </div>
+            </div>
+            
+            <div class="glass-card p-6 lg:col-span-2">
+                <h2 class="text-xl md:text-2xl font-black mb-4 border-b-2 border-dashed border-gray-200 pb-2">Create Vendor</h2>
+                <form action="/admin/create-user" method="POST" class="flex gap-2">
+                    <input type="text" name="username" placeholder="Username" required class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm">
+                    <input type="password" name="password" placeholder="Password" required class="w-full bg-white border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm">
+                    <button type="submit" class="bg-anime-textMain text-white font-black px-6 py-2 rounded-xl text-sm">Create</button>
+                </form>
             </div>
         </div>
     </div>
@@ -152,15 +104,27 @@
                     <div>
                         <label class="block text-sm font-black mb-1 text-gray-600">Category</label>
                         <select name="category" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm appearance-none">
-                            <% categories.forEach(cat => { %>
-                                <option value="<%= cat.name %>"><%= cat.name %></option>
-                            <% }) %>
+                            <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %></option> <% }) %>
                         </select>
                     </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-100 grid grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
-                        <input type="number" step="0.01" name="price" required placeholder="15.00" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                        <label class="block text-[10px] font-black uppercase text-gray-500 mb-1">Standard Price ($)</label>
+                        <input type="number" step="0.01" name="price_standard" required placeholder="200.00" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 font-bold outline-none focus:border-anime-accent text-sm">
                     </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-gray-500 mb-1">Pro Price ($)</label>
+                        <input type="number" step="0.01" name="price_pro" required placeholder="450.00" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-gray-500 mb-1">Premium Price ($)</label>
+                        <input type="number" step="0.01" name="price_premium" required placeholder="900.00" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 font-bold outline-none focus:border-anime-accent text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-black mb-1 text-gray-600">Platform</label>
                         <input type="text" name="platform" placeholder="e.g. Windows/Mac" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
@@ -169,13 +133,9 @@
                         <label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
                         <input type="url" name="image_url" placeholder="https://..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
                     </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Tags (Comma Separated)</label>
-                        <input type="text" name="tags" placeholder="e.g. extension, script, undetectable" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
-                    </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Detailed Description</label>
+                    <label class="block text-sm font-black mb-1 text-gray-600">Detailed Description (**bold** and #big# allowed)</label>
                     <textarea name="description" required rows="4" placeholder="Explain the product, how it works, and delivery method..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent resize-none text-sm"></textarea>
                 </div>
                 <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
@@ -186,15 +146,17 @@
         </div>
     </div>
 
-    <script>
-        function openEditCatModal(element) {
-            document.getElementById('editOriginalName').value = element.getAttribute('data-name');
-            document.getElementById('editCatName').value = element.getAttribute('data-name');
-            document.getElementById('editSeoTitle').value = element.getAttribute('data-title');
-            document.getElementById('editSeoDesc').value = element.getAttribute('data-desc');
-            document.getElementById('editSeoKeywords').value = element.getAttribute('data-keywords');
-            document.getElementById('editCatModal').classList.remove('hidden');
-        }
-    </script>
+    <div id="catModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">
+            <h2 class="font-black text-2xl mb-4 text-anime-textMain">New Category SEO 🚀</h2>
+            <form action="/admin/add-category" method="POST" class="space-y-4">
+                <input type="text" name="category_name" placeholder="e.g. ACT" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none text-sm">
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" onclick="document.getElementById('catModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
+                    <button type="submit" class="bg-anime-accent text-white font-black px-6 py-2 rounded-xl shadow-md">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
