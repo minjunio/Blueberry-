@@ -62,6 +62,14 @@ const renderSafe = (res, view, data) => {
     });
 };
 
+// --- HELPER: GET ACTIVE ORDERS COUNT ---
+const getActiveOrders = (req, callback) => {
+    if (!req.session || !req.session.buyerEmail) return callback(0);
+    db.get("SELECT COUNT(*) as count FROM orders WHERE email = ? AND status != 'Completed' AND status != 'Closed'", [req.session.buyerEmail], (err, row) => {
+        callback(row ? row.count : 0);
+    });
+};
+
 // --- OTP VERIFICATION ENDPOINTS ---
 app.post('/api/send-otp', (req, res) => {
     const { email } = req.body;
@@ -121,13 +129,16 @@ app.get('/', (req, res) => {
         aQuery = "SELECT * FROM announcements WHERE category = ? OR category = 'All' ORDER BY id DESC"; aParams.push(categoryFilter);
     }
 
-    db.all("SELECT * FROM categories", (err, cats) => {
-        db.all(pQuery, pParams, (err, products) => {
-            db.all(aQuery, aParams, (err, announcements) => {
-                renderSafe(res, 'index', { 
-                    user: req.session ? req.session.user : null, 
-                    buyerEmail: req.session ? req.session.buyerEmail : null,
-                    products: products || [], announcements: announcements || [], categories: cats || [], searchQuery, categoryFilter: categoryFilter || 'All', categoryRow: null 
+    getActiveOrders(req, (activeOrderCount) => {
+        db.all("SELECT * FROM categories", (err, cats) => {
+            db.all(pQuery, pParams, (err, products) => {
+                db.all(aQuery, aParams, (err, announcements) => {
+                    renderSafe(res, 'index', { 
+                        user: req.session ? req.session.user : null, 
+                        buyerEmail: req.session ? req.session.buyerEmail : null,
+                        activeOrderCount,
+                        products: products || [], announcements: announcements || [], categories: cats || [], searchQuery, categoryFilter: categoryFilter || 'All', categoryRow: null 
+                    });
                 });
             });
         });
@@ -136,15 +147,18 @@ app.get('/', (req, res) => {
 
 app.get('/category/:name', (req, res) => {
     const categoryName = decodeURIComponent(req.params.name || '');
-    db.get("SELECT * FROM categories WHERE LOWER(name) = LOWER(?)", [categoryName], (err, categoryRow) => {
-        if (!categoryRow) categoryRow = { name: categoryName, seo_title: `${categoryName} - ExamHub`, seo_desc: `Tools for ${categoryName}.`, seo_keywords: `${categoryName}`, og_image: '', canonical_url: '' };
-        db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE LOWER(category) = LOWER(?)", [categoryName], (err, products) => {
-            db.all("SELECT * FROM announcements WHERE category = ? OR category = 'All' ORDER BY id DESC", [categoryName], (err, announcements) => {
-                db.all("SELECT * FROM categories", (err, cats) => {
-                    renderSafe(res, 'index', { 
-                        user: req.session ? req.session.user : null, 
-                        buyerEmail: req.session ? req.session.buyerEmail : null,
-                        products: products || [], announcements: announcements || [], categories: cats || [], searchQuery: '', categoryFilter: categoryRow.name, categoryRow 
+    getActiveOrders(req, (activeOrderCount) => {
+        db.get("SELECT * FROM categories WHERE LOWER(name) = LOWER(?)", [categoryName], (err, categoryRow) => {
+            if (!categoryRow) categoryRow = { name: categoryName, seo_title: `${categoryName} - ExamHub`, seo_desc: `Tools for ${categoryName}.`, seo_keywords: `${categoryName}`, og_image: '', canonical_url: '' };
+            db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE LOWER(category) = LOWER(?)", [categoryName], (err, products) => {
+                db.all("SELECT * FROM announcements WHERE category = ? OR category = 'All' ORDER BY id DESC", [categoryName], (err, announcements) => {
+                    db.all("SELECT * FROM categories", (err, cats) => {
+                        renderSafe(res, 'index', { 
+                            user: req.session ? req.session.user : null, 
+                            buyerEmail: req.session ? req.session.buyerEmail : null,
+                            activeOrderCount,
+                            products: products || [], announcements: announcements || [], categories: cats || [], searchQuery: '', categoryFilter: categoryRow.name, categoryRow 
+                        });
                     });
                 });
             });
@@ -158,25 +172,26 @@ app.get('/api/search', (req, res) => {
     db.all("SELECT title, category FROM products WHERE title LIKE ? LIMIT 5", [`%${q}%`], (err, rows) => res.json(rows || []));
 });
 
-// FIXED: Properly rendering my orders
 app.get('/my-orders', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/');
-    db.all("SELECT orders.*, products.title as product_title FROM orders JOIN products ON orders.product_id = products.id WHERE email = ? ORDER BY orders.created_at DESC", [req.session.buyerEmail], (err, orders) => {
-        renderSafe(res, 'my-orders', { 
-            user: req.session ? req.session.user : null, 
-            buyerEmail: req.session.buyerEmail, 
-            orders: orders || [] 
+    getActiveOrders(req, (activeOrderCount) => {
+        db.all("SELECT orders.*, products.title as product_title FROM orders JOIN products ON orders.product_id = products.id WHERE email = ? ORDER BY orders.created_at DESC", [req.session.buyerEmail], (err, orders) => {
+            renderSafe(res, 'my-orders', { 
+                user: req.session ? req.session.user : null, 
+                buyerEmail: req.session.buyerEmail, 
+                activeOrderCount,
+                orders: orders || [] 
+            });
         });
     });
 });
 
-// NEW: Limited active orders to 3
 app.post('/checkout', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/'); 
     
     db.get("SELECT COUNT(*) as count FROM orders WHERE email = ? AND status != 'Completed' AND status != 'Closed'", [req.session.buyerEmail], (err, row) => {
         if (row && row.count >= 3) {
-            return res.send("<script>alert('You cannot have more than 3 active orders. Please wait for them to process.'); window.location.href='/my-orders';</script>");
+            return res.send("<script>alert('You cannot have more than 3 active orders. Please wait for them to process or cancel one.'); window.location.href='/my-orders';</script>");
         }
 
         const { product_id, discord_username, tier, payment_method } = req.body;
@@ -189,10 +204,20 @@ app.post('/checkout', (req, res) => {
     });
 });
 
+// NEW: Customer closing their own order
+app.post('/buyer/close-order', (req, res) => {
+    if (!req.session.buyerEmail) return res.redirect('/');
+    db.run("UPDATE orders SET status = 'Closed' WHERE order_id = ? AND email = ?", [req.body.order_id, req.session.buyerEmail], () => {
+        res.redirect('/my-orders');
+    });
+});
+
 app.get('/order/:order_id', (req, res) => {
-    db.get("SELECT orders.*, products.title as product_title, products.price as product_price FROM orders JOIN products ON orders.product_id = products.id WHERE order_id = ?", [req.params.order_id], (err, order) => {
-        if (!order || err) return res.redirect('/');
-        renderSafe(res, 'order', { order, user: req.session ? req.session.user : null, buyerEmail: req.session ? req.session.buyerEmail : null });
+    getActiveOrders(req, (activeOrderCount) => {
+        db.get("SELECT orders.*, products.title as product_title, products.price as product_price FROM orders JOIN products ON orders.product_id = products.id WHERE order_id = ?", [req.params.order_id], (err, order) => {
+            if (!order || err) return res.redirect('/');
+            renderSafe(res, 'order', { order, user: req.session ? req.session.user : null, buyerEmail: req.session ? req.session.buyerEmail : null, activeOrderCount });
+        });
     });
 });
 
