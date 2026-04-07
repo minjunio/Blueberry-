@@ -10,7 +10,8 @@
 
         function formatPostText(text) {
             if (!text) return '';
-            let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            // FIXED: Changed &#039; to &apos; so the hashtag detector doesn't break apostrophes!
+            let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
             safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong class="font-black text-anime-textMain">$1</strong>');
             safeText = safeText.replace(/#(.*?)#/g, '<span class="text-xl md:text-2xl font-black block mt-4 mb-2 text-anime-textMain leading-tight">$1</span>');
             safeText = safeText.replace(/\n/g, '<br>');
@@ -28,6 +29,7 @@
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
 </head>
+
 <body class="antialiased flex flex-col">
     <nav class="py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
         <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
