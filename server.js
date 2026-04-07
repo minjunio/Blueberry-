@@ -5,19 +5,18 @@ const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const nodemailer = require('nodemailer'); // NEW: For sending OTP emails
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const upload = multer({ dest: 'uploads/' });
 
 // --- EMAIL CONFIGURATION ---
-// IMPORTANT: Replace these with your actual Gmail and an "App Password"
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'YOUR_EMAIL@gmail.com', // Replace with your support email
-        pass: 'YOUR_GMAIL_APP_PASSWORD' // Generate an App Password in Google Account Settings
+        user: 'Kfdhs954@gmail.com',
+        pass: 'onbscnffehrrrgdn' 
     }
 });
 
@@ -32,8 +31,6 @@ db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, description TEXT, price REAL, tier TEXT DEFAULT 'Standard', image_url TEXT, platform TEXT, tags TEXT, vendor_id INTEGER, FOREIGN KEY(vendor_id) REFERENCES users(id))`);
     db.run(`CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id TEXT UNIQUE, product_id INTEGER, tier TEXT, payment_method TEXT, email TEXT, discord_username TEXT, status TEXT DEFAULT 'Pending Payment', giftcard_code TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
     db.run(`CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, image1 TEXT, image2 TEXT, content TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
-    
-    // NEW: Table to store temporary OTP codes
     db.run(`CREATE TABLE IF NOT EXISTS otps (email TEXT PRIMARY KEY, code TEXT, expires DATETIME)`);
 
     db.run("ALTER TABLE categories ADD COLUMN seo_title TEXT", () => {});
@@ -56,7 +53,7 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public')); 
-app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false, cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 } })); // 7 day cookies
+app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false, cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 } })); 
 
 const renderSafe = (res, view, data) => {
     res.render(view, data, (err, html) => {
@@ -65,20 +62,20 @@ const renderSafe = (res, view, data) => {
     });
 };
 
-// --- NEW: OTP VERIFICATION ENDPOINTS ---
+// --- OTP VERIFICATION ENDPOINTS ---
 app.post('/api/send-otp', (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email required' });
 
-    const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit code
-    const expires = new Date(Date.now() + 15 * 60000); // 15 mins expiry
+    const code = Math.floor(100000 + Math.random() * 900000).toString(); 
+    const expires = new Date(Date.now() + 15 * 60000); 
 
     db.run("INSERT OR REPLACE INTO otps (email, code, expires) VALUES (?, ?, ?)", [email, code, expires.toISOString()], async (err) => {
         if (err) return res.status(500).json({ error: 'Database error' });
 
         try {
             await transporter.sendMail({
-                from: '"ExamHub Support" <YOUR_EMAIL@gmail.com>',
+                from: '"ExamHub Support" <Kfdhs954@gmail.com>',
                 to: email,
                 subject: 'Your ExamHub Verification Code',
                 text: `Your verification code is: ${code}. It expires in 15 minutes.`,
@@ -86,9 +83,8 @@ app.post('/api/send-otp', (req, res) => {
             });
             res.json({ success: true });
         } catch (mailError) {
-            console.error("Email failed to send. Showing in console for testing:", code);
-            // Fallback for testing if SMTP isn't set up yet
-            res.json({ success: true, warning: "SMTP not configured. Check console for code." }); 
+            console.error("Email failed to send:", mailError);
+            res.json({ success: false, error: "SMTP Error" }); 
         }
     });
 });
@@ -98,8 +94,8 @@ app.post('/api/verify-otp', (req, res) => {
     db.get("SELECT * FROM otps WHERE email = ? AND code = ?", [email, code], (err, row) => {
         if (!row || new Date() > new Date(row.expires)) return res.status(400).json({ error: 'Invalid or expired code.' });
         
-        req.session.buyerEmail = email; // Log the user in!
-        db.run("DELETE FROM otps WHERE email = ?", [email]); // clear used code
+        req.session.buyerEmail = email; 
+        db.run("DELETE FROM otps WHERE email = ?", [email]); 
         res.json({ success: true });
     });
 });
@@ -122,7 +118,7 @@ app.get('/', (req, res) => {
     if (searchQuery) { pQuery += " AND (title LIKE ? OR description LIKE ? OR tags LIKE ?)"; pParams.push(`%${searchQuery}%`, `%${searchQuery}%`, `%${searchQuery}%`); }
     if (categoryFilter && categoryFilter !== 'All') { 
         pQuery += " AND category = ?"; pParams.push(categoryFilter); 
-        aQuery = "SELECT * FROM announcements WHERE category = ? ORDER BY id DESC"; aParams.push(categoryFilter);
+        aQuery = "SELECT * FROM announcements WHERE category = ? OR category = 'All' ORDER BY id DESC"; aParams.push(categoryFilter);
     }
 
     db.all("SELECT * FROM categories", (err, cats) => {
@@ -130,7 +126,7 @@ app.get('/', (req, res) => {
             db.all(aQuery, aParams, (err, announcements) => {
                 renderSafe(res, 'index', { 
                     user: req.session ? req.session.user : null, 
-                    buyerEmail: req.session ? req.session.buyerEmail : null, // Pass buyer session to frontend
+                    buyerEmail: req.session ? req.session.buyerEmail : null,
                     products: products || [], announcements: announcements || [], categories: cats || [], searchQuery, categoryFilter: categoryFilter || 'All', categoryRow: null 
                 });
             });
@@ -143,8 +139,7 @@ app.get('/category/:name', (req, res) => {
     db.get("SELECT * FROM categories WHERE LOWER(name) = LOWER(?)", [categoryName], (err, categoryRow) => {
         if (!categoryRow) categoryRow = { name: categoryName, seo_title: `${categoryName} - ExamHub`, seo_desc: `Tools for ${categoryName}.`, seo_keywords: `${categoryName}`, og_image: '', canonical_url: '' };
         db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE LOWER(category) = LOWER(?)", [categoryName], (err, products) => {
-            // Strictly fetch announcements ONLY for this category
-            db.all("SELECT * FROM announcements WHERE category = ? ORDER BY id DESC", [categoryName], (err, announcements) => {
+            db.all("SELECT * FROM announcements WHERE category = ? OR category = 'All' ORDER BY id DESC", [categoryName], (err, announcements) => {
                 db.all("SELECT * FROM categories", (err, cats) => {
                     renderSafe(res, 'index', { 
                         user: req.session ? req.session.user : null, 
@@ -157,7 +152,12 @@ app.get('/category/:name', (req, res) => {
     });
 });
 
-// NEW: VIEW ACTIVE ORDERS
+app.get('/api/search', (req, res) => {
+    const q = req.query.q || '';
+    if (q.length < 1) return res.json([]);
+    db.all("SELECT title, category FROM products WHERE title LIKE ? LIMIT 5", [`%${q}%`], (err, rows) => res.json(rows || []));
+});
+
 app.get('/my-orders', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/');
     db.all("SELECT orders.*, products.title as product_title FROM orders JOIN products ON orders.product_id = products.id WHERE email = ? ORDER BY orders.created_at DESC", [req.session.buyerEmail], (err, orders) => {
@@ -166,7 +166,7 @@ app.get('/my-orders', (req, res) => {
 });
 
 app.post('/checkout', (req, res) => {
-    if (!req.session.buyerEmail) return res.redirect('/'); // Ensure they are authenticated
+    if (!req.session.buyerEmail) return res.redirect('/'); 
     const { product_id, discord_username, tier, payment_method } = req.body;
     const order_id = Math.random().toString(36).substring(2, 10).toUpperCase();
     
