@@ -36,8 +36,20 @@
             <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-full font-black text-sm shadow-sm transition">Discord</a>
             
             <% if (typeof buyerEmail !== 'undefined' && buyerEmail) { %>
-                <a href="/my-orders" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full font-black text-sm text-anime-textMain transition shadow-sm border border-gray-200">📦 My Orders</a>
-                <a href="/buyer-logout" class="ml-1 text-sm font-bold text-gray-400 hover:text-red-500 transition">Logout</a>
+                <div class="hidden md:flex items-center bg-white border-2 border-gray-200 rounded-full p-1 pl-2 shadow-sm gap-2">
+                    <a href="/my-orders" class="flex items-center gap-2 hover:bg-gray-50 px-3 py-1.5 rounded-full transition group">
+                        <span class="text-sm font-black text-anime-textMain">📦 My Orders</span>
+                        <% if (typeof activeOrderCount !== 'undefined' && activeOrderCount > 0) { %>
+                            <span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm group-hover:scale-110 transition"><%= activeOrderCount %> Active</span>
+                        <% } else { %>
+                            <span class="bg-gray-200 text-gray-500 text-[10px] font-black px-2 py-0.5 rounded-full">0 Active</span>
+                        <% } %>
+                    </a>
+                    <div class="w-px h-5 bg-gray-300"></div>
+                    <a href="/buyer-logout" class="text-xs font-bold text-gray-400 hover:text-red-500 transition pr-3">Logout</a>
+                </div>
+                
+                <a href="/my-orders" class="md:hidden bg-white border-2 border-gray-200 px-3 py-2 rounded-full font-black text-xs text-anime-textMain">📦 (<%= typeof activeOrderCount !== 'undefined' ? activeOrderCount : 0 %>)</a>
             <% } %>
 
             <% if (typeof user !== 'undefined' && user) { %>
