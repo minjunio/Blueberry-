@@ -11,22 +11,28 @@
         <div class="flex items-center gap-2">
             <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-full font-black text-sm shadow-sm transition">Discord</a>
             
-            <span class="text-xs font-bold text-gray-500 border-r-2 border-gray-200 pr-3 mr-1"><%= typeof buyerEmail !== 'undefined' ? buyerEmail : '' %></span>
-            <a href="/buyer-logout" class="bg-white border-2 border-gray-200 hover:bg-red-50 hover:border-red-200 px-4 py-2 rounded-full font-black text-xs text-red-500 shadow-sm transition">Logout</a>
+            <div class="flex items-center bg-white border-2 border-gray-200 rounded-full p-1 pl-4 shadow-sm gap-2">
+                <span class="text-xs font-bold text-gray-500 pr-2"><%= typeof buyerEmail !== 'undefined' ? buyerEmail : '' %></span>
+                <div class="w-px h-5 bg-gray-300"></div>
+                <a href="/buyer-logout" class="text-xs font-bold text-gray-400 hover:text-red-500 transition pr-3 pl-1">Logout</a>
+            </div>
 
             <% if (typeof user !== 'undefined' && user) { %>
-                <a href="/admin" class="ml-2 bg-white hover:bg-anime-pink px-4 py-2 rounded-full font-black text-xs shadow-sm transition border border-gray-200">Admin</a>
+                <a href="/admin" class="ml-2 bg-white hover:bg-anime-pink px-4 py-2 rounded-full font-black text-sm shadow-sm transition border border-gray-200">Admin</a>
             <% } %>
         </div>
     </nav>
 
     <main class="flex-grow w-full max-w-4xl mx-auto px-4 md:px-6 relative z-20 py-10">
-        <h1 class="text-3xl md:text-4xl font-black mb-8 text-anime-textMain">📦 My Active Orders</h1>
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-black text-anime-textMain">📦 My Orders</h1>
+            <span class="bg-red-500 text-white font-black text-xs px-3 py-1.5 rounded-full shadow-sm"><%= activeOrderCount %> Active</span>
+        </div>
 
         <div class="space-y-4">
             <% if (orders && orders.length > 0) { %>
                 <% orders.forEach(order => { %>
-                    <a href="/order/<%= order.order_id %>" class="block bg-white rounded-2xl p-6 border-2 border-gray-100 hover:border-anime-accent shadow-sm hover:shadow-md transition group relative overflow-hidden">
+                    <div class="block bg-white rounded-2xl p-6 border-2 border-gray-100 shadow-sm relative overflow-hidden group">
                         <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 relative z-10">
                             <div>
                                 <div class="flex items-center gap-2 mb-2">
@@ -37,15 +43,27 @@
                                 <p class="text-xs font-bold text-gray-500 mt-1">Tier: <span class="text-anime-accent"><%= order.tier %></span> • Paid via: <%= order.payment_method %></p>
                             </div>
                             
-                            <div class="text-right flex md:flex-col justify-between items-center md:items-end">
-                                <p class="text-[10px] font-black uppercase text-gray-400 mb-1 hidden md:block">Current Status</p>
-                                <div class="bg-gray-50 border border-gray-200 px-4 py-2 rounded-xl">
-                                    <p class="text-sm font-black <%= order.status === 'Pending Payment' ? 'text-yellow-500' : 'text-green-500' %>"><%= order.status %></p>
+                            <div class="text-right flex flex-col justify-between items-end gap-2">
+                                <div>
+                                    <p class="text-[10px] font-black uppercase text-gray-400 mb-1 hidden md:block">Current Status</p>
+                                    <div class="bg-gray-50 border border-gray-200 px-4 py-2 rounded-xl text-center">
+                                        <p class="text-sm font-black <%= order.status === 'Pending Payment' ? 'text-yellow-500' : (order.status === 'Closed' ? 'text-red-500' : 'text-green-500') %>"><%= order.status %></p>
+                                    </div>
                                 </div>
-                                <span class="text-xs font-bold text-blue-500 mt-2 hover:underline hidden md:inline-block group-hover:translate-x-1 transition">View Order Page →</span>
+                                
+                                <div class="flex items-center gap-3 mt-2">
+                                    <% if (order.status !== 'Closed' && order.status !== 'Completed') { %>
+                                        <form action="/buyer/close-order" method="POST" class="inline m-0" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                                            <input type="hidden" name="order_id" value="<%= order.order_id %>">
+                                            <button type="submit" class="text-[10px] font-black bg-white border border-red-200 text-red-500 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg transition shadow-sm">Cancel</button>
+                                        </form>
+                                    <% } %>
+                                    
+                                    <a href="/order/<%= order.order_id %>" class="text-xs font-bold text-blue-500 hover:underline transition">View Details →</a>
+                                </div>
                             </div>
                         </div>
-                    </a>
+                    </div>
                 <% }) %>
             <% } else { %>
                 <div class="text-center py-20 bg-white rounded-3xl border-2 border-gray-100 shadow-sm">
