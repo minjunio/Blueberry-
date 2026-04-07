@@ -38,15 +38,7 @@
             <p class="text-[11px] font-bold text-gray-600">Join our <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="text-blue-500 underline">Discord Server</a> or contact <span class="text-blue-600 font-black">@minjunio</span> for immediate help.</p>
         </div>
 
-        <% if (order.payment_method === 'DiscordMethod' || order.tier === 'Ultra' || order.tier === 'Custom' || order.product_price > 900) { %>
-            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 text-center mb-6 shadow-sm">
-                <h3 class="font-black text-purple-700 text-xl mb-2">Alternative Payment</h3>
-                <p class="text-xs font-bold text-gray-600 mb-4 leading-relaxed">Because this service is highly specialized (<%= order.tier %> tier), automated giftcards are disabled for security. Please contact <span class="text-anime-accent font-black">@minjunio</span> on Discord to arrange payment via other methods.</p>
-                <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="inline-block bg-purple-600 text-white font-black px-6 py-3 rounded-xl shadow-md hover:scale-105 transition">Message minjunio on Discord ↗</a>
-            </div>
-            <button onclick="confirmPayment('DiscordMethod')" id="confirmBtn" class="w-full bg-purple-200 text-purple-900 font-black py-4 rounded-xl hover:bg-purple-300 transition shadow-md">I have contacted him ✓</button>
-
-        <% } else if (order.payment_method === 'Crypto') { %>
+        <% if (order.payment_method === 'Crypto') { %>
             <h3 class="font-black text-sm text-gray-500 uppercase tracking-wider mb-3">1. Select Currency to Send</h3>
             <div class="grid grid-cols-3 gap-2 mb-6">
                 <button onclick="showCrypto('SOL', '7M27KDHbF1BtxEhghY6vWaXmbXyrsehSsWwxHtPYfSoJ')" class="crypto-btn bg-white border-2 border-gray-200 py-3 rounded-xl font-black text-gray-600 hover:border-anime-accent focus:border-anime-accent focus:bg-anime-skyLight transition">SOL</button>
@@ -66,6 +58,14 @@
             </div>
 
             <button onclick="confirmPayment('Crypto')" id="confirmBtn" class="w-full bg-[#00b67a] text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md hidden">I have sent the Crypto ✓</button>
+
+        <% } else if (order.payment_method === 'DiscordMethod' || order.tier === 'Ultra' || order.tier === 'Custom' || order.product_price > 900) { %>
+            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 text-center mb-6 shadow-sm">
+                <h3 class="font-black text-purple-700 text-xl mb-2">Alternative Payment</h3>
+                <p class="text-xs font-bold text-gray-600 mb-4 leading-relaxed">Because this service is highly specialized (<%= order.tier %> tier), automated giftcards are disabled for security. Please contact <span class="text-anime-accent font-black">@minjunio</span> on Discord to arrange payment via other methods.</p>
+                <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="inline-block bg-purple-600 text-white font-black px-6 py-3 rounded-xl shadow-md hover:scale-105 transition">Message minjunio on Discord ↗</a>
+            </div>
+            <button onclick="confirmPayment('DiscordMethod')" id="confirmBtn" class="w-full bg-purple-200 text-purple-900 font-black py-4 rounded-xl hover:bg-purple-300 transition shadow-md">I have contacted him ✓</button>
 
         <% } else { %>
             <% 
@@ -195,6 +195,7 @@
             let giftcardCode = null;
 
             if (type === 'Giftcard') {
+                if (!codeInput) return; // Fail safe
                 if (!codeInput.value) return alert("Please enter the giftcard code first.");
                 giftcardCode = codeInput.value;
             }
@@ -220,7 +221,7 @@
             fetch('https://formsubmit.co/ajax/minjunnios@gmail.com', {
                 method: 'POST', body: formData, headers: { 'Accept': 'application/json' }
             }).then(() => {
-                if (type === 'Giftcard') codeInput.disabled = true;
+                if (type === 'Giftcard' && codeInput) codeInput.disabled = true;
                 btn.classList.add('hidden');
                 
                 const cryptoDetails = document.getElementById('cryptoDetails');
