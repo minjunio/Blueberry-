@@ -1,234 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Secure Checkout - ExamHub</title>
+    <title>My Orders - ExamHub</title>
     <%- include('partials/head') %>
 </head>
-<body class="antialiased flex items-center justify-center min-h-screen p-4 relative overflow-hidden bg-gray-50">
-    <div class="cloud w-[400px] h-[400px] top-[-100px] left-[-100px] opacity-70 animate-float"></div>
-    
-    <div class="glass-card w-full max-w-xl p-6 md:p-8 relative z-10 shadow-2xl">
-        
-        <div class="flex justify-between items-center mb-6 pb-4 border-b-2 border-dashed border-gray-200">
-            <div>
-                <h1 class="text-2xl font-black text-anime-textMain">Secure Checkout</h1>
-                <p class="text-sm font-bold text-gray-400">Order ID: <span class="text-anime-accent">#<%= order.order_id %></span></p>
-            </div>
-            <div class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-lg font-black text-xs uppercase tracking-wider animate-pulse">Awaiting Payment</div>
+<body class="antialiased flex flex-col min-h-screen bg-gray-50">
+    <nav class="py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
+        <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-gray-500 border-r-2 border-gray-200 pr-3 mr-1"><%= buyerEmail %></span>
+            <a href="/buyer-logout" class="bg-white border-2 border-gray-200 hover:bg-red-50 hover:border-red-200 px-4 py-2 rounded-full font-black text-xs text-red-500 shadow-sm transition">Logout</a>
         </div>
+    </nav>
 
-        <div class="bg-gray-50 rounded-xl p-4 mb-6 border-2 border-gray-100 flex justify-between items-center">
-            <div>
-                <h3 class="font-black text-gray-800"><%= order.product_title %></h3>
-                <div class="flex gap-4 mt-2">
-                    <p class="text-xs font-bold text-gray-500">Tier: <span class="text-anime-accent"><%= order.tier %></span></p>
-                    <p class="text-xs font-bold text-gray-500">Method: <span class="text-anime-accent"><%= order.payment_method %></span></p>
-                </div>
-                <div class="mt-2 text-[10px] font-bold text-gray-400 truncate">Delivery to: <%= order.email %></div>
-            </div>
-            
-            <div class="text-right pl-4 border-l-2 border-gray-200">
-                <p class="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Total Due</p>
-                <p class="text-2xl font-black text-[#00b67a]">$<%= Number(order.product_price || 0).toFixed(2) %></p>
-            </div>
-        </div>
+    <main class="flex-grow w-full max-w-4xl mx-auto px-4 md:px-6 relative z-20 py-10">
+        <h1 class="text-3xl md:text-4xl font-black mb-8 text-anime-textMain">📦 My Active Orders</h1>
 
-        <div class="bg-blue-50 border-2 border-blue-100 rounded-xl p-4 mb-6">
-            <p class="text-xs font-black text-blue-600 uppercase mb-1">Stuck on payment?</p>
-            <p class="text-[11px] font-bold text-gray-600">Join our <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="text-blue-500 underline">Discord Server</a> or contact <span class="text-blue-600 font-black">@minjunio</span> for immediate help.</p>
-        </div>
-
-        <% if (order.payment_method === 'DiscordMethod' || order.tier === 'Ultra' || order.tier === 'Custom' || order.product_price > 900) { %>
-            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 text-center mb-6 shadow-sm">
-                <h3 class="font-black text-purple-700 text-xl mb-2">Alternative Payment</h3>
-                <p class="text-xs font-bold text-gray-600 mb-4 leading-relaxed">Because this service is highly specialized (<%= order.tier %> tier), automated giftcards are disabled for security. Please contact <span class="text-anime-accent font-black">@minjunio</span> on Discord to arrange payment via other methods.</p>
-                <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="inline-block bg-purple-600 text-white font-black px-6 py-3 rounded-xl shadow-md hover:scale-105 transition">Message minjunio on Discord ↗</a>
-            </div>
-            <button onclick="confirmPayment('DiscordMethod')" id="confirmBtn" class="w-full bg-purple-200 text-purple-900 font-black py-4 rounded-xl hover:bg-purple-300 transition shadow-md">I have contacted him ✓</button>
-
-        <% } else if (order.payment_method === 'Crypto') { %>
-            <h3 class="font-black text-sm text-gray-500 uppercase tracking-wider mb-3">1. Select Currency to Send</h3>
-            <div class="grid grid-cols-3 gap-2 mb-6">
-                <button onclick="showCrypto('SOL', '7M27KDHbF1BtxEhghY6vWaXmbXyrsehSsWwxHtPYfSoJ')" class="crypto-btn bg-white border-2 border-gray-200 py-3 rounded-xl font-black text-gray-600 hover:border-anime-accent focus:border-anime-accent focus:bg-anime-skyLight transition">SOL</button>
-                <button onclick="showCrypto('BTC', '18MvG5FJ2a1CZLETt9bUpKPa33aLK9Qn5v')" class="crypto-btn bg-white border-2 border-gray-200 py-3 rounded-xl font-black text-gray-600 hover:border-anime-accent focus:border-anime-accent focus:bg-anime-skyLight transition">BTC</button>
-                <button onclick="showCrypto('ETH', '0xD873A40dcA37dC2084E174007E30C71aC4463CD9')" class="crypto-btn bg-white border-2 border-gray-200 py-3 rounded-xl font-black text-gray-600 hover:border-anime-accent focus:border-anime-accent focus:bg-anime-skyLight transition">ETH</button>
-            </div>
-
-            <div id="cryptoDetails" class="hidden flex-col items-center bg-gray-50 rounded-xl p-6 border-2 border-gray-100 mb-6 w-full">
-                <div id="cryptoCalcArea" class="w-full mb-4"></div>
-                <div class="w-full bg-white border-2 border-gray-200 rounded-xl p-4 text-center mb-4 relative">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-2">Send to this Address</p>
-                    <p id="cryptoAddress" class="font-bold text-sm text-anime-textMain break-all"></p>
-                    <button onclick="copyAddress(this)" class="mt-3 bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-1.5 rounded-lg text-xs font-black transition">Copy Address</button>
-                </div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Or Scan QR Code</p>
-                <img id="qrCode" src="" alt="QR Code" class="w-32 h-32 rounded-lg shadow-sm border-4 border-white">
-            </div>
-
-            <button onclick="confirmPayment('Crypto')" id="confirmBtn" class="w-full bg-[#00b67a] text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md hidden">I have sent the Crypto ✓</button>
-
-        <% } else { %>
-            <% 
-                let giftcardLink = "";
-                if (order.tier === 'Standard') giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-200-usd-giftmecrypto-key-global-i10000503347012";
-                else if (order.tier === 'Pro') giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-450-usd-giftmecrypto-key-global-i10000503347304";
-                else giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-900-usd-giftmecrypto-key-global-i10000503347308";
-            %>
-            <div class="bg-green-50 border-2 border-green-200 rounded-xl p-5 mb-6 text-center">
-                <p class="text-sm font-black text-[#00b67a] uppercase mb-2">Step 1: Purchase Giftcard</p>
-                <p class="text-xs font-bold text-gray-600 mb-4">Click the link below to purchase the exact required $<%= order.product_price %> giftcard for your tier.</p>
-                <a href="<%= giftcardLink %>" target="_blank" class="inline-block bg-[#00b67a] text-white font-black px-6 py-3 rounded-xl shadow-sm hover:scale-105 transition">Buy $<%= order.product_price %> G2A Giftcard ↗</a>
-            </div>
-            <div class="bg-gray-50 rounded-xl p-5 border-2 border-gray-100 mb-6">
-                <p class="text-sm font-black text-gray-600 uppercase mb-3">Step 2: Submit Code</p>
-                <input type="text" id="giftcardInput" placeholder="Enter the exact Giftcard Code here" class="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm mb-4">
-                <button onclick="confirmPayment('Giftcard')" id="confirmBtn" class="w-full bg-[#00b67a] text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md">Submit Code ✓</button>
-            </div>
-        <% } %>
-
-        <div id="successMessage" class="hidden mt-6 bg-green-100 border-2 border-green-200 rounded-xl p-6 text-center">
-            <h3 class="text-xl font-black text-green-700 mb-2">Successfully submitted and awaiting verification!</h3>
-            <p class="text-sm font-bold text-green-600">Please leave this page open. Your order is now visible in our system. You will receive an email shortly with your delivery and tracking details.</p>
-        </div>
-
-    </div>
-
-    <div id="cryptoTutorial" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-2xl p-6 md:p-8 shadow-2xl relative">
-            <button onclick="document.getElementById('cryptoTutorial').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-black font-black text-xl">×</button>
-            <h2 class="text-2xl font-black text-anime-textMain mb-4">How to Buy & Send Crypto 💸</h2>
-            <div class="space-y-4">
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <h3 class="font-black text-blue-700 mb-1">Step 1: Buy Crypto</h3>
-                    <p class="text-xs font-bold text-gray-600">Go to <a href="https://www.moonpay.com/" target="_blank" class="text-blue-500 underline">MoonPay</a> or <a href="https://www.bitpay.com/buy-crypto" target="_blank" class="text-blue-500 underline">BitPay</a>. Select the coin you want to buy. Buy exactly <strong>$<%= order.product_price %></strong> worth.</p>
-                </div>
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <h3 class="font-black text-gray-700 mb-1">Step 2: Copy the Amount & Address</h3>
-                    <p class="text-xs font-bold text-gray-600">On this checkout page, click the button for the coin you bought. A live calculator will tell you the exact decimal amount to send, and the wallet address. Use the copy buttons.</p>
-                </div>
-                <div class="bg-green-50 p-4 rounded-xl border border-green-100">
-                    <h3 class="font-black text-green-700 mb-1">Step 3: Paste and Send</h3>
-                    <p class="text-xs font-bold text-gray-600">Go back to your crypto wallet. It will ask "Where do you want to send?" and "How much?". Paste our address and the exact decimal amount. Once sent, click the green "I have sent the Crypto" button!</p>
-                </div>
-            </div>
-            <button onclick="document.getElementById('cryptoTutorial').classList.add('hidden')" class="w-full mt-6 bg-gray-800 text-white font-black py-3 rounded-xl hover:bg-black transition">Got it! Let's go.</button>
-        </div>
-    </div>
-
-    <script>
-        const usdPrice = parseFloat("<%= order.product_price || 0 %>");
-        let activeCryptoType = null;
-        let activeAddress = null;
-
-        async function fetchLiveCryptoPrice(symbol) {
-            try {
-                const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
-                const data = await res.json();
-                return parseFloat(data.price);
-            } catch (err) {
-                console.error("Pricing Error", err);
-                return null;
-            }
-        }
-
-        async function updateCryptoAmount() {
-            if (!activeCryptoType) return;
-            const calcArea = document.getElementById('cryptoCalcArea');
-            const currentLivePrice = await fetchLiveCryptoPrice(activeCryptoType);
-            
-            if (currentLivePrice) {
-                let decimals = 4;
-                if (activeCryptoType === 'BTC') decimals = 8;
-                if (activeCryptoType === 'ETH') decimals = 6;
-                if (activeCryptoType === 'SOL') decimals = 4;
-
-                const amountToSend = (usdPrice / currentLivePrice).toFixed(decimals);
-
-                calcArea.innerHTML = `
-                    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-5 text-center shadow-inner relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-anime-accent"></div>
-                        <p class="text-[10px] font-black uppercase text-blue-500 mb-1 tracking-wider">Exact Amount to Send</p>
-                        <div class="flex items-center justify-center gap-3">
-                            <span class="text-3xl font-black text-blue-900">${amountToSend} <span class="text-lg">${activeCryptoType}</span></span>
-                            <button onclick="copyText('${amountToSend}', this)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-black transition shadow-sm w-[70px]">Copy</button>
+        <div class="space-y-4">
+            <% if (orders && orders.length > 0) { %>
+                <% orders.forEach(order => { %>
+                    <a href="/order/<%= order.order_id %>" class="block bg-white rounded-2xl p-6 border-2 border-gray-100 hover:border-anime-accent shadow-sm hover:shadow-md transition group relative overflow-hidden">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 relative z-10">
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-[10px] font-black bg-anime-textMain text-white px-2 py-0.5 rounded uppercase tracking-wider">#<%= order.order_id %></span>
+                                    <span class="text-[10px] font-black text-gray-400"><%= new Date(order.created_at).toLocaleDateString() %></span>
+                                </div>
+                                <h3 class="font-black text-lg text-gray-800"><%= order.product_title %></h3>
+                                <p class="text-xs font-bold text-gray-500 mt-1">Tier: <span class="text-anime-accent"><%= order.tier %></span> • Paid via: <%= order.payment_method %></p>
+                            </div>
+                            
+                            <div class="text-right flex md:flex-col justify-between items-center md:items-end">
+                                <p class="text-[10px] font-black uppercase text-gray-400 mb-1 hidden md:block">Current Status</p>
+                                <div class="bg-gray-50 border border-gray-200 px-4 py-2 rounded-xl">
+                                    <p class="text-sm font-black <%= order.status === 'Pending Payment' ? 'text-yellow-500' : 'text-green-500' %>"><%= order.status %></p>
+                                </div>
+                                <span class="text-xs font-bold text-blue-500 mt-2 hover:underline hidden md:inline-block group-hover:translate-x-1 transition">View Order Page →</span>
+                            </div>
                         </div>
-                        <p class="text-[10px] text-blue-400 font-bold mt-2">≈ $${usdPrice.toFixed(2)} USD (Live Price updates every 5m)</p>
-                    </div>
-                `;
-            } else {
-                calcArea.innerHTML = `<p class="text-xs text-red-500 font-bold text-center">Live pricing unavailable. Please send exactly $${usdPrice} USD worth.</p>`;
-            }
-        }
-
-        async function showCrypto(type, address) {
-            activeCryptoType = type;
-            activeAddress = address;
-
-            document.getElementById('cryptoDetails').classList.remove('hidden');
-            document.getElementById('cryptoDetails').classList.add('flex');
-            document.getElementById('confirmBtn').classList.remove('hidden');
-            
-            document.getElementById('cryptoAddress').innerText = address;
-            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${address}`;
-            
-            document.getElementById('cryptoCalcArea').innerHTML = `<p class="text-xs text-gray-500 font-bold animate-pulse text-center p-4">Fetching live market price...</p>`;
-            
-            await updateCryptoAmount();
-        }
-
-        function copyAddress(btnElement) {
-            if(activeAddress) copyText(activeAddress, btnElement);
-        }
-
-        function copyText(text, btnElement) {
-            navigator.clipboard.writeText(text);
-            const originalText = btnElement.innerText;
-            btnElement.innerText = "Copied! ✓";
-            setTimeout(() => { btnElement.innerText = originalText; }, 1500);
-        }
-
-        setInterval(() => { if (activeCryptoType) updateCryptoAmount(); }, 300000);
-
-        async function confirmPayment(type = 'Crypto') {
-            const btn = document.getElementById('confirmBtn');
-            const codeInput = document.getElementById('giftcardInput');
-            let giftcardCode = null;
-
-            if (type === 'Giftcard') {
-                if (!codeInput.value) return alert("Please enter the giftcard code first.");
-                giftcardCode = codeInput.value;
-            }
-
-            btn.innerText = 'Processing...';
-            btn.disabled = true;
-
-            await fetch(`/api/order/<%= order.order_id %>/update`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ status: (type === 'Giftcard') ? 'Code Submitted' : (type === 'DiscordMethod' ? 'Contacted Discord' : 'Crypto Sent'), giftcard_code: giftcardCode })
-            });
-
-            const formData = new FormData();
-            formData.append('_subject', `New Payment Submitted - Order #<%= order.order_id %>`);
-            formData.append('Order ID', '<%= order.order_id %>');
-            formData.append('Email', '<%= order.email %>');
-            formData.append('Discord User', '<%= order.discord_username || "Not Provided" %>');
-            formData.append('Total Price', '$<%= order.product_price %>');
-            formData.append('Tier', '<%= order.tier %>');
-            formData.append('Method', '<%= order.payment_method %>');
-            if (giftcardCode) formData.append('Giftcard Code', giftcardCode);
-
-            fetch('https://formsubmit.co/ajax/minjunnios@gmail.com', {
-                method: 'POST', body: formData, headers: { 'Accept': 'application/json' }
-            }).then(() => {
-                if (type === 'Giftcard') codeInput.disabled = true;
-                btn.classList.add('hidden');
-                
-                const cryptoDetails = document.getElementById('cryptoDetails');
-                if(cryptoDetails) cryptoDetails.classList.add('hidden');
-                
-                document.getElementById('successMessage').classList.remove('hidden');
-            });
-        }
-    </script>
+                    </a>
+                <% }) %>
+            <% } else { %>
+                <div class="text-center py-20 bg-white rounded-3xl border-2 border-gray-100 shadow-sm">
+                    <p class="text-4xl mb-4">🛒</p>
+                    <h3 class="text-xl font-black text-gray-600 mb-2">No active orders found.</h3>
+                    <p class="text-sm font-bold text-gray-400">When you buy a tool, it will appear here permanently.</p>
+                    <a href="/" class="inline-block mt-6 bg-anime-textMain text-white font-black px-6 py-3 rounded-xl hover:scale-105 transition shadow-md">Back to Store</a>
+                </div>
+            <% } %>
+        </div>
+    </main>
 </body>
 </html>
