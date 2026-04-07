@@ -18,26 +18,14 @@
         }
     %>
     <title><%= seoTitle %></title>
-    
     <meta name="description" content="<%= seoDesc %>">
     <meta name="keywords" content="<%= seoKeywords %>">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    
-    <% if (canonicalUrl) { %>
-        <link rel="canonical" href="<%= canonicalUrl %>">
-    <% } %>
-
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <% if (canonicalUrl) { %> <link rel="canonical" href="<%= canonicalUrl %>"> <% } %>
     <meta property="og:title" content="<%= seoTitle %>">
     <meta property="og:description" content="<%= seoDesc %>">
     <meta property="og:image" content="<%= ogImage %>">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="ExamHub">
-    
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="<%= seoTitle %>">
-    <meta name="twitter:description" content="<%= seoDesc %>">
-    <meta name="twitter:image" content="<%= ogImage %>">
-
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
 </head>
@@ -47,7 +35,7 @@
         <div class="flex items-center gap-2">
             <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-full font-black text-sm shadow-sm transition">Discord</a>
             <% if (user) { %>
-                <a href="<%= user.role === 'admin' ? '/admin' : '/dashboard' %>" class="bg-white hover:bg-anime-pink px-4 md:px-5 py-2 rounded-full font-black text-sm shadow-sm transition">Panel</a>
+                <a href="/admin" class="bg-white hover:bg-anime-pink px-4 md:px-5 py-2 rounded-full font-black text-sm shadow-sm transition">Panel</a>
                 <a href="/logout" class="ml-2 text-sm font-bold text-anime-textDark hover:text-red-500">Logout</a>
             <% } else { %>
                 <a href="/login" class="bg-white hover:bg-anime-pink px-5 py-2 rounded-full font-black text-sm shadow-sm transition">Login</a>
@@ -75,29 +63,59 @@
     </header>
 
     <main class="flex-grow w-full max-w-6xl mx-auto px-4 md:px-6 relative z-20 pb-20">
+        
+        <% if (announcements && announcements.length > 0) { %>
+            <div class="mb-12 space-y-10">
+                <% announcements.forEach(ann => { %>
+                    <div class="bg-white rounded-3xl p-6 md:p-10 shadow-xl border-4 border-anime-skyLight animate-fade-in-up">
+                        <div class="inline-block bg-blue-100 text-blue-700 font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider mb-4"><%= ann.category %> Announcement</div>
+                        <h2 class="text-3xl md:text-4xl font-black mb-6 text-anime-textMain"><%= ann.title %></h2>
+                        
+                        <div class="flex flex-col md:flex-row gap-4 mb-6">
+                            <% if (ann.image1) { %>
+                                <img src="<%= ann.image1 %>" class="w-full md:w-1/2 rounded-2xl object-cover max-h-[300px] border-2 border-gray-100 shadow-sm">
+                            <% } %>
+                            <% if (ann.image2) { %>
+                                <img src="<%= ann.image2 %>" class="w-full md:w-1/2 rounded-2xl object-cover max-h-[300px] border-2 border-gray-100 shadow-sm">
+                            <% } %>
+                        </div>
+                        
+                        <div class="text-sm md:text-base font-medium text-gray-700 leading-relaxed"><%- formatPostText(ann.content) %></div>
+                    </div>
+                <% }) %>
+            </div>
+            <div class="flex items-center gap-4 mb-10 opacity-50">
+                <div class="flex-grow h-[2px] bg-gray-300 rounded-full"></div>
+                <span class="font-black text-gray-400 uppercase tracking-widest text-xs">Store Catalog</span>
+                <div class="flex-grow h-[2px] bg-gray-300 rounded-full"></div>
+            </div>
+        <% } %>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             <% if (products.length === 0) { %>
                 <div class="col-span-full text-center py-10 font-black text-xl md:text-2xl text-anime-textDark">No products found.</div>
             <% } else { %>
                 <% products.forEach(product => { %>
                     <div class="glass-card group hover:scale-[1.02] transition-all duration-300 flex flex-col h-full p-5 md:p-6 relative">
-                        <div class="absolute top-4 right-4 bg-gray-100 border border-gray-200 px-2 py-1 rounded-md font-black text-[10px] text-gray-500 uppercase tracking-wider z-10"><%= product.category %></div>
+                        
                         <div class="flex items-start gap-4 mb-4 mt-2">
                             <div class="w-16 h-16 md:w-20 md:h-20 shrink-0 bg-gray-100 rounded-2xl overflow-hidden shadow-sm border-2 border-white">
                                 <img src="<%= product.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title || 'Product')}&background=random&size=512` %>" alt="<%= product.title %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                             </div>
-                            <div class="flex-grow pt-1">
-                                <h3 class="font-black text-lg md:text-xl text-anime-textMain leading-tight mb-2 pr-12 break-words"><%= product.title %></h3>
+                            <div class="flex-grow pt-1 overflow-hidden">
+                                <span class="inline-block bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-md font-black text-[10px] text-gray-500 uppercase tracking-wider mb-2"><%= product.category %></span>
+                                <h3 class="font-black text-lg md:text-xl text-anime-textMain leading-tight mb-2 break-words"><%= product.title %></h3>
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="bg-green-100 text-green-700 font-black text-sm px-2 py-0.5 rounded-lg">$<%= Number(product.price || 0).toFixed(2) %></span>
                                     <span class="bg-purple-100 text-purple-700 font-black text-xs px-2 py-1 rounded-lg uppercase tracking-wider"><%= product.tier || 'Standard' %></span>
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="text-sm font-medium text-gray-600 mb-6 flex-grow leading-relaxed break-words"><%- formatPostText(product.description) %></div>
                         <div class="mt-auto pt-4 border-t-2 border-dashed border-gray-100">
                             <div class="flex gap-2">
-                                <button onclick="openBuyModal('<%= product.id %>', '<%= product.title %>', '<%= product.tier || 'Standard' %>')" class="flex-grow bg-anime-textMain text-white font-black py-2.5 rounded-xl text-sm hover:bg-gray-800 transition">Buy Now</button>
+                                <button onclick="openBuyModal('<%= product.id %>', '<%= product.title %>', '<%= product.tier || 'Standard' %>', '<%= product.price %>')" class="flex-grow bg-anime-textMain text-white font-black py-2.5 rounded-xl text-sm hover:bg-gray-800 transition">Buy Now</button>
                             </div>
                         </div>
                     </div>
@@ -133,18 +151,26 @@
                         <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">Select Payment Method</label>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="cursor-pointer relative">
-                                <input type="radio" name="payment_method" value="Crypto" required class="peer sr-only" checked>
+                                <input type="radio" id="radioCrypto" name="payment_method" value="Crypto" required class="peer sr-only" checked>
                                 <div class="rounded-xl border-2 border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-anime-accent peer-checked:bg-anime-skyLight transition text-center shadow-sm">
                                     <p class="font-black text-sm text-anime-textMain">Crypto</p>
-                                    <p class="text-[10px] font-bold text-anime-accent mt-1 uppercase tracking-wider">Fastest & Best</p>
+                                    <p class="text-[10px] font-bold text-anime-accent mt-1 uppercase tracking-wider">Fastest</p>
                                 </div>
                             </label>
                             
-                            <label class="cursor-pointer relative">
-                                <input type="radio" name="payment_method" value="Giftcard" required class="peer sr-only">
+                            <label id="giftcardLabel" class="cursor-pointer relative">
+                                <input type="radio" name="payment_method" value="Giftcard" class="peer sr-only">
                                 <div class="rounded-xl border-2 border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-anime-accent peer-checked:bg-anime-skyLight transition text-center shadow-sm">
                                     <p class="font-black text-sm text-anime-textMain">Giftcard</p>
                                     <p class="text-[10px] font-bold text-gray-500 mt-1 uppercase tracking-wider">G2A Cards</p>
+                                </div>
+                            </label>
+
+                            <label id="discordLabel" class="cursor-pointer relative hidden">
+                                <input type="radio" name="payment_method" value="DiscordMethod" class="peer sr-only">
+                                <div class="rounded-xl border-2 border-gray-200 bg-white p-3 hover:bg-purple-50 peer-checked:border-purple-500 peer-checked:bg-purple-100 transition text-center shadow-sm">
+                                    <p class="font-black text-sm text-purple-800">Other</p>
+                                    <p class="text-[10px] font-bold text-purple-600 mt-1 uppercase tracking-wider">Via Discord</p>
                                 </div>
                             </label>
                         </div>
@@ -171,10 +197,25 @@
             } else { searchDropdown.classList.add('hidden'); }
         });
 
-        function openBuyModal(id, title, tier) {
+        function openBuyModal(id, title, tier, price) {
             document.getElementById('modalItemTitle').innerText = title;
             document.getElementById('hiddenProductId').value = id;
             document.getElementById('hiddenProductTier').value = tier;
+
+            // LOGIC: Over $900 OR Custom tier = Remove Giftcard option, force Discord Method.
+            const numericPrice = parseFloat(price || 0);
+            const giftcardLabel = document.getElementById('giftcardLabel');
+            const discordLabel = document.getElementById('discordLabel');
+
+            if (numericPrice > 900 || tier === 'Custom' || tier === 'Ultra') {
+                giftcardLabel.classList.add('hidden');
+                discordLabel.classList.remove('hidden');
+                document.getElementById('radioCrypto').checked = true; // reset selector
+            } else {
+                giftcardLabel.classList.remove('hidden');
+                discordLabel.classList.add('hidden');
+            }
+
             document.getElementById('buyModal').classList.remove('hidden');
             document.getElementById('buyModal').classList.add('flex');
         }
