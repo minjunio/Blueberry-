@@ -252,7 +252,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
@@ -268,7 +267,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-black mb-1 text-gray-600">Platform</label>
@@ -382,7 +380,6 @@
     </div>
 
     <script>
-        // Post Edit Data population
         function openEditPostModal(btn) {
             document.getElementById('editPostId').value = btn.getAttribute('data-id');
             document.getElementById('editPostTitle').value = btn.getAttribute('data-title');
@@ -396,7 +393,6 @@
             document.getElementById('editPostModal').classList.add('flex');
         }
 
-        // Announcement Edit Data population
         function openEditAnnModal(btn) {
             document.getElementById('editAnnId').value = btn.getAttribute('data-id');
             document.getElementById('editAnnTitle').value = btn.getAttribute('data-title');
@@ -408,7 +404,6 @@
             document.getElementById('editAnnModal').classList.add('flex');
         }
 
-        // Category SEO Edit Data population
         function openEditCatModal(element) {
             document.getElementById('editOriginalName').value = element.getAttribute('data-name');
             document.getElementById('editCatName').value = element.getAttribute('data-name');
