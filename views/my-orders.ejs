@@ -1,420 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Admin - ExamHub</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
+    <title>My Orders - ExamHub</title>
     <%- include('partials/head') %>
 </head>
-<body class="p-4 md:p-8 bg-gray-50">
-    <div class="max-w-7xl mx-auto relative z-10 mt-6">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <h1 class="text-3xl md:text-4xl font-black text-anime-textMain">ExamHub Admin 🛡️</h1>
-            <div class="flex flex-wrap gap-2">
-                <button onclick="document.getElementById('createAnnModal').classList.remove('hidden')" class="bg-blue-600 text-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:scale-105 transition">📢 Post Announcement</button>
-                <button onclick="document.getElementById('createPostModal').classList.remove('hidden')" class="bg-anime-accent text-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:scale-105 transition">+ Create Product</button>
-                <a href="/" class="bg-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:bg-anime-pink transition border border-gray-200">View Store</a>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+<body class="antialiased flex flex-col min-h-screen bg-gray-50">
+    <nav class="py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
+        <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
+        
+        <div class="flex items-center gap-2">
+            <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-full font-black text-sm shadow-sm transition">Discord</a>
             
-            <div class="lg:col-span-2 space-y-6">
-                <div class="glass-card p-6">
-                    <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-gray-200 pb-2">
-                        <h2 class="text-xl md:text-2xl font-black">Manage Categories</h2>
-                        <button onclick="document.getElementById('catModal').classList.remove('hidden')" class="bg-[#00b67a] text-white font-black px-4 py-2 rounded-xl text-sm hover:scale-105 transition">+ Add Category</button>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <% categories.forEach(cat => { %>
-                            <div class="bg-white border-2 border-gray-200 px-3 py-1.5 rounded-xl flex items-center gap-2 group cursor-pointer hover:border-anime-accent transition shadow-sm"
-                                 data-name="<%= cat.name %>" data-title="<%= cat.seo_title || '' %>" data-desc="<%= cat.seo_desc || '' %>"
-                                 data-keywords="<%= cat.seo_keywords || '' %>" data-ogimage="<%= cat.og_image || '' %>" data-canonical="<%= cat.canonical_url || '' %>"
-                                 onclick="openEditCatModal(this)">
-                                <span class="font-bold text-sm"><%= cat.name %></span>
-                                <form action="/admin/delete-category" method="POST" class="inline m-0 p-0 ml-1" onsubmit="event.stopPropagation(); return confirm('Are you sure?');">
-                                    <input type="hidden" name="category_name" value="<%= cat.name %>">
-                                    <button type="submit" class="text-gray-300 hover:text-red-500 font-black">×</button>
-                                </form>
+            <span class="text-xs font-bold text-gray-500 border-r-2 border-gray-200 pr-3 mr-1"><%= typeof buyerEmail !== 'undefined' ? buyerEmail : '' %></span>
+            <a href="/buyer-logout" class="bg-white border-2 border-gray-200 hover:bg-red-50 hover:border-red-200 px-4 py-2 rounded-full font-black text-xs text-red-500 shadow-sm transition">Logout</a>
+
+            <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/admin" class="ml-2 bg-white hover:bg-anime-pink px-4 py-2 rounded-full font-black text-xs shadow-sm transition border border-gray-200">Admin</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-4xl mx-auto px-4 md:px-6 relative z-20 py-10">
+        <h1 class="text-3xl md:text-4xl font-black mb-8 text-anime-textMain">📦 My Active Orders</h1>
+
+        <div class="space-y-4">
+            <% if (orders && orders.length > 0) { %>
+                <% orders.forEach(order => { %>
+                    <a href="/order/<%= order.order_id %>" class="block bg-white rounded-2xl p-6 border-2 border-gray-100 hover:border-anime-accent shadow-sm hover:shadow-md transition group relative overflow-hidden">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 relative z-10">
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-[10px] font-black bg-anime-textMain text-white px-2 py-0.5 rounded uppercase tracking-wider">#<%= order.order_id %></span>
+                                    <span class="text-[10px] font-black text-gray-400"><%= new Date(order.created_at).toLocaleDateString() %></span>
+                                </div>
+                                <h3 class="font-black text-lg text-gray-800"><%= order.product_title %></h3>
+                                <p class="text-xs font-bold text-gray-500 mt-1">Tier: <span class="text-anime-accent"><%= order.tier %></span> • Paid via: <%= order.payment_method %></p>
                             </div>
-                        <% }) %>
-                    </div>
-                    <p class="text-[10px] font-bold text-gray-400 mt-3">* Click on a category pill to open Google SEO settings.</p>
-                </div>
-
-                <div class="glass-card p-6">
-                    <h2 class="text-xl md:text-2xl font-black mb-4 border-b-2 border-dashed border-gray-200 pb-2">Manage Announcements</h2>
-                    <div class="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-2">
-                        <% if (announcements && announcements.length > 0) { %>
-                            <% announcements.forEach(ann => { %>
-                                <div class="bg-blue-50 border-2 border-blue-100 p-4 rounded-xl flex justify-between items-center group">
-                                    <div class="truncate pr-4">
-                                        <p class="font-black text-sm text-blue-900 truncate"><%= ann.title %></p>
-                                        <p class="text-[10px] font-bold text-blue-500 mt-1 uppercase tracking-wider">Directory: <%= ann.category %></p>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button type="button" 
-                                            data-id="<%= ann.id %>" data-title="<%= ann.title %>" data-category="<%= ann.category %>"
-                                            data-img1="<%= ann.image1 %>" data-img2="<%= ann.image2 %>" data-content="<%= ann.content %>"
-                                            onclick="openEditAnnModal(this)"
-                                            class="bg-blue-200 text-blue-800 px-3 py-1.5 rounded-lg text-xs font-black hover:bg-blue-500 hover:text-white transition">
-                                            Edit
-                                        </button>
-                                        <form action="/admin/delete-announcement" method="POST" class="inline" onsubmit="return confirm('Delete this announcement?');">
-                                            <input type="hidden" name="id" value="<%= ann.id %>">
-                                            <button type="submit" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-xs font-black hover:bg-red-500 hover:text-white transition">Delete</button>
-                                        </form>
-                                    </div>
+                            
+                            <div class="text-right flex md:flex-col justify-between items-center md:items-end">
+                                <p class="text-[10px] font-black uppercase text-gray-400 mb-1 hidden md:block">Current Status</p>
+                                <div class="bg-gray-50 border border-gray-200 px-4 py-2 rounded-xl">
+                                    <p class="text-sm font-black <%= order.status === 'Pending Payment' ? 'text-yellow-500' : 'text-green-500' %>"><%= order.status %></p>
                                 </div>
-                            <% }) %>
-                        <% } else { %>
-                            <p class="text-sm font-bold text-gray-400 text-center py-4">No active announcements.</p>
-                        <% } %>
-                    </div>
+                                <span class="text-xs font-bold text-blue-500 mt-2 hover:underline hidden md:inline-block group-hover:translate-x-1 transition">View Order Page →</span>
+                            </div>
+                        </div>
+                    </a>
+                <% }) %>
+            <% } else { %>
+                <div class="text-center py-20 bg-white rounded-3xl border-2 border-gray-100 shadow-sm">
+                    <p class="text-4xl mb-4">🛒</p>
+                    <h3 class="text-xl font-black text-gray-600 mb-2">No active orders found.</h3>
+                    <p class="text-sm font-bold text-gray-400">When you buy a tool, it will appear here permanently.</p>
+                    <a href="/" class="inline-block mt-6 bg-anime-textMain text-white font-black px-6 py-3 rounded-xl hover:scale-105 transition shadow-md">Back to Store</a>
                 </div>
-
-                <div class="glass-card p-6">
-                    <h2 class="text-xl md:text-2xl font-black mb-4 border-b-2 border-dashed border-gray-200 pb-2">Manage Products</h2>
-                    <div class="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2">
-                        <% if (products && products.length > 0) { %>
-                            <% products.forEach(product => { %>
-                                <div class="bg-white border-2 border-gray-100 p-4 rounded-xl flex justify-between items-center group">
-                                    <div class="truncate pr-4">
-                                        <p class="font-black text-sm text-anime-textMain truncate"><%= product.title %></p>
-                                        <p class="text-[10px] font-bold text-gray-500 mt-1 uppercase tracking-wider">
-                                            <%= product.category %> • $<%= product.price %> • <span class="text-anime-accent"><%= product.tier %></span>
-                                        </p>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button type="button" 
-                                            data-id="<%= product.id %>" data-title="<%= product.title %>" data-category="<%= product.category %>"
-                                            data-price="<%= product.price %>" data-tier="<%= product.tier %>" data-platform="<%= product.platform %>"
-                                            data-image="<%= product.image_url %>" data-desc="<%= product.description %>"
-                                            onclick="openEditPostModal(this)"
-                                            class="bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-black hover:bg-blue-500 hover:text-white transition">
-                                            Edit
-                                        </button>
-                                        <form action="/admin/delete-product" method="POST" class="inline" onsubmit="return confirm('Delete this post?');">
-                                            <input type="hidden" name="id" value="<%= product.id %>">
-                                            <button type="submit" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-xs font-black hover:bg-red-500 hover:text-white transition">Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        <% } else { %>
-                            <p class="text-sm font-bold text-gray-400 text-center py-4">No active posts.</p>
-                        <% } %>
-                    </div>
-                </div>
-            </div>
-
-            <div class="space-y-6 lg:row-span-2 lg:col-start-3 lg:row-start-1">
-                <div class="bg-white rounded-3xl p-6 shadow-xl border-4 border-anime-skyLight relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-anime-accent to-anime-pink"></div>
-                    <h2 class="text-xl font-black mb-4 flex items-center gap-2">
-                        <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span> Active Orders
-                    </h2>
-                    <div class="space-y-4 max-h-[800px] overflow-y-auto pr-2">
-                        <% if (orders && orders.length > 0) { %>
-                            <% orders.forEach(order => { %>
-                                <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-100 relative group">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <span class="text-xs font-black bg-anime-textMain text-white px-2 py-0.5 rounded-md">#<%= order.order_id %></span>
-                                        <form action="/admin/close-order" method="POST" class="inline">
-                                            <input type="hidden" name="order_id" value="<%= order.order_id %>">
-                                            <button type="submit" class="text-[10px] bg-red-100 text-red-600 font-black px-2 py-1 rounded-md hover:bg-red-500 hover:text-white transition">Close</button>
-                                        </form>
-                                    </div>
-                                    <p class="text-xs font-bold text-anime-accent truncate mb-0.5">✉️ <%= order.email %></p>
-                                    <% if (order.discord_username) { %>
-                                        <p class="text-[10px] font-bold text-gray-400 truncate mb-2">🎮 <%= order.discord_username %></p>
-                                    <% } else { %> <div class="mb-2"></div> <% } %>
-                                    
-                                    <div class="flex justify-between items-center mb-2">
-                                        <p class="text-xs font-bold text-gray-500 truncate"><%= order.product_title %></p>
-                                        <p class="text-sm font-black text-[#00b67a] ml-2">$<%= Number(order.product_price || 0).toFixed(2) %></p>
-                                    </div>
-                                    <div class="flex gap-2 mb-2">
-                                        <span class="text-[10px] bg-gray-200 text-gray-700 font-black px-2 py-0.5 rounded-md"><%= order.tier %></span>
-                                        <span class="text-[10px] bg-blue-100 text-blue-700 font-black px-2 py-0.5 rounded-md"><%= order.payment_method %></span>
-                                    </div>
-                                    <div class="bg-white border border-gray-200 p-2 rounded-lg text-center">
-                                        <p class="text-[10px] font-black uppercase text-gray-400 mb-1">Status</p>
-                                        <p class="text-xs font-black <%= order.status === 'Pending Payment' ? 'text-yellow-500' : 'text-green-500' %>"><%= order.status %></p>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        <% } else { %>
-                            <p class="text-sm font-bold text-gray-400 text-center py-6">No active orders right now.</p>
-                        <% } %>
-                    </div>
-                </div>
-            </div>
+            <% } %>
         </div>
-    </div>
-
-    <div id="createAnnModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8 border-4 border-blue-400">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-black text-2xl text-blue-700">📢 Post Blog Announcement</h2>
-                <button onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
-            </div>
-            <form action="/admin/add-announcement" method="POST" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Headline</label>
-                    <input type="text" name="title" required placeholder="HUGE UPDATE: New Features..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Display in Category (or All)</label>
-                    <select name="category" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm appearance-none">
-                        <option value="All">All Pages (Global Announcement)</option>
-                        <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %> Only</option> <% }) %>
-                    </select>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image 1 URL</label>
-                        <input type="url" name="image1" placeholder="https://..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image 2 URL (Optional)</label>
-                        <input type="url" name="image2" placeholder="https://..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Blog Content (**bold** and #big# allowed)</label>
-                    <textarea name="content" required rows="6" placeholder="Write your announcement here..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 resize-none text-sm"></textarea>
-                </div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-blue-600 text-white font-black px-6 py-2 rounded-xl shadow-md hover:scale-105 transition">Publish Post</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="editAnnModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8 border-4 border-yellow-400">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-black text-2xl text-yellow-700">✏️ Edit Announcement</h2>
-                <button onclick="document.getElementById('editAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
-            </div>
-            <form action="/admin/edit-announcement" method="POST" class="space-y-4">
-                <input type="hidden" name="id" id="editAnnId">
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Headline</label>
-                    <input type="text" name="title" id="editAnnTitle" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-yellow-500 text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Category</label>
-                    <select name="category" id="editAnnCategory" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-yellow-500 text-sm appearance-none">
-                        <option value="All">All Pages</option>
-                        <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %> Only</option> <% }) %>
-                    </select>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image 1 URL</label>
-                        <input type="url" name="image1" id="editAnnImg1" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-yellow-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image 2 URL</label>
-                        <input type="url" name="image2" id="editAnnImg2" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-yellow-500 text-sm">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Content</label>
-                    <textarea name="content" id="editAnnContent" required rows="6" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-yellow-500 resize-none text-sm"></textarea>
-                </div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('editAnnModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-yellow-500 text-white font-black px-6 py-2 rounded-xl shadow-md hover:scale-105 transition">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="createPostModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-black text-2xl text-anime-textMain">Create New Product ✨</h2>
-                <button onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
-            </div>
-            <form action="/admin/add-product" method="POST" class="space-y-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Post Title</label>
-                        <input type="text" name="title" required placeholder="e.g. Honorlock Bypass" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Category</label>
-                        <select name="category" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm appearance-none">
-                            <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %></option> <% }) %>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
-                        <input type="number" step="0.01" name="price" required placeholder="200.00" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Product Tier</label>
-                        <select name="tier" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm appearance-none cursor-pointer">
-                            <option value="Standard">Standard Tier</option>
-                            <option value="Pro">Pro Tier</option>
-                            <option value="Ultra">Ultra Tier (> $900)</option>
-                            <option value="Custom">Custom Pricing</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Platform</label>
-                        <input type="text" name="platform" placeholder="e.g. Windows/Mac" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
-                        <input type="url" name="image_url" placeholder="https://..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Detailed Description (**bold** and #big# allowed)</label>
-                    <textarea name="description" required rows="4" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent resize-none text-sm"></textarea>
-                </div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-anime-accent text-white font-black px-6 py-2 rounded-xl shadow-md hover:scale-105 transition">Publish</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="editPostModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8">
-            <h2 class="font-black text-2xl text-blue-600 mb-6">Edit Product ✏️</h2>
-            <form action="/admin/edit-product" method="POST" class="space-y-5">
-                <input type="hidden" name="id" id="editPostId">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Post Title</label>
-                        <input type="text" name="title" id="editPostTitle" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Category</label>
-                        <select name="category" id="editPostCategory" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm appearance-none">
-                            <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %></option> <% }) %>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
-                        <input type="number" step="0.01" name="price" id="editPostPrice" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Product Tier</label>
-                        <select name="tier" id="editPostTier" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm appearance-none cursor-pointer">
-                            <option value="Standard">Standard Tier</option>
-                            <option value="Pro">Pro Tier</option>
-                            <option value="Ultra">Ultra Tier (> $900)</option>
-                            <option value="Custom">Custom Pricing</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Platform</label>
-                        <input type="text" name="platform" id="editPostPlatform" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
-                        <input type="url" name="image_url" id="editPostImage" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Detailed Description</label>
-                    <textarea name="description" id="editPostDesc" required rows="4" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 resize-none text-sm"></textarea>
-                </div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('editPostModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-blue-600 text-white font-black px-6 py-2 rounded-xl shadow-md hover:scale-105 transition">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="catModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl my-8">
-            <h2 class="font-black text-2xl mb-4 text-anime-textMain">New Category SEO 🚀</h2>
-            <form action="/admin/add-category" method="POST" class="space-y-4">
-                <div><input type="text" name="category_name" required placeholder="Directory Name (e.g. ACT)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="text" name="seo_title" placeholder="Meta Title" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><textarea name="seo_desc" placeholder="Meta Description" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm resize-none"></textarea></div>
-                <div><input type="text" name="seo_keywords" placeholder="Meta Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="url" name="og_image" placeholder="Open Graph Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="url" name="canonical_url" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('catModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-anime-accent text-white font-black px-6 py-2 rounded-xl shadow-md">Create</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="editCatModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl my-8">
-            <h2 class="font-black text-2xl mb-4 text-anime-textMain">Edit Category SEO ✏️</h2>
-            <form action="/admin/edit-category" method="POST" class="space-y-4">
-                <input type="hidden" name="original_name" id="editOriginalName">
-                <div><input type="text" id="editCatName" name="category_name" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="text" id="editSeoTitle" name="seo_title" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><textarea id="editSeoDesc" name="seo_desc" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm resize-none"></textarea></div>
-                <div><input type="text" id="editSeoKeywords" name="seo_keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="url" id="editOgImage" name="og_image" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="url" id="editCanonicalUrl" name="canonical_url" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-anime-textMain text-white font-black px-6 py-2 rounded-xl shadow-md">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function openEditPostModal(btn) {
-            document.getElementById('editPostId').value = btn.getAttribute('data-id');
-            document.getElementById('editPostTitle').value = btn.getAttribute('data-title');
-            document.getElementById('editPostCategory').value = btn.getAttribute('data-category');
-            document.getElementById('editPostPrice').value = btn.getAttribute('data-price');
-            document.getElementById('editPostTier').value = btn.getAttribute('data-tier');
-            document.getElementById('editPostPlatform').value = btn.getAttribute('data-platform');
-            document.getElementById('editPostImage').value = btn.getAttribute('data-image');
-            document.getElementById('editPostDesc').value = btn.getAttribute('data-desc');
-            document.getElementById('editPostModal').classList.remove('hidden');
-            document.getElementById('editPostModal').classList.add('flex');
-        }
-
-        function openEditAnnModal(btn) {
-            document.getElementById('editAnnId').value = btn.getAttribute('data-id');
-            document.getElementById('editAnnTitle').value = btn.getAttribute('data-title');
-            document.getElementById('editAnnCategory').value = btn.getAttribute('data-category');
-            document.getElementById('editAnnImg1').value = btn.getAttribute('data-img1');
-            document.getElementById('editAnnImg2').value = btn.getAttribute('data-img2');
-            document.getElementById('editAnnContent').value = btn.getAttribute('data-content');
-            document.getElementById('editAnnModal').classList.remove('hidden');
-            document.getElementById('editAnnModal').classList.add('flex');
-        }
-
-        function openEditCatModal(element) {
-            document.getElementById('editOriginalName').value = element.getAttribute('data-name');
-            document.getElementById('editCatName').value = element.getAttribute('data-name');
-            document.getElementById('editSeoTitle').value = element.getAttribute('data-title');
-            document.getElementById('editSeoDesc').value = element.getAttribute('data-desc');
-            document.getElementById('editSeoKeywords').value = element.getAttribute('data-keywords');
-            document.getElementById('editOgImage').value = element.getAttribute('data-ogimage');
-            document.getElementById('editCanonicalUrl').value = element.getAttribute('data-canonical');
-            document.getElementById('editCatModal').classList.remove('hidden');
-            document.getElementById('editCatModal').classList.add('flex');
-        }
-    </script>
+    </main>
 </body>
 </html>
