@@ -31,16 +31,19 @@
 <body class="antialiased flex flex-col">
     <nav class="py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
         <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
+        
         <div class="flex items-center gap-2">
             <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-full font-black text-sm shadow-sm transition">Discord</a>
             
-            <% if (buyerEmail) { %>
+            <% if (typeof buyerEmail !== 'undefined' && buyerEmail) { %>
                 <a href="/my-orders" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full font-black text-sm text-anime-textMain transition shadow-sm border border-gray-200">📦 My Orders</a>
                 <a href="/buyer-logout" class="ml-1 text-sm font-bold text-gray-400 hover:text-red-500 transition">Logout</a>
             <% } %>
 
-            <% if (user) { %>
-                <a href="/admin" class="ml-4 bg-white hover:bg-anime-pink px-4 md:px-5 py-2 rounded-full font-black text-sm shadow-sm transition border border-gray-200">Admin</a>
+            <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/admin" class="ml-2 bg-white hover:bg-anime-pink px-4 md:px-5 py-2 rounded-full font-black text-sm shadow-sm transition border border-gray-200">Admin</a>
+            <% } else { %>
+                <a href="/login" class="ml-2 bg-white hover:bg-anime-pink px-4 md:px-5 py-2 rounded-full font-black text-sm shadow-sm transition border border-gray-200">Login</a>
             <% } %>
         </div>
     </nav>
@@ -153,7 +156,7 @@
                     <button onclick="closeModals()" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
                 </div>
                 <div class="bg-green-50 text-green-700 text-xs font-black px-3 py-1.5 rounded-lg mb-4 flex items-center gap-2 border border-green-200">
-                    <span>✓ Verified as:</span> <span class="truncate"><%= buyerEmail %></span>
+                    <span>✓ Verified as:</span> <span class="truncate"><%= typeof buyerEmail !== 'undefined' ? buyerEmail : '' %></span>
                 </div>
                 <p id="modalItemTitle" class="font-bold text-anime-textMain text-sm mb-6 pb-4 border-b-2 border-dashed border-gray-100 break-words"></p>
 
@@ -202,7 +205,7 @@
     </div>
 
     <script>
-        const isAuthenticated = <%= !!buyerEmail %>;
+        const isAuthenticated = <%= typeof buyerEmail !== 'undefined' && !!buyerEmail %>;
         let pendingBuyData = null;
         let userEmailToVerify = null;
 
