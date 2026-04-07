@@ -25,7 +25,6 @@
     <meta property="og:title" content="<%= seoTitle %>">
     <meta property="og:description" content="<%= seoDesc %>">
     <meta property="og:image" content="<%= ogImage %>">
-    <meta property="og:type" content="website">
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
 </head>
@@ -34,11 +33,14 @@
         <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
         <div class="flex items-center gap-2">
             <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-full font-black text-sm shadow-sm transition">Discord</a>
+            
+            <% if (buyerEmail) { %>
+                <a href="/my-orders" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full font-black text-sm text-anime-textMain transition shadow-sm border border-gray-200">📦 My Orders</a>
+                <a href="/buyer-logout" class="ml-1 text-sm font-bold text-gray-400 hover:text-red-500 transition">Logout</a>
+            <% } %>
+
             <% if (user) { %>
-                <a href="/admin" class="bg-white hover:bg-anime-pink px-4 md:px-5 py-2 rounded-full font-black text-sm shadow-sm transition">Panel</a>
-                <a href="/logout" class="ml-2 text-sm font-bold text-anime-textDark hover:text-red-500">Logout</a>
-            <% } else { %>
-                <a href="/login" class="bg-white hover:bg-anime-pink px-5 py-2 rounded-full font-black text-sm shadow-sm transition">Login</a>
+                <a href="/admin" class="ml-4 bg-white hover:bg-anime-pink px-4 md:px-5 py-2 rounded-full font-black text-sm shadow-sm transition border border-gray-200">Admin</a>
             <% } %>
         </div>
     </nav>
@@ -73,10 +75,10 @@
                         
                         <div class="flex flex-col md:flex-row gap-4 mb-6">
                             <% if (ann.image1) { %>
-                                <img src="<%= ann.image1 %>" class="w-full md:w-1/2 rounded-2xl object-cover max-h-[300px] border-2 border-gray-100 shadow-sm">
+                                <img src="<%= ann.image1 %>" alt="Announcement Image 1" class="w-full md:w-1/2 rounded-2xl object-cover border-2 border-gray-100 shadow-sm" style="max-height: 400px;">
                             <% } %>
                             <% if (ann.image2) { %>
-                                <img src="<%= ann.image2 %>" class="w-full md:w-1/2 rounded-2xl object-cover max-h-[300px] border-2 border-gray-100 shadow-sm">
+                                <img src="<%= ann.image2 %>" alt="Announcement Image 2" class="w-full md:w-1/2 rounded-2xl object-cover border-2 border-gray-100 shadow-sm" style="max-height: 400px;">
                             <% } %>
                         </div>
                         
@@ -97,7 +99,6 @@
             <% } else { %>
                 <% products.forEach(product => { %>
                     <div class="glass-card group hover:scale-[1.02] transition-all duration-300 flex flex-col h-full p-5 md:p-6 relative">
-                        
                         <div class="flex items-start gap-4 mb-4 mt-2">
                             <div class="w-16 h-16 md:w-20 md:h-20 shrink-0 bg-gray-100 rounded-2xl overflow-hidden shadow-sm border-2 border-white">
                                 <img src="<%= product.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title || 'Product')}&background=random&size=512` %>" alt="<%= product.title %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
@@ -115,7 +116,7 @@
                         <div class="text-sm font-medium text-gray-600 mb-6 flex-grow leading-relaxed break-words"><%- formatPostText(product.description) %></div>
                         <div class="mt-auto pt-4 border-t-2 border-dashed border-gray-100">
                             <div class="flex gap-2">
-                                <button onclick="openBuyModal('<%= product.id %>', '<%= product.title %>', '<%= product.tier || 'Standard' %>', '<%= product.price %>')" class="flex-grow bg-anime-textMain text-white font-black py-2.5 rounded-xl text-sm hover:bg-gray-800 transition">Buy Now</button>
+                                <button onclick="handleBuyClick('<%= product.id %>', '<%= product.title %>', '<%= product.tier || 'Standard' %>', '<%= product.price %>')" class="flex-grow bg-anime-textMain text-white font-black py-2.5 rounded-xl text-sm hover:bg-gray-800 transition">Buy Now</button>
                             </div>
                         </div>
                     </div>
@@ -124,23 +125,41 @@
         </div>
     </main>
 
+    <div id="emailModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm justify-center items-center z-50 p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-8 text-center animate-fade-in-up">
+            <h2 class="text-2xl font-black text-anime-textMain mb-2">Secure Checkout</h2>
+            <p class="text-sm font-bold text-gray-500 mb-6">Enter your email to receive your secure login code.</p>
+            <input type="email" id="authEmailInput" placeholder="you@email.com" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm mb-4 text-center">
+            <button onclick="sendOtp()" id="sendOtpBtn" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md">Send Verification Code</button>
+            <button onclick="closeModals()" class="mt-4 text-xs font-bold text-gray-400 hover:text-gray-600">Cancel</button>
+        </div>
+    </div>
+
+    <div id="otpModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm justify-center items-center z-50 p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-8 text-center animate-fade-in-up">
+            <h2 class="text-2xl font-black text-anime-textMain mb-2">Enter Code</h2>
+            <p class="text-sm font-bold text-gray-500 mb-6">Check your inbox for the 6-digit verification code.</p>
+            <input type="text" id="authOtpInput" placeholder="123456" maxlength="6" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-black text-2xl tracking-widest outline-none focus:border-anime-accent mb-4 text-center">
+            <button onclick="verifyOtp()" id="verifyOtpBtn" class="w-full bg-[#00b67a] text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md">Verify & Proceed</button>
+            <button onclick="closeModals()" class="mt-4 text-xs font-bold text-gray-400 hover:text-gray-600">Cancel</button>
+        </div>
+    </div>
+
     <div id="buyModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm justify-center items-center z-50 p-4">
         <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in-up">
             <div id="buyFormContainer" class="p-6 md:p-8">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-black text-anime-textMain">Checkout</h2>
-                    <button onclick="closeBuyModal()" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
+                    <button onclick="closeModals()" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
+                </div>
+                <div class="bg-green-50 text-green-700 text-xs font-black px-3 py-1.5 rounded-lg mb-4 flex items-center gap-2 border border-green-200">
+                    <span>✓ Verified as:</span> <span class="truncate"><%= buyerEmail %></span>
                 </div>
                 <p id="modalItemTitle" class="font-bold text-anime-textMain text-sm mb-6 pb-4 border-b-2 border-dashed border-gray-100 break-words"></p>
 
                 <form id="buyForm" action="/checkout" method="POST" class="space-y-4">
                     <input type="hidden" id="hiddenProductId" name="product_id">
                     <input type="hidden" id="hiddenProductTier" name="tier">
-
-                    <div>
-                        <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Your Email Address *</label>
-                        <input type="email" name="email" required placeholder="you@email.com" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
-                    </div>
 
                     <div>
                         <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Discord Username (Optional)</label>
@@ -176,13 +195,17 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md mt-4">Proceed to Secure Checkout →</button>
+                    <button type="submit" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md mt-4">Complete Purchase →</button>
                 </form>
             </div>
         </div>
     </div>
 
     <script>
+        const isAuthenticated = <%= !!buyerEmail %>;
+        let pendingBuyData = null;
+        let userEmailToVerify = null;
+
         const searchInput = document.getElementById('searchInput');
         const searchDropdown = document.getElementById('searchDropdown');
 
@@ -197,12 +220,63 @@
             } else { searchDropdown.classList.add('hidden'); }
         });
 
+        // NEW: Handles the click, decides if user needs OTP or can Buy directly
+        function handleBuyClick(id, title, tier, price) {
+            if (isAuthenticated) {
+                openBuyModal(id, title, tier, price);
+            } else {
+                pendingBuyData = { id, title, tier, price };
+                document.getElementById('emailModal').classList.remove('hidden');
+                document.getElementById('emailModal').classList.add('flex');
+            }
+        }
+
+        async function sendOtp() {
+            const email = document.getElementById('authEmailInput').value;
+            if (!email || !email.includes('@')) return alert("Enter a valid email.");
+            
+            document.getElementById('sendOtpBtn').innerText = 'Sending...';
+            document.getElementById('sendOtpBtn').disabled = true;
+
+            const res = await fetch('/api/send-otp', {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                userEmailToVerify = email;
+                document.getElementById('emailModal').classList.add('hidden');
+                document.getElementById('otpModal').classList.remove('hidden');
+                document.getElementById('otpModal').classList.add('flex');
+            } else {
+                alert("Error sending email.");
+                document.getElementById('sendOtpBtn').innerText = 'Send Verification Code';
+                document.getElementById('sendOtpBtn').disabled = false;
+            }
+        }
+
+        async function verifyOtp() {
+            const code = document.getElementById('authOtpInput').value;
+            if (code.length !== 6) return alert("Enter the 6 digit code.");
+            
+            const res = await fetch('/api/verify-otp', {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: userEmailToVerify, code })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                // Verified successfully! Reload page to apply session cookie
+                window.location.reload();
+            } else {
+                alert("Invalid or expired code.");
+            }
+        }
+
         function openBuyModal(id, title, tier, price) {
             document.getElementById('modalItemTitle').innerText = title;
             document.getElementById('hiddenProductId').value = id;
             document.getElementById('hiddenProductTier').value = tier;
 
-            // LOGIC: Over $900 OR Custom tier = Remove Giftcard option, force Discord Method.
             const numericPrice = parseFloat(price || 0);
             const giftcardLabel = document.getElementById('giftcardLabel');
             const discordLabel = document.getElementById('discordLabel');
@@ -210,7 +284,7 @@
             if (numericPrice > 900 || tier === 'Custom' || tier === 'Ultra') {
                 giftcardLabel.classList.add('hidden');
                 discordLabel.classList.remove('hidden');
-                document.getElementById('radioCrypto').checked = true; // reset selector
+                document.getElementById('radioCrypto').checked = true;
             } else {
                 giftcardLabel.classList.remove('hidden');
                 discordLabel.classList.add('hidden');
@@ -220,7 +294,11 @@
             document.getElementById('buyModal').classList.add('flex');
         }
 
-        function closeBuyModal() {
+        function closeModals() {
+            document.getElementById('emailModal').classList.add('hidden');
+            document.getElementById('emailModal').classList.remove('flex');
+            document.getElementById('otpModal').classList.add('hidden');
+            document.getElementById('otpModal').classList.remove('flex');
             document.getElementById('buyModal').classList.add('hidden');
             document.getElementById('buyModal').classList.remove('flex');
             document.getElementById('buyForm').reset();
