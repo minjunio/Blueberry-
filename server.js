@@ -158,28 +158,41 @@ app.get('/api/search', (req, res) => {
     db.all("SELECT title, category FROM products WHERE title LIKE ? LIMIT 5", [`%${q}%`], (err, rows) => res.json(rows || []));
 });
 
+// FIXED: Properly rendering my orders
 app.get('/my-orders', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/');
     db.all("SELECT orders.*, products.title as product_title FROM orders JOIN products ON orders.product_id = products.id WHERE email = ? ORDER BY orders.created_at DESC", [req.session.buyerEmail], (err, orders) => {
-        renderSafe(res, 'my-orders', { buyerEmail: req.session.buyerEmail, orders: orders || [] });
+        renderSafe(res, 'my-orders', { 
+            user: req.session ? req.session.user : null, 
+            buyerEmail: req.session.buyerEmail, 
+            orders: orders || [] 
+        });
     });
 });
 
+// NEW: Limited active orders to 3
 app.post('/checkout', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/'); 
-    const { product_id, discord_username, tier, payment_method } = req.body;
-    const order_id = Math.random().toString(36).substring(2, 10).toUpperCase();
     
-    db.run("INSERT INTO orders (order_id, product_id, tier, payment_method, email, discord_username) VALUES (?, ?, ?, ?, ?, ?)", 
-        [order_id, product_id, tier, payment_method, req.session.buyerEmail, discord_username || null], 
-        (err) => res.redirect(`/order/${order_id}`)
-    );
+    db.get("SELECT COUNT(*) as count FROM orders WHERE email = ? AND status != 'Completed' AND status != 'Closed'", [req.session.buyerEmail], (err, row) => {
+        if (row && row.count >= 3) {
+            return res.send("<script>alert('You cannot have more than 3 active orders. Please wait for them to process.'); window.location.href='/my-orders';</script>");
+        }
+
+        const { product_id, discord_username, tier, payment_method } = req.body;
+        const order_id = Math.random().toString(36).substring(2, 10).toUpperCase();
+        
+        db.run("INSERT INTO orders (order_id, product_id, tier, payment_method, email, discord_username) VALUES (?, ?, ?, ?, ?, ?)", 
+            [order_id, product_id, tier, payment_method, req.session.buyerEmail, discord_username || null], 
+            (err) => res.redirect(`/order/${order_id}`)
+        );
+    });
 });
 
 app.get('/order/:order_id', (req, res) => {
     db.get("SELECT orders.*, products.title as product_title, products.price as product_price FROM orders JOIN products ON orders.product_id = products.id WHERE order_id = ?", [req.params.order_id], (err, order) => {
         if (!order || err) return res.redirect('/');
-        renderSafe(res, 'order', { order, buyerEmail: req.session.buyerEmail });
+        renderSafe(res, 'order', { order, user: req.session ? req.session.user : null, buyerEmail: req.session ? req.session.buyerEmail : null });
     });
 });
 
