@@ -220,7 +220,6 @@
             } else { searchDropdown.classList.add('hidden'); }
         });
 
-        // NEW: Handles the click, decides if user needs OTP or can Buy directly
         function handleBuyClick(id, title, tier, price) {
             if (isAuthenticated) {
                 openBuyModal(id, title, tier, price);
@@ -265,7 +264,6 @@
             const data = await res.json();
 
             if (data.success) {
-                // Verified successfully! Reload page to apply session cookie
                 window.location.reload();
             } else {
                 alert("Invalid or expired code.");
