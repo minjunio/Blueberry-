@@ -33,19 +33,20 @@
             </div>
         </div>
 
-        <% if (order.payment_method === 'Crypto') { %>
-            <div class="bg-blue-50 border-2 border-blue-100 rounded-xl p-4 mb-6 relative">
-                <div class="flex justify-between items-start mb-2">
-                    <p class="text-xs font-black text-blue-600 uppercase">Need to buy Crypto?</p>
-                    <button onclick="document.getElementById('cryptoTutorial').classList.remove('hidden')" class="text-[10px] bg-blue-600 text-white px-2 py-1 rounded shadow-sm font-black hover:scale-105 transition">📖 Learn How</button>
-                </div>
-                <p class="text-xs font-bold text-gray-600 mb-2">Purchase crypto instantly using a credit card / SSN via these trusted platforms:</p>
-                <div class="flex gap-2">
-                    <a href="https://www.moonpay.com/" target="_blank" class="bg-white text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg text-[11px] font-black hover:bg-blue-600 hover:text-white transition">MoonPay ↗</a>
-                    <a href="https://www.bitpay.com/buy-crypto" target="_blank" class="bg-white text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg text-[11px] font-black hover:bg-blue-600 hover:text-white transition">BitPay ↗</a>
-                </div>
-            </div>
+        <div class="bg-blue-50 border-2 border-blue-100 rounded-xl p-4 mb-6">
+            <p class="text-xs font-black text-blue-600 uppercase mb-1">Stuck on payment?</p>
+            <p class="text-[11px] font-bold text-gray-600">Join our <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="text-blue-500 underline">Discord Server</a> or contact <span class="text-blue-600 font-black">@minjunio</span> for immediate help.</p>
+        </div>
 
+        <% if (order.payment_method === 'DiscordMethod' || order.tier === 'Ultra' || order.tier === 'Custom' || order.product_price > 900) { %>
+            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 text-center mb-6 shadow-sm">
+                <h3 class="font-black text-purple-700 text-xl mb-2">Alternative Payment</h3>
+                <p class="text-xs font-bold text-gray-600 mb-4 leading-relaxed">Because this service is highly specialized (<%= order.tier %> tier), automated giftcards are disabled for security. Please contact <span class="text-anime-accent font-black">@minjunio</span> on Discord to arrange payment via other methods.</p>
+                <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="inline-block bg-purple-600 text-white font-black px-6 py-3 rounded-xl shadow-md hover:scale-105 transition">Message minjunio on Discord ↗</a>
+            </div>
+            <button onclick="confirmPayment('DiscordMethod')" id="confirmBtn" class="w-full bg-purple-200 text-purple-900 font-black py-4 rounded-xl hover:bg-purple-300 transition shadow-md">I have contacted him ✓</button>
+
+        <% } else if (order.payment_method === 'Crypto') { %>
             <h3 class="font-black text-sm text-gray-500 uppercase tracking-wider mb-3">1. Select Currency to Send</h3>
             <div class="grid grid-cols-3 gap-2 mb-6">
                 <button onclick="showCrypto('SOL', '7M27KDHbF1BtxEhghY6vWaXmbXyrsehSsWwxHtPYfSoJ')" class="crypto-btn bg-white border-2 border-gray-200 py-3 rounded-xl font-black text-gray-600 hover:border-anime-accent focus:border-anime-accent focus:bg-anime-skyLight transition">SOL</button>
@@ -54,15 +55,12 @@
             </div>
 
             <div id="cryptoDetails" class="hidden flex-col items-center bg-gray-50 rounded-xl p-6 border-2 border-gray-100 mb-6 w-full">
-                
                 <div id="cryptoCalcArea" class="w-full mb-4"></div>
-
                 <div class="w-full bg-white border-2 border-gray-200 rounded-xl p-4 text-center mb-4 relative">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-2">Send to this Address</p>
                     <p id="cryptoAddress" class="font-bold text-sm text-anime-textMain break-all"></p>
                     <button onclick="copyAddress(this)" class="mt-3 bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-1.5 rounded-lg text-xs font-black transition">Copy Address</button>
                 </div>
-
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Or Scan QR Code</p>
                 <img id="qrCode" src="" alt="QR Code" class="w-32 h-32 rounded-lg shadow-sm border-4 border-white">
             </div>
@@ -74,7 +72,7 @@
                 let giftcardLink = "";
                 if (order.tier === 'Standard') giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-200-usd-giftmecrypto-key-global-i10000503347012";
                 else if (order.tier === 'Pro') giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-450-usd-giftmecrypto-key-global-i10000503347304";
-                else if (order.tier === 'Premium') giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-900-usd-giftmecrypto-key-global-i10000503347308";
+                else giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-900-usd-giftmecrypto-key-global-i10000503347308";
             %>
             <div class="bg-green-50 border-2 border-green-200 rounded-xl p-5 mb-6 text-center">
                 <p class="text-sm font-black text-[#00b67a] uppercase mb-2">Step 1: Purchase Giftcard</p>
@@ -102,7 +100,7 @@
             <div class="space-y-4">
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
                     <h3 class="font-black text-blue-700 mb-1">Step 1: Buy Crypto</h3>
-                    <p class="text-xs font-bold text-gray-600">Go to <a href="https://www.moonpay.com/" target="_blank" class="text-blue-500 underline">MoonPay</a> or <a href="https://www.bitpay.com/buy-crypto" target="_blank" class="text-blue-500 underline">BitPay</a>. Select the coin you want to buy (like Bitcoin or Solana). Buy exactly <strong>$<%= order.product_price %></strong> worth. You can pay using a credit card, Apple Pay, or bank transfer.</p>
+                    <p class="text-xs font-bold text-gray-600">Go to <a href="https://www.moonpay.com/" target="_blank" class="text-blue-500 underline">MoonPay</a> or <a href="https://www.bitpay.com/buy-crypto" target="_blank" class="text-blue-500 underline">BitPay</a>. Select the coin you want to buy. Buy exactly <strong>$<%= order.product_price %></strong> worth.</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
                     <h3 class="font-black text-gray-700 mb-1">Step 2: Copy the Amount & Address</h3>
@@ -135,7 +133,6 @@
 
         async function updateCryptoAmount() {
             if (!activeCryptoType) return;
-            
             const calcArea = document.getElementById('cryptoCalcArea');
             const currentLivePrice = await fetchLiveCryptoPrice(activeCryptoType);
             
@@ -187,15 +184,10 @@
             navigator.clipboard.writeText(text);
             const originalText = btnElement.innerText;
             btnElement.innerText = "Copied! ✓";
-            
-            setTimeout(() => {
-                btnElement.innerText = originalText;
-            }, 1500);
+            setTimeout(() => { btnElement.innerText = originalText; }, 1500);
         }
 
-        setInterval(() => {
-            if (activeCryptoType) updateCryptoAmount();
-        }, 300000);
+        setInterval(() => { if (activeCryptoType) updateCryptoAmount(); }, 300000);
 
         async function confirmPayment(type = 'Crypto') {
             const btn = document.getElementById('confirmBtn');
@@ -212,7 +204,7 @@
 
             await fetch(`/api/order/<%= order.order_id %>/update`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ status: type === 'Giftcard' ? 'Code Submitted' : 'Crypto Sent', giftcard_code: giftcardCode })
+                body: JSON.stringify({ status: (type === 'Giftcard') ? 'Code Submitted' : (type === 'DiscordMethod' ? 'Contacted Discord' : 'Crypto Sent'), giftcard_code: giftcardCode })
             });
 
             const formData = new FormData();
