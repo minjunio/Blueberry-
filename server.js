@@ -62,7 +62,6 @@ const renderSafe = (res, view, data) => {
     });
 };
 
-// --- HELPER: GET ACTIVE ORDERS COUNT ---
 const getActiveOrders = (req, callback) => {
     if (!req.session || !req.session.buyerEmail) return callback(0);
     db.get("SELECT COUNT(*) as count FROM orders WHERE email = ? AND status != 'Completed' AND status != 'Closed'", [req.session.buyerEmail], (err, row) => {
@@ -172,6 +171,7 @@ app.get('/api/search', (req, res) => {
     db.all("SELECT title, category FROM products WHERE title LIKE ? LIMIT 5", [`%${q}%`], (err, rows) => res.json(rows || []));
 });
 
+// FIXED: Receives error parameters for the custom UI alert
 app.get('/my-orders', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/');
     getActiveOrders(req, (activeOrderCount) => {
@@ -180,18 +180,20 @@ app.get('/my-orders', (req, res) => {
                 user: req.session ? req.session.user : null, 
                 buyerEmail: req.session.buyerEmail, 
                 activeOrderCount,
-                orders: orders || [] 
+                orders: orders || [],
+                error: req.query.error // Custom Error passing
             });
         });
     });
 });
 
+// FIXED: Redirects to my-orders with an error code instead of a browser alert
 app.post('/checkout', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/'); 
     
     db.get("SELECT COUNT(*) as count FROM orders WHERE email = ? AND status != 'Completed' AND status != 'Closed'", [req.session.buyerEmail], (err, row) => {
         if (row && row.count >= 3) {
-            return res.send("<script>alert('You cannot have more than 3 active orders. Please wait for them to process or cancel one.'); window.location.href='/my-orders';</script>");
+            return res.redirect('/my-orders?error=max_orders'); // Trigger custom UI alert
         }
 
         const { product_id, discord_username, tier, payment_method } = req.body;
@@ -204,7 +206,6 @@ app.post('/checkout', (req, res) => {
     });
 });
 
-// NEW: Customer closing their own order
 app.post('/buyer/close-order', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/');
     db.run("UPDATE orders SET status = 'Closed' WHERE order_id = ? AND email = ?", [req.body.order_id, req.session.buyerEmail], () => {
@@ -257,7 +258,6 @@ app.post('/admin/close-order', (req, res) => {
     db.run("DELETE FROM orders WHERE order_id = ?", [req.body.order_id], () => res.redirect('/admin'));
 });
 
-// Product Management
 app.post('/admin/add-product', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     let { title, category, description, price, tier, image_url, platform, tags } = req.body;
@@ -275,7 +275,6 @@ app.post('/admin/delete-product', (req, res) => {
     db.run("DELETE FROM products WHERE id = ?", [req.body.id], () => res.redirect('back'));
 });
 
-// Announcements Management
 app.post('/admin/add-announcement', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("INSERT INTO announcements (title, category, image1, image2, content) VALUES (?, ?, ?, ?, ?)", [req.body.title, req.body.category, req.body.image1, req.body.image2, req.body.content], () => res.redirect('/admin'));
@@ -289,7 +288,6 @@ app.post('/admin/delete-announcement', (req, res) => {
     db.run("DELETE FROM announcements WHERE id = ?", [req.body.id], () => res.redirect('/admin'));
 });
 
-// Category Management
 app.post('/admin/add-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("INSERT INTO categories (name, seo_title, seo_desc, seo_keywords, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?)", [req.body.category_name, req.body.seo_title, req.body.seo_desc, req.body.seo_keywords, req.body.og_image, req.body.canonical_url], () => res.redirect('/admin'));
