@@ -104,7 +104,7 @@
                                 <span class="text-muted text-lg">$</span><span id="mainUsdValue">0.00</span>
                             </h3>
                         </div>
-                        <div id="walletAssets" class="space-y-2 mb-5 max-h-[150px] overflow-y-auto no-scrollbar">
+                        <div id="walletAssets" class="space-y-2 mb-5 max-h-[180px] overflow-y-auto no-scrollbar pr-1">
                             </div>
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <button onclick="openCustomModal('deposit')" class="casino-btn border py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-[#00ffaa] transition">Liquidity</button>
@@ -123,6 +123,7 @@
                         <h3 id="solDisplayHeader" class="text-3xl font-black tracking-tight flex items-center gap-2 text-white">
                             <span id="rainbetDisplaySOL">0.0000</span><span class="text-sm text-muted">SOL</span>
                         </h3>
+                        <p class="text-[11px] font-bold text-muted mt-0.5">≈ $<span id="rainbetDisplayUSD">0.00</span> USD</p>
                     </div>
                     <button onclick="openCustomModal('transfer')" class="w-full bg-[#00ffaa] hover:bg-[#00d68f] text-[#06090e] py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition shadow-md flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg> Bridge SOL
@@ -144,7 +145,7 @@
 
             <div class="lg:col-span-9 flex flex-col gap-4">
                 
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
                     <div onclick="selectGame('blackjack', this)" class="game-card active p-3 rounded-xl text-center">
                         <svg class="w-6 h-6 mx-auto mb-1 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" stroke-width="2"/><path d="M7 8h.01M7 12h.01M17 16h.01M17 12h.01" stroke-width="2" stroke-linecap="round"/></svg>
                         <p class="text-[10px] font-black uppercase tracking-widest text-white">Blackjack</p>
@@ -164,6 +165,10 @@
                     <div onclick="selectGame('vaults', this)" class="game-card p-3 rounded-xl text-center">
                         <svg class="w-6 h-6 mx-auto mb-1 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         <p class="text-[10px] font-black uppercase tracking-widest text-white">Vaults</p>
+                    </div>
+                    <div onclick="selectGame('highlow', this)" class="game-card p-3 rounded-xl text-center">
+                        <svg class="w-6 h-6 mx-auto mb-1 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7l4-4m0 0l4 4m-4-4v18"></path></svg>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-white">High/Low</p>
                     </div>
                 </div>
 
@@ -204,17 +209,33 @@
         // --- UTILITIES & STATE ---
         const sleep = ms => new Promise(res => setTimeout(res, ms));
         
+        // Persistent Data Logic
+        let savedMain = JSON.parse(localStorage.getItem('rainbetMainWallet')) || { BTC: 0, ETH: 0, USDT: 0, SOL: 0, XRP: 0, DOGE: 0, LTC: 0 };
+        let dbRainbetSol = parseFloat('<%= user ? user.sol_balance : 0 %>') || 0; // Pulls direct from DB so it NEVER resets
+        
         let balances = {
-            main: { BTC: 0, ETH: 0, USDT: 0, SOL: 0, XRP: 0, DOGE: 0, LTC: 0 },
-            rainbet: { SOL: 0 } // Default starts at 0
+            main: savedMain,
+            rainbet: { SOL: dbRainbetSol } 
         };
         let prices = { BTC: 65000, ETH: 3500, USDT: 1, SOL: 150, XRP: 0.6, DOGE: 0.15, LTC: 80 };
-        const coinColors = { BTC: 'text-yellow-500', ETH: 'text-blue-400', USDT: 'text-green-500', SOL: 'text-[#00ffaa]', XRP: 'text-gray-400', DOGE: 'text-yellow-300', LTC: 'text-gray-300' };
+        
+        // Professional SVG Icons Dictionary
+        const cryptoIcons = {
+            BTC: `<svg viewBox="0 0 32 32" class="w-5 h-5"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path d="M22 14.3c-.2-1.4-1.2-2.3-2.9-2.7l.6-2.4-1.5-.4-.6 2.3c-.4-.1-.8-.2-1.2-.3l.6-2.3-1.5-.4-.6 2.4c-.3-.1-.7-.2-1-.2L12.5 10l-.3 1.2s.8.2.8.2c.5.1.5.5.5.7l-1 3.9c.1 0 .2 0 .2.1-.1 0-.1-.1-.2-.1l-1.4 5.6c-.1.2-.3.3-.6.2 0 0-.8-.2-.8-.2l-.5 1.3 1.9.5c.4.1.8.2 1.1.3l-.6 2.5 1.5.4.6-2.4c.4.1.8.2 1.2.3l-.6 2.4 1.5.4.6-2.6c2.1.4 3.6.2 4.1-1.7.4-1.5-.1-2.4-1.1-2.9 1-.2 1.6-.9 1.8-2.1zM18.1 20c-.3 1.3-2.6.6-3.3.4l.9-3.6c.7.2 2.7.5 2.4 3.2zM18.8 14.8c-.3 1.1-2.1.6-2.6.4l.8-3.2c.6.1 2.1.4 1.8 2.8z" fill="#FFF"/></svg>`,
+            ETH: `<svg viewBox="0 0 32 32" class="w-5 h-5"><circle cx="16" cy="16" r="16" fill="#627EEA"/><path d="M16 4l-6.8 11.3L16 19.3l6.8-4L16 4zM16 21l-6.8-4L16 28l6.8-11L16 21z" fill="#FFF" opacity="0.6"/><path d="M16 4L9.2 15.3 16 19.3V4zM16 21L9.2 17 16 28v-7z" fill="#FFF"/></svg>`,
+            USDT: `<svg viewBox="0 0 32 32" class="w-5 h-5"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path d="M17.5 10.7V8.5h4.6V6H9.9v2.5h4.6v2.2c-3.6.2-6.5 1.1-6.5 2.3 0 1.1 2.9 2 6.5 2.3v7.3h3V15.2c3.6-.2 6.5-1.1 6.5-2.3 0-1.2-2.9-2.1-6.5-2.3zm-1.5 3c-2.8 0-5.2-.6-5.2-1.4 0-.7 2.4-1.4 5.2-1.4s5.2.6 5.2 1.4c0 .8-2.4 1.4-5.2 1.4z" fill="#FFF"/></svg>`,
+            SOL: `<svg viewBox="0 0 128 128" class="w-5 h-5"><path fill="#00FFA3" d="M21.5 98.4l15.9-27.4h74.5L96 98.4H21.5z"/><path fill="#03E1FF" d="M21.5 29.6l15.9 27.4h74.5L96 29.6H21.5z"/><path fill="#DC1FFF" d="M96 64H21.5l15.9 27.5H112L96 64z"/></svg>`,
+            XRP: `<svg viewBox="0 0 32 32" class="w-5 h-5"><circle cx="16" cy="16" r="16" fill="#23292F"/><path d="M25.7 10.2l-2.4-2.4-7.3 7.3-7.3-7.3-2.4 2.4 7.3 7.3-7.3 7.3 2.4 2.4 7.3-7.3 7.3 7.3 2.4-2.4-7.3-7.3 7.3-7.3z" fill="#FFF"/></svg>`,
+            DOGE: `<svg viewBox="0 0 32 32" class="w-5 h-5"><circle cx="16" cy="16" r="16" fill="#C2A633"/><path d="M11 9.5h3.5c4 0 6.5 2.5 6.5 6.5s-2.5 6.5-6.5 6.5H11V9.5zm3.5 10c2.5 0 4-1.5 4-3.5s-1.5-3.5-4-3.5h-1v7h1z" fill="#FFF"/></svg>`,
+            LTC: `<svg viewBox="0 0 32 32" class="w-5 h-5"><circle cx="16" cy="16" r="16" fill="#BFBBBB"/><path d="M10.8 17.5l1.6-6.4 2.6-.6-1.3 5h3.4l-.8 3h-3.4l-1.3 5.4H19l-.8 3H7.5l2.2-8.8-2.1.5.8-3 2.2-.6z" fill="#FFF"/></svg>`
+        };
         
         let currentBetSol = 0;
         let winRigPercentage = -1;
         let isGameActive = false;
         let resetTimeout;
+
+        function saveMainWallet() { localStorage.setItem('rainbetMainWallet', JSON.stringify(balances.main)); }
 
         // --- LIVE ORACLE ---
         async function fetchPrices() {
@@ -250,11 +271,14 @@
                     let valUsd = balances.main[coin] * prices[coin];
                     mainUsd += valUsd;
                     html += `
-                        <div class="flex justify-between items-center text-[11px] font-bold bg-black/30 p-2.5 rounded-xl border border-gray-500/20">
-                            <span class="${coinColors[coin]} tracking-widest">${coin}</span> 
+                        <div class="flex justify-between items-center bg-black/30 p-2.5 rounded-xl border border-gray-500/20 hover:bg-black/40 transition">
+                            <div class="flex items-center gap-2">
+                                ${cryptoIcons[coin]}
+                                <span class="text-white font-black tracking-widest text-[11px]">${coin}</span> 
+                            </div>
                             <div class="text-right">
-                                <span class="text-white block">${balances.main[coin].toFixed(coin==='USDT'||coin==='XRP'||coin==='DOGE'?2:4)}</span>
-                                <span class="text-[9px] text-muted block">$${valUsd.toFixed(2)}</span>
+                                <span class="text-white block font-bold text-xs">${balances.main[coin].toFixed(coin==='USDT'||coin==='XRP'||coin==='DOGE'?2:4)}</span>
+                                <span class="text-[9px] text-muted block font-black">$${valUsd.toFixed(2)}</span>
                             </div>
                         </div>`;
                 }
@@ -262,6 +286,10 @@
             document.getElementById('walletAssets').innerHTML = html || '<p class="text-xs text-muted text-center py-2">Node Empty. Add Liquidity.</p>';
             document.getElementById('mainUsdValue').innerText = mainUsd.toFixed(2);
             document.getElementById('rainbetDisplaySOL').innerText = balances.rainbet.SOL.toFixed(4);
+            
+            // Calc USD for Rainbet Sol
+            let rainbetUsd = balances.rainbet.SOL * prices.SOL;
+            document.getElementById('rainbetDisplayUSD').innerText = rainbetUsd.toFixed(2);
             
             const betUsd = parseFloat(document.getElementById('betAmountUsd').value) || 0;
             currentBetSol = betUsd / prices.SOL;
@@ -294,7 +322,7 @@
             if(isGameActive) return false;
             const betUsd = parseFloat(document.getElementById('betAmountUsd').value);
             if(isNaN(betUsd) || betUsd <= 0) { openCustomModal('error', 'Invalid contract size.'); return false; }
-            if(currentBetSol > balances.rainbet.SOL) { openCustomModal('error', 'Insufficient Rainbet SOL liquidity. Transfer funds from Main Node.'); return false; }
+            if(currentBetSol > balances.rainbet.SOL) { openCustomModal('error', 'Insufficient Rainbet SOL liquidity. Bridge funds from Main Node.'); return false; }
             
             balances.rainbet.SOL -= currentBetSol;
             updateWalletUI();
@@ -380,7 +408,7 @@
                 if(action === 'add') balances.main[asset] += amt; 
                 else if(action === 'remove' && balances.main[asset] >= amt) balances.main[asset] -= amt;
                 else { openCustomModal('error', 'Insufficient balance to burn.'); return; }
-                updateWalletUI(); closeCustomModal(); 
+                saveMainWallet(); updateWalletUI(); closeCustomModal(); 
             }
         }
         function execExchange() {
@@ -391,7 +419,7 @@
                 let usdValue = amt * prices[asset];
                 let solReceived = (usdValue / prices.SOL) * 0.985; // 1.5% fee
                 balances.main.SOL += solReceived;
-                updateWalletUI(); closeCustomModal(); 
+                saveMainWallet(); updateWalletUI(); closeCustomModal(); 
             } else { openCustomModal('error', 'Insufficient balance for exchange.'); }
         }
         function execTransfer() {
@@ -400,7 +428,7 @@
                 if(dir === 'in' && balances.main.SOL >= amt) { balances.main.SOL -= amt; balances.rainbet.SOL += amt; }
                 else if(dir === 'out' && balances.rainbet.SOL >= amt) { balances.rainbet.SOL -= amt; balances.main.SOL += amt; }
                 else { openCustomModal('error', 'Insufficient SOL balance.'); return; }
-                updateWalletUI(); syncCasinoToServer(); closeCustomModal();
+                saveMainWallet(); updateWalletUI(); syncCasinoToServer(); closeCustomModal();
             }
         }
 
@@ -424,7 +452,8 @@
             'mines': 'Arcade: Click tiles to reveal data. Multiplier builds. Hit a bomb = lose. Cashout anytime.',
             'tower': 'Arcade: Climb rows from bottom up. Pick 1 of 3 blocks. Bomb = lose. Safe = multiplier up.',
             'crash': 'Arcade: Multiplier climbs rapidly. It can crash at any millisecond. Cash out before the crash to win.',
-            'vaults': 'Arcade: 3 Cryptographic Vaults. Only 1 contains the Data Key. Pick correctly to win 2.8x.'
+            'vaults': 'Arcade: 3 Cryptographic Vaults. Only 1 contains the Data Key. Pick correctly to win 2.8x.',
+            'highlow': 'Cards: Guess if the next card is higher or lower. Build a streak to increase multiplier.'
         };
         function showTutorial() { uiTitle.innerText = activeGame.toUpperCase() + " RULES"; uiContent.innerText = tutorials[activeGame]; openCustomModal('tutorial'); uiBox.style.borderColor = '#4b5563'; }
 
@@ -439,6 +468,7 @@
 
         // --- GAME ENGINE ---
         const gameArea = document.getElementById('gameArea');
+        let activeGame = 'blackjack';
         
         function renderIdleState() {
             isGameActive = false;
@@ -447,7 +477,7 @@
             gameArea.classList.remove('win-glow', 'lose-glow');
             
             let vis = '';
-            if(activeGame === 'blackjack') {
+            if(activeGame === 'blackjack' || activeGame === 'highlow') {
                 vis = `<div class="flex justify-center mt-6 mb-12"><div class="playing-card card-hidden" style="transform: rotate(-15deg) translateX(-35px); box-shadow: -3px 0 15px rgba(0,0,0,0.6);"></div><div class="playing-card card-hidden" style="transform: rotate(-5deg) translateX(-12px); z-index: 2;"></div><div class="playing-card card-hidden" style="transform: rotate(5deg) translateX(12px); z-index: 3;"></div><div class="playing-card card-hidden" style="transform: rotate(15deg) translateX(35px); z-index: 4;"></div></div>`;
             } else if (activeGame === 'mines') {
                 vis = `<div class="mines-grid mb-12 opacity-50">${Array(25).fill('<div class="mine-tile"></div>').join('')}</div>`;
@@ -491,6 +521,7 @@
             if(activeGame === 'tower') initTower();
             if(activeGame === 'crash') initCrash();
             if(activeGame === 'vaults') initVaults();
+            if(activeGame === 'highlow') initHighLow();
         }
 
         function showResultUI(msg, isWin) {
@@ -504,6 +535,17 @@
             }, 3500);
 
             return `<div class="mt-8 w-full text-center text-sm font-black uppercase tracking-widest ${isWin ? 'text-[#00ffaa]' : 'text-red-500'} bg-black/40 p-4 rounded-xl border border-gray-500/30 shadow-inner z-20 relative">${msg}</div><div class="mt-4 text-[9px] font-bold text-muted uppercase tracking-widest animate-pulse text-center">Auto-resetting protocol...</div>`;
+        }
+
+        // --- CARDS UTILS ---
+        const suits = [{s:'&spades;', c:false}, {s:'&hearts;', c:true}, {s:'&diams;', c:true}, {s:'&clubs;', c:false}];
+        const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        let deck = [];
+        function createDeck() { deck = []; suits.forEach(s => values.forEach(v => deck.push({ suit: s.s, value: v, isRed: s.c, numValue: ['J','Q','K'].includes(v)?10:(v==='A'?11:parseInt(v)), rawVal: values.indexOf(v) }))); deck.sort(()=>Math.random()-0.5); }
+        function drawCard() { return deck.pop(); }
+        function renderCard(card, isHeld=false) {
+            if(!card) return `<div class="playing-card card-hidden anim-deal"></div>`;
+            return `<div class="playing-card ${card.isRed?'card-red':'card-black'} anim-deal ${isHeld?'card-held':''}"><span class="card-suit-top">${card.value}<br>${card.suit}</span>${card.suit}<span class="card-suit-bottom">${card.value}<br>${card.suit}</span></div>`;
         }
 
         // === 1. BLACKJACK ===
@@ -525,7 +567,7 @@
             if(forceWin()) { bjPlayer[0].value='A'; bjPlayer[0].numValue=11; bjPlayer[1].value='K'; bjPlayer[1].numValue=10; }
             renderBj(true, true);
             if(getBjScore(bjPlayer) === 21) { 
-                document.getElementById('bjControls').innerHTML = ''; // Lock
+                document.getElementById('bjControls').innerHTML = ''; 
                 await sleep(500); document.getElementById('bjControls').innerHTML = showResultUI("BLACKJACK! (2.5x)", true); rewardWin(2.5); 
             }
         }
@@ -558,7 +600,6 @@
         let mineGrid = []; let mineMult = 1.0; let gemsFound = 0; let mineActive = false;
         function initMines() {
             mineMult = 1.0; gemsFound = 0; mineActive = true;
-            // True Randomization
             let tempDeck = Array(20).fill('gem').concat(Array(5).fill('bomb'));
             mineGrid = forceWin() ? Array(25).fill('gem') : shuffleArray(tempDeck);
             renderMines(true);
@@ -567,11 +608,11 @@
             let html = `<div class="flex flex-col items-center w-full"><div class="flex justify-between w-full max-w-[300px] mb-4"><span class="text-[10px] text-muted font-black uppercase tracking-widest">Bombs: 5</span><span class="text-[10px] text-[#00ffaa] font-black uppercase tracking-widest">Mult: ${mineMult.toFixed(2)}x</span></div><div class="mines-grid mb-6 relative">`;
             for(let i=0; i<25; i++) {
                 let state = mineGrid[i];
-                if(state === 'gem' || state === 'bomb') { // Unrevealed
+                if(state === 'gem' || state === 'bomb') { 
                     html += `<div class="mine-tile" ${interactive ? `onclick="clickMine(${i})"` : ''}></div>`;
-                } else if(state === 'safe') { // Revealed gem
+                } else if(state === 'safe') { 
                     html += `<div class="mine-tile safe revealed"><svg class="w-5 h-5 text-[#00ffaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>`;
-                } else if(state === 'exploded' || state === 'revealed_bomb') { // Boom
+                } else if(state === 'exploded' || state === 'revealed_bomb') { 
                     html += `<div class="mine-tile bomb revealed ${state==='exploded'?'animate-pulse':''}"><svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16z" clip-rule="evenodd"/></svg></div>`;
                 }
             }
@@ -657,7 +698,6 @@
         let crashMult = 1.00; let crashTarget = 1.00; let crashActive = false;
         function initCrash() {
             crashMult = 1.00; crashActive = true;
-            // House edge algo: ~1% instant crash, otherwise exponential target
             let r = Math.random();
             crashTarget = r < 0.03 ? 1.00 : (100 / (Math.random() * 100)); 
             if(forceWin()) crashTarget = 15.00;
@@ -674,7 +714,7 @@
         }
         function updateCrash() {
             if(!crashActive) return;
-            crashMult += 0.005 + (crashMult * 0.002); // Accelerate
+            crashMult += 0.005 + (crashMult * 0.002); 
             
             const disp = document.getElementById('crashDisplay');
             if(disp) {
@@ -698,12 +738,12 @@
             rewardWin(crashMult);
         }
 
-        // === 5. VAULTS (Shells) ===
+        // === 5. VAULTS ===
         let vaultActive = false; let winningVault = 0; let vaultState = [0,0,0];
         function initVaults() {
             vaultActive = true; winningVault = Math.floor(Math.random() * 3);
-            if(forceWin()) winningVault = -1; // Rig handles in click logic
-            vaultState = [0,0,0]; // 0=closed, 1=win, 2=lose
+            if(forceWin()) winningVault = -1; 
+            vaultState = [0,0,0]; 
             renderVaults();
         }
         function renderVaults() {
@@ -725,20 +765,59 @@
             vaultActive = false;
             
             if(forceWin() || i === winningVault) {
-                vaultState[i] = 1; // Win
+                vaultState[i] = 1; 
                 for(let j=0;j<3;j++) if(j!==i) vaultState[j] = 2;
                 renderVaults();
                 document.getElementById('vaultControls').innerHTML = showResultUI("Data Key Found (2.8x)", true);
                 rewardWin(2.8);
             } else {
-                vaultState[i] = 2; // Lose
+                vaultState[i] = 2; 
                 for(let j=0;j<3;j++) if(j===winningVault) vaultState[j] = 1; else vaultState[j] = 2;
                 renderVaults();
                 document.getElementById('vaultControls').innerHTML = showResultUI("Vault Empty. Terminated.", false);
             }
         }
 
+        // === 6. HIGH / LOW STREAK ===
+        let hlCard = null; let hlMult = 1.0;
+        function initHighLow() { createDeck(); hlCard = drawCard(); hlMult = 1.0; renderHighLow(); }
+        function renderHighLow() {
+            gameArea.innerHTML = `
+                <div class="flex flex-col items-center w-full max-w-sm">
+                    <p class="text-[10px] font-black text-[#00ffaa] uppercase tracking-widest mb-8 border border-[#00ffaa]/30 px-6 py-2 rounded-full bg-[#00ffaa]/5">Live Multiplier: ${hlMult.toFixed(2)}x</p>
+                    <div class="mb-12 flex items-center justify-center scale-110">${renderCard(hlCard)}</div>
+                    <div id="hlControls" class="flex gap-3 justify-center w-full flex-wrap">
+                        <button onclick="resolveHL('higher')" class="flex-1 casino-btn border text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-sm hover:scale-105">Higher</button>
+                        <button onclick="resolveHL('lower')" class="flex-1 casino-btn border text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-sm hover:scale-105">Lower</button>
+                        ${hlMult > 1.0 ? `<button onclick="cashoutHL()" class="w-full bg-[#00ffaa] text-[#06090e] font-black py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-md mt-2 hover:scale-105">Cashout (${(currentBetSol * hlMult).toFixed(4)} SOL)</button>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        async function resolveHL(guess) {
+            document.getElementById('hlControls').innerHTML = ''; // Lock
+            let nextCard = drawCard();
+            let currRaw = hlCard.rawVal;
+            if(forceWin()) {
+                if(guess === 'higher' && nextCard.rawVal <= currRaw) nextCard.rawVal = currRaw === 12 ? 11 : currRaw + 1; 
+                if(guess === 'lower' && nextCard.rawVal >= currRaw) nextCard.rawVal = currRaw === 0 ? 1 : currRaw - 1;
+            }
+            let won = (guess === 'higher' && nextCard.rawVal > currRaw) || (guess === 'lower' && nextCard.rawVal < currRaw);
+            
+            gameArea.innerHTML = `<div class="flex gap-8 items-center justify-center mb-8 scale-110"><div class="opacity-50 scale-90">${renderCard(hlCard)}</div>${renderCard(nextCard)}</div><div id="hlControls" class="w-full max-w-sm"></div>`;
+            
+            await sleep(800);
+            if(nextCard.rawVal === currRaw) { hlCard = nextCard; renderHighLow(); } 
+            else if(won) { hlMult += 0.4; hlCard = nextCard; renderHighLow(); }
+            else { document.getElementById('hlControls').innerHTML = showResultUI("Incorrect Prediction. Streak Terminated.", false); }
+        }
+        function cashoutHL() {
+            document.getElementById('hlControls').innerHTML = showResultUI(`Secured at ${hlMult.toFixed(2)}x`, true);
+            rewardWin(hlMult);
+        }
+
         // INIT
+        updateWalletUI(); // Setup initially mapped values
         renderIdleState();
     </script>
 </body>
