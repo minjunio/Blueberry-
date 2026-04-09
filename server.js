@@ -273,6 +273,13 @@ app.get('/admin', (req, res) => {
 });
 
 // --- CASINO API ENDPOINTS ---
+
+// Load the Casino Lounge UI
+app.get('/admin/casino', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    renderSafe(res, 'casino', { user: req.session.user });
+});
+
 app.post('/admin/casino/sync', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.status(403).json({error: 'Unauthorized'});
     const { balance, rig_percentage, logAction, logAmount } = req.body;
