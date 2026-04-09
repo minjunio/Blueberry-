@@ -4,6 +4,17 @@
     <title>Admin - ExamHub</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
+    <style>
+        .playing-card {
+            width: 60px; height: 85px; background: white; border-radius: 8px; border: 1px solid #e2e8f0;
+            display: flex; justify-content: center; items-center; font-weight: 900; font-size: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative;
+        }
+        .card-red { color: #ef4444; }
+        .card-black { color: #1f2937; }
+        .card-suit-top { position: absolute; top: 4px; left: 6px; font-size: 0.75rem; }
+        .card-suit-bottom { position: absolute; bottom: 4px; right: 6px; font-size: 0.75rem; transform: rotate(180deg); }
+    </style>
 </head>
 <body class="p-4 md:p-8 bg-gray-50">
     <div class="max-w-7xl mx-auto relative z-10 mt-6">
@@ -150,7 +161,109 @@
                 </div>
             </div>
         </div>
-    </div>
+
+        <div class="mt-12 bg-[#1a1b26] rounded-3xl p-6 shadow-2xl border-4 border-indigo-900 relative overflow-hidden mb-10 text-white">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-black text-indigo-300">Admin Lounge 🎰</h2>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 tracking-[0.2em]">Powered by Rainbet</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1">
+                    <div class="bg-[#24283b] border-2 border-indigo-500/30 rounded-2xl p-5 hover:border-indigo-400 transition cursor-pointer select-none relative overflow-hidden group" ondblclick="openWalletPopup()">
+                        <div class="absolute inset-0 bg-blue-500/10 group-hover:bg-blue-500/20 transition"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-center mb-2">
+                                <p class="text-xs font-black text-indigo-300 uppercase tracking-wider">Blue Wallet</p>
+                                <div class="flex items-center gap-1">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase">Live SOL</p>
+                                </div>
+                            </div>
+                            <h3 class="text-3xl font-black mb-1"><span id="solDisplay">0.0000</span> <span class="text-lg text-gray-400">SOL</span></h3>
+                            <p class="text-sm font-bold text-green-400">≈ $<span id="usdDisplay">0.00</span> USD</p>
+                            <p class="text-[10px] text-gray-500 font-bold mt-4">Double-click to manage virtual funds.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#24283b] border-2 border-gray-700 rounded-2xl p-5 mt-4">
+                        <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Place Bet (USD)</label>
+                        <div class="flex gap-2">
+                            <span class="bg-gray-800 text-gray-400 font-black px-4 py-3 rounded-xl border border-gray-700">$</span>
+                            <input type="number" id="betAmountUsd" value="10" min="1" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 font-black text-white outline-none focus:border-indigo-500 transition">
+                        </div>
+                        <p class="text-[10px] text-gray-500 font-bold mt-2 text-right">≈ <span id="betAmountSol">0.00</span> SOL will be deducted</p>
+                        
+                        <div class="grid grid-cols-2 gap-2 mt-4">
+                            <button onclick="startGame('blackjack')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3 rounded-xl transition shadow-lg text-sm">Play Blackjack</button>
+                            <button onclick="startGame('highlow')" class="bg-purple-600 hover:bg-purple-500 text-white font-black py-3 rounded-xl transition shadow-lg text-sm">Play High/Low</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-[#24283b] border-2 border-gray-700 rounded-2xl p-6 flex flex-col justify-center min-h-[300px] relative">
+                    
+                    <div id="gameIdle" class="text-center">
+                        <p class="text-5xl mb-4">🃏</p>
+                        <h3 class="text-xl font-black text-gray-400">Select a game and place your bet to start.</h3>
+                    </div>
+
+                    <div id="gameBlackjack" class="hidden h-full flex flex-col justify-between">
+                        <div class="mb-4">
+                            <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Dealer's Hand (<span id="bjDealerScore">?</span>)</p>
+                            <div id="bjDealerCards" class="flex gap-2 flex-wrap min-h-[85px]"></div>
+                        </div>
+                        
+                        <div id="bjResult" class="text-center font-black text-2xl my-4 py-2 rounded-xl hidden"></div>
+
+                        <div class="mt-4">
+                            <div class="flex justify-between items-end mb-2">
+                                <p class="text-xs font-black text-indigo-300 uppercase tracking-wider">Your Hand (<span id="bjPlayerScore">0</span>)</p>
+                                <div id="bjControls" class="flex gap-2">
+                                    <button onclick="bjHit()" class="bg-blue-500 hover:bg-blue-400 text-white font-black px-4 py-1.5 rounded-lg text-xs transition">HIT</button>
+                                    <button onclick="bjStand()" class="bg-red-500 hover:bg-red-400 text-white font-black px-4 py-1.5 rounded-lg text-xs transition">STAND</button>
+                                </div>
+                            </div>
+                            <div id="bjPlayerCards" class="flex gap-2 flex-wrap min-h-[85px]"></div>
+                        </div>
+                    </div>
+
+                    <div id="gameHighlow" class="hidden h-full flex flex-col items-center justify-center text-center">
+                        <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-4">Will the next card be higher or lower?</p>
+                        <div class="flex gap-8 items-center justify-center mb-8">
+                            <div id="hlCurrentCard" class="playing-card flex items-center justify-center text-3xl font-black shadow-2xl scale-125">?</div>
+                        </div>
+                        <div id="hlResult" class="text-center font-black text-xl mb-6 hidden"></div>
+                        <div id="hlControls" class="flex gap-4">
+                            <button onclick="hlGuess('higher')" class="bg-green-600 hover:bg-green-500 text-white font-black px-6 py-3 rounded-xl transition shadow-lg w-32 flex flex-col items-center"><span class="text-xl">⬆</span> Higher</button>
+                            <button onclick="hlGuess('lower')" class="bg-red-600 hover:bg-red-500 text-white font-black px-6 py-3 rounded-xl transition shadow-lg w-32 flex flex-col items-center"><span class="text-xl">⬇</span> Lower</button>
+                        </div>
+                        <button id="hlRestart" onclick="startGame('highlow')" class="hidden mt-4 bg-gray-700 hover:bg-gray-600 text-white font-black px-6 py-2 rounded-xl transition text-sm">Play Again</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="walletModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm justify-center items-center z-50 p-4">
+            <div class="bg-[#1a1b26] border-2 border-indigo-500 rounded-3xl w-full max-w-sm p-6 shadow-2xl text-white">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-black text-indigo-300">Blue Wallet Manager</h2>
+                    <button onclick="closeWalletPopup()" class="text-gray-500 hover:text-white font-black">✕</button>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Modify Balance (SOL)</label>
+                    <input type="number" id="walletModifyInput" step="0.1" placeholder="Enter SOL amount" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 font-black text-white outline-none focus:border-indigo-500">
+                </div>
+                
+                <div class="flex gap-2">
+                    <button onclick="modifyWallet('add')" class="w-1/2 bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl transition shadow-md">+ Add</button>
+                    <button onclick="modifyWallet('remove')" class="w-1/2 bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl transition shadow-md">- Remove</button>
+                </div>
+            </div>
+        </div>
+        </div>
 
     <div id="createAnnModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
         <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8 border-4 border-blue-400">
@@ -414,6 +527,224 @@
             document.getElementById('editCanonicalUrl').value = element.getAttribute('data-canonical');
             document.getElementById('editCatModal').classList.remove('hidden');
             document.getElementById('editCatModal').classList.add('flex');
+        }
+    </script>
+
+    <script>
+        // Casino State
+        let solBalance = 5.0; // Default virtual balance
+        let currentSolPriceUsd = 0;
+        let currentBetSol = 0;
+        
+        // Deck Tools
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        let deck = [];
+
+        // DOM Elements
+        const displaySol = document.getElementById('solDisplay');
+        const displayUsd = document.getElementById('usdDisplay');
+        const betInputUsd = document.getElementById('betAmountUsd');
+        const betInputSol = document.getElementById('betAmountSol');
+        
+        // Initialize Live Pricing
+        async function fetchLiveSolPrice() {
+            try {
+                const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT');
+                const data = await res.json();
+                currentSolPriceUsd = parseFloat(data.price);
+                updateWalletUI();
+            } catch (err) { console.error("Price fetch failed"); }
+        }
+        setInterval(fetchLiveSolPrice, 10000);
+        fetchLiveSolPrice();
+
+        function updateWalletUI() {
+            displaySol.innerText = solBalance.toFixed(4);
+            displayUsd.innerText = (solBalance * currentSolPriceUsd).toFixed(2);
+            
+            // Update projected bet
+            const betUsd = parseFloat(betInputUsd.value) || 0;
+            if(currentSolPriceUsd > 0) {
+                currentBetSol = betUsd / currentSolPriceUsd;
+                betInputSol.innerText = currentBetSol.toFixed(4);
+            }
+        }
+
+        betInputUsd.addEventListener('input', updateWalletUI);
+
+        // Wallet Modal Logic
+        function openWalletPopup() {
+            document.getElementById('walletModal').classList.remove('hidden');
+            document.getElementById('walletModal').classList.add('flex');
+        }
+        function closeWalletPopup() {
+            document.getElementById('walletModal').classList.add('hidden');
+            document.getElementById('walletModal').classList.remove('flex');
+            document.getElementById('walletModifyInput').value = '';
+        }
+        function modifyWallet(action) {
+            const amount = parseFloat(document.getElementById('walletModifyInput').value);
+            if(isNaN(amount) || amount <= 0) return alert("Enter a valid number");
+            if(action === 'add') solBalance += amount;
+            if(action === 'remove' && solBalance >= amount) solBalance -= amount;
+            else if(action === 'remove') return alert("Insufficient balance");
+            updateWalletUI();
+            closeWalletPopup();
+        }
+
+        // Generic Card Functions
+        function createDeck() {
+            deck = [];
+            for(let s of suits) {
+                for(let v of values) {
+                    deck.push({ suit: s, value: v, 
+                        isRed: s === '♥' || s === '♦',
+                        numValue: ['J','Q','K'].includes(v) ? 10 : (v === 'A' ? 11 : parseInt(v))
+                    });
+                }
+            }
+            deck.sort(() => Math.random() - 0.5); // shuffle
+        }
+        function drawCard() { return deck.pop(); }
+        function renderCard(card) {
+            const colorClass = card.isRed ? 'card-red' : 'card-black';
+            return `<div class="playing-card ${colorClass}">
+                        <span class="card-suit-top">${card.value}${card.suit}</span>
+                        ${card.value}
+                        <span class="card-suit-bottom">${card.value}${card.suit}</span>
+                    </div>`;
+        }
+
+        // Game State Switcher
+        function startGame(gameType) {
+            const betUsd = parseFloat(betInputUsd.value);
+            if(isNaN(betUsd) || betUsd <= 0) return alert("Enter a valid bet amount.");
+            if(currentBetSol > solBalance) return alert("Insufficient Virtual SOL balance. Double-click the Blue Wallet to add more.");
+
+            solBalance -= currentBetSol;
+            updateWalletUI();
+
+            document.getElementById('gameIdle').classList.add('hidden');
+            document.getElementById('gameBlackjack').classList.add('hidden');
+            document.getElementById('gameHighlow').classList.add('hidden');
+
+            if(gameType === 'blackjack') initBlackjack();
+            if(gameType === 'highlow') initHighLow();
+        }
+
+        // --- BLACKJACK LOGIC ---
+        let bjPlayer = [], bjDealer = [];
+        function initBlackjack() {
+            document.getElementById('gameBlackjack').classList.remove('hidden');
+            document.getElementById('bjResult').classList.add('hidden');
+            document.getElementById('bjControls').classList.remove('hidden');
+            createDeck();
+            bjPlayer = [drawCard(), drawCard()];
+            bjDealer = [drawCard(), drawCard()];
+            renderBj();
+        }
+        function getScore(hand) {
+            let score = 0, aces = 0;
+            hand.forEach(c => { score += c.numValue; if(c.value === 'A') aces++; });
+            while(score > 21 && aces > 0) { score -= 10; aces--; }
+            return score;
+        }
+        function renderBj(hideDealerCard = true) {
+            const pScore = getScore(bjPlayer);
+            document.getElementById('bjPlayerScore').innerText = pScore;
+            document.getElementById('bjPlayerCards').innerHTML = bjPlayer.map(renderCard).join('');
+            
+            if(hideDealerCard) {
+                document.getElementById('bjDealerScore').innerText = '?';
+                document.getElementById('bjDealerCards').innerHTML = renderCard(bjDealer[0]) + `<div class="playing-card bg-indigo-900 border-indigo-700"></div>`;
+            } else {
+                document.getElementById('bjDealerScore').innerText = getScore(bjDealer);
+                document.getElementById('bjDealerCards').innerHTML = bjDealer.map(renderCard).join('');
+            }
+        }
+        function bjHit() {
+            bjPlayer.push(drawCard());
+            if(getScore(bjPlayer) > 21) endBj("BUST! Dealer Wins.", "lose");
+            else renderBj();
+        }
+        function bjStand() {
+            document.getElementById('bjControls').classList.add('hidden');
+            let dScore = getScore(bjDealer);
+            while(dScore < 17) {
+                bjDealer.push(drawCard());
+                dScore = getScore(bjDealer);
+            }
+            renderBj(false);
+            const pScore = getScore(bjPlayer);
+            
+            if(dScore > 21) endBj("Dealer Busts! You Win!", "win");
+            else if(pScore > dScore) endBj("You Win!", "win");
+            else if(pScore < dScore) endBj("Dealer Wins.", "lose");
+            else endBj("Push (Tie)", "push");
+        }
+        function endBj(msg, result) {
+            renderBj(false);
+            document.getElementById('bjControls').classList.add('hidden');
+            const resEl = document.getElementById('bjResult');
+            resEl.innerText = msg;
+            resEl.classList.remove('hidden', 'bg-green-500/20', 'text-green-400', 'bg-red-500/20', 'text-red-400', 'bg-gray-500/20', 'text-gray-400');
+            
+            if(result === 'win') {
+                solBalance += (currentBetSol * 2);
+                resEl.classList.add('bg-green-500/20', 'text-green-400');
+            } else if (result === 'push') {
+                solBalance += currentBetSol;
+                resEl.classList.add('bg-gray-500/20', 'text-gray-400');
+            } else {
+                resEl.classList.add('bg-red-500/20', 'text-red-400');
+            }
+            updateWalletUI();
+        }
+
+        // --- HIGH/LOW LOGIC ---
+        let hlCurrent = null;
+        function initHighLow() {
+            document.getElementById('gameHighlow').classList.remove('hidden');
+            document.getElementById('hlResult').classList.add('hidden');
+            document.getElementById('hlControls').classList.remove('hidden');
+            document.getElementById('hlRestart').classList.add('hidden');
+            createDeck();
+            hlCurrent = drawCard();
+            document.getElementById('hlCurrentCard').outerHTML = `<div id="hlCurrentCard" class="playing-card flex items-center justify-center text-3xl font-black shadow-2xl scale-125 mx-4 ${hlCurrent.isRed?'card-red':'card-black'}"><span class="card-suit-top">${hlCurrent.value}${hlCurrent.suit}</span>${hlCurrent.value}<span class="card-suit-bottom">${hlCurrent.value}${hlCurrent.suit}</span></div>`;
+        }
+        function hlGuess(guess) {
+            const nextCard = drawCard();
+            document.getElementById('hlControls').classList.add('hidden');
+            document.getElementById('hlRestart').classList.remove('hidden');
+            
+            // Render next card next to current
+            const board = document.getElementById('hlCurrentCard').parentNode;
+            board.innerHTML += `<div class="playing-card flex items-center justify-center text-3xl font-black shadow-2xl scale-125 mx-4 ${nextCard.isRed?'card-red':'card-black'} animate-fade-in-up"><span class="card-suit-top">${nextCard.value}${nextCard.suit}</span>${nextCard.value}<span class="card-suit-bottom">${nextCard.value}${nextCard.suit}</span></div>`;
+
+            let val1 = hlCurrent.numValue;
+            let val2 = nextCard.numValue;
+            let won = false;
+
+            if(guess === 'higher' && val2 > val1) won = true;
+            if(guess === 'lower' && val2 < val1) won = true;
+
+            const resEl = document.getElementById('hlResult');
+            resEl.classList.remove('hidden', 'text-green-400', 'text-red-400');
+            
+            if(val1 === val2) {
+                resEl.innerText = "Tie! Bet Returned.";
+                resEl.classList.add('text-gray-400');
+                solBalance += currentBetSol;
+            } else if (won) {
+                resEl.innerText = "Correct! +1.9x Multiplier";
+                resEl.classList.add('text-green-400');
+                solBalance += (currentBetSol * 1.9); // house edge
+            } else {
+                resEl.innerText = "Wrong! You Lose.";
+                resEl.classList.add('text-red-400');
+            }
+            updateWalletUI();
         }
     </script>
 </body>
