@@ -277,47 +277,275 @@
         </div>
     </div>
 
-    <%- include('partials/admin-modals') %> <div id="createAnnModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-2xl shadow-2xl">
-            <h2 class="font-black text-xl mb-4 text-gray-900">Post Announcement</h2>
+    <div id="createAnnModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-black text-2xl text-gray-900">Post Announcement</h2>
+                <button onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">✕</button>
+            </div>
             <form action="/admin/add-announcement" method="POST" class="space-y-4">
-                <input type="text" name="title" required placeholder="Headline" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm font-bold">
-                <select name="category" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm font-bold"><option value="All">All</option></select>
-                <textarea name="content" required rows="4" placeholder="Content..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm font-bold"></textarea>
-                <div class="flex justify-end gap-2"><button type="button" onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="px-4 py-2 text-sm font-bold text-gray-500">Cancel</button><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm">Post</button></div>
+                <div>
+                    <label class="block text-sm font-black mb-1 text-gray-600">Headline</label>
+                    <input type="text" name="title" required placeholder="New Update..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-black mb-1 text-gray-600">Display in Directory (or All)</label>
+                    <select name="category" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm appearance-none">
+                        <option value="All">All Pages (Global Announcement)</option>
+                        <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %> Only</option> <% }) %>
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Image 1 URL</label>
+                        <input type="url" name="image1" placeholder="https://..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Image 2 URL (Optional)</label>
+                        <input type="url" name="image2" placeholder="https://..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-black mb-1 text-gray-600">Content</label>
+                    <textarea name="content" required rows="6" placeholder="Write your announcement here..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 resize-none text-sm"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="bg-gray-900 text-white font-black px-6 py-2 rounded-lg shadow-sm hover:bg-black transition">Publish</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editAnnModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-black text-2xl text-gray-900">Edit Announcement</h2>
+                <button onclick="document.getElementById('editAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">✕</button>
+            </div>
+            <form action="/admin/edit-announcement" method="POST" class="space-y-4">
+                <input type="hidden" name="id" id="editAnnId">
+                <div>
+                    <label class="block text-sm font-black mb-1 text-gray-600">Headline</label>
+                    <input type="text" name="title" id="editAnnTitle" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-gray-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-black mb-1 text-gray-600">Directory</label>
+                    <select name="category" id="editAnnCategory" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-gray-500 text-sm appearance-none">
+                        <option value="All">All Pages</option>
+                        <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %> Only</option> <% }) %>
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Image 1 URL</label>
+                        <input type="url" name="image1" id="editAnnImg1" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-gray-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Image 2 URL</label>
+                        <input type="url" name="image2" id="editAnnImg2" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-gray-500 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-black mb-1 text-gray-600">Content</label>
+                    <textarea name="content" id="editAnnContent" required rows="6" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-gray-500 resize-none text-sm"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="document.getElementById('editAnnModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="bg-gray-800 text-white font-black px-6 py-2 rounded-lg shadow-sm hover:bg-black transition">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="createPostModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-black text-2xl text-gray-900">Create New Product</h2>
+                <button onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">✕</button>
+            </div>
+            <form action="/admin/add-product" method="POST" class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Product Title</label>
+                        <input type="text" name="title" required placeholder="Name" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Directory</label>
+                        <select name="category" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm appearance-none">
+                            <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %></option> <% }) %>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
+                        <input type="number" step="0.01" name="price" required placeholder="200.00" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Tier Classification</label>
+                        <select name="tier" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm appearance-none cursor-pointer">
+                            <option value="Standard">Standard Tier</option>
+                            <option value="Pro">Pro Tier</option>
+                            <option value="Ultra">Ultra Tier (> $900)</option>
+                            <option value="Custom">Custom Pricing</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Supported OS/Platform</label>
+                        <input type="text" name="platform" placeholder="Windows/Mac" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
+                        <input type="url" name="image_url" placeholder="https://..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-black mb-1 text-gray-600">Detailed Description</label>
+                    <textarea name="description" required rows="4" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 resize-none text-sm"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="bg-blue-600 text-white font-black px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 transition">Create Inventory</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editPostModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-black text-2xl text-gray-900">Edit Product</h2>
+                <button onclick="document.getElementById('editPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">✕</button>
+            </div>
+            <form action="/admin/edit-product" method="POST" class="space-y-5">
+                <input type="hidden" name="id" id="editPostId">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Product Title</label>
+                        <input type="text" name="title" id="editPostTitle" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Directory</label>
+                        <select name="category" id="editPostCategory" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm appearance-none">
+                            <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %></option> <% }) %>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
+                        <input type="number" step="0.01" name="price" id="editPostPrice" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Tier Classification</label>
+                        <select name="tier" id="editPostTier" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm appearance-none cursor-pointer">
+                            <option value="Standard">Standard Tier</option>
+                            <option value="Pro">Pro Tier</option>
+                            <option value="Ultra">Ultra Tier (> $900)</option>
+                            <option value="Custom">Custom Pricing</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Supported OS/Platform</label>
+                        <input type="text" name="platform" id="editPostPlatform" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
+                        <input type="url" name="image_url" id="editPostImage" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-black mb-1 text-gray-600">Detailed Description</label>
+                    <textarea name="description" id="editPostDesc" required rows="4" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-blue-500 resize-none text-sm"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="document.getElementById('editPostModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="bg-gray-800 text-white font-black px-6 py-2 rounded-lg shadow-md hover:bg-black transition">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="catModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl my-8">
+            <h2 class="font-black text-xl mb-4 text-gray-900">Configure Directory</h2>
+            <form action="/admin/add-category" method="POST" class="space-y-4">
+                <div><input type="text" name="category_name" required placeholder="Directory Name (e.g. Software)" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm"></div>
+                <div><input type="text" name="seo_title" placeholder="Meta Title" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm"></div>
+                <div><textarea name="seo_desc" placeholder="Meta Description" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm resize-none"></textarea></div>
+                <div><input type="text" name="seo_keywords" placeholder="Meta Keywords" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm"></div>
+                <div><input type="url" name="og_image" placeholder="Open Graph Image URL" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm"></div>
+                <div><input type="url" name="canonical_url" placeholder="Canonical URL" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm"></div>
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="document.getElementById('catModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="bg-[#10b981] text-white font-black px-6 py-2 rounded-lg shadow-sm">Initialize</button>
+                </div>
             </form>
         </div>
     </div>
     
-    <div id="createPostModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-2xl shadow-2xl">
-            <h2 class="font-black text-xl mb-4 text-gray-900">Create Product</h2>
-            <form action="/admin/add-product" method="POST" class="space-y-4">
-                <input type="text" name="title" required placeholder="Title" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm font-bold">
-                <input type="number" step="0.01" name="price" required placeholder="Price" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm font-bold">
-                <textarea name="description" required rows="4" placeholder="Description..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm font-bold"></textarea>
-                <div class="flex justify-end gap-2"><button type="button" onclick="document.getElementById('createPostModal').classList.add('hidden')" class="px-4 py-2 text-sm font-bold text-gray-500">Cancel</button><button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm">Create</button></div>
+    <div id="editCatModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl my-8">
+            <h2 class="font-black text-xl mb-4 text-gray-900">Update Directory Config</h2>
+            <form action="/admin/edit-category" method="POST" class="space-y-4">
+                <input type="hidden" name="original_name" id="editOriginalName">
+                <div><input type="text" id="editCatName" name="category_name" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm"></div>
+                <div><input type="text" id="editSeoTitle" name="seo_title" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm"></div>
+                <div><textarea id="editSeoDesc" name="seo_desc" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm resize-none"></textarea></div>
+                <div><input type="text" id="editSeoKeywords" name="seo_keywords" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm"></div>
+                <div><input type="url" id="editOgImage" name="og_image" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm"></div>
+                <div><input type="url" id="editCanonicalUrl" name="canonical_url" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 font-bold outline-none focus:border-blue-500 text-sm"></div>
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="bg-gray-800 text-white font-black px-6 py-2 rounded-lg shadow-sm">Update</button>
+                </div>
             </form>
         </div>
     </div>
-
-    <div id="catModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl">
-            <h2 class="font-black text-xl mb-4 text-gray-900">Add Directory</h2>
-            <form action="/admin/add-category" method="POST" class="space-y-4">
-                <input type="text" name="category_name" required placeholder="Name" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm font-bold">
-                <div class="flex justify-end gap-2"><button type="button" onclick="document.getElementById('catModal').classList.add('hidden')" class="px-4 py-2 text-sm font-bold text-gray-500">Cancel</button><button type="submit" class="bg-[#10b981] text-white px-4 py-2 rounded-lg font-bold text-sm">Save</button></div>
-            </form>
-        </div>
-    </div>
-
-    <div id="editAnnModal" class="hidden"><div id="editAnnId"></div><div id="editAnnTitle"></div><div id="editAnnCategory"></div><div id="editAnnImg1"></div><div id="editAnnImg2"></div><div id="editAnnContent"></div></div>
-    <div id="editPostModal" class="hidden"><div id="editPostId"></div><div id="editPostTitle"></div><div id="editPostCategory"></div><div id="editPostPrice"></div><div id="editPostTier"></div><div id="editPostPlatform"></div><div id="editPostImage"></div><div id="editPostDesc"></div></div>
-    <div id="editCatModal" class="hidden"><div id="editOriginalName"></div><div id="editCatName"></div><div id="editSeoTitle"></div><div id="editSeoDesc"></div><div id="editSeoKeywords"></div><div id="editOgImage"></div><div id="editCanonicalUrl"></div></div>
 
 
     <script>
-        // Custom Modal Logic
+        // Store Admin Modal Handlers
+        function openEditPostModal(btn) {
+            document.getElementById('editPostId').value = btn.getAttribute('data-id');
+            document.getElementById('editPostTitle').value = btn.getAttribute('data-title');
+            document.getElementById('editPostCategory').value = btn.getAttribute('data-category');
+            document.getElementById('editPostPrice').value = btn.getAttribute('data-price');
+            document.getElementById('editPostTier').value = btn.getAttribute('data-tier');
+            document.getElementById('editPostPlatform').value = btn.getAttribute('data-platform');
+            document.getElementById('editPostImage').value = btn.getAttribute('data-image');
+            document.getElementById('editPostDesc').value = btn.getAttribute('data-desc');
+            document.getElementById('editPostModal').classList.remove('hidden'); 
+        }
+
+        function openEditAnnModal(btn) {
+            document.getElementById('editAnnId').value = btn.getAttribute('data-id');
+            document.getElementById('editAnnTitle').value = btn.getAttribute('data-title');
+            document.getElementById('editAnnCategory').value = btn.getAttribute('data-category');
+            document.getElementById('editAnnImg1').value = btn.getAttribute('data-img1');
+            document.getElementById('editAnnImg2').value = btn.getAttribute('data-img2');
+            document.getElementById('editAnnContent').value = btn.getAttribute('data-content');
+            document.getElementById('editAnnModal').classList.remove('hidden'); 
+        }
+
+        function openEditCatModal(element) {
+            document.getElementById('editOriginalName').value = element.getAttribute('data-name');
+            document.getElementById('editCatName').value = element.getAttribute('data-name');
+            document.getElementById('editSeoTitle').value = element.getAttribute('data-title');
+            document.getElementById('editSeoDesc').value = element.getAttribute('data-desc');
+            document.getElementById('editSeoKeywords').value = element.getAttribute('data-keywords');
+            document.getElementById('editOgImage').value = element.getAttribute('data-ogimage');
+            document.getElementById('editCanonicalUrl').value = element.getAttribute('data-canonical');
+            document.getElementById('editCatModal').classList.remove('hidden'); 
+        }
+
+        // ----------------------------------------------------
+        // Casino Custom Modal Logic
         const uiModal = document.getElementById('customUIModal');
         const uiBox = document.getElementById('customUIBox');
         const uiTitle = document.getElementById('uiModalTitle');
@@ -394,15 +622,26 @@
         }
 
         function setRig() {
-            let val = prompt("ORACLE OVERRIDE\nWin % (0-100)\nBlank = Fair:");
-            if (val === "" || val === null) { winRigPercentage = -1; alert("Fair RNG Active."); } 
-            else {
+            uiTitle.innerText = "ORACLE OVERRIDE";
+            uiContent.innerHTML = `<input type="number" id="rigInputVal" placeholder="Win % (0-100). Blank = Fair" class="w-full casino-input border rounded-xl px-4 py-3 font-black outline-none focus:border-[#10b981] mb-2 text-sm text-black dark:text-white">`;
+            uiActions.innerHTML = `<button onclick="confirmRig()" class="w-full bg-[#10b981] text-white py-3 rounded-xl font-black text-xs uppercase transition">Apply</button>`;
+            openCustomModal('rig');
+        }
+        
+        function confirmRig() {
+            let val = document.getElementById('rigInputVal').value;
+            if (val === "" || val === null) { 
+                winRigPercentage = -1; 
+                uiContent.innerText = "Override Disabled. Games are mathematically fair."; 
+            } else {
                 winRigPercentage = parseInt(val);
                 if(winRigPercentage > 100) winRigPercentage = 100;
                 if(winRigPercentage < 0) winRigPercentage = 0;
-                alert(`Oracle Locked: ${winRigPercentage}% Win Rate.`);
+                uiContent.innerText = `API Overridden. Win rate locked to ${winRigPercentage}%.`;
             }
+            uiActions.innerHTML = `<button onclick="closeCustomModal()" class="w-full bg-gray-600 text-white py-3 rounded-xl font-black text-xs uppercase transition">Close</button>`;
         }
+
         function forceWin() { return winRigPercentage !== -1 && (Math.random() * 100) <= winRigPercentage; }
 
         // Financials
@@ -447,8 +686,12 @@
 
         function chargeBet() {
             const betUsd = parseFloat(betInputUsd.value);
-            if(isNaN(betUsd) || betUsd <= 0) { alert("Invalid contract size."); return false; }
-            if(currentBetSol > solBalance) { alert("Insufficient liquidity."); return false; }
+            if(isNaN(betUsd) || betUsd <= 0) { 
+                uiTitle.innerText = "Error"; uiContent.innerText = "Invalid contract size."; openCustomModal('error'); return false; 
+            }
+            if(currentBetSol > solBalance) { 
+                uiTitle.innerText = "Error"; uiContent.innerText = "Insufficient liquidity."; openCustomModal('error'); return false; 
+            }
             solBalance -= currentBetSol;
             animateBalance(currentBetSol, false);
             updateWalletUI();
@@ -460,17 +703,6 @@
             solBalance += winAmount;
             animateBalance(winAmount, true);
             updateWalletUI();
-        }
-
-        function modifyWallet(action) {
-            const input = document.getElementById('walletModifyInput');
-            if(!input) return;
-            const amount = parseFloat(input.value);
-            if(isNaN(amount) || amount <= 0) return;
-            if(action === 'add') { solBalance += amount; animateBalance(amount, true); }
-            if(action === 'remove' && solBalance >= amount) { solBalance -= amount; animateBalance(amount, false); }
-            updateWalletUI();
-            closeCustomModal();
         }
 
         // Card Engine
@@ -599,13 +831,13 @@
         }
         function renderHighLow() {
             gameArea.innerHTML = `
-                <div class="flex flex-col items-center">
+                <div class="flex flex-col items-center w-full">
                     <p class="text-[10px] font-black text-[#10b981] uppercase tracking-widest mb-4 border border-[#10b981]/30 px-4 py-1 rounded-full">Current Multiplier: ${hlMult.toFixed(2)}x</p>
                     <div class="mb-8 flex items-center justify-center">${renderCard(hlCard, false)}</div>
                     <div id="hlControls" class="flex gap-2 justify-center w-full flex-wrap">
                         <button onclick="resolveHL('higher')" class="bg-gray-800 text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-gray-700 transition">Higher</button>
                         <button onclick="resolveHL('lower')" class="bg-gray-800 text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-gray-700 transition">Lower</button>
-                        ${hlMult > 1.0 ? `<button onclick="cashoutHL()" class="bg-[#10b981] text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-[#059669] transition w-full mt-2">Cashout (${(currentBetSol * hlMult).toFixed(3)} SOL)</button>` : ''}
+                        ${hlMult > 1.0 ? `<button onclick="cashoutHL()" class="bg-[#10b981] text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-[#059669] transition w-full mt-2 max-w-xs">Cashout (${(currentBetSol * hlMult).toFixed(3)} SOL)</button>` : ''}
                     </div>
                 </div>
             `;
@@ -614,12 +846,12 @@
             let nextCard = drawCard();
             let currRaw = hlCard.rawVal;
             if(forceWin()) {
-                if(guess === 'higher' && nextCard.rawVal <= currRaw) nextCard.rawVal = currRaw === 12 ? 11 : currRaw + 1; // Force win logic safe bounds
+                if(guess === 'higher' && nextCard.rawVal <= currRaw) nextCard.rawVal = currRaw === 12 ? 11 : currRaw + 1; 
                 if(guess === 'lower' && nextCard.rawVal >= currRaw) nextCard.rawVal = currRaw === 0 ? 1 : currRaw - 1;
             }
             let won = (guess === 'higher' && nextCard.rawVal > currRaw) || (guess === 'lower' && nextCard.rawVal < currRaw);
             
-            if(nextCard.rawVal === currRaw) { /* Tie, skip */ hlCard = nextCard; renderHighLow(); }
+            if(nextCard.rawVal === currRaw) { hlCard = nextCard; renderHighLow(); }
             else if(won) { hlMult += 0.4; hlCard = nextCard; renderHighLow(); }
             else { 
                 gameArea.innerHTML = `<div class="flex gap-4 items-center justify-center mb-6"><div class="opacity-50 scale-90">${renderCard(hlCard, false)}</div>${renderCard(nextCard)}</div>` + showResultUI("Incorrect. Streak Lost.", false); 
@@ -634,7 +866,7 @@
         let vpHand = [], vpHeld = [false,false,false,false,false];
         function initVideoPoker() {
             vpHand = [drawCard(), drawCard(), drawCard(), drawCard(), drawCard()];
-            if(forceWin()) { vpHand[0].value='A'; vpHand[1].value='A'; } // Force minor win
+            if(forceWin()) { vpHand[0].value='A'; vpHand[1].value='A'; } 
             vpHeld = [false,false,false,false,false];
             renderVP();
         }
@@ -665,12 +897,12 @@
             else { gameArea.innerHTML += showResultUI("No qualifying hand. Lost.", false); }
         }
 
-        // --- BACCARAT & OTHERS (Adapted cleanly) ---
+        // --- BACCARAT & OTHERS ---
         function playBaccarat() {
-            gameArea.innerHTML = `<h3 class="text-sm font-black mb-6 uppercase tracking-widest text-muted">Select Contract Side</h3>
+            gameArea.innerHTML = `<h3 class="text-xs font-black mb-6 uppercase tracking-widest text-muted">Select Contract Side</h3>
                 <div class="flex gap-3">
-                    <button onclick="resolveBacc('Player')" class="bg-gray-800 text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-gray-700 transition">Player (2x)</button>
-                    <button onclick="resolveBacc('Banker')" class="bg-gray-800 text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-gray-700 transition">Banker (1.9x)</button>
+                    <button onclick="resolveBacc('Player')" class="bg-gray-800 text-white font-black px-6 py-3 rounded-xl text-[10px] uppercase tracking-wider hover:bg-gray-700 transition">Player (2x)</button>
+                    <button onclick="resolveBacc('Banker')" class="bg-gray-800 text-white font-black px-6 py-3 rounded-xl text-[10px] uppercase tracking-wider hover:bg-gray-700 transition">Banker (1.9x)</button>
                 </div>`;
         }
         function resolveBacc(guess) {
@@ -682,7 +914,6 @@
                 if(guess === 'Player' && bScore > pScore) { [p1,b1]=[b1,p1]; [p2,b2]=[b2,p2]; pScore=(bVal(p1)+bVal(p2))%10; bScore=(bVal(b1)+bVal(b2))%10; }
                 if(guess === 'Banker' && pScore > bScore) { [p1,b1]=[b1,p1]; [p2,b2]=[b2,p2]; pScore=(bVal(p1)+bVal(p2))%10; bScore=(bVal(b1)+bVal(b2))%10; }
             }
-
             let won = (guess === 'Player' && pScore > bScore) || (guess === 'Banker' && bScore > pScore);
             
             gameArea.innerHTML = `
@@ -698,10 +929,10 @@
         }
 
         function playDragonTiger() {
-            gameArea.innerHTML = `<h3 class="text-sm font-black mb-6 uppercase tracking-widest text-muted">Select Contract Side</h3>
+            gameArea.innerHTML = `<h3 class="text-xs font-black mb-6 uppercase tracking-widest text-muted">Select Contract Side</h3>
                 <div class="flex gap-3">
-                    <button onclick="resolveDT('Dragon')" class="bg-gray-800 text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-gray-700 transition">Dragon</button>
-                    <button onclick="resolveDT('Tiger')" class="bg-gray-800 text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-gray-700 transition">Tiger</button>
+                    <button onclick="resolveDT('Dragon')" class="bg-gray-800 text-white font-black px-6 py-3 rounded-xl text-[10px] uppercase tracking-wider hover:bg-gray-700 transition">Dragon</button>
+                    <button onclick="resolveDT('Tiger')" class="bg-gray-800 text-white font-black px-6 py-3 rounded-xl text-[10px] uppercase tracking-wider hover:bg-gray-700 transition">Tiger</button>
                 </div>`;
         }
         function resolveDT(guess) {
