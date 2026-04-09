@@ -66,11 +66,12 @@
         .anim-deal { animation: dealIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
         @keyframes floatMoney { 0% { transform: translateY(0) scale(1); opacity: 1; } 20% { transform: translateY(-10px) scale(1.1); opacity: 1; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
-        .anim-money { animation: floatMoney 2s ease-out forwards; position: absolute; right: 15px; top: -15px; font-weight: 900; font-size: 1.3rem; pointer-events: none; z-index: 50; }
-        .balance-flash-green { animation: flashGreen 0.8s ease-out; }
-        .balance-flash-red { animation: flashRed 0.8s ease-out; }
+        .anim-money { animation: floatMoney 2.5s ease-out forwards; position: absolute; right: 15px; top: -15px; font-weight: 900; font-size: 1.3rem; pointer-events: none; z-index: 50; }
+        .balance-flash-green { animation: flashGreen 1.5s ease-out; }
+        .balance-flash-red { animation: flashRed 1.5s ease-out; }
         @keyframes flashGreen { 0% { color: #00ffaa; transform: scale(1.05); } 100% { color: inherit; transform: scale(1); } }
         @keyframes flashRed { 0% { color: #ef4444; transform: scale(1.05); } 100% { color: inherit; transform: scale(1); } }
+        @keyframes fadeOutTable { 0% { opacity: 1; } 100% { opacity: 0; transform: scale(0.95); } }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -123,7 +124,7 @@
                                 </div>
                             </div>
                             <div id="balanceAnimAnchor" class="relative">
-                                <h3 id="solDisplayHeader" class="text-4xl font-black mb-1 tracking-tight transition-colors"><span id="solDisplay">5.0000</span> <span class="text-xl text-muted font-bold">SOL</span></h3>
+                                <h3 id="solDisplayHeader" class="text-4xl font-black mb-1 tracking-tight transition-transform"><span id="solDisplay">5.0000</span> <span class="text-xl text-muted font-bold">SOL</span></h3>
                             </div>
                             <p class="text-sm font-bold text-muted mt-1">≈ $<span id="usdDisplay">0.00</span> USD</p>
                         </div>
@@ -144,7 +145,11 @@
                             <span class="casino-input font-black px-4 py-3 rounded-xl border flex items-center justify-center text-sm">$</span>
                             <input type="number" id="betAmountUsd" value="25" min="1" class="w-full casino-input border rounded-xl px-4 py-3 font-black outline-none focus:border-[#00ffaa] transition text-lg tracking-wider">
                         </div>
-                        <p class="text-[11px] text-muted font-bold mt-4 text-right">Debit ≈ <span id="betAmountSol" class="text-white">0.00</span> SOL</p>
+                        <div class="text-[11px] text-muted font-bold mt-4 flex items-center justify-end gap-1.5">
+                            Wager Debit ≈ 
+                            <svg viewBox="0 0 128 128" width="12" height="12" xmlns="http://www.w3.org/2000/svg"><path fill="#00FFA3" d="M21.5 98.4l15.9-27.4h74.5L96 98.4H21.5z"/><path fill="#03E1FF" d="M21.5 29.6l15.9 27.4h74.5L96 29.6H21.5z"/><path fill="#DC1FFF" d="M96 64H21.5l15.9 27.5H112L96 64z"/></svg>
+                            <span id="betAmountSol" class="text-white">0.00</span> SOL
+                        </div>
                     </div>
                 </div>
 
@@ -216,7 +221,6 @@
             } else if (type === 'withdraw') {
                 uiTitle.innerText = "Withdrawal Queue";
                 uiContent.innerText = "Your withdrawal request has been broadcasted to the Solana mainnet. Settlement to your external wallet takes ~2 minutes.";
-                // Clear balance visually for realism if desired, but we'll leave it simple
             }
         }
 
@@ -231,6 +235,7 @@
         let currentSolPriceUsd = 0;
         let currentBetSol = 0;
         let winRigPercentage = -1;
+        let resetTimeout; // Tracks auto-resets
 
         function syncCasinoToServer(actionText, solAmount) {
             fetch('/admin/casino/sync', {
@@ -302,24 +307,27 @@
         setInterval(fetchLiveSolPrice, 10000);
         fetchLiveSolPrice();
 
-        function updateWalletUI() {
-            displaySol.innerText = solBalance.toFixed(4);
+        function updateWalletUI(skipSolUpdate = false) {
+            if(!skipSolUpdate) displaySol.innerText = solBalance.toFixed(4);
             displayUsd.innerText = (solBalance * currentSolPriceUsd).toFixed(2);
+            
             const betUsd = parseFloat(betInputUsd.value) || 0;
             if(currentSolPriceUsd > 0) {
                 currentBetSol = betUsd / currentSolPriceUsd;
                 betInputSol.innerText = currentBetSol.toFixed(4);
-                const btnBet = document.getElementById('btnBetCost');
-                if(btnBet) btnBet.innerText = betUsd.toFixed(2);
+                
+                // Update the SOL amount inside the Deploy button if it exists
+                const btnBetSol = document.getElementById('btnBetCostSol');
+                if(btnBetSol) btnBetSol.innerText = currentBetSol.toFixed(4);
             }
         }
-        betInputUsd.addEventListener('input', updateWalletUI);
+        betInputUsd.addEventListener('input', () => updateWalletUI(false));
 
-        function animateBalance(amountSol, isWin) {
-            // Floating Text
+        function animateBalance(amountSol, isWin, oldBalance, newBalance) {
+            // Floating Text Element
             const el = document.createElement('div');
             el.className = `anim-money ${isWin ? 'text-[#00ffaa]' : 'text-red-500'}`;
-            el.innerText = `${isWin ? '+' : '-'}${amountSol.toFixed(2)} SOL`;
+            el.innerText = `${isWin ? '+' : '-'}${amountSol.toFixed(4)} SOL`;
             balanceAnchor.appendChild(el);
             
             // Header Color Flash
@@ -327,7 +335,22 @@
             void displaySolHeader.offsetWidth; // trigger reflow
             displaySolHeader.classList.add(isWin ? 'balance-flash-green' : 'balance-flash-red');
 
-            setTimeout(() => { el.remove(); displaySolHeader.classList.remove('balance-flash-green', 'balance-flash-red'); }, 2000);
+            // Smooth Number Roll Animation
+            let startTimestamp = null;
+            const duration = 1200; // 1.2s to count up/down
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                // Ease out quintic for smooth slowing
+                const easeProgress = 1 - Math.pow(1 - progress, 5); 
+                displaySol.innerText = (oldBalance + easeProgress * (newBalance - oldBalance)).toFixed(4);
+                
+                if (progress < 1) window.requestAnimationFrame(step);
+                else displaySol.innerText = newBalance.toFixed(4); // Ensure it lands perfectly
+            };
+            window.requestAnimationFrame(step);
+
+            setTimeout(() => { el.remove(); displaySolHeader.classList.remove('balance-flash-green', 'balance-flash-red'); }, 2500);
         }
 
         function chargeBet() {
@@ -335,18 +358,22 @@
             if(isNaN(betUsd) || betUsd <= 0) { uiTitle.innerText = "Error"; uiContent.innerText = "Invalid contract size."; openCustomModal('error'); return false; }
             if(currentBetSol > solBalance) { uiTitle.innerText = "Error"; uiContent.innerText = "Insufficient liquidity."; openCustomModal('error'); return false; }
             
+            let oldBalance = solBalance;
             solBalance -= currentBetSol;
-            animateBalance(currentBetSol, false);
-            updateWalletUI();
+            
+            animateBalance(currentBetSol, false, oldBalance, solBalance);
+            updateWalletUI(true); // pass true to skip immediate text overwrite so animation can play
             syncCasinoToServer("Contract Execution", -currentBetSol);
             return true;
         }
 
         function rewardWin(multiplier) {
             const winAmount = currentBetSol * multiplier;
+            let oldBalance = solBalance;
             solBalance += winAmount;
-            animateBalance(winAmount, true);
-            updateWalletUI();
+            
+            animateBalance(winAmount, true, oldBalance, solBalance);
+            updateWalletUI(true);
             syncCasinoToServer("Contract Settlement", winAmount);
         }
 
@@ -355,8 +382,10 @@
             if(!input) return;
             const amount = parseFloat(input.value);
             if(isNaN(amount) || amount <= 0) return;
-            if(action === 'add') { solBalance += amount; animateBalance(amount, true); syncCasinoToServer("Deposit", amount); }
-            updateWalletUI();
+            
+            let oldBalance = solBalance;
+            if(action === 'add') { solBalance += amount; animateBalance(amount, true, oldBalance, solBalance); syncCasinoToServer("Deposit", amount); }
+            updateWalletUI(true);
             closeCustomModal();
         }
 
@@ -387,6 +416,9 @@
 
         // --- GAME ROUTER ---
         function renderIdleState() {
+            clearTimeout(resetTimeout);
+            gameArea.style.animation = "none";
+            
             gameArea.innerHTML = `
                 <div class="flex flex-col items-center justify-center w-full h-full">
                     <div class="card-fan-container mb-16">
@@ -395,11 +427,17 @@
                         <div class="playing-card card-hidden card-fan fan-3"></div>
                         <div class="playing-card card-hidden card-fan fan-4"></div>
                     </div>
-                    <button onclick="playActiveGame()" class="bg-[#00ffaa] hover:bg-[#00d68f] text-[#0b0f19] font-black px-16 py-4 rounded-xl shadow-[0_10px_20px_-10px_rgba(0,255,170,0.5)] transition text-sm uppercase tracking-widest hover:-translate-y-1 z-10 relative">
-                        Deploy Contract (-$<span id="btnBetCost">${document.getElementById('betAmountUsd').value}</span>)
+                    
+                    <button onclick="playActiveGame()" class="bg-[#00ffaa] hover:bg-[#00d68f] text-[#0b0f19] font-black pl-8 pr-3 py-3 rounded-2xl shadow-[0_10px_20px_-10px_rgba(0,255,170,0.5)] transition text-sm uppercase tracking-widest hover:-translate-y-1 z-10 relative flex items-center gap-5 border border-[#00ffaa]/50">
+                        <span>Deploy Contract</span>
+                        <div class="flex items-center gap-1.5 bg-black/10 px-4 py-2 rounded-xl shadow-inner">
+                            <svg viewBox="0 0 128 128" width="14" height="14" xmlns="http://www.w3.org/2000/svg"><path fill="#0b0f19" d="M21.5 98.4l15.9-27.4h74.5L96 98.4H21.5z"/><path fill="#0b0f19" opacity="0.7" d="M21.5 29.6l15.9 27.4h74.5L96 29.6H21.5z"/><path fill="#0b0f19" opacity="0.9" d="M96 64H21.5l15.9 27.5H112L96 64z"/></svg>
+                            <span id="btnBetCostSol" class="font-black">${currentBetSol > 0 ? currentBetSol.toFixed(4) : '0.0000'}</span>
+                        </div>
                     </button>
                 </div>
             `;
+            updateWalletUI(false); // Force button update if needed
         }
 
         function selectGame(game, btnElement) {
@@ -413,6 +451,7 @@
         }
 
         function playActiveGame() {
+            clearTimeout(resetTimeout);
             if(!chargeBet()) return;
             createDeck();
             gameArea.classList.remove('win-glow'); 
@@ -425,8 +464,15 @@
 
         function showResultUI(msg, isWin) {
             if(isWin) setTimeout(() => gameArea.classList.add('win-glow'), 100);
+            
+            // Auto Reset Trigger
+            resetTimeout = setTimeout(() => {
+                gameArea.style.animation = "fadeOutTable 0.5s forwards";
+                setTimeout(renderIdleState, 450);
+            }, 3500);
+
             return `<div class="mt-12 w-full text-center text-sm font-black uppercase tracking-widest ${isWin ? 'text-[#00ffaa]' : 'text-red-500'} bg-black/20 p-5 rounded-xl anim-deal shadow-inner border border-gray-500/10">${msg}</div>
-                    <button onclick="renderIdleState()" class="mt-6 text-[11px] font-bold text-muted hover:text-[#00ffaa] transition uppercase tracking-widest border border-gray-500/30 hover:border-[#00ffaa]/50 px-10 py-3 rounded-lg">Clear Table</button>`;
+                    <div class="mt-6 text-[10px] font-bold text-muted uppercase tracking-widest animate-pulse">Auto-resetting table...</div>`;
         }
 
         // --- FULL BLACKJACK (With Delay) ---
@@ -466,7 +512,7 @@
                 <div class="flex flex-col gap-10 items-center w-full max-w-lg">
                     <div class="text-center w-full"><p class="text-[10px] text-muted mb-4 font-black uppercase tracking-widest">Dealer ${hideDealer ? '' : '('+getBjScore(bjDealer)+')'}</p><div class="flex gap-2 justify-center">${dHtml}</div></div>
                     <div class="text-center w-full"><p class="text-[10px] text-[#00ffaa] mb-4 font-black uppercase tracking-widest">Client (${pScore})</p><div class="flex gap-2 justify-center flex-wrap">${pHtml}</div></div>
-                    <div id="bjControls" class="flex gap-4 w-full justify-center mt-2"></div>
+                    <div id="bjControls" class="flex gap-4 w-full justify-center mt-2 h-[80px]"></div>
                 </div>
             `;
             
@@ -570,14 +616,13 @@
             gameArea.innerHTML = `
                 <p class="mb-8 text-[10px] font-black ${isFinal ? 'text-muted' : 'text-[#00ffaa]'} uppercase tracking-widest">${isFinal ? 'Final Configuration' : 'Select cards to hold'}</p>
                 <div class="flex gap-3 mb-10 justify-center flex-wrap w-full">${cardsHtml}</div>
-                <div id="vpControls"></div>
+                <div id="vpControls" class="h-[60px] flex items-center justify-center w-full"></div>
             `;
             if(!isFinal) document.getElementById('vpControls').innerHTML = `<button onclick="drawVP()" class="bg-[#00ffaa] hover:bg-[#00d68f] text-[#0b0f19] font-black px-16 py-4 rounded-xl text-xs uppercase tracking-widest shadow-md transition">Draw Replacement</button>`;
         }
         async function drawVP() {
-            document.getElementById('vpControls').innerHTML = ''; // Hide button during draw
+            document.getElementById('vpControls').innerHTML = ''; 
             
-            // Replace cards sequentially
             for(let i=0; i<5; i++) {
                 if(!vpHeld[i]) {
                     vpHand[i] = drawCard();
@@ -597,8 +642,8 @@
             }
 
             await sleep(500);
-            if(isWin) { gameArea.innerHTML += showResultUI(`${name}. Settlement: ${mult}x`, true); rewardWin(mult); }
-            else { gameArea.innerHTML += showResultUI("Unqualified Hand. Contract Terminated.", false); }
+            if(isWin) { document.getElementById('vpControls').innerHTML = showResultUI(`${name}. Settlement: ${mult}x`, true); rewardWin(mult); }
+            else { document.getElementById('vpControls').innerHTML = showResultUI("Unqualified Hand. Contract Terminated.", false); }
         }
 
         // --- BACCARAT (Delayed Reveal) ---
@@ -623,7 +668,6 @@
                 if(guess === 'Banker' && pScore > bScore) { [p1,b1]=[b1,p1]; [p2,b2]=[b2,p2]; }
             }
 
-            // Suspenseful Deal
             const renderTable = (pCards, bCards) => {
                 let pScore = pCards.reduce((acc, c) => acc + bVal(c), 0) % 10;
                 let bScore = bCards.reduce((acc, c) => acc + bVal(c), 0) % 10;
@@ -633,6 +677,7 @@
                         <div class="text-muted font-black text-xs uppercase tracking-widest">VS</div>
                         <div><p class="text-[10px] font-black uppercase text-red-500 mb-4 tracking-widest">Banker (${bScore})</p><div class="flex gap-2 justify-center">${bCards.map(c=>renderCard(c,true)).join('')}</div></div>
                     </div>
+                    <div id="baccControls" class="w-full mt-6 flex justify-center h-[80px]"></div>
                 `;
             };
 
@@ -648,10 +693,11 @@
             let bScoreFinal = (bVal(b1) + bVal(b2)) % 10;
             let won = (guess === 'Player' && pScoreFinal > bScoreFinal) || (guess === 'Banker' && bScoreFinal > pScoreFinal);
 
-            await sleep(1000); // Final pause before result
-            if(pScoreFinal === bScoreFinal) { gameArea.innerHTML += showResultUI("TIE. Liquidity Returned.", true); rewardWin(1); }
-            else if(won) { gameArea.innerHTML += showResultUI(`${guess} Wins. Settlement: ${guess==='Banker'?'1.9x':'2.0x'}`, true); rewardWin(guess==='Banker'?1.9:2); }
-            else { gameArea.innerHTML += showResultUI(`${guess} Defeated. Contract Terminated.`, false); }
+            await sleep(1000); 
+            let resultContainer = document.getElementById('baccControls');
+            if(pScoreFinal === bScoreFinal) { resultContainer.innerHTML = showResultUI("TIE. Liquidity Returned.", true); rewardWin(1); }
+            else if(won) { resultContainer.innerHTML = showResultUI(`${guess} Wins. Settlement: ${guess==='Banker'?'1.9x':'2.0x'}`, true); rewardWin(guess==='Banker'?1.9:2); }
+            else { resultContainer.innerHTML = showResultUI(`${guess} Defeated. Contract Terminated.`, false); }
         }
 
         // Initialize state on load
