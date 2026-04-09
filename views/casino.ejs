@@ -57,6 +57,9 @@
         .vault-tile.opened.lose { background: rgba(239, 68, 68, 0.1); border-color: #ef4444; }
 
         /* Animations */
+        @keyframes dealIn { 0% { transform: translateY(-30px) scale(0.9) rotateY(90deg); opacity: 0; } 100% { transform: translateY(0) scale(1) rotateY(0deg); opacity: 1; } }
+        .anim-deal { animation: dealIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
         @keyframes floatMoneyTable { 0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; } 20% { transform: translate(-50%, -20px) scale(1.2); opacity: 1; } 100% { transform: translate(-50%, -100px) scale(1); opacity: 0; } }
         .anim-money-table { animation: floatMoneyTable 2.5s ease-out forwards; position: absolute; left: 50%; top: 40%; font-weight: 900; font-size: 2rem; pointer-events: none; z-index: 100; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         
@@ -458,6 +461,7 @@
         function showTutorial() { uiTitle.innerText = activeGame.toUpperCase() + " RULES"; uiContent.innerText = tutorials[activeGame]; openCustomModal('tutorial'); uiBox.style.borderColor = '#4b5563'; }
 
         // --- SHUFFLE UTILITY (Fisher-Yates) ---
+        // This completely fixes the "always BlackJack" glitch caused by browser array sorting bugs.
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -541,11 +545,19 @@
         const suits = [{s:'&spades;', c:false}, {s:'&hearts;', c:true}, {s:'&diams;', c:true}, {s:'&clubs;', c:false}];
         const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
         let deck = [];
-        function createDeck() { deck = []; suits.forEach(s => values.forEach(v => deck.push({ suit: s.s, value: v, isRed: s.c, numValue: ['J','Q','K'].includes(v)?10:(v==='A'?11:parseInt(v)), rawVal: values.indexOf(v) }))); deck.sort(()=>Math.random()-0.5); }
+        
+        function createDeck() { 
+            deck = []; 
+            suits.forEach(s => values.forEach(v => deck.push({ suit: s.s, value: v, isRed: s.c, numValue: ['J','Q','K'].includes(v)?10:(v==='A'?11:parseInt(v)), rawVal: values.indexOf(v) }))); 
+            // Fisher-Yates ensures 100% randomization, fixing the previous browser sort bug
+            shuffleArray(deck); 
+        }
         function drawCard() { return deck.pop(); }
-        function renderCard(card, isHeld=false) {
-            if(!card) return `<div class="playing-card card-hidden anim-deal"></div>`;
-            return `<div class="playing-card ${card.isRed?'card-red':'card-black'} anim-deal ${isHeld?'card-held':''}"><span class="card-suit-top">${card.value}<br>${card.suit}</span>${card.suit}<span class="card-suit-bottom">${card.value}<br>${card.suit}</span></div>`;
+        
+        // Added animate boolean so we only spin the newest card dealt
+        function renderCard(card, animate=true) {
+            if(!card) return `<div class="playing-card card-hidden ${animate?'anim-deal':''}"></div>`;
+            return `<div class="playing-card ${card.isRed?'card-red':'card-black'} ${animate?'anim-deal':''}"><span class="card-suit-top">${card.value}<br>${card.suit}</span>${card.suit}<span class="card-suit-bottom">${card.value}<br>${card.suit}</span></div>`;
         }
 
         // === 1. BLACKJACK ===
@@ -559,22 +571,32 @@
         async function initBlackjack() {
             createDeck(); bjPlayer = []; bjDealer = [];
             gameArea.innerHTML = `<p class="text-muted text-xs uppercase tracking-widest animate-pulse">Dealing Protocol...</p>`;
-            await sleep(300); bjPlayer.push(drawCard()); renderBj(true, false);
-            await sleep(300); bjDealer.push(drawCard()); renderBj(true, false);
-            await sleep(300); bjPlayer.push(drawCard()); renderBj(true, false);
-            await sleep(300); bjDealer.push(drawCard()); 
+            
+            // Slowed down deal to make animations visible and satisfying
+            await sleep(500); bjPlayer.push(drawCard()); renderBj(true, false);
+            await sleep(500); bjDealer.push(drawCard()); renderBj(true, false);
+            await sleep(500); bjPlayer.push(drawCard()); renderBj(true, false);
+            await sleep(500); bjDealer.push(drawCard()); 
             
             if(forceWin()) { bjPlayer[0].value='A'; bjPlayer[0].numValue=11; bjPlayer[1].value='K'; bjPlayer[1].numValue=10; }
             renderBj(true, true);
+            
             if(getBjScore(bjPlayer) === 21) { 
                 document.getElementById('bjControls').innerHTML = ''; 
-                await sleep(500); document.getElementById('bjControls').innerHTML = showResultUI("BLACKJACK! (2.5x)", true); rewardWin(2.5); 
+                await sleep(600); document.getElementById('bjControls').innerHTML = showResultUI("BLACKJACK! (2.5x)", true); rewardWin(2.5); 
             }
         }
         function renderBj(hideDealer, interactive) {
             let pScore = getBjScore(bjPlayer);
-            let dHtml = hideDealer ? `${bjDealer[0]?renderCard(bjDealer[0]):''}${bjDealer.length>1?renderCard(null):''}` : bjDealer.map(c=>renderCard(c)).join('');
-            gameArea.innerHTML = `<div class="flex flex-col gap-8 w-full max-w-sm"><div class="text-center w-full"><p class="text-[10px] text-muted mb-3 font-black uppercase tracking-widest">Dealer ${hideDealer?'':'('+getBjScore(bjDealer)+')'}</p><div class="flex gap-2 justify-center">${dHtml}</div></div><div class="text-center w-full"><p class="text-[10px] text-[#00ffaa] mb-3 font-black uppercase tracking-widest">Client (${pScore})</p><div class="flex gap-2 justify-center flex-wrap">${bjPlayer.map(c=>renderCard(c)).join('')}</div></div><div id="bjControls" class="flex gap-3 justify-center min-h-[50px]"></div></div>`;
+            
+            // Logic to ensure ONLY the newest added card gets the CSS spin animation
+            let dHtml = hideDealer 
+                ? `${bjDealer[0]?renderCard(bjDealer[0], false):''}${bjDealer.length>1?renderCard(null, true):''}` 
+                : bjDealer.map((c,i)=>renderCard(c, i === bjDealer.length-1)).join('');
+            let pHtml = bjPlayer.map((c,i)=>renderCard(c, i === bjPlayer.length-1)).join('');
+            
+            gameArea.innerHTML = `<div class="flex flex-col gap-8 w-full max-w-sm"><div class="text-center w-full"><p class="text-[10px] text-muted mb-3 font-black uppercase tracking-widest">Dealer ${hideDealer?'':'('+getBjScore(bjDealer)+')'}</p><div class="flex gap-2 justify-center">${dHtml}</div></div><div class="text-center w-full"><p class="text-[10px] text-[#00ffaa] mb-3 font-black uppercase tracking-widest">Client (${pScore})</p><div class="flex gap-2 justify-center flex-wrap">${pHtml}</div></div><div id="bjControls" class="flex gap-3 justify-center min-h-[50px]"></div></div>`;
+            
             if(interactive && pScore !== 21) {
                 document.getElementById('bjControls').innerHTML = `<button onclick="bjHit()" class="flex-1 casino-btn border text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md hover:scale-105">Hit</button><button onclick="bjStand()" class="flex-1 bg-[#00ffaa] text-[#06090e] py-3 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md hover:scale-105">Stand</button>`;
             }
@@ -596,7 +618,7 @@
             else { res.innerHTML = showResultUI("Push. Returned.", true); rewardWin(1); }
         }
 
-        // === 2. MINES (True Random) ===
+        // === 2. MINES ===
         let mineGrid = []; let mineMult = 1.0; let gemsFound = 0; let mineActive = false;
         function initMines() {
             mineMult = 1.0; gemsFound = 0; mineActive = true;
@@ -643,7 +665,7 @@
             rewardWin(mineMult);
         }
 
-        // === 3. TOWER (True Random) ===
+        // === 3. TOWER ===
         let towerGrid = []; let towerRow = 0; let towerMult = 1.0; let towerActive = false;
         function initTower() {
             towerGrid = []; towerRow = 0; towerMult = 1.0; towerActive = true;
@@ -780,31 +802,37 @@
 
         // === 6. HIGH / LOW STREAK ===
         let hlCard = null; let hlMult = 1.0;
-        function initHighLow() { createDeck(); hlCard = drawCard(); hlMult = 1.0; renderHighLow(); }
+        async function initHighLow() { 
+            createDeck(); hlCard = drawCard(); hlMult = 1.0; 
+            gameArea.innerHTML = `<p class="text-muted text-xs uppercase tracking-widest animate-pulse">Dealing Initial Card...</p>`;
+            await sleep(600);
+            renderHighLow(); 
+        }
         function renderHighLow() {
             gameArea.innerHTML = `
                 <div class="flex flex-col items-center w-full max-w-sm">
                     <p class="text-[10px] font-black text-[#00ffaa] uppercase tracking-widest mb-8 border border-[#00ffaa]/30 px-6 py-2 rounded-full bg-[#00ffaa]/5">Live Multiplier: ${hlMult.toFixed(2)}x</p>
-                    <div class="mb-12 flex items-center justify-center scale-110">${renderCard(hlCard)}</div>
+                    <div class="mb-12 flex items-center justify-center scale-110">${renderCard(hlCard, true)}</div>
                     <div id="hlControls" class="flex gap-3 justify-center w-full flex-wrap">
-                        <button onclick="resolveHL('higher')" class="flex-1 casino-btn border text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-sm hover:scale-105">Higher</button>
-                        <button onclick="resolveHL('lower')" class="flex-1 casino-btn border text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-sm hover:scale-105">Lower</button>
+                        <button onclick="resolveHL('higher')" class="flex-1 casino-btn border text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-md hover:scale-105">Higher</button>
+                        <button onclick="resolveHL('lower')" class="flex-1 casino-btn border text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-md hover:scale-105">Lower</button>
                         ${hlMult > 1.0 ? `<button onclick="cashoutHL()" class="w-full bg-[#00ffaa] text-[#06090e] font-black py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-md mt-2 hover:scale-105">Cashout (${(currentBetSol * hlMult).toFixed(4)} SOL)</button>` : ''}
                     </div>
                 </div>
             `;
         }
         async function resolveHL(guess) {
-            document.getElementById('hlControls').innerHTML = ''; // Lock
+            document.getElementById('hlControls').innerHTML = ''; 
             let nextCard = drawCard();
             let currRaw = hlCard.rawVal;
+            
             if(forceWin()) {
                 if(guess === 'higher' && nextCard.rawVal <= currRaw) nextCard.rawVal = currRaw === 12 ? 11 : currRaw + 1; 
                 if(guess === 'lower' && nextCard.rawVal >= currRaw) nextCard.rawVal = currRaw === 0 ? 1 : currRaw - 1;
             }
             let won = (guess === 'higher' && nextCard.rawVal > currRaw) || (guess === 'lower' && nextCard.rawVal < currRaw);
             
-            gameArea.innerHTML = `<div class="flex gap-8 items-center justify-center mb-8 scale-110"><div class="opacity-50 scale-90">${renderCard(hlCard)}</div>${renderCard(nextCard)}</div><div id="hlControls" class="w-full max-w-sm"></div>`;
+            gameArea.innerHTML = `<div class="flex gap-8 items-center justify-center mb-8 scale-110"><div class="opacity-50 scale-90">${renderCard(hlCard, false)}</div>${renderCard(nextCard, true)}</div><div id="hlControls" class="w-full max-w-sm"></div>`;
             
             await sleep(800);
             if(nextCard.rawVal === currRaw) { hlCard = nextCard; renderHighLow(); } 
@@ -817,7 +845,7 @@
         }
 
         // INIT
-        updateWalletUI(); // Setup initially mapped values
+        updateWalletUI(); 
         renderIdleState();
     </script>
 </body>
