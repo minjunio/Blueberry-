@@ -26,13 +26,18 @@ const db = new sqlite3.Database('./data/database.sqlite', (err) => {
 });
 
 db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT)`);
+    // Core Tables
+    db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, sol_balance REAL DEFAULT 5.0, rig_percentage INTEGER DEFAULT -1)`);
     db.run(`CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, seo_title TEXT, seo_desc TEXT, seo_keywords TEXT, og_image TEXT, canonical_url TEXT)`);
     db.run(`CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, description TEXT, price REAL, tier TEXT DEFAULT 'Standard', image_url TEXT, platform TEXT, tags TEXT, vendor_id INTEGER, FOREIGN KEY(vendor_id) REFERENCES users(id))`);
     db.run(`CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id TEXT UNIQUE, product_id INTEGER, tier TEXT, payment_method TEXT, email TEXT, discord_username TEXT, status TEXT DEFAULT 'Pending Payment', giftcard_code TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
     db.run(`CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, image1 TEXT, image2 TEXT, content TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
     db.run(`CREATE TABLE IF NOT EXISTS otps (email TEXT PRIMARY KEY, code TEXT, expires DATETIME)`);
+    
+    // Casino Tracking Table
+    db.run(`CREATE TABLE IF NOT EXISTS casino_ledger (id INTEGER PRIMARY KEY AUTOINCREMENT, action TEXT, amount REAL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
 
+    // Safe Alterations for older DB versions
     db.run("ALTER TABLE categories ADD COLUMN seo_title TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_desc TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_keywords TEXT", () => {});
@@ -40,11 +45,14 @@ db.serialize(() => {
     db.run("ALTER TABLE categories ADD COLUMN canonical_url TEXT", () => {});
     db.run("ALTER TABLE products ADD COLUMN tier TEXT DEFAULT 'Standard'", () => {});
     db.run("ALTER TABLE orders ADD COLUMN email TEXT", () => {});
+    db.run("ALTER TABLE users ADD COLUMN sol_balance REAL DEFAULT 5.0", () => {});
+    db.run("ALTER TABLE users ADD COLUMN rig_percentage INTEGER DEFAULT -1", () => {});
 
+    // Initialize Admin
     db.get("SELECT * FROM users WHERE role = 'admin'", async (err, row) => {
         if (!row) {
             const hashedAdminPass = await bcrypt.hash('monterysasd', 10);
-            db.run("INSERT INTO users (username, password, role) VALUES ('admin', ?, 'admin')", [hashedAdminPass]);
+            db.run("INSERT INTO users (username, password, role, sol_balance, rig_percentage) VALUES ('admin', ?, 'admin', 5.0, -1)", [hashedAdminPass]);
         }
     });
 });
@@ -171,7 +179,6 @@ app.get('/api/search', (req, res) => {
     db.all("SELECT title, category FROM products WHERE title LIKE ? LIMIT 5", [`%${q}%`], (err, rows) => res.json(rows || []));
 });
 
-// FIXED: Receives error parameters for the custom UI alert
 app.get('/my-orders', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/');
     getActiveOrders(req, (activeOrderCount) => {
@@ -181,19 +188,18 @@ app.get('/my-orders', (req, res) => {
                 buyerEmail: req.session.buyerEmail, 
                 activeOrderCount,
                 orders: orders || [],
-                error: req.query.error // Custom Error passing
+                error: req.query.error 
             });
         });
     });
 });
 
-// FIXED: Redirects to my-orders with an error code instead of a browser alert
 app.post('/checkout', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/'); 
     
     db.get("SELECT COUNT(*) as count FROM orders WHERE email = ? AND status != 'Completed' AND status != 'Closed'", [req.session.buyerEmail], (err, row) => {
         if (row && row.count >= 3) {
-            return res.redirect('/my-orders?error=max_orders'); // Trigger custom UI alert
+            return res.redirect('/my-orders?error=max_orders'); 
         }
 
         const { product_id, discord_username, tier, payment_method } = req.body;
@@ -228,7 +234,7 @@ app.post('/api/order/:order_id/update', (req, res) => {
     });
 });
 
-// ADMIN & LOGIN ROUTES
+// --- ADMIN & LOGIN ROUTES ---
 app.get('/login', (req, res) => renderSafe(res, 'login', { error: null }));
 app.post('/login', (req, res) => {
     db.get("SELECT * FROM users WHERE username = ?", [req.body.username], async (err, user) => {
@@ -240,19 +246,48 @@ app.post('/login', (req, res) => {
 });
 app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/'); });
 
+// UPDATED: Now queries fresh Admin data and Casino Ledger logs
 app.get('/admin', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    db.all("SELECT * FROM categories", (err, categories) => {
-        db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id ORDER BY id DESC", (err, products) => {
-            db.all("SELECT * FROM announcements ORDER BY id DESC", (err, announcements) => {
-                db.all("SELECT orders.*, products.title as product_title, products.price as product_price FROM orders LEFT JOIN products ON orders.product_id = products.id ORDER BY orders.created_at DESC", (err, orders) => {
-                    renderSafe(res, 'admin', { user: req.session.user, categories: categories || [], products: products || [], announcements: announcements || [], orders: orders || [] });
+    
+    db.get("SELECT * FROM users WHERE id = ?", [req.session.user.id], (err, adminUser) => {
+        db.all("SELECT * FROM categories", (err, categories) => {
+            db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id ORDER BY id DESC", (err, products) => {
+                db.all("SELECT * FROM announcements ORDER BY id DESC", (err, announcements) => {
+                    db.all("SELECT orders.*, products.title as product_title, products.price as product_price FROM orders LEFT JOIN products ON orders.product_id = products.id ORDER BY orders.created_at DESC", (err, orders) => {
+                        db.all("SELECT * FROM casino_ledger ORDER BY created_at DESC LIMIT 20", (err, ledger) => {
+                            renderSafe(res, 'admin', { 
+                                user: adminUser, // Contains fresh sol_balance and rig_percentage
+                                categories: categories || [], 
+                                products: products || [], 
+                                announcements: announcements || [], 
+                                orders: orders || [],
+                                ledger: ledger || [] 
+                            });
+                        });
+                    });
                 });
             });
         });
     });
 });
 
+// --- CASINO API ENDPOINTS ---
+app.post('/admin/casino/sync', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.status(403).json({error: 'Unauthorized'});
+    const { balance, rig_percentage, logAction, logAmount } = req.body;
+
+    // Save Balance and Rig percentage
+    db.run("UPDATE users SET sol_balance = ?, rig_percentage = ? WHERE id = ?", [balance, rig_percentage, req.session.user.id], (err) => {
+        // Optional: Save transaction history to ledger
+        if (logAction && logAmount !== undefined) {
+            db.run("INSERT INTO casino_ledger (action, amount) VALUES (?, ?)", [logAction, logAmount]);
+        }
+        res.json({ success: true });
+    });
+});
+
+// --- ADMIN STORE MANAGEMENT ---
 app.post('/admin/close-order', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("DELETE FROM orders WHERE order_id = ?", [req.body.order_id], () => res.redirect('/admin'));
