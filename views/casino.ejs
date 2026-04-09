@@ -14,22 +14,13 @@
         .casino-dark .casino-btn:hover { background: #374151; }
         .casino-dark .text-muted { color: #6b7280; }
         .casino-dark .win-glow { box-shadow: inset 0 0 40px rgba(0, 255, 170, 0.05), 0 0 20px rgba(0, 255, 170, 0.1); border-color: rgba(0, 255, 170, 0.3); }
-
-        .casino-light { background: #f3f4f6; color: #111827; }
-        .casino-light .casino-panel { background: #ffffff; border-color: #e5e7eb; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
-        .casino-light .casino-input { background: #f9fafb; border-color: #d1d5db; color: #111827; }
-        .casino-light .casino-btn { background: #f3f4f6; border-color: #d1d5db; color: #111827; }
-        .casino-light .casino-btn:hover { background: #e5e7eb; }
-        .casino-light .text-muted { color: #9ca3af; }
-        .casino-light .win-glow { box-shadow: inset 0 0 40px rgba(0, 196, 131, 0.1), 0 0 20px rgba(0, 196, 131, 0.2); border-color: #00c483; }
+        .casino-dark .lose-glow { box-shadow: inset 0 0 40px rgba(239, 68, 68, 0.05), 0 0 20px rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
 
         /* Game Selector Grid */
         .game-card { border: 1px solid transparent; transition: all 0.2s; cursor: pointer; }
         .casino-dark .game-card { background: #151e32; border-color: #1f2937; }
-        .casino-light .game-card { background: #f9fafb; border-color: #e5e7eb; }
         .game-card:hover { transform: translateY(-3px); }
         .game-card.active { border-color: #00ffaa; box-shadow: 0 0 15px rgba(0, 255, 170, 0.2); }
-        .casino-light .game-card.active { border-color: #00c483; box-shadow: 0 0 15px rgba(0, 196, 131, 0.3); }
 
         /* High-Fidelity Cards */
         .playing-card {
@@ -42,41 +33,38 @@
         .card-red { color: #ef4444 !important; }
         .card-suit-top { position: absolute; top: 4px; left: 5px; font-size: 0.8rem; line-height: 1; text-align: center; }
         .card-suit-bottom { position: absolute; bottom: 4px; right: 5px; font-size: 0.8rem; transform: rotate(180deg); line-height: 1; text-align: center; }
-        .card-held { transform: translateY(-12px); border: 2px solid #00ffaa; box-shadow: 0 10px 20px rgba(0, 255, 170, 0.2); }
         .card-hidden { background: #1f2937; border-color: #374151; background-image: repeating-linear-gradient(45deg, #111827 25%, transparent 25%, transparent 75%, #111827 75%, #111827), repeating-linear-gradient(45deg, #111827 25%, #1f2937 25%, #1f2937 75%, #111827 75%, #111827); background-size: 16px 16px; }
 
         /* Arcade Games CSS */
         .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 300px; width: 100%; margin: 0 auto; }
-        .mine-tile { aspect-ratio: 1; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; }
-        .casino-dark .mine-tile { background: #1f2937; border: 1px solid #374151; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3); }
-        .casino-light .mine-tile { background: #f3f4f6; border: 1px solid #d1d5db; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1); }
+        .mine-tile { aspect-ratio: 1; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; background: #1f2937; border: 1px solid #374151; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3); }
         .mine-tile:hover:not(.revealed) { transform: scale(1.05); filter: brightness(1.2); }
         .mine-tile.revealed { box-shadow: none; transform: scale(0.95); cursor: default; }
         .mine-tile.safe { background: rgba(0, 255, 170, 0.1) !important; border-color: #00ffaa !important; }
         .mine-tile.bomb { background: rgba(239, 68, 68, 0.1) !important; border-color: #ef4444 !important; }
 
         .tower-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; max-width: 250px; width: 100%; margin-left: auto; margin-right: auto; }
-        .tower-tile { height: 40px; border-radius: 6px; transition: all 0.2s; display: flex; justify-content: center; align-items: center; opacity: 0.5; }
+        .tower-tile { height: 40px; border-radius: 6px; transition: all 0.2s; display: flex; justify-content: center; align-items: center; opacity: 0.5; background: #1f2937; border: 1px solid #374151; }
         .tower-row.active .tower-tile { opacity: 1; cursor: pointer; }
-        .casino-dark .tower-tile { background: #1f2937; border: 1px solid #374151; }
-        .casino-light .tower-tile { background: #f3f4f6; border: 1px solid #d1d5db; }
         .tower-row.active .tower-tile:hover { filter: brightness(1.3); }
         .tower-tile.safe { background: #00ffaa !important; color: #000; border: none; }
         .tower-tile.bomb { background: #ef4444 !important; color: #fff; border: none; }
 
+        .vault-tile { aspect-ratio: 1; border-radius: 12px; background: #1f2937; border: 2px solid #374151; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.3s; }
+        .vault-tile:hover:not(.opened) { border-color: #00ffaa; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 255, 170, 0.1); }
+        .vault-tile.opened { transform: scale(0.95); cursor: default; }
+        .vault-tile.opened.win { background: rgba(0, 255, 170, 0.1); border-color: #00ffaa; }
+        .vault-tile.opened.lose { background: rgba(239, 68, 68, 0.1); border-color: #ef4444; }
+
         /* Animations */
-        @keyframes dealIn { 0% { transform: translateY(-30px) scale(0.9) rotateY(90deg); opacity: 0; } 100% { transform: translateY(0) scale(1) rotateY(0deg); opacity: 1; } }
-        .anim-deal { animation: dealIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes floatMoneyTop { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-40px); opacity: 0; } }
-        .anim-money-top { animation: floatMoneyTop 2s ease-out forwards; position: absolute; right: 10px; top: -10px; font-weight: 900; pointer-events: none; }
-        
         @keyframes floatMoneyTable { 0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; } 20% { transform: translate(-50%, -20px) scale(1.2); opacity: 1; } 100% { transform: translate(-50%, -100px) scale(1); opacity: 0; } }
         .anim-money-table { animation: floatMoneyTable 2.5s ease-out forwards; position: absolute; left: 50%; top: 40%; font-weight: 900; font-size: 2rem; pointer-events: none; z-index: 100; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         
-        @keyframes flashGreen { 0% { color: #00ffaa; } 100% { color: inherit; } }
-        @keyframes flashRed { 0% { color: #ef4444; } 100% { color: inherit; } }
         .balance-flash-green { animation: flashGreen 1s ease-out; }
         .balance-flash-red { animation: flashRed 1s ease-out; }
+        @keyframes flashGreen { 0% { color: #00ffaa; } 100% { color: inherit; } }
+        @keyframes flashRed { 0% { color: #ef4444; } 100% { color: inherit; } }
+        @keyframes fadeOutTable { 0% { opacity: 1; } 100% { opacity: 0; transform: scale(0.95); } }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -89,74 +77,62 @@
         <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
             <div class="flex items-center gap-3">
                 <svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 5 12 2 12 2C12 2 2 5 2 12C2 17.5228 6.47715 22 12 22Z" fill="#00ffaa"/><path d="M12 16C13.6569 16 15 14.6569 15 13C15 11.3431 12 8 12 8C12 8 9 11.3431 9 13C9 14.6569 10.3431 16 12 16Z" fill="#06090e"/></svg>
-                <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tighter">Rainbet API</h2>
+                <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tighter text-white">Rainbet API</h2>
                 <span onclick="setRig()" class="cursor-default opacity-0 hover:opacity-100 text-[10px] text-[#00ffaa] ml-2">.</span>
             </div>
-            <div class="flex gap-2">
-                <button onclick="toggleTheme()" class="casino-panel border p-2.5 rounded-lg hover:scale-105 transition shadow-sm focus:outline-none">
-                    <svg class="w-5 h-5 text-muted hover:text-[#00ffaa] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                </button>
-                <a href="/admin" class="casino-btn border px-5 py-2.5 rounded-lg font-black text-xs uppercase tracking-widest transition flex items-center gap-2 shadow-sm hover:text-[#00ffaa]">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> Exit Node
-                </a>
-            </div>
+            <a href="/admin" class="casino-btn border px-5 py-2.5 rounded-lg font-black text-xs uppercase tracking-widest transition flex items-center gap-2 shadow-sm hover:text-[#00ffaa]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> Exit Node
+            </a>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             <div class="lg:col-span-3 flex flex-col gap-4">
                 
-                <div class="casino-panel border rounded-2xl p-5 relative overflow-hidden group cursor-pointer" ondblclick="openCustomModal('deposit')">
-                    <div class="flex justify-between items-center mb-3">
-                        <p class="text-[10px] font-black text-muted uppercase tracking-widest">Main Node Wallet</p>
-                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                <div class="casino-panel border rounded-2xl p-5 relative overflow-hidden transition-all duration-300">
+                    <div class="flex justify-between items-center cursor-pointer group" onclick="toggleMainWallet()">
+                        <div class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_5px_#3b82f6]"></span>
+                            <p class="text-[10px] font-black text-white uppercase tracking-widest group-hover:text-blue-400 transition">Main Node Wallet</p>
+                        </div>
+                        <svg id="walletChevron" class="w-4 h-4 text-muted transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
-                    <div class="mb-4">
-                        <h3 class="text-2xl font-black tracking-tight flex items-center gap-2">
-                            <span class="text-muted text-lg">$</span><span id="mainUsdValue">0.00</span>
-                        </h3>
-                    </div>
-                    <div class="space-y-2 mb-5">
-                        <div class="flex justify-between items-center text-xs font-bold bg-black/20 p-2 rounded-lg border border-gray-500/10">
-                            <span class="flex items-center gap-2 text-yellow-500"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M14.5 12c1.5 0 2.5-1 2.5-2.5S16 7 14.5 7H9v5h5.5zm-1 6c1.5 0 3-1 3-2.5S15 13 13.5 13H9v5h4.5zm5.5-2.5c0 3-2.5 5.5-5.5 5.5H8a1 1 0 01-1-1V4a1 1 0 011-1h5.5C16.5 3 19 5.5 19 8.5c0 1.2-.4 2.3-1 3.2 1 .8 1.5 1.9 1.5 3.1z"/></svg> BTC</span> <span id="mainBalBTC" class="text-white">0.0000</span>
+                    
+                    <div id="walletDetails" class="mt-4 transition-all duration-300 block">
+                        <div class="mb-4">
+                            <h3 class="text-2xl font-black tracking-tight flex items-center gap-2 text-white">
+                                <span class="text-muted text-lg">$</span><span id="mainUsdValue">0.00</span>
+                            </h3>
                         </div>
-                        <div class="flex justify-between items-center text-xs font-bold bg-black/20 p-2 rounded-lg border border-gray-500/10">
-                            <span class="flex items-center gap-2 text-blue-400"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 17.97L4.58 13.62 11.943 24l7.37-10.38-7.37 4.35zm.056-17.97L4.58 12.39l7.42 4.38 7.42-4.38L12 0z"/></svg> ETH</span> <span id="mainBalETH" class="text-white">0.0000</span>
-                        </div>
-                        <div class="flex justify-between items-center text-xs font-bold bg-black/20 p-2 rounded-lg border border-gray-500/10">
-                            <span class="flex items-center gap-2 text-green-500"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 13l-4-4h8l-4 4zm0-8l4 4H8l4-4z"/></svg> USDT</span> <span id="mainBalUSDT" class="text-white">0.00</span>
-                        </div>
-                        <div class="flex justify-between items-center text-xs font-bold bg-black/20 p-2 rounded-lg border border-gray-500/10">
-                            <span class="flex items-center gap-2 text-[#00ffaa]"><svg class="w-3 h-3" viewBox="0 0 128 128"><path fill="#00FFA3" d="M21.5 98.4l15.9-27.4h74.5L96 98.4H21.5z"/><path fill="#03E1FF" d="M21.5 29.6l15.9 27.4h74.5L96 29.6H21.5z"/><path fill="#DC1FFF" d="M96 64H21.5l15.9 27.5H112L96 64z"/></svg> SOL</span> <span id="mainBalSOL" class="text-white">0.0000</span>
+                        <div id="walletAssets" class="space-y-2 mb-5 max-h-[150px] overflow-y-auto no-scrollbar">
+                            </div>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <button onclick="openCustomModal('deposit')" class="casino-btn border py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-[#00ffaa] transition">Liquidity</button>
+                            <button onclick="openCustomModal('exchange')" class="casino-btn border py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-blue-400 transition">Exchange</button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <button onclick="openCustomModal('deposit')" class="casino-btn border py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-[#00ffaa] transition">Deposit</button>
-                        <button onclick="openCustomModal('withdraw')" class="casino-btn border py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-red-400 transition">Withdraw</button>
-                    </div>
-                    <button onclick="openCustomModal('exchange')" class="w-full bg-blue-600/20 text-blue-400 border border-blue-500/30 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-600/30 transition">On-Chain Exchange</button>
                 </div>
 
-                <div class="casino-panel border rounded-2xl p-5 relative overflow-hidden shadow-[0_0_20px_rgba(0,255,170,0.05)] border-[#00ffaa]/20">
+                <div class="casino-panel border rounded-2xl p-5 relative overflow-hidden shadow-[0_0_20px_rgba(0,255,170,0.05)] border-[#00ffaa]/30">
                     <div class="absolute inset-0 bg-gradient-to-br from-[#00ffaa]/5 to-transparent pointer-events-none"></div>
                     <div class="flex justify-between items-center mb-3">
-                        <p class="text-[10px] font-black text-[#00ffaa] uppercase tracking-widest">Rainbet Contract Wallet</p>
+                        <p class="text-[10px] font-black text-[#00ffaa] uppercase tracking-widest">Rainbet Contract</p>
                         <span class="w-1.5 h-1.5 bg-[#00ffaa] rounded-full animate-pulse shadow-[0_0_5px_#00ffaa]"></span>
                     </div>
-                    <div id="rainbetAnimAnchor" class="relative mb-4">
-                        <h3 id="solDisplayHeader" class="text-3xl font-black tracking-tight flex items-center gap-2">
-                            <span id="rainbetDisplaySOL">5.0000</span><span class="text-sm text-muted">SOL</span>
+                    <div class="relative mb-4">
+                        <h3 id="solDisplayHeader" class="text-3xl font-black tracking-tight flex items-center gap-2 text-white">
+                            <span id="rainbetDisplaySOL">0.0000</span><span class="text-sm text-muted">SOL</span>
                         </h3>
                     </div>
                     <button onclick="openCustomModal('transfer')" class="w-full bg-[#00ffaa] hover:bg-[#00d68f] text-[#06090e] py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition shadow-md flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg> Transfer SOL Bridge
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg> Bridge SOL
                     </button>
                 </div>
 
                 <div class="casino-panel border rounded-2xl p-5 relative">
-                    <label class="block text-[10px] font-black text-muted uppercase tracking-widest mb-2">Debit Contract Size</label>
+                    <label class="block text-[10px] font-black text-muted uppercase tracking-widest mb-2">Contract Stake (USD)</label>
                     <div class="flex gap-2">
-                        <span class="casino-input font-black px-3 py-2 rounded-lg border flex items-center justify-center text-sm">$</span>
+                        <span class="casino-input font-black px-3 py-2 rounded-lg border flex items-center justify-center text-sm text-white">$</span>
                         <input type="number" id="betAmountUsd" value="10" min="1" class="w-full casino-input border rounded-lg px-3 py-2 font-black outline-none focus:border-[#00ffaa] transition text-base">
                     </div>
                     <div class="text-[10px] text-muted font-bold mt-3 flex justify-between items-center">
@@ -168,31 +144,35 @@
 
             <div class="lg:col-span-9 flex flex-col gap-4">
                 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <div onclick="selectGame('blackjack', this)" class="game-card active p-3 rounded-xl text-center">
                         <svg class="w-6 h-6 mx-auto mb-1 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" stroke-width="2"/><path d="M7 8h.01M7 12h.01M17 16h.01M17 12h.01" stroke-width="2" stroke-linecap="round"/></svg>
-                        <p class="text-[10px] font-black uppercase tracking-widest">Blackjack</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-white">Blackjack</p>
                     </div>
                     <div onclick="selectGame('mines', this)" class="game-card p-3 rounded-xl text-center">
                         <svg class="w-6 h-6 mx-auto mb-1 text-[#00ffaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16v16H4zM9 9h.01M15 9h.01M9 15h.01M15 15h.01"/></svg>
-                        <p class="text-[10px] font-black uppercase tracking-widest">Mines</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-white">Mines</p>
                     </div>
                     <div onclick="selectGame('tower', this)" class="game-card p-3 rounded-xl text-center">
                         <svg class="w-6 h-6 mx-auto mb-1 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20h16M7 20v-4m10 4v-4m-7-4v8m4-8v8M7 12h10M9 12V8m6 4V8m-4-4v4m2-4h-4"/></svg>
-                        <p class="text-[10px] font-black uppercase tracking-widest">Tower</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-white">Tower</p>
                     </div>
-                    <div onclick="selectGame('videopoker', this)" class="game-card p-3 rounded-xl text-center">
-                        <svg class="w-6 h-6 mx-auto mb-1 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                        <p class="text-[10px] font-black uppercase tracking-widest">Video Poker</p>
+                    <div onclick="selectGame('crash', this)" class="game-card p-3 rounded-xl text-center">
+                        <svg class="w-6 h-6 mx-auto mb-1 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-white">Crash</p>
+                    </div>
+                    <div onclick="selectGame('vaults', this)" class="game-card p-3 rounded-xl text-center">
+                        <svg class="w-6 h-6 mx-auto mb-1 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-white">Vaults</p>
                     </div>
                 </div>
 
-                <div class="casino-panel border rounded-2xl flex-grow flex flex-col relative shadow-xl overflow-hidden">
-                    <div class="flex justify-between items-center px-6 py-4 border-b border-gray-500/10 bg-black/20">
+                <div class="casino-panel border rounded-2xl flex-grow flex flex-col relative shadow-xl overflow-hidden min-h-[450px]">
+                    <div class="flex justify-between items-center px-6 py-4 border-b border-gray-500/10 bg-black/20 z-10 relative">
                         <h3 id="activeGameTitle" class="text-sm font-black uppercase tracking-widest text-[#00ffaa]">Blackjack</h3>
-                        <div class="flex gap-3">
+                        <div class="flex gap-4">
                             <button onclick="renderIdleState()" class="text-muted hover:text-[#00ffaa] transition focus:outline-none flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Reset Table
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Refresh Table
                             </button>
                             <span class="text-muted">|</span>
                             <button onclick="showTutorial()" class="text-muted hover:text-white transition focus:outline-none flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest">
@@ -200,7 +180,7 @@
                             </button>
                         </div>
                     </div>
-                    <div id="gameArea" class="flex-grow flex flex-col items-center justify-center p-6 min-h-[450px] relative">
+                    <div id="gameArea" class="flex-grow flex flex-col items-center justify-center p-6 relative z-0">
                         </div>
                 </div>
             </div>
@@ -223,24 +203,20 @@
     <script>
         // --- UTILITIES & STATE ---
         const sleep = ms => new Promise(res => setTimeout(res, ms));
-        let isDark = true;
-        function toggleTheme() {
-            const body = document.getElementById('casinoBody');
-            isDark = !isDark;
-            body.className = `p-3 md:p-6 min-h-screen ${isDark ? 'casino-dark' : 'casino-light'}`;
-        }
-
-        // --- WALLET ARCHITECTURE ---
+        
         let balances = {
-            main: { BTC: 0.05, ETH: 0.8, USDT: 250.00, SOL: 2.0 }, // Dummy starting funds for demo
-            rainbet: { SOL: 5.0 } // The active betting wallet synced to DB
+            main: { BTC: 0, ETH: 0, USDT: 0, SOL: 0, XRP: 0, DOGE: 0, LTC: 0 },
+            rainbet: { SOL: 0 } // Default starts at 0
         };
-        let prices = { BTC: 65000, ETH: 3500, USDT: 1, SOL: 150 };
+        let prices = { BTC: 65000, ETH: 3500, USDT: 1, SOL: 150, XRP: 0.6, DOGE: 0.15, LTC: 80 };
+        const coinColors = { BTC: 'text-yellow-500', ETH: 'text-blue-400', USDT: 'text-green-500', SOL: 'text-[#00ffaa]', XRP: 'text-gray-400', DOGE: 'text-yellow-300', LTC: 'text-gray-300' };
+        
         let currentBetSol = 0;
         let winRigPercentage = -1;
-        let isGameActive = false; // Lock out multi-clicks
+        let isGameActive = false;
         let resetTimeout;
 
+        // --- LIVE ORACLE ---
         async function fetchPrices() {
             try {
                 const res = await fetch('https://api.binance.com/api/v3/ticker/price');
@@ -249,26 +225,44 @@
                     if(t.symbol === 'BTCUSDT') prices.BTC = parseFloat(t.price);
                     if(t.symbol === 'ETHUSDT') prices.ETH = parseFloat(t.price);
                     if(t.symbol === 'SOLUSDT') prices.SOL = parseFloat(t.price);
+                    if(t.symbol === 'XRPUSDT') prices.XRP = parseFloat(t.price);
+                    if(t.symbol === 'DOGEUSDT') prices.DOGE = parseFloat(t.price);
+                    if(t.symbol === 'LTCUSDT') prices.LTC = parseFloat(t.price);
                 });
                 updateWalletUI();
             } catch (e) {}
         }
         setInterval(fetchPrices, 15000); fetchPrices();
 
-        function updateWalletUI() {
-            // Main Wallet
-            document.getElementById('mainBalBTC').innerText = balances.main.BTC.toFixed(4);
-            document.getElementById('mainBalETH').innerText = balances.main.ETH.toFixed(4);
-            document.getElementById('mainBalUSDT').innerText = balances.main.USDT.toFixed(2);
-            document.getElementById('mainBalSOL').innerText = balances.main.SOL.toFixed(4);
-            
-            let mainUsd = (balances.main.BTC * prices.BTC) + (balances.main.ETH * prices.ETH) + (balances.main.USDT * prices.USDT) + (balances.main.SOL * prices.SOL);
-            document.getElementById('mainUsdValue').innerText = mainUsd.toFixed(2);
+        // --- WALLET UI ---
+        function toggleMainWallet() {
+            const body = document.getElementById('walletDetails');
+            const chev = document.getElementById('walletChevron');
+            if(body.classList.contains('hidden')) { body.classList.remove('hidden'); chev.style.transform = 'rotate(0deg)'; }
+            else { body.classList.add('hidden'); chev.style.transform = 'rotate(-90deg)'; }
+        }
 
-            // Rainbet Wallet
+        function updateWalletUI() {
+            let mainUsd = 0;
+            let html = '';
+            for (let coin in balances.main) {
+                if (balances.main[coin] > 0) {
+                    let valUsd = balances.main[coin] * prices[coin];
+                    mainUsd += valUsd;
+                    html += `
+                        <div class="flex justify-between items-center text-[11px] font-bold bg-black/30 p-2.5 rounded-xl border border-gray-500/20">
+                            <span class="${coinColors[coin]} tracking-widest">${coin}</span> 
+                            <div class="text-right">
+                                <span class="text-white block">${balances.main[coin].toFixed(coin==='USDT'||coin==='XRP'||coin==='DOGE'?2:4)}</span>
+                                <span class="text-[9px] text-muted block">$${valUsd.toFixed(2)}</span>
+                            </div>
+                        </div>`;
+                }
+            }
+            document.getElementById('walletAssets').innerHTML = html || '<p class="text-xs text-muted text-center py-2">Node Empty. Add Liquidity.</p>';
+            document.getElementById('mainUsdValue').innerText = mainUsd.toFixed(2);
             document.getElementById('rainbetDisplaySOL').innerText = balances.rainbet.SOL.toFixed(4);
             
-            // Bet Sizing
             const betUsd = parseFloat(document.getElementById('betAmountUsd').value) || 0;
             currentBetSol = betUsd / prices.SOL;
             document.getElementById('betAmountSol').innerText = currentBetSol.toFixed(4);
@@ -287,25 +281,11 @@
         }
 
         // --- ANIMATIONS ---
-        function animateWalletFloat(amount, isWin) {
-            const anchor = document.getElementById('rainbetAnimAnchor');
-            const el = document.createElement('div');
-            el.className = `anim-money-top ${isWin ? 'text-[#00ffaa]' : 'text-red-500'}`;
-            el.innerText = `${isWin ? '+' : '-'}${amount.toFixed(4)} SOL`;
-            anchor.appendChild(el);
-            
-            const header = document.getElementById('solDisplayHeader');
-            header.classList.remove('balance-flash-green', 'balance-flash-red');
-            void header.offsetWidth; 
-            header.classList.add(isWin ? 'balance-flash-green' : 'balance-flash-red');
-            setTimeout(() => { el.remove(); header.classList.remove('balance-flash-green', 'balance-flash-red'); }, 2000);
-        }
-
-        function animateTableFloat(amount) {
+        function animateTableFloat(amount, isWin) {
             const area = document.getElementById('gameArea');
             const el = document.createElement('div');
-            el.className = 'anim-money-table text-[#00ffaa]';
-            el.innerText = `+${amount.toFixed(4)} SOL`;
+            el.className = `anim-money-table ${isWin ? 'text-[#00ffaa]' : 'text-red-500'}`;
+            el.innerText = `${isWin ? '+' : '-'}${amount.toFixed(4)} SOL`;
             area.appendChild(el);
             setTimeout(() => el.remove(), 2500);
         }
@@ -314,10 +294,9 @@
             if(isGameActive) return false;
             const betUsd = parseFloat(document.getElementById('betAmountUsd').value);
             if(isNaN(betUsd) || betUsd <= 0) { openCustomModal('error', 'Invalid contract size.'); return false; }
-            if(currentBetSol > balances.rainbet.SOL) { openCustomModal('error', 'Insufficient Rainbet SOL liquidity.'); return false; }
+            if(currentBetSol > balances.rainbet.SOL) { openCustomModal('error', 'Insufficient Rainbet SOL liquidity. Transfer funds from Main Node.'); return false; }
             
             balances.rainbet.SOL -= currentBetSol;
-            animateWalletFloat(currentBetSol, false);
             updateWalletUI();
             syncCasinoToServer();
             isGameActive = true;
@@ -327,11 +306,19 @@
         function rewardWin(multiplier) {
             const winAmount = currentBetSol * multiplier;
             balances.rainbet.SOL += winAmount;
-            animateWalletFloat(winAmount, true);
-            animateTableFloat(winAmount);
-            updateWalletUI();
-            syncCasinoToServer();
-            isGameActive = false;
+            animateTableFloat(winAmount, true);
+            
+            const header = document.getElementById('solDisplayHeader');
+            header.classList.remove('balance-flash-green'); void header.offsetWidth; header.classList.add('balance-flash-green');
+            
+            updateWalletUI(); syncCasinoToServer();
+        }
+
+        function triggerLossAnim() {
+            animateTableFloat(currentBetSol, false);
+            const header = document.getElementById('solDisplayHeader');
+            header.classList.remove('balance-flash-red'); void header.offsetWidth; header.classList.add('balance-flash-red');
+            gameArea.classList.add('lose-glow');
         }
 
         // --- MODAL ENGINE ---
@@ -344,7 +331,7 @@
         function openCustomModal(type, msg = '') {
             uiModal.classList.remove('hidden');
             setTimeout(() => { uiModal.classList.remove('opacity-0'); uiBox.classList.remove('scale-95'); }, 10);
-            uiBox.style.borderColor = '#4b5563'; // Default border
+            uiBox.style.borderColor = '#4b5563'; 
 
             if(type === 'error') {
                 uiBox.style.borderColor = '#ef4444';
@@ -353,31 +340,30 @@
                 uiActions.innerHTML = `<button onclick="closeCustomModal()" class="w-full bg-red-500 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">Acknowledge</button>`;
             }
             else if(type === 'deposit') {
-                uiTitle.innerText = "Deposit to Main Node";
+                uiTitle.innerText = "Network Liquidity (Mint/Burn)";
                 uiContent.innerHTML = `
-                    <select id="depAsset" class="w-full casino-input border rounded-xl px-4 py-3 mb-3 font-black outline-none text-sm"><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="USDT">USDT</option><option value="SOL">SOL</option></select>
-                    <input type="number" id="depAmount" placeholder="Amount" class="w-full casino-input border rounded-xl px-4 py-3 font-black outline-none text-sm">`;
-                uiActions.innerHTML = `<button onclick="execDeposit()" class="w-full casino-btn border py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:text-[#00ffaa] transition">Confirm Deposit</button>`;
-            }
-            else if(type === 'withdraw') {
-                uiTitle.innerText = "Withdraw from Main Node";
-                uiContent.innerHTML = `
-                    <select id="witAsset" class="w-full casino-input border rounded-xl px-4 py-3 mb-3 font-black outline-none text-sm"><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="USDT">USDT</option><option value="SOL">SOL</option></select>
-                    <input type="number" id="witAmount" placeholder="Amount" class="w-full casino-input border rounded-xl px-4 py-3 font-black outline-none text-sm">`;
-                uiActions.innerHTML = `<button onclick="execWithdraw()" class="w-full casino-btn border py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:text-red-400 transition">Execute Withdrawal</button>`;
+                    <div class="flex gap-2 mb-3">
+                        <select id="liqAction" class="w-1/3 casino-input border rounded-xl px-3 py-3 font-black outline-none text-xs"><option value="add">Mint</option><option value="remove">Burn</option></select>
+                        <select id="liqAsset" class="w-2/3 casino-input border rounded-xl px-3 py-3 font-black outline-none text-xs"><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="USDT">USDT</option><option value="SOL">SOL</option><option value="XRP">XRP</option><option value="DOGE">DOGE</option><option value="LTC">LTC</option></select>
+                    </div>
+                    <input type="number" id="liqAmount" placeholder="Amount" class="w-full casino-input border rounded-xl px-4 py-3 font-black outline-none text-sm">`;
+                uiActions.innerHTML = `<button onclick="execLiquidity()" class="w-full casino-btn border py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:text-[#00ffaa] transition">Execute</button>`;
             }
             else if(type === 'exchange') {
                 uiBox.style.borderColor = '#3b82f6';
                 uiTitle.innerHTML = `<span class="text-blue-500">On-Chain Exchange (To SOL)</span>`;
+                let options = Object.keys(balances.main).filter(c => c !== 'SOL' && balances.main[c] > 0).map(c => `<option value="${c}">${c}</option>`).join('');
+                if(options === '') options = `<option value="">No assets available</option>`;
+                
                 uiContent.innerHTML = `
-                    <p class="text-[10px] text-muted uppercase tracking-widest mb-2">Network Fee: 1.5%</p>
-                    <select id="excAsset" class="w-full casino-input border rounded-xl px-4 py-3 mb-3 font-black outline-none text-sm focus:border-blue-500"><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="USDT">USDT</option></select>
+                    <p class="text-[10px] text-muted uppercase tracking-widest mb-2">Network Routing Fee: 1.5%</p>
+                    <select id="excAsset" class="w-full casino-input border rounded-xl px-4 py-3 mb-3 font-black outline-none text-sm focus:border-blue-500">${options}</select>
                     <input type="number" id="excAmount" placeholder="Amount to swap" class="w-full casino-input border rounded-xl px-4 py-3 font-black outline-none text-sm focus:border-blue-500">`;
                 uiActions.innerHTML = `<button onclick="execExchange()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md">Swap to SOL</button>`;
             }
             else if(type === 'transfer') {
                 uiBox.style.borderColor = '#00ffaa';
-                uiTitle.innerHTML = `<span class="text-[#00ffaa]">Bridge SOL</span>`;
+                uiTitle.innerHTML = `<span class="text-[#00ffaa]">Bridge SOL Protocol</span>`;
                 uiContent.innerHTML = `
                     <select id="transDir" class="w-full casino-input border rounded-xl px-4 py-3 mb-3 font-black outline-none text-sm focus:border-[#00ffaa]"><option value="in">Main ➔ Rainbet</option><option value="out">Rainbet ➔ Main</option></select>
                     <input type="number" id="transAmount" placeholder="SOL Amount" class="w-full casino-input border rounded-xl px-4 py-3 font-black outline-none text-sm focus:border-[#00ffaa]">`;
@@ -386,17 +372,20 @@
         }
         function closeCustomModal() { uiModal.classList.add('opacity-0'); uiBox.classList.add('scale-95'); setTimeout(() => uiModal.classList.add('hidden'), 300); }
 
-        function execDeposit() {
-            let asset = document.getElementById('depAsset').value; let amt = parseFloat(document.getElementById('depAmount').value);
-            if(amt>0) { balances.main[asset] += amt; updateWalletUI(); closeCustomModal(); }
-        }
-        function execWithdraw() {
-            let asset = document.getElementById('witAsset').value; let amt = parseFloat(document.getElementById('witAmount').value);
-            if(amt>0 && balances.main[asset] >= amt) { balances.main[asset] -= amt; updateWalletUI(); closeCustomModal(); openCustomModal('error', `Withdrawal of ${amt} ${asset} broadcasted to network.`); }
-            else { openCustomModal('error', 'Insufficient Main Node balance.'); }
+        function execLiquidity() {
+            let action = document.getElementById('liqAction').value;
+            let asset = document.getElementById('liqAsset').value; 
+            let amt = parseFloat(document.getElementById('liqAmount').value);
+            if(amt>0) { 
+                if(action === 'add') balances.main[asset] += amt; 
+                else if(action === 'remove' && balances.main[asset] >= amt) balances.main[asset] -= amt;
+                else { openCustomModal('error', 'Insufficient balance to burn.'); return; }
+                updateWalletUI(); closeCustomModal(); 
+            }
         }
         function execExchange() {
             let asset = document.getElementById('excAsset').value; let amt = parseFloat(document.getElementById('excAmount').value);
+            if(!asset) { openCustomModal('error', 'No asset selected.'); return; }
             if(amt>0 && balances.main[asset] >= amt) { 
                 balances.main[asset] -= amt;
                 let usdValue = amt * prices[asset];
@@ -410,7 +399,7 @@
             if(amt>0) {
                 if(dir === 'in' && balances.main.SOL >= amt) { balances.main.SOL -= amt; balances.rainbet.SOL += amt; }
                 else if(dir === 'out' && balances.rainbet.SOL >= amt) { balances.rainbet.SOL -= amt; balances.main.SOL += amt; }
-                else { openCustomModal('error', 'Insufficient balance.'); return; }
+                else { openCustomModal('error', 'Insufficient SOL balance.'); return; }
                 updateWalletUI(); syncCasinoToServer(); closeCustomModal();
             }
         }
@@ -432,26 +421,42 @@
 
         const tutorials = {
             'blackjack': 'Cards: Closer to 21 wins.\nDealer draws to 17. Aces 1 or 11.',
-            'mines': 'Arcade: Click tiles to reveal gems. Multiplier builds. Hit a bomb = lose. Cashout anytime.',
+            'mines': 'Arcade: Click tiles to reveal data. Multiplier builds. Hit a bomb = lose. Cashout anytime.',
             'tower': 'Arcade: Climb rows from bottom up. Pick 1 of 3 blocks. Bomb = lose. Safe = multiplier up.',
-            'videopoker': 'Cards: Build a 5-card poker hand. Hold cards, draw once. Jacks or better pays.'
+            'crash': 'Arcade: Multiplier climbs rapidly. It can crash at any millisecond. Cash out before the crash to win.',
+            'vaults': 'Arcade: 3 Cryptographic Vaults. Only 1 contains the Data Key. Pick correctly to win 2.8x.'
         };
         function showTutorial() { uiTitle.innerText = activeGame.toUpperCase() + " RULES"; uiContent.innerText = tutorials[activeGame]; openCustomModal('tutorial'); uiBox.style.borderColor = '#4b5563'; }
 
+        // --- SHUFFLE UTILITY (Fisher-Yates) ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
         // --- GAME ENGINE ---
         const gameArea = document.getElementById('gameArea');
+        
         function renderIdleState() {
             isGameActive = false;
             clearTimeout(resetTimeout);
-            gameArea.classList.remove('win-glow');
+            if(window.crashAnimReq) cancelAnimationFrame(window.crashAnimReq);
+            gameArea.classList.remove('win-glow', 'lose-glow');
             
             let vis = '';
-            if(activeGame === 'blackjack' || activeGame === 'videopoker') {
-                vis = `<div class="card-fan-container mb-12"><div class="playing-card card-hidden card-fan fan-1"></div><div class="playing-card card-hidden card-fan fan-2"></div><div class="playing-card card-hidden card-fan fan-3"></div><div class="playing-card card-hidden card-fan fan-4"></div></div>`;
+            if(activeGame === 'blackjack') {
+                vis = `<div class="flex justify-center mt-6 mb-12"><div class="playing-card card-hidden" style="transform: rotate(-15deg) translateX(-35px); box-shadow: -3px 0 15px rgba(0,0,0,0.6);"></div><div class="playing-card card-hidden" style="transform: rotate(-5deg) translateX(-12px); z-index: 2;"></div><div class="playing-card card-hidden" style="transform: rotate(5deg) translateX(12px); z-index: 3;"></div><div class="playing-card card-hidden" style="transform: rotate(15deg) translateX(35px); z-index: 4;"></div></div>`;
             } else if (activeGame === 'mines') {
                 vis = `<div class="mines-grid mb-12 opacity-50">${Array(25).fill('<div class="mine-tile"></div>').join('')}</div>`;
             } else if (activeGame === 'tower') {
-                vis = `<div class="mb-12 opacity-50">${Array(5).fill('<div class="tower-row"><div class="tower-tile"></div><div class="tower-tile"></div><div class="tower-tile"></div></div>').join('')}</div>`;
+                vis = `<div class="mb-12 opacity-50 w-full">${Array(6).fill('<div class="tower-row"><div class="tower-tile"></div><div class="tower-tile"></div><div class="tower-tile"></div></div>').join('')}</div>`;
+            } else if (activeGame === 'crash') {
+                vis = `<div class="mb-12 text-[5rem] font-black text-muted opacity-30 tracking-tighter">1.00x</div>`;
+            } else if (activeGame === 'vaults') {
+                vis = `<div class="flex gap-6 mb-12 opacity-50"><div class="vault-tile w-20"></div><div class="vault-tile w-20"></div><div class="vault-tile w-20"></div></div>`;
             }
 
             gameArea.innerHTML = `
@@ -466,6 +471,7 @@
                     </button>
                 </div>
             `;
+            updateWalletUI(); // Force update
         }
 
         function selectGame(game, btnEl) {
@@ -479,28 +485,25 @@
 
         function playActiveGame() {
             if(!chargeBet()) return;
-            gameArea.classList.remove('win-glow');
+            gameArea.classList.remove('win-glow', 'lose-glow');
             if(activeGame === 'blackjack') initBlackjack();
             if(activeGame === 'mines') initMines();
             if(activeGame === 'tower') initTower();
-            if(activeGame === 'videopoker') initVideoPoker();
+            if(activeGame === 'crash') initCrash();
+            if(activeGame === 'vaults') initVaults();
         }
 
         function showResultUI(msg, isWin) {
             isGameActive = false;
             if(isWin) setTimeout(() => gameArea.classList.add('win-glow'), 100);
-            return `<div class="mt-8 w-full text-center text-sm font-black uppercase tracking-widest ${isWin ? 'text-[#00ffaa]' : 'text-red-500'} bg-black/30 p-4 rounded-xl border border-gray-500/20 shadow-inner z-20 relative">${msg}</div>`;
-        }
+            else triggerLossAnim();
+            
+            resetTimeout = setTimeout(() => {
+                gameArea.style.animation = "fadeOutTable 0.5s forwards";
+                setTimeout(() => { gameArea.style.animation="none"; renderIdleState(); }, 450);
+            }, 3500);
 
-        // --- CARDS UTILS ---
-        const suits = [{s:'&spades;', c:false}, {s:'&hearts;', c:true}, {s:'&diams;', c:true}, {s:'&clubs;', c:false}];
-        const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-        let deck = [];
-        function createDeck() { deck = []; suits.forEach(s => values.forEach(v => deck.push({ suit: s.s, value: v, isRed: s.c, numValue: ['J','Q','K'].includes(v)?10:(v==='A'?11:parseInt(v)) }))); deck.sort(()=>Math.random()-0.5); }
-        function drawCard() { return deck.pop(); }
-        function renderCard(card, isHeld=false) {
-            if(!card) return `<div class="playing-card card-hidden anim-deal"></div>`;
-            return `<div class="playing-card ${card.isRed?'card-red':'card-black'} anim-deal ${isHeld?'card-held':''}"><span class="card-suit-top">${card.value}<br>${card.suit}</span>${card.suit}<span class="card-suit-bottom">${card.value}<br>${card.suit}</span></div>`;
+            return `<div class="mt-8 w-full text-center text-sm font-black uppercase tracking-widest ${isWin ? 'text-[#00ffaa]' : 'text-red-500'} bg-black/40 p-4 rounded-xl border border-gray-500/30 shadow-inner z-20 relative">${msg}</div><div class="mt-4 text-[9px] font-bold text-muted uppercase tracking-widest animate-pulse text-center">Auto-resetting protocol...</div>`;
         }
 
         // === 1. BLACKJACK ===
@@ -521,43 +524,43 @@
             
             if(forceWin()) { bjPlayer[0].value='A'; bjPlayer[0].numValue=11; bjPlayer[1].value='K'; bjPlayer[1].numValue=10; }
             renderBj(true, true);
-            if(getBjScore(bjPlayer) === 21) { await sleep(500); document.getElementById('bjControls').innerHTML = showResultUI("BLACKJACK! (2.5x)", true); rewardWin(2.5); }
+            if(getBjScore(bjPlayer) === 21) { 
+                document.getElementById('bjControls').innerHTML = ''; // Lock
+                await sleep(500); document.getElementById('bjControls').innerHTML = showResultUI("BLACKJACK! (2.5x)", true); rewardWin(2.5); 
+            }
         }
         function renderBj(hideDealer, interactive) {
             let pScore = getBjScore(bjPlayer);
             let dHtml = hideDealer ? `${bjDealer[0]?renderCard(bjDealer[0]):''}${bjDealer.length>1?renderCard(null):''}` : bjDealer.map(c=>renderCard(c)).join('');
             gameArea.innerHTML = `<div class="flex flex-col gap-8 w-full max-w-sm"><div class="text-center w-full"><p class="text-[10px] text-muted mb-3 font-black uppercase tracking-widest">Dealer ${hideDealer?'':'('+getBjScore(bjDealer)+')'}</p><div class="flex gap-2 justify-center">${dHtml}</div></div><div class="text-center w-full"><p class="text-[10px] text-[#00ffaa] mb-3 font-black uppercase tracking-widest">Client (${pScore})</p><div class="flex gap-2 justify-center flex-wrap">${bjPlayer.map(c=>renderCard(c)).join('')}</div></div><div id="bjControls" class="flex gap-3 justify-center min-h-[50px]"></div></div>`;
             if(interactive && pScore !== 21) {
-                document.getElementById('bjControls').innerHTML = `<button onclick="bjHit()" class="flex-1 casino-btn border text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">Hit</button><button onclick="bjStand()" class="flex-1 bg-[#00ffaa] text-[#06090e] py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">Stand</button>`;
+                document.getElementById('bjControls').innerHTML = `<button onclick="bjHit()" class="flex-1 casino-btn border text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md hover:scale-105">Hit</button><button onclick="bjStand()" class="flex-1 bg-[#00ffaa] text-[#06090e] py-3 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md hover:scale-105">Stand</button>`;
             }
         }
         async function bjHit() {
-            document.getElementById('bjControls').innerHTML = ''; // Lock buttons
+            document.getElementById('bjControls').innerHTML = ''; 
             bjPlayer.push(drawCard()); renderBj(true, false);
             if(getBjScore(bjPlayer) > 21) { await sleep(500); renderBj(false, false); document.getElementById('bjControls').innerHTML = showResultUI("BUST. Terminated.", false); }
-            else renderBj(true, true); // Unlock
+            else renderBj(true, true); 
         }
         async function bjStand() {
-            document.getElementById('bjControls').innerHTML = ''; // Lock
+            document.getElementById('bjControls').innerHTML = ''; 
             renderBj(false, false); let dScore = getBjScore(bjDealer);
             while(dScore < 17) { await sleep(600); bjDealer.push(drawCard()); dScore = getBjScore(bjDealer); renderBj(false, false); }
             await sleep(500); let pScore = getBjScore(bjPlayer); let res = document.getElementById('bjControls');
             if(dScore > 21) { res.innerHTML = showResultUI("Dealer Bust! (2x)", true); rewardWin(2); }
             else if(pScore > dScore) { res.innerHTML = showResultUI("Client Wins (2x)", true); rewardWin(2); }
-            else if(pScore < dScore) { res.innerHTML = showResultUI("Dealer Wins.", false); isGameActive = false; }
+            else if(pScore < dScore) { res.innerHTML = showResultUI("Dealer Wins.", false); }
             else { res.innerHTML = showResultUI("Push. Returned.", true); rewardWin(1); }
         }
 
-        // === 2. MINES ===
-        let mineGrid = []; let mineMult = 1.0; let gemsFound = 0;
+        // === 2. MINES (True Random) ===
+        let mineGrid = []; let mineMult = 1.0; let gemsFound = 0; let mineActive = false;
         function initMines() {
-            mineMult = 1.0; gemsFound = 0; mineGrid = Array(25).fill('gem');
-            let bombCount = 5; // Standard 5 bombs
-            for(let i=0; i<bombCount; i++) {
-                let idx; do { idx = Math.floor(Math.random()*25); } while(mineGrid[idx]==='bomb');
-                mineGrid[idx] = 'bomb';
-            }
-            if(forceWin()) mineGrid = Array(25).fill('gem'); // Rig makes everything safe
+            mineMult = 1.0; gemsFound = 0; mineActive = true;
+            // True Randomization
+            let tempDeck = Array(20).fill('gem').concat(Array(5).fill('bomb'));
+            mineGrid = forceWin() ? Array(25).fill('gem') : shuffleArray(tempDeck);
             renderMines(true);
         }
         function renderMines(interactive) {
@@ -569,44 +572,43 @@
                 } else if(state === 'safe') { // Revealed gem
                     html += `<div class="mine-tile safe revealed"><svg class="w-5 h-5 text-[#00ffaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>`;
                 } else if(state === 'exploded' || state === 'revealed_bomb') { // Boom
-                    html += `<div class="mine-tile bomb revealed ${state==='exploded'?'animate-pulse':''}"><svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM8.5 9.5L7 8l1.5-1.5L10 8l1.5-1.5L13 8l-1.5 1.5L13 11l-1.5 1.5L10 11l-1.5 1.5L7 11l1.5-1.5z" clip-rule="evenodd"/></svg></div>`;
+                    html += `<div class="mine-tile bomb revealed ${state==='exploded'?'animate-pulse':''}"><svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16z" clip-rule="evenodd"/></svg></div>`;
                 }
             }
-            html += `</div><div id="mineControls" class="w-full max-w-[300px]"></div></div>`;
+            html += `</div><div id="mineControls" class="w-full max-w-[300px] min-h-[50px]"></div></div>`;
             gameArea.innerHTML = html;
             
             if(interactive && gemsFound > 0) {
-                document.getElementById('mineControls').innerHTML = `<button onclick="cashoutMines()" class="w-full bg-[#00ffaa] text-[#06090e] py-4 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md">Cashout (${(currentBetSol*mineMult).toFixed(4)} SOL)</button>`;
+                document.getElementById('mineControls').innerHTML = `<button onclick="cashoutMines()" class="w-full bg-[#00ffaa] text-[#06090e] py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md hover:scale-105">Cashout (${(currentBetSol*mineMult).toFixed(4)} SOL)</button>`;
             }
         }
         function clickMine(i) {
+            if(!mineActive) return;
             let type = mineGrid[i];
             if(type === 'bomb') {
-                // Lose
-                mineGrid[i] = 'exploded';
+                mineActive = false; mineGrid[i] = 'exploded';
                 for(let j=0; j<25; j++) if(mineGrid[j]==='bomb') mineGrid[j] = 'revealed_bomb';
                 renderMines(false);
                 document.getElementById('mineControls').innerHTML = showResultUI("Bomb hit. Terminated.", false);
             } else if(type === 'gem') {
-                // Safe
                 mineGrid[i] = 'safe'; gemsFound++;
-                mineMult += 0.2 + (gemsFound * 0.05); // Curve
+                mineMult += 0.2 + (gemsFound * 0.05);
                 renderMines(true);
             }
         }
         function cashoutMines() {
-            renderMines(false); // lock
+            mineActive = false; renderMines(false);
             document.getElementById('mineControls').innerHTML = showResultUI(`Secured ${mineMult.toFixed(2)}x`, true);
             rewardWin(mineMult);
         }
 
-        // === 3. TOWER ===
-        let towerGrid = []; let towerRow = 0; let towerMult = 1.0;
+        // === 3. TOWER (True Random) ===
+        let towerGrid = []; let towerRow = 0; let towerMult = 1.0; let towerActive = false;
         function initTower() {
-            towerGrid = []; towerRow = 0; towerMult = 1.0;
+            towerGrid = []; towerRow = 0; towerMult = 1.0; towerActive = true;
             for(let r=0; r<6; r++) {
-                let row = ['gem','gem','gem']; row[Math.floor(Math.random()*3)] = 'bomb';
-                if(forceWin()) row = ['gem','gem','gem']; // Rig
+                let row = shuffleArray(['gem','gem','bomb']);
+                if(forceWin()) row = ['gem','gem','gem']; 
                 towerGrid.push(row);
             }
             renderTower(true);
@@ -618,13 +620,9 @@
                 html += `<div class="tower-row ${isActive ? 'active' : ''}">`;
                 for(let c=0; c<3; c++) {
                     let state = towerGrid[r][c];
-                    if(state==='gem' || state==='bomb') {
-                        html += `<div class="tower-tile" ${isActive ? `onclick="clickTower(${r},${c})"` : ''}></div>`;
-                    } else if(state==='safe') {
-                        html += `<div class="tower-tile safe"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>`;
-                    } else if(state==='exploded' || state==='revealed_bomb') {
-                        html += `<div class="tower-tile bomb ${state==='exploded'?'animate-pulse':''}"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16z" clip-rule="evenodd"/></svg></div>`;
-                    }
+                    if(state==='gem' || state==='bomb') html += `<div class="tower-tile" ${isActive ? `onclick="clickTower(${r},${c})"` : ''}></div>`;
+                    else if(state==='safe') html += `<div class="tower-tile safe"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>`;
+                    else if(state==='exploded' || state==='revealed_bomb') html += `<div class="tower-tile bomb ${state==='exploded'?'animate-pulse':''}"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16z" clip-rule="evenodd"/></svg></div>`;
                 }
                 html += `</div>`;
             }
@@ -632,63 +630,112 @@
             gameArea.innerHTML = html;
 
             if(interactive && towerRow > 0) {
-                document.getElementById('towerControls').innerHTML = `<button onclick="cashoutTower()" class="w-full bg-[#00ffaa] text-[#06090e] py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md">Cashout (${(currentBetSol*towerMult).toFixed(4)} SOL)</button>`;
+                document.getElementById('towerControls').innerHTML = `<button onclick="cashoutTower()" class="w-full bg-[#00ffaa] text-[#06090e] py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md hover:scale-105">Cashout (${(currentBetSol*towerMult).toFixed(4)} SOL)</button>`;
             }
         }
         function clickTower(r, c) {
-            if(r !== towerRow) return;
+            if(!towerActive || r !== towerRow) return;
             let type = towerGrid[r][c];
             if(type === 'bomb') {
-                towerGrid[r][c] = 'exploded';
+                towerActive = false; towerGrid[r][c] = 'exploded';
                 for(let i=0; i<3; i++) if(towerGrid[r][i]==='bomb') towerGrid[r][i]='revealed_bomb';
                 renderTower(false);
                 document.getElementById('towerControls').innerHTML = showResultUI("Fell off. Terminated.", false);
             } else {
-                towerGrid[r][c] = 'safe';
-                towerMult *= 1.4; // 1.4x per step
-                towerRow++;
-                if(towerRow === 6) { renderTower(false); cashoutTower(); } // Auto win top
+                towerGrid[r][c] = 'safe'; towerMult *= 1.4; towerRow++;
+                if(towerRow === 6) { towerActive = false; renderTower(false); cashoutTower(); } 
                 else renderTower(true);
             }
         }
         function cashoutTower() {
-            renderTower(false);
+            towerActive = false; renderTower(false);
             document.getElementById('towerControls').innerHTML = showResultUI(`Top reached ${towerMult.toFixed(2)}x`, true);
             rewardWin(towerMult);
         }
 
-        // === 4. VIDEO POKER ===
-        let vpHand = [], vpHeld = [false,false,false,false,false];
-        async function initVideoPoker() {
-            createDeck(); vpHand = []; vpHeld = [false,false,false,false,false];
-            gameArea.innerHTML = `<p class="text-muted text-xs uppercase tracking-widest animate-pulse">Initializing Hand...</p>`;
-            for(let i=0; i<5; i++) { await sleep(150); vpHand.push(drawCard()); renderVP(false, false); }
-            if(forceWin()) { vpHand[0].value='A'; vpHand[1].value='A'; renderVP(false, false); } 
-            renderVP(false, true);
-        }
-        function toggleVPHold(idx) {
-            if(document.getElementById('vpControls').innerHTML.includes('Draw Replacement')) { vpHeld[idx] = !vpHeld[idx]; renderVP(false, true); }
-        }
-        function renderVP(isFinal, interactive) {
-            let cardsHtml = vpHand.map((c, i) => `<div ${interactive?`onclick="toggleVPHold(${i})"`:''} class="${interactive?'cursor-pointer transition-transform hover:-translate-y-1':''}">${renderCard(c, vpHeld[i])}</div>`).join('');
-            gameArea.innerHTML = `<p class="mb-6 text-[10px] font-black ${isFinal?'text-muted':'text-[#00ffaa]'} uppercase tracking-widest">${isFinal?'Final Config':'Select holds'}</p><div class="flex gap-2 mb-8 justify-center flex-wrap w-full">${cardsHtml}</div><div id="vpControls" class="min-h-[50px] flex w-full max-w-sm justify-center"></div>`;
-            if(interactive) document.getElementById('vpControls').innerHTML = `<button onclick="drawVP()" class="w-full bg-[#00ffaa] text-[#06090e] py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition">Draw Replacement</button>`;
-        }
-        async function drawVP() {
-            renderVP(false, false); // lock
-            for(let i=0; i<5; i++) { if(!vpHeld[i]) { vpHand[i] = drawCard(); renderVP(false, false); await sleep(200); } }
-            renderVP(true, false);
+        // === 4. CRASH ===
+        let crashMult = 1.00; let crashTarget = 1.00; let crashActive = false;
+        function initCrash() {
+            crashMult = 1.00; crashActive = true;
+            // House edge algo: ~1% instant crash, otherwise exponential target
+            let r = Math.random();
+            crashTarget = r < 0.03 ? 1.00 : (100 / (Math.random() * 100)); 
+            if(forceWin()) crashTarget = 15.00;
             
-            let counts = {}; vpHand.forEach(c => counts[c.value] = (counts[c.value] || 0) + 1);
-            let isWin = false, mult = 0, name = "High Card";
-            for(let val in counts) {
-                if(counts[val]===4) { isWin=true; mult=25; name="Four of a Kind"; break; }
-                if(counts[val]===3) { isWin=true; mult=3; name="Three of a Kind"; break; }
-                if(counts[val]===2 && ['J','Q','K','A'].includes(val)) { isWin=true; mult=2; name="Jacks or Better"; break; }
+            gameArea.innerHTML = `
+                <div class="flex flex-col items-center w-full">
+                    <div id="crashDisplay" class="mb-10 text-[6rem] font-black text-white tracking-tighter transition-transform duration-75">1.00x</div>
+                    <div id="crashControls" class="w-full max-w-[250px] min-h-[50px]">
+                        <button onclick="cashoutCrash()" class="w-full bg-[#00ffaa] text-[#06090e] py-4 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md hover:scale-105">Cashout Now</button>
+                    </div>
+                </div>
+            `;
+            window.crashAnimReq = requestAnimationFrame(updateCrash);
+        }
+        function updateCrash() {
+            if(!crashActive) return;
+            crashMult += 0.005 + (crashMult * 0.002); // Accelerate
+            
+            const disp = document.getElementById('crashDisplay');
+            if(disp) {
+                disp.innerText = crashMult.toFixed(2) + 'x';
+                disp.style.transform = `scale(${Math.min(1.5, 1 + (crashMult * 0.02))})`;
+                if(crashMult > 2) disp.classList.add('text-[#00ffaa]');
             }
-            await sleep(400);
-            if(isWin) { document.getElementById('vpControls').innerHTML = showResultUI(`${name} (${mult}x)`, true); rewardWin(mult); }
-            else { document.getElementById('vpControls').innerHTML = showResultUI("Unqualified. Terminated.", false); isGameActive = false; }
+
+            if(crashMult >= crashTarget) {
+                crashActive = false;
+                if(disp) { disp.innerText = crashTarget.toFixed(2) + 'x'; disp.classList.replace('text-[#00ffaa]', 'text-red-500'); disp.classList.add('animate-pulse'); }
+                document.getElementById('crashControls').innerHTML = showResultUI("CRASHED", false);
+            } else {
+                window.crashAnimReq = requestAnimationFrame(updateCrash);
+            }
+        }
+        function cashoutCrash() {
+            if(!crashActive) return;
+            crashActive = false;
+            document.getElementById('crashControls').innerHTML = showResultUI(`Secured at ${crashMult.toFixed(2)}x`, true);
+            rewardWin(crashMult);
+        }
+
+        // === 5. VAULTS (Shells) ===
+        let vaultActive = false; let winningVault = 0; let vaultState = [0,0,0];
+        function initVaults() {
+            vaultActive = true; winningVault = Math.floor(Math.random() * 3);
+            if(forceWin()) winningVault = -1; // Rig handles in click logic
+            vaultState = [0,0,0]; // 0=closed, 1=win, 2=lose
+            renderVaults();
+        }
+        function renderVaults() {
+            let html = `<div class="flex flex-col items-center w-full"><p class="text-[10px] text-muted font-black uppercase tracking-widest mb-10">Select a Vault (2.8x)</p><div class="flex gap-6 mb-12">`;
+            for(let i=0; i<3; i++) {
+                if(vaultState[i] === 0) {
+                    html += `<div class="vault-tile w-24" ${vaultActive ? `onclick="clickVault(${i})"` : ''}><svg class="w-8 h-8 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div>`;
+                } else if(vaultState[i] === 1) {
+                    html += `<div class="vault-tile opened win w-24"><svg class="w-10 h-10 text-[#00ffaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>`;
+                } else {
+                    html += `<div class="vault-tile opened lose w-24"><svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>`;
+                }
+            }
+            html += `</div><div id="vaultControls" class="w-full max-w-[300px] min-h-[50px]"></div></div>`;
+            gameArea.innerHTML = html;
+        }
+        function clickVault(i) {
+            if(!vaultActive) return;
+            vaultActive = false;
+            
+            if(forceWin() || i === winningVault) {
+                vaultState[i] = 1; // Win
+                for(let j=0;j<3;j++) if(j!==i) vaultState[j] = 2;
+                renderVaults();
+                document.getElementById('vaultControls').innerHTML = showResultUI("Data Key Found (2.8x)", true);
+                rewardWin(2.8);
+            } else {
+                vaultState[i] = 2; // Lose
+                for(let j=0;j<3;j++) if(j===winningVault) vaultState[j] = 1; else vaultState[j] = 2;
+                renderVaults();
+                document.getElementById('vaultControls').innerHTML = showResultUI("Vault Empty. Terminated.", false);
+            }
         }
 
         // INIT
