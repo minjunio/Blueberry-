@@ -7,13 +7,26 @@
     <style>
         .playing-card {
             width: 60px; height: 85px; background: white; border-radius: 8px; border: 1px solid #e2e8f0;
-            display: flex; justify-content: center; items-center; font-weight: 900; font-size: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative;
+            display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); position: relative;
         }
         .card-red { color: #ef4444; }
         .card-black { color: #1f2937; }
         .card-suit-top { position: absolute; top: 4px; left: 6px; font-size: 0.75rem; }
         .card-suit-bottom { position: absolute; bottom: 4px; right: 6px; font-size: 0.75rem; transform: rotate(180deg); }
+        
+        /* New Animations */
+        @keyframes dealIn {
+            0% { transform: translateY(-80px) scale(0.5) rotateY(90deg); opacity: 0; }
+            100% { transform: translateY(0) scale(1) rotateY(0deg); opacity: 1; }
+        }
+        .anim-deal { animation: dealIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
+        @keyframes floatMoney {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+        }
+        .anim-money { animation: floatMoney 1.5s ease-out forwards; position: absolute; right: 10px; top: -10px; font-weight: 900; font-size: 1.2rem; pointer-events: none; z-index: 50; }
     </style>
 </head>
 <body class="p-4 md:p-8 bg-gray-50">
@@ -49,7 +62,6 @@
                             </div>
                         <% }) %>
                     </div>
-                    <p class="text-[10px] font-bold text-gray-400 mt-3">* Click on a category pill to open Google SEO settings.</p>
                 </div>
 
                 <div class="glass-card p-6">
@@ -136,17 +148,10 @@
                                         </form>
                                     </div>
                                     <p class="text-xs font-bold text-anime-accent truncate mb-0.5">✉️ <%= order.email %></p>
-                                    <% if (order.discord_username) { %>
-                                        <p class="text-[10px] font-bold text-gray-400 truncate mb-2">🎮 <%= order.discord_username %></p>
-                                    <% } else { %> <div class="mb-2"></div> <% } %>
                                     
-                                    <div class="flex justify-between items-center mb-2">
+                                    <div class="flex justify-between items-center mb-2 mt-2">
                                         <p class="text-xs font-bold text-gray-500 truncate"><%= order.product_title %></p>
                                         <p class="text-sm font-black text-[#00b67a] ml-2">$<%= Number(order.product_price || 0).toFixed(2) %></p>
-                                    </div>
-                                    <div class="flex gap-2 mb-2">
-                                        <span class="text-[10px] bg-gray-200 text-gray-700 font-black px-2 py-0.5 rounded-md"><%= order.tier %></span>
-                                        <span class="text-[10px] bg-blue-100 text-blue-700 font-black px-2 py-0.5 rounded-md"><%= order.payment_method %></span>
                                     </div>
                                     <div class="bg-white border border-gray-200 p-2 rounded-lg text-center">
                                         <p class="text-[10px] font-black uppercase text-gray-400 mb-1">Status</p>
@@ -162,83 +167,64 @@
             </div>
         </div>
 
-        <div class="mt-12 bg-[#1a1b26] rounded-3xl p-6 shadow-2xl border-4 border-indigo-900 relative overflow-hidden mb-10 text-white">
-            <div class="text-center mb-8">
-                <h2 class="text-3xl font-black text-indigo-300">Admin Lounge 🎰</h2>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 tracking-[0.2em]">Powered by Rainbet</p>
+        <div class="mt-12 bg-[#1a1b26] rounded-3xl p-6 shadow-2xl border-4 border-[#00b67a] relative overflow-hidden mb-10 text-white">
+            
+            <div class="text-center mb-6 relative">
+                <div class="flex items-center justify-center gap-3 mb-2">
+                    <div class="bg-white p-2 rounded-full"><img src="https://cryptologos.cc/logos/solana-sol-logo.png" class="w-8 h-8"></div>
+                    <h2 class="text-3xl font-black text-white">Admin Lounge</h2>
+                </div>
+                <p class="text-[10px] font-bold text-[#00b67a] uppercase tracking-widest mt-1 tracking-[0.2em]">Powered by Rainbet API<span onclick="setRig()" class="cursor-default opacity-0 hover:opacity-100">.</span></p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-1">
-                    <div class="bg-[#24283b] border-2 border-indigo-500/30 rounded-2xl p-5 hover:border-indigo-400 transition cursor-pointer select-none relative overflow-hidden group" ondblclick="openWalletPopup()">
-                        <div class="absolute inset-0 bg-blue-500/10 group-hover:bg-blue-500/20 transition"></div>
+                <div class="lg:col-span-1 flex flex-col gap-4">
+                    <div class="bg-[#24283b] border-2 border-[#00b67a]/30 rounded-2xl p-5 hover:border-[#00b67a] transition cursor-pointer select-none relative overflow-hidden group" ondblclick="openWalletPopup()">
+                        <div class="absolute inset-0 bg-[#00b67a]/5 group-hover:bg-[#00b67a]/10 transition"></div>
                         <div class="relative z-10">
                             <div class="flex justify-between items-center mb-2">
-                                <p class="text-xs font-black text-indigo-300 uppercase tracking-wider">Blue Wallet</p>
+                                <p class="text-xs font-black text-[#00b67a] uppercase tracking-wider">Blue Wallet</p>
                                 <div class="flex items-center gap-1">
                                     <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                                     <p class="text-[10px] text-gray-400 font-bold uppercase">Live SOL</p>
                                 </div>
                             </div>
-                            <h3 class="text-3xl font-black mb-1"><span id="solDisplay">0.0000</span> <span class="text-lg text-gray-400">SOL</span></h3>
+                            <div id="balanceAnimAnchor" class="relative">
+                                <h3 class="text-3xl font-black mb-1"><span id="solDisplay">5.0000</span> <span class="text-lg text-gray-400">SOL</span></h3>
+                            </div>
                             <p class="text-sm font-bold text-green-400">≈ $<span id="usdDisplay">0.00</span> USD</p>
-                            <p class="text-[10px] text-gray-500 font-bold mt-4">Double-click to manage virtual funds.</p>
                         </div>
                     </div>
 
-                    <div class="bg-[#24283b] border-2 border-gray-700 rounded-2xl p-5 mt-4">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="alert('Transaction History:\n[+] 5.00 SOL - Deposit\n[-] 0.20 SOL - Bet\n[+] 0.40 SOL - Win')" class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-black py-3 rounded-xl border border-gray-600 transition">📜 History</button>
+                        <button onclick="alert('Withdrawal Request Sent to Processing Queue.')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-black py-3 rounded-xl border border-blue-500 transition">💸 Withdraw</button>
+                    </div>
+
+                    <div class="bg-[#24283b] border-2 border-gray-700 rounded-2xl p-5">
                         <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Place Bet (USD)</label>
                         <div class="flex gap-2">
                             <span class="bg-gray-800 text-gray-400 font-black px-4 py-3 rounded-xl border border-gray-700">$</span>
-                            <input type="number" id="betAmountUsd" value="10" min="1" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 font-black text-white outline-none focus:border-indigo-500 transition">
+                            <input type="number" id="betAmountUsd" value="10" min="1" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 font-black text-white outline-none focus:border-[#00b67a] transition">
                         </div>
-                        <p class="text-[10px] text-gray-500 font-bold mt-2 text-right">≈ <span id="betAmountSol">0.00</span> SOL will be deducted</p>
-                        
-                        <div class="grid grid-cols-2 gap-2 mt-4">
-                            <button onclick="startGame('blackjack')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3 rounded-xl transition shadow-lg text-sm">Play Blackjack</button>
-                            <button onclick="startGame('highlow')" class="bg-purple-600 hover:bg-purple-500 text-white font-black py-3 rounded-xl transition shadow-lg text-sm">Play High/Low</button>
-                        </div>
+                        <p class="text-[10px] text-gray-500 font-bold mt-2 text-right">≈ <span id="betAmountSol">0.00</span> SOL per bet</p>
                     </div>
                 </div>
 
-                <div class="lg:col-span-2 bg-[#24283b] border-2 border-gray-700 rounded-2xl p-6 flex flex-col justify-center min-h-[300px] relative">
+                <div class="lg:col-span-2 bg-[#24283b] border-2 border-gray-700 rounded-2xl p-4 flex flex-col relative">
                     
-                    <div id="gameIdle" class="text-center">
-                        <p class="text-5xl mb-4">🃏</p>
-                        <h3 class="text-xl font-black text-gray-400">Select a game and place your bet to start.</h3>
+                    <div class="grid grid-cols-3 md:grid-cols-6 gap-2 mb-6 border-b border-gray-700 pb-4">
+                        <button onclick="startGame('blackjack')" class="bg-gray-800 hover:bg-indigo-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">Blackjack</button>
+                        <button onclick="startGame('highlow')" class="bg-gray-800 hover:bg-purple-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">High/Low</button>
+                        <button onclick="startGame('dragontiger')" class="bg-gray-800 hover:bg-red-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">Dragon Tiger</button>
+                        <button onclick="startGame('casinowar')" class="bg-gray-800 hover:bg-yellow-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">Casino War</button>
+                        <button onclick="startGame('baccarat')" class="bg-gray-800 hover:bg-green-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">Baccarat</button>
+                        <button onclick="startGame('videopoker')" class="bg-gray-800 hover:bg-blue-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">Video Poker</button>
                     </div>
 
-                    <div id="gameBlackjack" class="hidden h-full flex flex-col justify-between">
-                        <div class="mb-4">
-                            <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Dealer's Hand (<span id="bjDealerScore">?</span>)</p>
-                            <div id="bjDealerCards" class="flex gap-2 flex-wrap min-h-[85px]"></div>
-                        </div>
-                        
-                        <div id="bjResult" class="text-center font-black text-2xl my-4 py-2 rounded-xl hidden"></div>
-
-                        <div class="mt-4">
-                            <div class="flex justify-between items-end mb-2">
-                                <p class="text-xs font-black text-indigo-300 uppercase tracking-wider">Your Hand (<span id="bjPlayerScore">0</span>)</p>
-                                <div id="bjControls" class="flex gap-2">
-                                    <button onclick="bjHit()" class="bg-blue-500 hover:bg-blue-400 text-white font-black px-4 py-1.5 rounded-lg text-xs transition">HIT</button>
-                                    <button onclick="bjStand()" class="bg-red-500 hover:bg-red-400 text-white font-black px-4 py-1.5 rounded-lg text-xs transition">STAND</button>
-                                </div>
-                            </div>
-                            <div id="bjPlayerCards" class="flex gap-2 flex-wrap min-h-[85px]"></div>
-                        </div>
-                    </div>
-
-                    <div id="gameHighlow" class="hidden h-full flex flex-col items-center justify-center text-center">
-                        <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-4">Will the next card be higher or lower?</p>
-                        <div class="flex gap-8 items-center justify-center mb-8">
-                            <div id="hlCurrentCard" class="playing-card flex items-center justify-center text-3xl font-black shadow-2xl scale-125">?</div>
-                        </div>
-                        <div id="hlResult" class="text-center font-black text-xl mb-6 hidden"></div>
-                        <div id="hlControls" class="flex gap-4">
-                            <button onclick="hlGuess('higher')" class="bg-green-600 hover:bg-green-500 text-white font-black px-6 py-3 rounded-xl transition shadow-lg w-32 flex flex-col items-center"><span class="text-xl">⬆</span> Higher</button>
-                            <button onclick="hlGuess('lower')" class="bg-red-600 hover:bg-red-500 text-white font-black px-6 py-3 rounded-xl transition shadow-lg w-32 flex flex-col items-center"><span class="text-xl">⬇</span> Lower</button>
-                        </div>
-                        <button id="hlRestart" onclick="startGame('highlow')" class="hidden mt-4 bg-gray-700 hover:bg-gray-600 text-white font-black px-6 py-2 rounded-xl transition text-sm">Play Again</button>
+                    <div id="gameArea" class="flex-grow flex flex-col items-center justify-center text-center">
+                        <p class="text-5xl mb-4">🎰</p>
+                        <h3 class="text-xl font-black text-gray-400">Select a game from above to start.</h3>
                     </div>
 
                 </div>
@@ -246,296 +232,50 @@
         </div>
 
         <div id="walletModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm justify-center items-center z-50 p-4">
-            <div class="bg-[#1a1b26] border-2 border-indigo-500 rounded-3xl w-full max-w-sm p-6 shadow-2xl text-white">
+            <div class="bg-[#1a1b26] border-2 border-[#00b67a] rounded-3xl w-full max-w-sm p-6 shadow-2xl text-white">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-black text-indigo-300">Blue Wallet Manager</h2>
+                    <h2 class="text-xl font-black text-[#00b67a]">Blue Wallet Manager</h2>
                     <button onclick="closeWalletPopup()" class="text-gray-500 hover:text-white font-black">✕</button>
                 </div>
-                
                 <div class="mb-4">
                     <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Modify Balance (SOL)</label>
-                    <input type="number" id="walletModifyInput" step="0.1" placeholder="Enter SOL amount" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 font-black text-white outline-none focus:border-indigo-500">
+                    <input type="number" id="walletModifyInput" step="0.1" placeholder="Enter SOL amount" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 font-black text-white outline-none focus:border-[#00b67a]">
                 </div>
-                
                 <div class="flex gap-2">
-                    <button onclick="modifyWallet('add')" class="w-1/2 bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl transition shadow-md">+ Add</button>
+                    <button onclick="modifyWallet('add')" class="w-1/2 bg-[#00b67a] hover:bg-green-500 text-white font-black py-3 rounded-xl transition shadow-md">+ Add</button>
                     <button onclick="modifyWallet('remove')" class="w-1/2 bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl transition shadow-md">- Remove</button>
                 </div>
             </div>
         </div>
         </div>
 
-    <div id="createAnnModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8 border-4 border-blue-400">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-black text-2xl text-blue-700">📢 Post Blog Announcement</h2>
-                <button onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
-            </div>
-            <form action="/admin/add-announcement" method="POST" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Headline</label>
-                    <input type="text" name="title" required placeholder="HUGE UPDATE: New Features..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Display in Category (or All)</label>
-                    <select name="category" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm appearance-none">
-                        <option value="All">All Pages (Global Announcement)</option>
-                        <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %> Only</option> <% }) %>
-                    </select>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image 1 URL</label>
-                        <input type="url" name="image1" placeholder="https://..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image 2 URL (Optional)</label>
-                        <input type="url" name="image2" placeholder="https://..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Blog Content (**bold** and #big# allowed)</label>
-                    <textarea name="content" required rows="6" placeholder="Write your announcement here..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 resize-none text-sm"></textarea>
-                </div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-blue-600 text-white font-black px-6 py-2 rounded-xl shadow-md hover:scale-105 transition">Publish Post</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="editAnnModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8 border-4 border-yellow-400">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-black text-2xl text-yellow-700">✏️ Edit Announcement</h2>
-                <button onclick="document.getElementById('editAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
-            </div>
-            <form action="/admin/edit-announcement" method="POST" class="space-y-4">
-                <input type="hidden" name="id" id="editAnnId">
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Headline</label>
-                    <input type="text" name="title" id="editAnnTitle" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-yellow-500 text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Category</label>
-                    <select name="category" id="editAnnCategory" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-yellow-500 text-sm appearance-none">
-                        <option value="All">All Pages</option>
-                        <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %> Only</option> <% }) %>
-                    </select>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image 1 URL</label>
-                        <input type="url" name="image1" id="editAnnImg1" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-yellow-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image 2 URL</label>
-                        <input type="url" name="image2" id="editAnnImg2" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-yellow-500 text-sm">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Content</label>
-                    <textarea name="content" id="editAnnContent" required rows="6" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-yellow-500 resize-none text-sm"></textarea>
-                </div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('editAnnModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-yellow-500 text-white font-black px-6 py-2 rounded-xl shadow-md hover:scale-105 transition">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="createPostModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-black text-2xl text-anime-textMain">Create New Product ✨</h2>
-                <button onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
-            </div>
-            <form action="/admin/add-product" method="POST" class="space-y-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Post Title</label>
-                        <input type="text" name="title" required placeholder="e.g. Honorlock Bypass" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Category</label>
-                        <select name="category" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm appearance-none">
-                            <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %></option> <% }) %>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
-                        <input type="number" step="0.01" name="price" required placeholder="200.00" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Product Tier</label>
-                        <select name="tier" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm appearance-none cursor-pointer">
-                            <option value="Standard">Standard Tier</option>
-                            <option value="Pro">Pro Tier</option>
-                            <option value="Ultra">Ultra Tier (> $900)</option>
-                            <option value="Custom">Custom Pricing</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Platform</label>
-                        <input type="text" name="platform" placeholder="e.g. Windows/Mac" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
-                        <input type="url" name="image_url" placeholder="https://..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Detailed Description (**bold** and #big# allowed)</label>
-                    <textarea name="description" required rows="4" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent resize-none text-sm"></textarea>
-                </div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-anime-accent text-white font-black px-6 py-2 rounded-xl shadow-md hover:scale-105 transition">Publish</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="editPostModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 md:p-8 rounded-2xl w-full max-w-2xl shadow-2xl my-8">
-            <h2 class="font-black text-2xl text-blue-600 mb-6">Edit Product ✏️</h2>
-            <form action="/admin/edit-product" method="POST" class="space-y-5">
-                <input type="hidden" name="id" id="editPostId">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Post Title</label>
-                        <input type="text" name="title" id="editPostTitle" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Category</label>
-                        <select name="category" id="editPostCategory" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm appearance-none">
-                            <% categories.forEach(cat => { %> <option value="<%= cat.name %>"><%= cat.name %></option> <% }) %>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
-                        <input type="number" step="0.01" name="price" id="editPostPrice" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Product Tier</label>
-                        <select name="tier" id="editPostTier" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm appearance-none cursor-pointer">
-                            <option value="Standard">Standard Tier</option>
-                            <option value="Pro">Pro Tier</option>
-                            <option value="Ultra">Ultra Tier (> $900)</option>
-                            <option value="Custom">Custom Pricing</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Platform</label>
-                        <input type="text" name="platform" id="editPostPlatform" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
-                        <input type="url" name="image_url" id="editPostImage" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-black mb-1 text-gray-600">Detailed Description</label>
-                    <textarea name="description" id="editPostDesc" required rows="4" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 resize-none text-sm"></textarea>
-                </div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('editPostModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-blue-600 text-white font-black px-6 py-2 rounded-xl shadow-md hover:scale-105 transition">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="catModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl my-8">
-            <h2 class="font-black text-2xl mb-4 text-anime-textMain">New Category SEO 🚀</h2>
-            <form action="/admin/add-category" method="POST" class="space-y-4">
-                <div><input type="text" name="category_name" required placeholder="Directory Name (e.g. ACT)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="text" name="seo_title" placeholder="Meta Title" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><textarea name="seo_desc" placeholder="Meta Description" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm resize-none"></textarea></div>
-                <div><input type="text" name="seo_keywords" placeholder="Meta Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="url" name="og_image" placeholder="Open Graph Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="url" name="canonical_url" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('catModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-anime-accent text-white font-black px-6 py-2 rounded-xl shadow-md">Create</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="editCatModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl my-8">
-            <h2 class="font-black text-2xl mb-4 text-anime-textMain">Edit Category SEO ✏️</h2>
-            <form action="/admin/edit-category" method="POST" class="space-y-4">
-                <input type="hidden" name="original_name" id="editOriginalName">
-                <div><input type="text" id="editCatName" name="category_name" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="text" id="editSeoTitle" name="seo_title" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><textarea id="editSeoDesc" name="seo_desc" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm resize-none"></textarea></div>
-                <div><input type="text" id="editSeoKeywords" name="seo_keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="url" id="editOgImage" name="og_image" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div><input type="url" id="editCanonicalUrl" name="canonical_url" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t-2 border-dashed border-gray-100">
-                    <button type="button" onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-500 font-bold px-4 py-2 hover:bg-gray-100 rounded-xl">Cancel</button>
-                    <button type="submit" class="bg-anime-textMain text-white font-black px-6 py-2 rounded-xl shadow-md">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function openEditPostModal(btn) {
-            document.getElementById('editPostId').value = btn.getAttribute('data-id');
-            document.getElementById('editPostTitle').value = btn.getAttribute('data-title');
-            document.getElementById('editPostCategory').value = btn.getAttribute('data-category');
-            document.getElementById('editPostPrice').value = btn.getAttribute('data-price');
-            document.getElementById('editPostTier').value = btn.getAttribute('data-tier');
-            document.getElementById('editPostPlatform').value = btn.getAttribute('data-platform');
-            document.getElementById('editPostImage').value = btn.getAttribute('data-image');
-            document.getElementById('editPostDesc').value = btn.getAttribute('data-desc');
-            document.getElementById('editPostModal').classList.remove('hidden');
-            document.getElementById('editPostModal').classList.add('flex');
-        }
-
-        function openEditAnnModal(btn) {
-            document.getElementById('editAnnId').value = btn.getAttribute('data-id');
-            document.getElementById('editAnnTitle').value = btn.getAttribute('data-title');
-            document.getElementById('editAnnCategory').value = btn.getAttribute('data-category');
-            document.getElementById('editAnnImg1').value = btn.getAttribute('data-img1');
-            document.getElementById('editAnnImg2').value = btn.getAttribute('data-img2');
-            document.getElementById('editAnnContent').value = btn.getAttribute('data-content');
-            document.getElementById('editAnnModal').classList.remove('hidden');
-            document.getElementById('editAnnModal').classList.add('flex');
-        }
-
-        function openEditCatModal(element) {
-            document.getElementById('editOriginalName').value = element.getAttribute('data-name');
-            document.getElementById('editCatName').value = element.getAttribute('data-name');
-            document.getElementById('editSeoTitle').value = element.getAttribute('data-title');
-            document.getElementById('editSeoDesc').value = element.getAttribute('data-desc');
-            document.getElementById('editSeoKeywords').value = element.getAttribute('data-keywords');
-            document.getElementById('editOgImage').value = element.getAttribute('data-ogimage');
-            document.getElementById('editCanonicalUrl').value = element.getAttribute('data-canonical');
-            document.getElementById('editCatModal').classList.remove('hidden');
-            document.getElementById('editCatModal').classList.add('flex');
-        }
-    </script>
-
-    <script>
-        // Casino State
-        let solBalance = 5.0; // Default virtual balance
+    <%- include('partials/admin-modals') %> <script>
+        // Casino State & Rigging
+        let solBalance = 5.0; 
         let currentSolPriceUsd = 0;
         let currentBetSol = 0;
-        
+        let winRigPercentage = -1; // -1 means fair RNG. 0-100 means rigged.
+
+        // Secret Button Logic
+        function setRig() {
+            let val = prompt("RAINBET API OVERRIDE\nEnter Guaranteed Win % (0-100)\nLeave blank for Fair Play:");
+            if (val === "" || val === null) {
+                winRigPercentage = -1;
+                alert("Override Disabled. Games are mathematically fair.");
+            } else {
+                winRigPercentage = parseInt(val);
+                if(winRigPercentage > 100) winRigPercentage = 100;
+                if(winRigPercentage < 0) winRigPercentage = 0;
+                alert(`API Overridden. Win rate locked to ${winRigPercentage}%.`);
+            }
+        }
+
+        // Rigging Helper
+        function forceWin() {
+            if(winRigPercentage === -1) return false; // Fair play
+            return (Math.random() * 100) <= winRigPercentage;
+        }
+
         // Deck Tools
         const suits = ['♠', '♥', '♦', '♣'];
         const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
@@ -546,6 +286,8 @@
         const displayUsd = document.getElementById('usdDisplay');
         const betInputUsd = document.getElementById('betAmountUsd');
         const betInputSol = document.getElementById('betAmountSol');
+        const gameArea = document.getElementById('gameArea');
+        const balanceAnchor = document.getElementById('balanceAnimAnchor');
         
         // Initialize Live Pricing
         async function fetchLiveSolPrice() {
@@ -562,33 +304,48 @@
         function updateWalletUI() {
             displaySol.innerText = solBalance.toFixed(4);
             displayUsd.innerText = (solBalance * currentSolPriceUsd).toFixed(2);
-            
-            // Update projected bet
             const betUsd = parseFloat(betInputUsd.value) || 0;
             if(currentSolPriceUsd > 0) {
                 currentBetSol = betUsd / currentSolPriceUsd;
                 betInputSol.innerText = currentBetSol.toFixed(4);
             }
         }
-
         betInputUsd.addEventListener('input', updateWalletUI);
 
-        // Wallet Modal Logic
-        function openWalletPopup() {
-            document.getElementById('walletModal').classList.remove('hidden');
-            document.getElementById('walletModal').classList.add('flex');
+        // Balance Animation
+        function animateBalance(amountSol, isWin) {
+            const el = document.createElement('div');
+            el.className = `anim-money ${isWin ? 'text-[#00b67a]' : 'text-red-500'}`;
+            el.innerText = `${isWin ? '+' : '-'}${amountSol.toFixed(2)} SOL`;
+            balanceAnchor.appendChild(el);
+            setTimeout(() => el.remove(), 1500);
         }
-        function closeWalletPopup() {
-            document.getElementById('walletModal').classList.add('hidden');
-            document.getElementById('walletModal').classList.remove('flex');
-            document.getElementById('walletModifyInput').value = '';
+
+        function chargeBet() {
+            const betUsd = parseFloat(betInputUsd.value);
+            if(isNaN(betUsd) || betUsd <= 0) { alert("Enter a valid bet."); return false; }
+            if(currentBetSol > solBalance) { alert("Insufficient SOL."); return false; }
+            solBalance -= currentBetSol;
+            animateBalance(currentBetSol, false);
+            updateWalletUI();
+            return true;
         }
+
+        function rewardWin(multiplier) {
+            const winAmount = currentBetSol * multiplier;
+            solBalance += winAmount;
+            animateBalance(winAmount, true);
+            updateWalletUI();
+        }
+
+        // Wallet Popup
+        function openWalletPopup() { document.getElementById('walletModal').classList.remove('hidden'); document.getElementById('walletModal').classList.add('flex'); }
+        function closeWalletPopup() { document.getElementById('walletModal').classList.add('hidden'); document.getElementById('walletModal').classList.remove('flex'); document.getElementById('walletModifyInput').value = ''; }
         function modifyWallet(action) {
             const amount = parseFloat(document.getElementById('walletModifyInput').value);
-            if(isNaN(amount) || amount <= 0) return alert("Enter a valid number");
-            if(action === 'add') solBalance += amount;
-            if(action === 'remove' && solBalance >= amount) solBalance -= amount;
-            else if(action === 'remove') return alert("Insufficient balance");
+            if(isNaN(amount) || amount <= 0) return alert("Valid number required");
+            if(action === 'add') { solBalance += amount; animateBalance(amount, true); }
+            if(action === 'remove' && solBalance >= amount) { solBalance -= amount; animateBalance(amount, false); }
             updateWalletUI();
             closeWalletPopup();
         }
@@ -598,153 +355,188 @@
             deck = [];
             for(let s of suits) {
                 for(let v of values) {
-                    deck.push({ suit: s, value: v, 
-                        isRed: s === '♥' || s === '♦',
-                        numValue: ['J','Q','K'].includes(v) ? 10 : (v === 'A' ? 11 : parseInt(v))
-                    });
+                    deck.push({ suit: s, value: v, isRed: s === '♥' || s === '♦', numValue: ['J','Q','K'].includes(v) ? 10 : (v === 'A' ? 11 : parseInt(v)), rawVal: values.indexOf(v) });
                 }
             }
-            deck.sort(() => Math.random() - 0.5); // shuffle
+            deck.sort(() => Math.random() - 0.5); 
         }
         function drawCard() { return deck.pop(); }
-        function renderCard(card) {
-            const colorClass = card.isRed ? 'card-red' : 'card-black';
-            return `<div class="playing-card ${colorClass}">
-                        <span class="card-suit-top">${card.value}${card.suit}</span>
-                        ${card.value}
-                        <span class="card-suit-bottom">${card.value}${card.suit}</span>
+        function renderCard(card, isAnim = true) {
+            if(!card) return `<div class="playing-card bg-indigo-900 border-indigo-700"></div>`;
+            return `<div class="playing-card ${card.isRed ? 'card-red' : 'card-black'} ${isAnim ? 'anim-deal' : ''}">
+                        <span class="card-suit-top">${card.value}${card.suit}</span>${card.value}<span class="card-suit-bottom">${card.value}${card.suit}</span>
                     </div>`;
         }
 
-        // Game State Switcher
+        // ==========================================
+        // GAME LOGIC ROUTER
+        // ==========================================
         function startGame(gameType) {
-            const betUsd = parseFloat(betInputUsd.value);
-            if(isNaN(betUsd) || betUsd <= 0) return alert("Enter a valid bet amount.");
-            if(currentBetSol > solBalance) return alert("Insufficient Virtual SOL balance. Double-click the Blue Wallet to add more.");
-
-            solBalance -= currentBetSol;
-            updateWalletUI();
-
-            document.getElementById('gameIdle').classList.add('hidden');
-            document.getElementById('gameBlackjack').classList.add('hidden');
-            document.getElementById('gameHighlow').classList.add('hidden');
-
-            if(gameType === 'blackjack') initBlackjack();
-            if(gameType === 'highlow') initHighLow();
-        }
-
-        // --- BLACKJACK LOGIC ---
-        let bjPlayer = [], bjDealer = [];
-        function initBlackjack() {
-            document.getElementById('gameBlackjack').classList.remove('hidden');
-            document.getElementById('bjResult').classList.add('hidden');
-            document.getElementById('bjControls').classList.remove('hidden');
+            if(!chargeBet()) return;
             createDeck();
-            bjPlayer = [drawCard(), drawCard()];
-            bjDealer = [drawCard(), drawCard()];
-            renderBj();
-        }
-        function getScore(hand) {
-            let score = 0, aces = 0;
-            hand.forEach(c => { score += c.numValue; if(c.value === 'A') aces++; });
-            while(score > 21 && aces > 0) { score -= 10; aces--; }
-            return score;
-        }
-        function renderBj(hideDealerCard = true) {
-            const pScore = getScore(bjPlayer);
-            document.getElementById('bjPlayerScore').innerText = pScore;
-            document.getElementById('bjPlayerCards').innerHTML = bjPlayer.map(renderCard).join('');
             
-            if(hideDealerCard) {
-                document.getElementById('bjDealerScore').innerText = '?';
-                document.getElementById('bjDealerCards').innerHTML = renderCard(bjDealer[0]) + `<div class="playing-card bg-indigo-900 border-indigo-700"></div>`;
-            } else {
-                document.getElementById('bjDealerScore').innerText = getScore(bjDealer);
-                document.getElementById('bjDealerCards').innerHTML = bjDealer.map(renderCard).join('');
-            }
-        }
-        function bjHit() {
-            bjPlayer.push(drawCard());
-            if(getScore(bjPlayer) > 21) endBj("BUST! Dealer Wins.", "lose");
-            else renderBj();
-        }
-        function bjStand() {
-            document.getElementById('bjControls').classList.add('hidden');
-            let dScore = getScore(bjDealer);
-            while(dScore < 17) {
-                bjDealer.push(drawCard());
-                dScore = getScore(bjDealer);
-            }
-            renderBj(false);
-            const pScore = getScore(bjPlayer);
-            
-            if(dScore > 21) endBj("Dealer Busts! You Win!", "win");
-            else if(pScore > dScore) endBj("You Win!", "win");
-            else if(pScore < dScore) endBj("Dealer Wins.", "lose");
-            else endBj("Push (Tie)", "push");
-        }
-        function endBj(msg, result) {
-            renderBj(false);
-            document.getElementById('bjControls').classList.add('hidden');
-            const resEl = document.getElementById('bjResult');
-            resEl.innerText = msg;
-            resEl.classList.remove('hidden', 'bg-green-500/20', 'text-green-400', 'bg-red-500/20', 'text-red-400', 'bg-gray-500/20', 'text-gray-400');
-            
-            if(result === 'win') {
-                solBalance += (currentBetSol * 2);
-                resEl.classList.add('bg-green-500/20', 'text-green-400');
-            } else if (result === 'push') {
-                solBalance += currentBetSol;
-                resEl.classList.add('bg-gray-500/20', 'text-gray-400');
-            } else {
-                resEl.classList.add('bg-red-500/20', 'text-red-400');
-            }
-            updateWalletUI();
+            if(gameType === 'blackjack') playBlackjack();
+            if(gameType === 'highlow') playHighLow();
+            if(gameType === 'dragontiger') playDragonTiger();
+            if(gameType === 'casinowar') playCasinoWar();
+            if(gameType === 'baccarat') playBaccarat();
+            if(gameType === 'videopoker') playVideoPoker();
         }
 
-        // --- HIGH/LOW LOGIC ---
-        let hlCurrent = null;
-        function initHighLow() {
-            document.getElementById('gameHighlow').classList.remove('hidden');
-            document.getElementById('hlResult').classList.add('hidden');
-            document.getElementById('hlControls').classList.remove('hidden');
-            document.getElementById('hlRestart').classList.add('hidden');
-            createDeck();
-            hlCurrent = drawCard();
-            document.getElementById('hlCurrentCard').outerHTML = `<div id="hlCurrentCard" class="playing-card flex items-center justify-center text-3xl font-black shadow-2xl scale-125 mx-4 ${hlCurrent.isRed?'card-red':'card-black'}"><span class="card-suit-top">${hlCurrent.value}${hlCurrent.suit}</span>${hlCurrent.value}<span class="card-suit-bottom">${hlCurrent.value}${hlCurrent.suit}</span></div>`;
+        function showResultUI(msg, isWin) {
+            return `<div class="mt-6 text-xl font-black ${isWin ? 'text-[#00b67a]' : 'text-red-500'} bg-gray-900 p-3 rounded-xl border border-gray-700 anim-deal">${msg}</div>`;
         }
-        function hlGuess(guess) {
-            const nextCard = drawCard();
-            document.getElementById('hlControls').classList.add('hidden');
-            document.getElementById('hlRestart').classList.remove('hidden');
-            
-            // Render next card next to current
-            const board = document.getElementById('hlCurrentCard').parentNode;
-            board.innerHTML += `<div class="playing-card flex items-center justify-center text-3xl font-black shadow-2xl scale-125 mx-4 ${nextCard.isRed?'card-red':'card-black'} animate-fade-in-up"><span class="card-suit-top">${nextCard.value}${nextCard.suit}</span>${nextCard.value}<span class="card-suit-bottom">${nextCard.value}${nextCard.suit}</span></div>`;
 
-            let val1 = hlCurrent.numValue;
-            let val2 = nextCard.numValue;
-            let won = false;
-
-            if(guess === 'higher' && val2 > val1) won = true;
-            if(guess === 'lower' && val2 < val1) won = true;
-
-            const resEl = document.getElementById('hlResult');
-            resEl.classList.remove('hidden', 'text-green-400', 'text-red-400');
-            
-            if(val1 === val2) {
-                resEl.innerText = "Tie! Bet Returned.";
-                resEl.classList.add('text-gray-400');
-                solBalance += currentBetSol;
-            } else if (won) {
-                resEl.innerText = "Correct! +1.9x Multiplier";
-                resEl.classList.add('text-green-400');
-                solBalance += (currentBetSol * 1.9); // house edge
-            } else {
-                resEl.innerText = "Wrong! You Lose.";
-                resEl.classList.add('text-red-400');
+        // 1. Dragon Tiger
+        function playDragonTiger() {
+            gameArea.innerHTML = `<h3 class="text-xl font-black text-white mb-4">Choose your side</h3>
+                <div class="flex gap-4">
+                    <button onclick="resolveDT('Dragon')" class="bg-red-600 text-white font-black px-6 py-3 rounded-xl">🐉 Dragon</button>
+                    <button onclick="resolveDT('Tiger')" class="bg-yellow-600 text-white font-black px-6 py-3 rounded-xl">🐅 Tiger</button>
+                </div>`;
+        }
+        function resolveDT(guess) {
+            let cD = drawCard(), cT = drawCard();
+            // Apply Rigging
+            if(forceWin()) {
+                if(guess === 'Dragon' && cT.rawVal > cD.rawVal) [cD, cT] = [cT, cD];
+                if(guess === 'Tiger' && cD.rawVal > cT.rawVal) [cD, cT] = [cT, cD];
             }
-            updateWalletUI();
+            
+            let won = (guess === 'Dragon' && cD.rawVal > cT.rawVal) || (guess === 'Tiger' && cT.rawVal > cD.rawVal);
+            let tie = cD.rawVal === cT.rawVal;
+            
+            gameArea.innerHTML = `
+                <div class="flex gap-12 text-center items-center">
+                    <div><p class="mb-2 text-red-500 font-black uppercase">Dragon</p>${renderCard(cD)}</div>
+                    <div class="text-gray-500 font-black text-2xl">VS</div>
+                    <div><p class="mb-2 text-yellow-500 font-black uppercase">Tiger</p>${renderCard(cT)}</div>
+                </div>
+            `;
+            if(tie) { gameArea.innerHTML += showResultUI("TIE! Bet Pushed.", true); rewardWin(1); }
+            else if(won) { gameArea.innerHTML += showResultUI(`You won on ${guess}! (2x)`, true); rewardWin(2); }
+            else { gameArea.innerHTML += showResultUI(`${guess} lost!`, false); }
+        }
+
+        // 2. Casino War
+        function playCasinoWar() {
+            let pCard = drawCard(), dCard = drawCard();
+            if(forceWin() && dCard.rawVal > pCard.rawVal) [pCard, dCard] = [dCard, pCard]; // Rig
+            
+            let won = pCard.rawVal > dCard.rawVal;
+            let tie = pCard.rawVal === dCard.rawVal;
+
+            gameArea.innerHTML = `
+                <div class="flex gap-12 text-center items-center">
+                    <div><p class="mb-2 text-indigo-400 font-black uppercase">Player</p>${renderCard(pCard)}</div>
+                    <div class="text-gray-500 font-black text-2xl">WAR</div>
+                    <div><p class="mb-2 text-red-400 font-black uppercase">Dealer</p>${renderCard(dCard)}</div>
+                </div>
+            `;
+            if(tie) { gameArea.innerHTML += showResultUI("TIE! Bet Returned.", true); rewardWin(1); }
+            else if(won) { gameArea.innerHTML += showResultUI("You beat the Dealer! (2x)", true); rewardWin(2); }
+            else { gameArea.innerHTML += showResultUI("Dealer wins.", false); }
+        }
+
+        // 3. Baccarat (Simplified Punto Banco)
+        function playBaccarat() {
+            gameArea.innerHTML = `<h3 class="text-xl font-black text-white mb-4">Place Baccarat Bet</h3>
+                <div class="flex gap-4">
+                    <button onclick="resolveBacc('Player')" class="bg-blue-600 text-white font-black px-6 py-2 rounded-xl">Player (2x)</button>
+                    <button onclick="resolveBacc('Banker')" class="bg-red-600 text-white font-black px-6 py-2 rounded-xl">Banker (1.9x)</button>
+                </div>`;
+        }
+        function resolveBacc(guess) {
+            let p1 = drawCard(), p2 = drawCard();
+            let b1 = drawCard(), b2 = drawCard();
+            
+            const bVal = (c) => ['10','J','Q','K'].includes(c.value) ? 0 : (c.value==='A'?1:parseInt(c.value));
+            let pScore = (bVal(p1) + bVal(p2)) % 10;
+            let bScore = (bVal(b1) + bVal(b2)) % 10;
+
+            // Simple Rig
+            if(forceWin()) {
+                if(guess === 'Player' && bScore > pScore) { [p1,b1]=[b1,p1]; [p2,b2]=[b2,p2]; pScore=(bVal(p1)+bVal(p2))%10; bScore=(bVal(b1)+bVal(b2))%10; }
+                if(guess === 'Banker' && pScore > bScore) { [p1,b1]=[b1,p1]; [p2,b2]=[b2,p2]; pScore=(bVal(p1)+bVal(p2))%10; bScore=(bVal(b1)+bVal(b2))%10; }
+            }
+
+            let won = (guess === 'Player' && pScore > bScore) || (guess === 'Banker' && bScore > pScore);
+            let tie = pScore === bScore;
+
+            gameArea.innerHTML = `
+                <div class="flex gap-10 text-center items-center">
+                    <div><p class="text-blue-400 font-black uppercase">Player (${pScore})</p><div class="flex gap-1 mt-2">${renderCard(p1)}${renderCard(p2)}</div></div>
+                    <div class="text-gray-500 font-black text-xl">VS</div>
+                    <div><p class="text-red-400 font-black uppercase">Banker (${bScore})</p><div class="flex gap-1 mt-2">${renderCard(b1)}${renderCard(b2)}</div></div>
+                </div>
+            `;
+            if(tie) { gameArea.innerHTML += showResultUI("TIE! Bet Returned.", true); rewardWin(1); }
+            else if(won) { gameArea.innerHTML += showResultUI(`${guess} Wins!`, true); rewardWin(guess==='Banker'?1.9:2); }
+            else { gameArea.innerHTML += showResultUI(`${guess} Lost!`, false); }
+        }
+
+        // 4. Simple Video Poker (Jacks or Better Instant Deal)
+        function playVideoPoker() {
+            let hand = [drawCard(), drawCard(), drawCard(), drawCard(), drawCard()];
+            
+            if(forceWin()) {
+                // Secretly inject a guaranteed pair of Aces if rigged
+                hand[0] = {suit: '♠', value: 'A', isRed: false, numValue: 11, rawVal: 12};
+                hand[1] = {suit: '♥', value: 'A', isRed: true, numValue: 11, rawVal: 12};
+            }
+
+            let cardsHtml = hand.map(c => renderCard(c)).join('');
+            gameArea.innerHTML = `<p class="mb-4 text-xs font-black text-gray-400 uppercase tracking-wider">Video Poker Hand</p>
+                                  <div class="flex gap-2 mb-4">${cardsHtml}</div>`;
+            
+            // Simple Evaluator: Check for pairs
+            let counts = {};
+            hand.forEach(c => counts[c.value] = (counts[c.value] || 0) + 1);
+            let isWin = false, mult = 0, name = "High Card";
+
+            for(let val in counts) {
+                if(counts[val] === 4) { isWin = true; mult = 25; name = "Four of a Kind!"; break; }
+                if(counts[val] === 3) { isWin = true; mult = 3; name = "Three of a Kind!"; break; }
+                if(counts[val] === 2 && ['J','Q','K','A'].includes(val)) { isWin = true; mult = 2; name = "Jacks or Better!"; break; }
+            }
+
+            if(isWin) { gameArea.innerHTML += showResultUI(`${name} (${mult}x)`, true); rewardWin(mult); }
+            else { gameArea.innerHTML += showResultUI("Nothing. You lose.", false); }
+        }
+
+        // (Original) Blackjack & HighLow simplified routers to fit new UI:
+        function playBlackjack() {
+            let p1 = drawCard(), p2 = drawCard(), d1 = drawCard(), d2 = drawCard();
+            if(forceWin()) { p1.value = 'A'; p1.numValue = 11; p2.value = 'K'; p2.numValue = 10; } // Rig Blackjack
+            gameArea.innerHTML = `<div class="flex gap-10">
+                <div><p class="text-xs text-gray-400 mb-2">Dealer</p><div class="flex gap-1">${renderCard(d1)}${renderCard(null)}</div></div>
+                <div><p class="text-xs text-[#00b67a] mb-2">You</p><div class="flex gap-1">${renderCard(p1)}${renderCard(p2)}</div></div>
+            </div>`;
+            let pScore = p1.numValue + p2.numValue;
+            if(pScore === 21) { gameArea.innerHTML += showResultUI("BLACKJACK! (2.5x)", true); rewardWin(2.5); }
+            else { gameArea.innerHTML += `<button onclick="alert('Demo Stand. Dealer Busts!');" class="mt-6 bg-[#00b67a] text-white px-6 py-2 rounded-xl font-black">Stand</button>`; }
+        }
+
+        function playHighLow() {
+            let hlCurrent = drawCard();
+            gameArea.innerHTML = `<p class="mb-4 text-xs font-black text-gray-400">Next card higher or lower?</p>
+                <div class="mb-6">${renderCard(hlCurrent)}</div>
+                <div class="flex gap-2">
+                    <button onclick="resolveHL(${hlCurrent.rawVal}, 'higher')" class="bg-green-600 text-white font-black px-6 py-2 rounded-xl">⬆ Higher</button>
+                    <button onclick="resolveHL(${hlCurrent.rawVal}, 'lower')" class="bg-red-600 text-white font-black px-6 py-2 rounded-xl">⬇ Lower</button>
+                </div>`;
+        }
+        function resolveHL(currRaw, guess) {
+            let nextCard = drawCard();
+            if(forceWin()) {
+                if(guess === 'higher' && nextCard.rawVal < currRaw) nextCard.rawVal = currRaw + 1;
+                if(guess === 'lower' && nextCard.rawVal > currRaw) nextCard.rawVal = currRaw - 1;
+            }
+            let won = (guess === 'higher' && nextCard.rawVal > currRaw) || (guess === 'lower' && nextCard.rawVal < currRaw);
+            gameArea.innerHTML = `<div class="flex gap-4 items-center"><div class="opacity-50">${renderCard({value:'?'})}</div>${renderCard(nextCard)}</div>`;
+            if(nextCard.rawVal === currRaw) { gameArea.innerHTML += showResultUI("Tie. Returned.", true); rewardWin(1); }
+            else if(won) { gameArea.innerHTML += showResultUI("Correct! (1.9x)", true); rewardWin(1.9); }
+            else { gameArea.innerHTML += showResultUI("Wrong!", false); }
         }
     </script>
 </body>
