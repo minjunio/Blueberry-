@@ -5,28 +5,43 @@
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
     <style>
+        /* Casino Dynamic Theme Variables */
+        .casino-dark { background: #1a1b26; color: white; border-color: #00b67a; }
+        .casino-dark .casino-panel { background: #24283b; border-color: #374151; }
+        .casino-dark .casino-input { background: #111827; border-color: #374151; color: white; }
+        .casino-dark .casino-btn { background: #1f2937; border-color: #374151; color: white; }
+        .casino-dark .casino-btn:hover { background: #374151; }
+        .casino-dark .text-muted { color: #9ca3af; }
+
+        .casino-light { background: #f8fafc; color: #0f172a; border-color: #00b67a; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .casino-light .casino-panel { background: #ffffff; border-color: #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .casino-light .casino-input { background: #f1f5f9; border-color: #cbd5e1; color: #0f172a; }
+        .casino-light .casino-btn { background: #f1f5f9; border-color: #cbd5e1; color: #0f172a; }
+        .casino-light .casino-btn:hover { background: #e2e8f0; }
+        .casino-light .text-muted { color: #64748b; }
+
+        /* Card CSS (Mobile & PC Friendly) */
         .playing-card {
-            width: 60px; height: 85px; background: white; border-radius: 8px; border: 1px solid #e2e8f0;
+            width: 60px; height: 85px; background: white; border-radius: 8px; border: 1px solid #cbd5e1;
             display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); position: relative; flex-shrink: 0;
+            color: #1f2937; /* Default card color */
         }
-        .card-red { color: #ef4444; }
-        .card-black { color: #1f2937; }
+        .card-red { color: #ef4444 !important; }
+        .card-black { color: #1f2937 !important; }
         .card-suit-top { position: absolute; top: 4px; left: 6px; font-size: 0.75rem; }
         .card-suit-bottom { position: absolute; bottom: 4px; right: 6px; font-size: 0.75rem; transform: rotate(180deg); }
         
-        /* New Animations */
-        @keyframes dealIn {
-            0% { transform: translateY(-80px) scale(0.5) rotateY(90deg); opacity: 0; }
-            100% { transform: translateY(0) scale(1) rotateY(0deg); opacity: 1; }
+        @media (max-width: 640px) {
+            .playing-card { width: 45px; height: 65px; font-size: 1.2rem; border-radius: 6px; }
+            .card-suit-top, .card-suit-bottom { font-size: 0.6rem; top: 2px; left: 4px; right: 4px; bottom: 2px; }
         }
-        .anim-deal { animation: dealIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
-        @keyframes floatMoney {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
-        }
-        .anim-money { animation: floatMoney 1.5s ease-out forwards; position: absolute; right: 10px; top: -10px; font-weight: 900; font-size: 1.2rem; pointer-events: none; z-index: 50; }
+        /* Smooth Animations */
+        @keyframes dealIn { 0% { transform: translateY(-40px) scale(0.8) rotateY(90deg); opacity: 0; } 100% { transform: translateY(0) scale(1) rotateY(0deg); opacity: 1; } }
+        .anim-deal { animation: dealIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes floatMoney { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-40px) scale(1.1); opacity: 0; } }
+        .anim-money { animation: floatMoney 1.2s ease-out forwards; position: absolute; right: 10px; top: -10px; font-weight: 900; font-size: 1.1rem; pointer-events: none; z-index: 50; }
     </style>
 </head>
 <body class="p-4 md:p-8 bg-gray-50">
@@ -167,79 +182,100 @@
             </div>
         </div>
 
-        <div class="mt-12 bg-[#1a1b26] rounded-3xl p-6 shadow-2xl border-4 border-[#00b67a] relative overflow-hidden mb-10 text-white">
+        <div id="casinoContainer" class="mt-12 rounded-3xl p-6 md:p-8 shadow-2xl border-4 transition-colors duration-300 casino-dark relative mb-10">
             
-            <div class="text-center mb-6 relative">
+            <div class="absolute top-4 right-4 z-20 flex gap-2">
+                <button onclick="toggleTheme()" class="casino-panel border p-2 rounded-full hover:scale-110 transition shadow-sm" title="Toggle Light/Dark Mode">
+                    🌓
+                </button>
+            </div>
+
+            <div class="text-center mb-8 relative">
                 <div class="flex items-center justify-center gap-3 mb-2">
-                    <div class="bg-white p-2 rounded-full"><img src="https://cryptologos.cc/logos/solana-sol-logo.png" class="w-8 h-8"></div>
-                    <h2 class="text-3xl font-black text-white">Admin Lounge</h2>
+                    <div class="bg-white p-2 rounded-full shadow-md">
+                        <svg viewBox="0 0 128 128" width="28" height="28" xmlns="http://www.w3.org/2000/svg"><path fill="#00FFA3" d="M21.5 98.4l15.9-27.4h74.5L96 98.4H21.5z"/><path fill="#03E1FF" d="M21.5 29.6l15.9 27.4h74.5L96 29.6H21.5z"/><path fill="#DC1FFF" d="M96 64H21.5l15.9 27.5H112L96 64z"/></svg>
+                    </div>
+                    <h2 class="text-3xl font-black">Admin Lounge</h2>
                 </div>
-                <p class="text-[10px] font-bold text-[#00b67a] uppercase tracking-widest mt-1 tracking-[0.2em]">Powered by Rainbet API<span onclick="setRig()" class="cursor-default opacity-0 hover:opacity-100">.</span></p>
+                <div class="flex items-center justify-center gap-1 mt-1">
+                    <span class="text-[11px] font-bold text-[#00b67a] uppercase tracking-[0.2em]">Powered by </span>
+                    <span class="text-[12px] font-black tracking-widest flex items-center">RAINBET 💧</span>
+                    <span class="text-[11px] font-bold text-[#00b67a] uppercase tracking-[0.2em] ml-1">API</span>
+                    <span onclick="setRig()" class="cursor-default opacity-0 hover:opacity-100 text-[10px]">.</span>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-1 flex flex-col gap-4">
-                    <div class="bg-[#24283b] border-2 border-[#00b67a]/30 rounded-2xl p-5 hover:border-[#00b67a] transition cursor-pointer select-none relative overflow-hidden group" ondblclick="openWalletPopup()">
-                        <div class="absolute inset-0 bg-[#00b67a]/5 group-hover:bg-[#00b67a]/10 transition"></div>
+                    <div class="casino-panel border-2 rounded-2xl p-5 cursor-pointer select-none relative overflow-hidden group transition-all" ondblclick="openWalletPopup()">
+                        <div class="absolute inset-0 bg-[#00b67a] opacity-5 group-hover:opacity-10 transition"></div>
                         <div class="relative z-10">
                             <div class="flex justify-between items-center mb-2">
                                 <p class="text-xs font-black text-[#00b67a] uppercase tracking-wider">Blue Wallet</p>
                                 <div class="flex items-center gap-1">
                                     <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                    <p class="text-[10px] text-gray-400 font-bold uppercase">Live SOL</p>
+                                    <p class="text-[10px] text-muted font-bold uppercase">Live SOL</p>
                                 </div>
                             </div>
                             <div id="balanceAnimAnchor" class="relative">
-                                <h3 class="text-3xl font-black mb-1"><span id="solDisplay">5.0000</span> <span class="text-lg text-gray-400">SOL</span></h3>
+                                <h3 class="text-3xl font-black mb-1"><span id="solDisplay">5.0000</span> <span class="text-lg text-muted">SOL</span></h3>
                             </div>
-                            <p class="text-sm font-bold text-green-400">≈ $<span id="usdDisplay">0.00</span> USD</p>
+                            <p class="text-sm font-bold text-green-500">≈ $<span id="usdDisplay">0.00</span> USD</p>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="alert('Transaction History:\n[+] 5.00 SOL - Deposit\n[-] 0.20 SOL - Bet\n[+] 0.40 SOL - Win')" class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-black py-3 rounded-xl border border-gray-600 transition">📜 History</button>
-                        <button onclick="alert('Withdrawal Request Sent to Processing Queue.')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-black py-3 rounded-xl border border-blue-500 transition">💸 Withdraw</button>
+                        <button onclick="alert('Transaction History:\n[+] 5.00 SOL - Deposit\n[-] 0.20 SOL - Bet\n[+] 0.40 SOL - Win')" class="casino-btn border font-black py-3 rounded-xl text-xs transition shadow-sm">📜 History</button>
+                        <button onclick="alert('Withdrawal Request Sent to Processing Queue.')" class="bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl text-xs transition shadow-sm border border-blue-500">💸 Withdraw</button>
                     </div>
 
-                    <div class="bg-[#24283b] border-2 border-gray-700 rounded-2xl p-5">
-                        <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Place Bet (USD)</label>
+                    <div class="casino-panel border-2 rounded-2xl p-5 transition-colors">
+                        <label class="block text-xs font-black text-muted uppercase tracking-wider mb-2">Set Bet Amount (USD)</label>
                         <div class="flex gap-2">
-                            <span class="bg-gray-800 text-gray-400 font-black px-4 py-3 rounded-xl border border-gray-700">$</span>
-                            <input type="number" id="betAmountUsd" value="10" min="1" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 font-black text-white outline-none focus:border-[#00b67a] transition">
+                            <span class="casino-input font-black px-4 py-3 rounded-xl border flex items-center justify-center">$</span>
+                            <input type="number" id="betAmountUsd" value="10" min="1" class="w-full casino-input border rounded-xl px-4 py-3 font-black outline-none focus:border-[#00b67a] transition">
                         </div>
-                        <p class="text-[10px] text-gray-500 font-bold mt-2 text-right">≈ <span id="betAmountSol">0.00</span> SOL per bet</p>
+                        <p class="text-[10px] text-muted font-bold mt-2 text-right">≈ <span id="betAmountSol">0.00</span> SOL per deal</p>
                     </div>
                 </div>
 
-                <div class="lg:col-span-2 bg-[#24283b] border-2 border-gray-700 rounded-2xl p-4 flex flex-col relative">
+                <div class="lg:col-span-2 flex flex-col relative gap-4">
                     
-                    <div class="grid grid-cols-3 md:grid-cols-6 gap-2 mb-6 border-b border-gray-700 pb-4">
-                        <button onclick="startGame('blackjack')" class="bg-gray-800 hover:bg-indigo-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">Blackjack</button>
-                        <button onclick="startGame('highlow')" class="bg-gray-800 hover:bg-purple-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">High/Low</button>
-                        <button onclick="startGame('dragontiger')" class="bg-gray-800 hover:bg-red-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">Dragon Tiger</button>
-                        <button onclick="startGame('casinowar')" class="bg-gray-800 hover:bg-yellow-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">Casino War</button>
-                        <button onclick="startGame('baccarat')" class="bg-gray-800 hover:bg-green-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">Baccarat</button>
-                        <button onclick="startGame('videopoker')" class="bg-gray-800 hover:bg-blue-600 text-[10px] font-black py-2 rounded-lg transition uppercase tracking-wider">Video Poker</button>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <button onclick="selectGame('blackjack')" class="casino-panel casino-btn border p-3 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm"><span class="text-lg">♠️</span> Blackjack</button>
+                        <button onclick="selectGame('highlow')" class="casino-panel casino-btn border p-3 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm"><span class="text-lg">↕️</span> High/Low</button>
+                        <button onclick="selectGame('dragontiger')" class="casino-panel casino-btn border p-3 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm"><span class="text-lg">🐉</span> Dragon Tiger</button>
+                        <button onclick="selectGame('casinowar')" class="casino-panel casino-btn border p-3 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm"><span class="text-lg">⚔️</span> Casino War</button>
+                        <button onclick="selectGame('baccarat')" class="casino-panel casino-btn border p-3 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm"><span class="text-lg">🏦</span> Baccarat</button>
+                        <button onclick="selectGame('videopoker')" class="casino-panel casino-btn border p-3 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm"><span class="text-lg">🎰</span> Video Poker</button>
                     </div>
 
-                    <div id="gameArea" class="flex-grow flex flex-col items-center justify-center text-center">
-                        <p class="text-5xl mb-4">🎰</p>
-                        <h3 class="text-xl font-black text-gray-400">Select a game from above to start.</h3>
-                    </div>
+                    <div class="casino-panel border-2 rounded-2xl p-4 flex-grow flex flex-col items-center justify-center text-center min-h-[280px]">
+                        
+                        <div id="activeGameHeader" class="hidden w-full flex justify-between items-center px-2 md:px-4 mb-4 border-b border-gray-500/20 pb-3">
+                            <h3 id="activeGameTitle" class="text-lg md:text-xl font-black uppercase tracking-widest text-[#00b67a]">Game Name</h3>
+                            <button onclick="showTutorial()" class="bg-gray-400 hover:bg-gray-500 text-white w-8 h-8 rounded-full font-black flex items-center justify-center shadow-md transition" title="How to Play">?</button>
+                        </div>
 
+                        <div id="gameArea" class="w-full flex-grow flex flex-col items-center justify-center p-2">
+                            <p class="text-5xl mb-4">🎰</p>
+                            <h3 class="text-xl font-black text-muted">Select a game from above to start.</h3>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
 
         <div id="walletModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm justify-center items-center z-50 p-4">
-            <div class="bg-[#1a1b26] border-2 border-[#00b67a] rounded-3xl w-full max-w-sm p-6 shadow-2xl text-white">
+            <div class="casino-dark border-2 border-[#00b67a] rounded-3xl w-full max-w-sm p-6 shadow-2xl text-white">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-black text-[#00b67a]">Blue Wallet Manager</h2>
                     <button onclick="closeWalletPopup()" class="text-gray-500 hover:text-white font-black">✕</button>
                 </div>
                 <div class="mb-4">
                     <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Modify Balance (SOL)</label>
-                    <input type="number" id="walletModifyInput" step="0.1" placeholder="Enter SOL amount" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 font-black text-white outline-none focus:border-[#00b67a]">
+                    <input type="number" id="walletModifyInput" step="0.1" placeholder="Enter SOL amount" class="w-full bg-[#111827] border border-gray-700 rounded-xl px-4 py-3 font-black text-white outline-none focus:border-[#00b67a]">
                 </div>
                 <div class="flex gap-2">
                     <button onclick="modifyWallet('add')" class="w-1/2 bg-[#00b67a] hover:bg-green-500 text-white font-black py-3 rounded-xl transition shadow-md">+ Add</button>
@@ -486,10 +522,8 @@
             document.getElementById('editPostPlatform').value = btn.getAttribute('data-platform');
             document.getElementById('editPostImage').value = btn.getAttribute('data-image');
             document.getElementById('editPostDesc').value = btn.getAttribute('data-desc');
-            document.getElementById('editPostModal').classList.remove('hidden');
-            document.getElementById('editPostModal').classList.add('flex');
+            document.getElementById('editPostModal').classList.remove('hidden'); document.getElementById('editPostModal').classList.add('flex');
         }
-
         function openEditAnnModal(btn) {
             document.getElementById('editAnnId').value = btn.getAttribute('data-id');
             document.getElementById('editAnnTitle').value = btn.getAttribute('data-title');
@@ -497,10 +531,8 @@
             document.getElementById('editAnnImg1').value = btn.getAttribute('data-img1');
             document.getElementById('editAnnImg2').value = btn.getAttribute('data-img2');
             document.getElementById('editAnnContent').value = btn.getAttribute('data-content');
-            document.getElementById('editAnnModal').classList.remove('hidden');
-            document.getElementById('editAnnModal').classList.add('flex');
+            document.getElementById('editAnnModal').classList.remove('hidden'); document.getElementById('editAnnModal').classList.add('flex');
         }
-
         function openEditCatModal(element) {
             document.getElementById('editOriginalName').value = element.getAttribute('data-name');
             document.getElementById('editCatName').value = element.getAttribute('data-name');
@@ -509,44 +541,52 @@
             document.getElementById('editSeoKeywords').value = element.getAttribute('data-keywords');
             document.getElementById('editOgImage').value = element.getAttribute('data-ogimage');
             document.getElementById('editCanonicalUrl').value = element.getAttribute('data-canonical');
-            document.getElementById('editCatModal').classList.remove('hidden');
-            document.getElementById('editCatModal').classList.add('flex');
+            document.getElementById('editCatModal').classList.remove('hidden'); document.getElementById('editCatModal').classList.add('flex');
         }
     </script>
     
     <script>
+        // Theme Logic
+        let isDark = true;
+        function toggleTheme() {
+            const container = document.getElementById('casinoContainer');
+            isDark = !isDark;
+            if(isDark) { container.classList.add('casino-dark'); container.classList.remove('casino-light'); }
+            else { container.classList.remove('casino-dark'); container.classList.add('casino-light'); }
+        }
+
         // Casino State & Rigging
+        let activeGame = null;
         let solBalance = 5.0; 
         let currentSolPriceUsd = 0;
         let currentBetSol = 0;
-        let winRigPercentage = -1; // -1 means fair RNG. 0-100 means rigged.
+        let winRigPercentage = -1;
 
-        // Secret Button Logic
+        const tutorials = {
+            'blackjack': 'BLACKJACK\n\nGoal: Get closer to 21 than the dealer without going over.\n• Number cards are worth face value.\n• J, Q, K are worth 10.\n• Aces are worth 1 or 11.',
+            'highlow': 'HIGH/LOW\n\nGoal: Predict if the next drawn card will be strictly higher or strictly lower than the current card displayed on the board.',
+            'dragontiger': 'DRAGON TIGER\n\nGoal: Bet on which side (Dragon or Tiger) will draw the higher card. Ace is the lowest card, King is the highest.',
+            'casinowar': 'CASINO WAR\n\nGoal: Your card vs the Dealer\'s card. The highest card wins the bet. If there is a tie, it is considered a push and your bet is returned.',
+            'baccarat': 'BACCARAT\n\nGoal: Bet on Player or Banker. The hand closest to a total of 9 wins.\n• 10s and Face cards count as 0.\n• If score is > 9, the first digit is dropped (e.g. 15 becomes 5).',
+            'videopoker': 'VIDEO POKER\n\nGoal: Draw a winning poker hand.\n• Jacks or Better: 2x\n• 3 of a Kind: 3x\n• 4 of a Kind: 25x'
+        };
+
         function setRig() {
             let val = prompt("RAINBET API OVERRIDE\nEnter Guaranteed Win % (0-100)\nLeave blank for Fair Play:");
-            if (val === "" || val === null) {
-                winRigPercentage = -1;
-                alert("Override Disabled. Games are mathematically fair.");
-            } else {
+            if (val === "" || val === null) { winRigPercentage = -1; alert("Override Disabled. Games are mathematically fair."); } 
+            else {
                 winRigPercentage = parseInt(val);
                 if(winRigPercentage > 100) winRigPercentage = 100;
                 if(winRigPercentage < 0) winRigPercentage = 0;
                 alert(`API Overridden. Win rate locked to ${winRigPercentage}%.`);
             }
         }
-
-        // Rigging Helper
         function forceWin() {
-            if(winRigPercentage === -1) return false; // Fair play
+            if(winRigPercentage === -1) return false;
             return (Math.random() * 100) <= winRigPercentage;
         }
 
-        // Deck Tools
-        const suits = ['♠', '♥', '♦', '♣'];
-        const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-        let deck = [];
-
-        // DOM Elements
+        // UI & Money Handling
         const displaySol = document.getElementById('solDisplay');
         const displayUsd = document.getElementById('usdDisplay');
         const betInputUsd = document.getElementById('betAmountUsd');
@@ -554,7 +594,6 @@
         const gameArea = document.getElementById('gameArea');
         const balanceAnchor = document.getElementById('balanceAnimAnchor');
         
-        // Initialize Live Pricing
         async function fetchLiveSolPrice() {
             try {
                 const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT');
@@ -573,11 +612,12 @@
             if(currentSolPriceUsd > 0) {
                 currentBetSol = betUsd / currentSolPriceUsd;
                 betInputSol.innerText = currentBetSol.toFixed(4);
+                const btnBet = document.getElementById('btnBetCost');
+                if(btnBet) btnBet.innerText = betUsd.toFixed(2);
             }
         }
         betInputUsd.addEventListener('input', updateWalletUI);
 
-        // Balance Animation
         function animateBalance(amountSol, isWin) {
             const el = document.createElement('div');
             el.className = `anim-money ${isWin ? 'text-[#00b67a]' : 'text-red-500'}`;
@@ -585,7 +625,6 @@
             balanceAnchor.appendChild(el);
             setTimeout(() => el.remove(), 1500);
         }
-
         function chargeBet() {
             const betUsd = parseFloat(betInputUsd.value);
             if(isNaN(betUsd) || betUsd <= 0) { alert("Enter a valid bet."); return false; }
@@ -595,7 +634,6 @@
             updateWalletUI();
             return true;
         }
-
         function rewardWin(multiplier) {
             const winAmount = currentBetSol * multiplier;
             solBalance += winAmount;
@@ -603,7 +641,6 @@
             updateWalletUI();
         }
 
-        // Wallet Popup
         function openWalletPopup() { document.getElementById('walletModal').classList.remove('hidden'); document.getElementById('walletModal').classList.add('flex'); }
         function closeWalletPopup() { document.getElementById('walletModal').classList.add('hidden'); document.getElementById('walletModal').classList.remove('flex'); document.getElementById('walletModifyInput').value = ''; }
         function modifyWallet(action) {
@@ -615,7 +652,10 @@
             closeWalletPopup();
         }
 
-        // Generic Card Functions
+        // Cards logic
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        let deck = [];
         function createDeck() {
             deck = [];
             for(let s of suits) {
@@ -627,55 +667,74 @@
         }
         function drawCard() { return deck.pop(); }
         function renderCard(card, isAnim = true) {
-            if(!card) return `<div class="playing-card bg-indigo-900 border-indigo-700"></div>`;
+            if(!card) return `<div class="playing-card bg-gray-300 border-gray-400"></div>`;
             return `<div class="playing-card ${card.isRed ? 'card-red' : 'card-black'} ${isAnim ? 'anim-deal' : ''}">
                         <span class="card-suit-top">${card.value}${card.suit}</span>${card.value}<span class="card-suit-bottom">${card.value}${card.suit}</span>
                     </div>`;
         }
 
         // ==========================================
-        // GAME LOGIC ROUTER
+        // GAME LOGIC FLOW
         // ==========================================
-        function startGame(gameType) {
+        function showTutorial() {
+            if(activeGame && tutorials[activeGame]) alert(tutorials[activeGame]);
+        }
+
+        function selectGame(game) {
+            activeGame = game;
+            document.getElementById('activeGameHeader').classList.remove('hidden');
+            document.getElementById('activeGameTitle').innerText = game.replace(/([A-Z])/g, ' $1').trim();
+            
+            // Show Deal Button state instead of deducting immediately
+            gameArea.innerHTML = `
+                <div class="flex flex-col items-center justify-center my-8">
+                    <p class="text-sm font-bold text-muted mb-4 uppercase tracking-widest">Ready to play?</p>
+                    <button onclick="playActiveGame()" class="bg-[#00b67a] hover:bg-green-500 text-white font-black px-10 py-4 rounded-2xl shadow-lg transition text-xl hover:scale-105">
+                        Deal Hand (-$<span id="btnBetCost">${document.getElementById('betAmountUsd').value}</span>)
+                    </button>
+                </div>
+            `;
+        }
+
+        function playActiveGame() {
             if(!chargeBet()) return;
             createDeck();
             
-            if(gameType === 'blackjack') playBlackjack();
-            if(gameType === 'highlow') playHighLow();
-            if(gameType === 'dragontiger') playDragonTiger();
-            if(gameType === 'casinowar') playCasinoWar();
-            if(gameType === 'baccarat') playBaccarat();
-            if(gameType === 'videopoker') playVideoPoker();
+            if(activeGame === 'blackjack') playBlackjack();
+            if(activeGame === 'highlow') playHighLow();
+            if(activeGame === 'dragontiger') playDragonTiger();
+            if(activeGame === 'casinowar') playCasinoWar();
+            if(activeGame === 'baccarat') playBaccarat();
+            if(activeGame === 'videopoker') playVideoPoker();
         }
 
         function showResultUI(msg, isWin) {
-            return `<div class="mt-6 text-xl font-black ${isWin ? 'text-[#00b67a]' : 'text-red-500'} bg-gray-900 p-3 rounded-xl border border-gray-700 anim-deal">${msg}</div>`;
+            return `<div class="mt-6 w-full text-lg md:text-xl font-black ${isWin ? 'text-[#00b67a] border-[#00b67a]/50' : 'text-red-500 border-red-500/50'} bg-black/20 p-3 rounded-xl border anim-deal">${msg}</div>
+                    <button onclick="selectGame('${activeGame}')" class="mt-4 text-xs font-bold text-muted hover:text-[#00b67a] underline uppercase">Play Again</button>`;
         }
 
-        // 1. Dragon Tiger
+        // Dragon Tiger
         function playDragonTiger() {
-            gameArea.innerHTML = `<h3 class="text-xl font-black text-white mb-4">Choose your side</h3>
+            gameArea.innerHTML = `<h3 class="text-xl font-black mb-4">Choose your side</h3>
                 <div class="flex gap-4">
-                    <button onclick="resolveDT('Dragon')" class="bg-red-600 text-white font-black px-6 py-3 rounded-xl">🐉 Dragon</button>
-                    <button onclick="resolveDT('Tiger')" class="bg-yellow-600 text-white font-black px-6 py-3 rounded-xl">🐅 Tiger</button>
+                    <button onclick="resolveDT('Dragon')" class="bg-red-600 text-white font-black px-6 py-3 rounded-xl hover:scale-105 transition">🐉 Dragon</button>
+                    <button onclick="resolveDT('Tiger')" class="bg-yellow-600 text-white font-black px-6 py-3 rounded-xl hover:scale-105 transition">🐅 Tiger</button>
                 </div>`;
         }
         function resolveDT(guess) {
             let cD = drawCard(), cT = drawCard();
-            // Apply Rigging
             if(forceWin()) {
                 if(guess === 'Dragon' && cT.rawVal > cD.rawVal) [cD, cT] = [cT, cD];
                 if(guess === 'Tiger' && cD.rawVal > cT.rawVal) [cD, cT] = [cT, cD];
             }
-            
             let won = (guess === 'Dragon' && cD.rawVal > cT.rawVal) || (guess === 'Tiger' && cT.rawVal > cD.rawVal);
             let tie = cD.rawVal === cT.rawVal;
             
             gameArea.innerHTML = `
-                <div class="flex gap-12 text-center items-center">
-                    <div><p class="mb-2 text-red-500 font-black uppercase">Dragon</p>${renderCard(cD)}</div>
-                    <div class="text-gray-500 font-black text-2xl">VS</div>
-                    <div><p class="mb-2 text-yellow-500 font-black uppercase">Tiger</p>${renderCard(cT)}</div>
+                <div class="flex gap-6 md:gap-12 text-center items-center justify-center flex-wrap">
+                    <div><p class="mb-2 text-red-500 font-black uppercase text-xs">Dragon</p>${renderCard(cD)}</div>
+                    <div class="text-muted font-black text-xl">VS</div>
+                    <div><p class="mb-2 text-yellow-500 font-black uppercase text-xs">Tiger</p>${renderCard(cT)}</div>
                 </div>
             `;
             if(tie) { gameArea.innerHTML += showResultUI("TIE! Bet Pushed.", true); rewardWin(1); }
@@ -683,19 +742,18 @@
             else { gameArea.innerHTML += showResultUI(`${guess} lost!`, false); }
         }
 
-        // 2. Casino War
+        // Casino War
         function playCasinoWar() {
             let pCard = drawCard(), dCard = drawCard();
-            if(forceWin() && dCard.rawVal > pCard.rawVal) [pCard, dCard] = [dCard, pCard]; // Rig
-            
+            if(forceWin() && dCard.rawVal > pCard.rawVal) [pCard, dCard] = [dCard, pCard]; 
             let won = pCard.rawVal > dCard.rawVal;
             let tie = pCard.rawVal === dCard.rawVal;
 
             gameArea.innerHTML = `
-                <div class="flex gap-12 text-center items-center">
-                    <div><p class="mb-2 text-indigo-400 font-black uppercase">Player</p>${renderCard(pCard)}</div>
-                    <div class="text-gray-500 font-black text-2xl">WAR</div>
-                    <div><p class="mb-2 text-red-400 font-black uppercase">Dealer</p>${renderCard(dCard)}</div>
+                <div class="flex gap-6 md:gap-12 text-center items-center justify-center flex-wrap">
+                    <div><p class="mb-2 text-[#00b67a] font-black uppercase text-xs">Player</p>${renderCard(pCard)}</div>
+                    <div class="text-muted font-black text-xl">WAR</div>
+                    <div><p class="mb-2 text-red-500 font-black uppercase text-xs">Dealer</p>${renderCard(dCard)}</div>
                 </div>
             `;
             if(tie) { gameArea.innerHTML += showResultUI("TIE! Bet Returned.", true); rewardWin(1); }
@@ -703,23 +761,20 @@
             else { gameArea.innerHTML += showResultUI("Dealer wins.", false); }
         }
 
-        // 3. Baccarat (Simplified Punto Banco)
+        // Baccarat
         function playBaccarat() {
-            gameArea.innerHTML = `<h3 class="text-xl font-black text-white mb-4">Place Baccarat Bet</h3>
+            gameArea.innerHTML = `<h3 class="text-xl font-black mb-4">Place Baccarat Bet</h3>
                 <div class="flex gap-4">
-                    <button onclick="resolveBacc('Player')" class="bg-blue-600 text-white font-black px-6 py-2 rounded-xl">Player (2x)</button>
-                    <button onclick="resolveBacc('Banker')" class="bg-red-600 text-white font-black px-6 py-2 rounded-xl">Banker (1.9x)</button>
+                    <button onclick="resolveBacc('Player')" class="bg-[#00b67a] text-white font-black px-6 py-2 rounded-xl hover:scale-105 transition">Player (2x)</button>
+                    <button onclick="resolveBacc('Banker')" class="bg-red-500 text-white font-black px-6 py-2 rounded-xl hover:scale-105 transition">Banker (1.9x)</button>
                 </div>`;
         }
         function resolveBacc(guess) {
-            let p1 = drawCard(), p2 = drawCard();
-            let b1 = drawCard(), b2 = drawCard();
-            
+            let p1 = drawCard(), p2 = drawCard(), b1 = drawCard(), b2 = drawCard();
             const bVal = (c) => ['10','J','Q','K'].includes(c.value) ? 0 : (c.value==='A'?1:parseInt(c.value));
             let pScore = (bVal(p1) + bVal(p2)) % 10;
             let bScore = (bVal(b1) + bVal(b2)) % 10;
 
-            // Simple Rig
             if(forceWin()) {
                 if(guess === 'Player' && bScore > pScore) { [p1,b1]=[b1,p1]; [p2,b2]=[b2,p2]; pScore=(bVal(p1)+bVal(p2))%10; bScore=(bVal(b1)+bVal(b2))%10; }
                 if(guess === 'Banker' && pScore > bScore) { [p1,b1]=[b1,p1]; [p2,b2]=[b2,p2]; pScore=(bVal(p1)+bVal(p2))%10; bScore=(bVal(b1)+bVal(b2))%10; }
@@ -729,10 +784,10 @@
             let tie = pScore === bScore;
 
             gameArea.innerHTML = `
-                <div class="flex gap-10 text-center items-center">
-                    <div><p class="text-blue-400 font-black uppercase">Player (${pScore})</p><div class="flex gap-1 mt-2">${renderCard(p1)}${renderCard(p2)}</div></div>
-                    <div class="text-gray-500 font-black text-xl">VS</div>
-                    <div><p class="text-red-400 font-black uppercase">Banker (${bScore})</p><div class="flex gap-1 mt-2">${renderCard(b1)}${renderCard(b2)}</div></div>
+                <div class="flex gap-4 md:gap-10 text-center items-center justify-center flex-wrap">
+                    <div><p class="text-[#00b67a] font-black uppercase text-xs">Player (${pScore})</p><div class="flex gap-1 mt-2 justify-center">${renderCard(p1)}${renderCard(p2)}</div></div>
+                    <div class="text-muted font-black text-lg">VS</div>
+                    <div><p class="text-red-500 font-black uppercase text-xs">Banker (${bScore})</p><div class="flex gap-1 mt-2 justify-center">${renderCard(b1)}${renderCard(b2)}</div></div>
                 </div>
             `;
             if(tie) { gameArea.innerHTML += showResultUI("TIE! Bet Returned.", true); rewardWin(1); }
@@ -740,23 +795,16 @@
             else { gameArea.innerHTML += showResultUI(`${guess} Lost!`, false); }
         }
 
-        // 4. Simple Video Poker (Jacks or Better Instant Deal)
+        // Video Poker
         function playVideoPoker() {
             let hand = [drawCard(), drawCard(), drawCard(), drawCard(), drawCard()];
+            if(forceWin()) { hand[0] = {suit: '♠', value: 'A', isRed: false, numValue: 11, rawVal: 12}; hand[1] = {suit: '♥', value: 'A', isRed: true, numValue: 11, rawVal: 12}; }
             
-            if(forceWin()) {
-                // Secretly inject a guaranteed pair of Aces if rigged
-                hand[0] = {suit: '♠', value: 'A', isRed: false, numValue: 11, rawVal: 12};
-                hand[1] = {suit: '♥', value: 'A', isRed: true, numValue: 11, rawVal: 12};
-            }
-
             let cardsHtml = hand.map(c => renderCard(c)).join('');
-            gameArea.innerHTML = `<p class="mb-4 text-xs font-black text-gray-400 uppercase tracking-wider">Video Poker Hand</p>
-                                  <div class="flex gap-2 mb-4">${cardsHtml}</div>`;
+            gameArea.innerHTML = `<p class="mb-4 text-xs font-black text-muted uppercase tracking-wider">Your Hand</p>
+                                  <div class="flex gap-1 md:gap-2 mb-4 justify-center flex-wrap">${cardsHtml}</div>`;
             
-            // Simple Evaluator: Check for pairs
-            let counts = {};
-            hand.forEach(c => counts[c.value] = (counts[c.value] || 0) + 1);
+            let counts = {}; hand.forEach(c => counts[c.value] = (counts[c.value] || 0) + 1);
             let isWin = false, mult = 0, name = "High Card";
 
             for(let val in counts) {
@@ -769,26 +817,33 @@
             else { gameArea.innerHTML += showResultUI("Nothing. You lose.", false); }
         }
 
-        // Blackjack simplified routers to fit new UI:
+        // Blackjack
         function playBlackjack() {
-            let p1 = drawCard(), p2 = drawCard(), d1 = drawCard(), d2 = drawCard();
-            if(forceWin()) { p1.value = 'A'; p1.numValue = 11; p2.value = 'K'; p2.numValue = 10; } // Rig Blackjack
-            gameArea.innerHTML = `<div class="flex gap-10">
-                <div><p class="text-xs text-gray-400 mb-2">Dealer</p><div class="flex gap-1">${renderCard(d1)}${renderCard(null)}</div></div>
-                <div><p class="text-xs text-[#00b67a] mb-2">You</p><div class="flex gap-1">${renderCard(p1)}${renderCard(p2)}</div></div>
+            let p1 = drawCard(), p2 = drawCard(), d1 = drawCard();
+            if(forceWin()) { p1.value = 'A'; p1.numValue = 11; p2.value = 'K'; p2.numValue = 10; } 
+            
+            gameArea.innerHTML = `<div class="flex gap-8 md:gap-10 flex-wrap justify-center w-full">
+                <div class="text-center"><p class="text-xs text-muted mb-2 font-black uppercase">Dealer</p><div class="flex gap-1 justify-center">${renderCard(d1)}${renderCard(null)}</div></div>
+                <div class="text-center"><p class="text-xs text-[#00b67a] mb-2 font-black uppercase">You</p><div class="flex gap-1 justify-center">${renderCard(p1)}${renderCard(p2)}</div></div>
             </div>`;
             let pScore = p1.numValue + p2.numValue;
             if(pScore === 21) { gameArea.innerHTML += showResultUI("BLACKJACK! (2.5x)", true); rewardWin(2.5); }
-            else { gameArea.innerHTML += `<button onclick="alert('Demo Stand. Dealer Busts!');" class="mt-6 bg-[#00b67a] text-white px-6 py-2 rounded-xl font-black">Stand</button>`; }
+            else { 
+                gameArea.innerHTML += `<div class="mt-6 flex gap-2 w-full justify-center">
+                    <button onclick="alert('Demo Stand. Dealer Busts!'); rewardWin(2); selectGame('blackjack');" class="bg-[#00b67a] hover:bg-green-500 text-white px-6 py-2 rounded-xl font-black transition">STAND</button>
+                    <button onclick="alert('Demo Hit. You Bust!'); selectGame('blackjack');" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-xl font-black transition">HIT</button>
+                </div>`; 
+            }
         }
 
+        // High Low
         function playHighLow() {
             let hlCurrent = drawCard();
-            gameArea.innerHTML = `<p class="mb-4 text-xs font-black text-gray-400">Next card higher or lower?</p>
-                <div class="mb-6">${renderCard(hlCurrent)}</div>
-                <div class="flex gap-2">
-                    <button onclick="resolveHL(${hlCurrent.rawVal}, 'higher')" class="bg-green-600 text-white font-black px-6 py-2 rounded-xl">⬆ Higher</button>
-                    <button onclick="resolveHL(${hlCurrent.rawVal}, 'lower')" class="bg-red-600 text-white font-black px-6 py-2 rounded-xl">⬇ Lower</button>
+            gameArea.innerHTML = `<p class="mb-4 text-xs font-black text-muted uppercase">Next card higher or lower?</p>
+                <div class="mb-6 flex justify-center">${renderCard(hlCurrent)}</div>
+                <div class="flex gap-2 justify-center w-full">
+                    <button onclick="resolveHL(${hlCurrent.rawVal}, 'higher')" class="bg-green-600 hover:bg-green-500 text-white font-black px-6 py-2 rounded-xl transition">⬆ Higher</button>
+                    <button onclick="resolveHL(${hlCurrent.rawVal}, 'lower')" class="bg-red-600 hover:bg-red-500 text-white font-black px-6 py-2 rounded-xl transition">⬇ Lower</button>
                 </div>`;
         }
         function resolveHL(currRaw, guess) {
@@ -798,7 +853,7 @@
                 if(guess === 'lower' && nextCard.rawVal > currRaw) nextCard.rawVal = currRaw - 1;
             }
             let won = (guess === 'higher' && nextCard.rawVal > currRaw) || (guess === 'lower' && nextCard.rawVal < currRaw);
-            gameArea.innerHTML = `<div class="flex gap-4 items-center"><div class="opacity-50">${renderCard({value:'?'})}</div>${renderCard(nextCard)}</div>`;
+            gameArea.innerHTML = `<div class="flex gap-2 items-center justify-center w-full"><div class="opacity-50">${renderCard({value:'?'})}</div>${renderCard(nextCard)}</div>`;
             if(nextCard.rawVal === currRaw) { gameArea.innerHTML += showResultUI("Tie. Returned.", true); rewardWin(1); }
             else if(won) { gameArea.innerHTML += showResultUI("Correct! (1.9x)", true); rewardWin(1.9); }
             else { gameArea.innerHTML += showResultUI("Wrong!", false); }
