@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Casino Lounge - ExamHub</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <%- include('partials/head') %>
+    <style>
+        /* Professional Casino Theme */
+        body { transition: background-color 0.3s, color 0.3s; }
+        .casino-dark { background: #0f172a; color: #f8fafc; }
+        .casino-dark .casino-panel { background: #1e293b; border-color: #334155; }
+        .casino-dark .casino-input { background: #0f172a; border-color: #334155; color: white; }
+        .casino-dark .casino-btn { background: #334155; border-color: #475569; color: white; }
+        .casino-dark .casino-btn:hover { background: #475569; }
+        .casino-dark .casino-tab.active { border-bottom: 2px solid #10b981; color: #10b981; }
+        .casino-dark .text-muted { color: #94a3b8; }
+        .casino-dark .win-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); border-color: #10b981; }
+
+        .casino-light { background: #f8fafc; color: #0f172a; }
+        .casino-light .casino-panel { background: #ffffff; border-color: #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .casino-light .casino-input { background: #f1f5f9; border-color: #cbd5e1; color: #0f172a; }
+        .casino-light .casino-btn { background: #f1f5f9; border-color: #cbd5e1; color: #0f172a; }
+        .casino-light .casino-btn:hover { background: #e2e8f0; }
+        .casino-light .casino-tab.active { border-bottom: 2px solid #10b981; color: #059669; }
+        .casino-light .text-muted { color: #64748b; }
+        .casino-light .win-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); border-color: #10b981; }
+
+        /* Smooth UI Elements */
+        .casino-tab { padding: 0.75rem 1.25rem; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.3s; white-space: nowrap; outline: none; }
+        .casino-tab:hover { opacity: 0.8; }
+        
+        /* High-Fidelity CSS Playing Cards */
+        .playing-card {
+            width: 75px; height: 110px; background: white; border-radius: 6px; border: 1px solid #cbd5e1;
+            display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); position: relative; flex-shrink: 0; cursor: default;
+            color: #0f172a; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: "Times New Roman", Times, serif; /* Clean suit rendering */
+        }
+        .card-red { color: #ef4444 !important; }
+        .card-black { color: #0f172a !important; }
+        .card-suit-top { position: absolute; top: 4px; left: 6px; font-size: 1rem; line-height: 1; }
+        .card-suit-bottom { position: absolute; bottom: 4px; right: 6px; font-size: 1rem; transform: rotate(180deg); line-height: 1; }
+        .card-held { transform: translateY(-15px); border: 2px solid #10b981; box-shadow: 0 15px 20px -5px rgba(16, 185, 129, 0.4); }
+        .card-hidden { 
+            background: #1e293b; border-color: #475569;
+            background-image: repeating-linear-gradient(45deg, #334155 25%, transparent 25%, transparent 75%, #334155 75%, #334155), repeating-linear-gradient(45deg, #334155 25%, #1e293b 25%, #1e293b 75%, #334155 75%, #334155); 
+            background-position: 0 0, 10px 10px; background-size: 20px 20px; 
+        }
+
+        @media (max-width: 640px) {
+            .playing-card { width: 55px; height: 80px; font-size: 1.5rem; }
+            .card-suit-top, .card-suit-bottom { font-size: 0.75rem; top: 3px; left: 4px; right: 4px; bottom: 3px; }
+            .card-held { transform: translateY(-8px); }
+        }
+
+        /* Fan Animation for Idle State */
+        .card-fan-container { display: flex; justify-content: center; margin-top: 20px; position: relative; height: 120px; }
+        .card-fan { position: absolute; transform-origin: bottom center; box-shadow: -2px 0 10px rgba(0,0,0,0.5); }
+        .fan-1 { transform: rotate(-15deg) translateX(-30px); }
+        .fan-2 { transform: rotate(-5deg) translateX(-10px); z-index: 2; }
+        .fan-3 { transform: rotate(5deg) translateX(10px); z-index: 3; }
+        .fan-4 { transform: rotate(15deg) translateX(30px); z-index: 4; }
+
+        /* Animations */
+        @keyframes dealIn { 0% { transform: translateY(-50px) scale(0.8) rotateY(90deg); opacity: 0; } 100% { transform: translateY(0) scale(1) rotateY(0deg); opacity: 1; } }
+        .anim-deal { animation: dealIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes floatMoney { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-60px) scale(1.2); opacity: 0; } }
+        .anim-money { animation: floatMoney 1.5s ease-out forwards; position: absolute; right: 10px; top: -10px; font-weight: 900; font-size: 1.2rem; pointer-events: none; z-index: 50; }
+        
+        /* Scrollbar hide for tabs */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body id="casinoBody" class="p-4 md:p-8 antialiased casino-dark min-h-screen">
+    
+    <div class="max-w-7xl mx-auto relative z-10">
+        
+        <div class="flex justify-between items-center mb-8 gap-4">
+            <a href="/admin" class="casino-btn border px-5 py-2 rounded-lg font-black text-sm transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Back to Dashboard
+            </a>
+            <button onclick="toggleTheme()" class="casino-panel border p-2 rounded-full hover:scale-110 transition shadow-sm focus:outline-none" title="Toggle Theme">
+                <svg class="w-5 h-5 text-muted hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+        </div>
+
+        <div class="rounded-3xl p-6 md:p-8 shadow-2xl border-2 transition-colors duration-300 casino-panel relative">
+            
+            <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-500/20 pb-6 gap-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-1">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 5 12 2 12 2C12 2 2 5 2 12C2 17.5228 6.47715 22 12 22Z" fill="#10b981"/><path d="M12 16C13.6569 16 15 14.6569 15 13C15 11.3431 12 8 12 8C12 8 9 11.3431 9 13C9 14.6569 10.3431 16 12 16Z" fill="white"/></svg>
+                        <h2 class="text-3xl font-black uppercase tracking-tight">VIP Lounge</h2>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-[10px] font-bold text-[#10b981] uppercase tracking-[0.2em]">Secured by Rainbet Protocol</span>
+                        <span onclick="setRig()" class="cursor-default opacity-0 hover:opacity-100 text-[10px] text-[#10b981]">.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <div class="lg:col-span-4 flex flex-col gap-5">
+                    
+                    <div class="casino-panel border rounded-2xl p-6 cursor-pointer select-none relative overflow-hidden transition-transform hover:scale-[1.02] shadow-md" ondblclick="openCustomModal('wallet')">
+                        <div class="absolute inset-0 bg-gradient-to-br from-[#10b981]/10 to-transparent"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="flex items-center gap-2">
+                                    <svg viewBox="0 0 128 128" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path fill="#00FFA3" d="M21.5 98.4l15.9-27.4h74.5L96 98.4H21.5z"/><path fill="#03E1FF" d="M21.5 29.6l15.9 27.4h74.5L96 29.6H21.5z"/><path fill="#DC1FFF" d="M96 64H21.5l15.9 27.5H112L96 64z"/></svg>
+                                    <p class="text-xs font-black text-[#10b981] uppercase tracking-widest">Main Node</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 bg-[#10b981] rounded-full animate-pulse"></span>
+                                    <p class="text-[9px] text-muted font-bold uppercase tracking-wider">Live</p>
+                                </div>
+                            </div>
+                            <div id="balanceAnimAnchor" class="relative">
+                                <h3 class="text-4xl font-black mb-1 tracking-tight"><span id="solDisplay">5.0000</span> <span class="text-xl text-muted font-bold">SOL</span></h3>
+                            </div>
+                            <p class="text-sm font-bold text-[#10b981]">≈ $<span id="usdDisplay">0.00</span> USD</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="openCustomModal('history')" class="casino-btn border font-black py-3.5 rounded-xl text-xs uppercase tracking-wider transition shadow-sm flex justify-center items-center gap-2">
+                            <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Ledger
+                        </button>
+                        <button onclick="openCustomModal('withdraw')" class="bg-[#10b981] hover:bg-[#059669] text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-wider transition shadow-sm flex justify-center items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg> Extract
+                        </button>
+                    </div>
+
+                    <div class="casino-panel border rounded-2xl p-6 mt-2 relative">
+                        <label class="block text-[10px] font-black text-muted uppercase tracking-wider mb-3">Contract Value (USD)</label>
+                        <div class="flex gap-2">
+                            <span class="casino-input font-black px-4 py-3 rounded-xl border flex items-center justify-center text-sm">$</span>
+                            <input type="number" id="betAmountUsd" value="25" min="1" class="w-full casino-input border rounded-xl px-4 py-3 font-black outline-none focus:border-[#10b981] transition text-lg">
+                        </div>
+                        <p class="text-xs text-muted font-bold mt-3 text-right">Debit ≈ <span id="betAmountSol">0.00</span> SOL</p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8 flex flex-col relative gap-0 casino-panel border rounded-2xl overflow-hidden shadow-inner">
+                    
+                    <div class="flex border-b border-gray-500/20 overflow-x-auto no-scrollbar bg-black/5">
+                        <button onclick="selectGame('blackjack', this)" class="casino-tab active">Blackjack</button>
+                        <button onclick="selectGame('highlow', this)" class="casino-tab">High/Low</button>
+                        <button onclick="selectGame('videopoker', this)" class="casino-tab">Video Poker</button>
+                        <button onclick="selectGame('baccarat', this)" class="casino-tab">Baccarat</button>
+                    </div>
+
+                    <div id="activeGameHeader" class="w-full flex justify-between items-center px-6 py-5 border-b border-gray-500/10">
+                        <h3 id="activeGameTitle" class="text-sm font-black uppercase tracking-widest text-[#10b981]">Blackjack</h3>
+                        <button onclick="showTutorial()" class="text-muted hover:text-white transition focus:outline-none" title="Rules">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </button>
+                    </div>
+
+                    <div id="gameArea" class="flex-grow flex flex-col items-center justify-center p-6 min-h-[400px]">
+                        </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="customUIModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="casino-panel border-2 border-[#10b981] p-8 rounded-2xl max-w-sm w-full shadow-2xl transform scale-95 transition-transform duration-300" id="customUIBox">
+            <div class="flex justify-between items-center mb-6 border-b border-gray-600/30 pb-4">
+                <h3 id="uiModalTitle" class="text-sm font-black uppercase tracking-widest text-[#10b981]">Notification</h3>
+                <button onclick="closeCustomModal()" class="text-gray-500 hover:text-white transition focus:outline-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="uiModalContent" class="text-sm font-bold text-gray-300 mb-8 whitespace-pre-line leading-relaxed"></div>
+            <div id="uiModalActions" class="flex gap-3"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- THEME & UI ---
+        let isDark = true;
+        function toggleTheme() {
+            const body = document.getElementById('casinoBody');
+            isDark = !isDark;
+            if(isDark) { body.classList.add('casino-dark'); body.classList.remove('casino-light'); } 
+            else { body.classList.remove('casino-dark'); body.classList.add('casino-light'); }
+        }
+
+        const uiModal = document.getElementById('customUIModal');
+        const uiBox = document.getElementById('customUIBox');
+        const uiTitle = document.getElementById('uiModalTitle');
+        const uiContent = document.getElementById('uiModalContent');
+        const uiActions = document.getElementById('uiModalActions');
+
+        function openCustomModal(type) {
+            uiModal.classList.remove('hidden');
+            setTimeout(() => { uiModal.classList.remove('opacity-0'); uiBox.classList.remove('scale-95'); }, 10);
+            uiActions.innerHTML = `<button onclick="closeCustomModal()" class="w-full bg-[#10b981] hover:bg-[#059669] text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md">Acknowledge</button>`;
+
+            if(type === 'history') {
+                uiTitle.innerText = "Ledger History";
+                uiContent.innerHTML = `<div class="space-y-2 font-mono text-xs">
+                    <div class="flex justify-between"><span class="text-[#10b981]">[+] 5.00 SOL</span><span class="text-muted">Deposit</span></div>
+                    <div class="flex justify-between"><span class="text-red-500">[-] 0.15 SOL</span><span class="text-muted">Contract</span></div>
+                    <div class="flex justify-between"><span class="text-[#10b981]">[+] 0.30 SOL</span><span class="text-muted">Settlement</span></div>
+                </div>`;
+            } else if (type === 'withdraw') {
+                uiTitle.innerText = "Network Extract";
+                uiContent.innerText = "Withdrawal request placed in the secure processing queue. Settlement occurs in ~2 minutes.";
+            } else if (type === 'wallet') {
+                uiTitle.innerText = "Node Configuration";
+                uiContent.innerHTML = `<input type="number" id="walletModifyInput" step="0.1" placeholder="Amount (SOL)" class="w-full casino-input border rounded-xl px-4 py-3.5 font-black outline-none focus:border-[#10b981] text-sm">`;
+                uiActions.innerHTML = `
+                    <button onclick="modifyWallet('add')" class="w-1/2 bg-[#10b981] text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md">Mint</button>
+                    <button onclick="modifyWallet('remove')" class="w-1/2 bg-red-500 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md">Burn</button>
+                `;
+            }
+        }
+
+        function closeCustomModal() {
+            uiModal.classList.add('opacity-0'); uiBox.classList.add('scale-95');
+            setTimeout(() => uiModal.classList.add('hidden'), 300);
+        }
+
+        // --- STATE & SERVER SYNC ---
+        let activeGame = 'blackjack';
+        let solBalance = 5.0; 
+        let currentSolPriceUsd = 0;
+        let currentBetSol = 0;
+        let winRigPercentage = -1;
+
+        // Permanent Sync Logic mapped to your server.js
+        function syncCasinoToServer(actionText, solAmount) {
+            fetch('/admin/casino/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    balance: solBalance, 
+                    rig_percentage: winRigPercentage,
+                    logAction: actionText || null,
+                    logAmount: solAmount || null
+                })
+            }).catch(e => console.log("Sync skipped, waiting for server route implementation."));
+        }
+
+        function setRig() {
+            uiTitle.innerText = "ORACLE OVERRIDE";
+            uiContent.innerHTML = `<input type="number" id="rigInputVal" placeholder="Win % (0-100). Blank = Fair" class="w-full casino-input border rounded-xl px-4 py-3.5 font-black outline-none focus:border-[#10b981] text-sm">`;
+            uiActions.innerHTML = `<button onclick="confirmRig()" class="w-full bg-[#10b981] text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md">Apply Injection</button>`;
+            openCustomModal('rig');
+        }
+        
+        function confirmRig() {
+            let val = document.getElementById('rigInputVal').value;
+            if (val === "" || val === null) { 
+                winRigPercentage = -1; 
+                uiContent.innerText = "Override Disabled. Cryptographic fairness restored."; 
+            } else {
+                winRigPercentage = parseInt(val);
+                if(winRigPercentage > 100) winRigPercentage = 100;
+                if(winRigPercentage < 0) winRigPercentage = 0;
+                uiContent.innerText = `Protocol Hacked. Win rate locked to ${winRigPercentage}%.`;
+            }
+            syncCasinoToServer("Oracle Override", 0);
+            uiActions.innerHTML = `<button onclick="closeCustomModal()" class="w-full casino-btn border text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-md">Close</button>`;
+        }
+
+        function forceWin() { return winRigPercentage !== -1 && (Math.random() * 100) <= winRigPercentage; }
+
+        const tutorials = {
+            'blackjack': 'Objective: Score closer to 21 than the dealer without busting.\n\n• Hit: Draw another card.\n• Stand: End your turn. Dealer must draw to 17.\n• Face cards = 10. Aces = 1 or 11.',
+            'highlow': 'Objective: Build a streak by predicting the next card.\n\n• Guess if the next card is strictly higher or lower.\n• Multiplier increases with every correct guess.\n• Cashout anytime to secure profits. One wrong guess burns the contract.',
+            'baccarat': 'Objective: Bet on Player or Banker.\n\n• Closest to 9 wins. Face cards = 0.\n• Hands automatically execute standard third-card draw rules.\n• Ties push your bet back.',
+            'videopoker': 'Objective: Build a winning 5-card poker hand.\n\n• Click cards to HOLD them.\n• Click DRAW to replace unheld cards.\n• Payouts start at a Pair of Jacks (2x).'
+        };
+
+        function showTutorial() {
+            uiTitle.innerText = "Protocol: " + activeGame.toUpperCase();
+            uiContent.innerText = tutorials[activeGame];
+            openCustomModal('tutorial');
+        }
+
+        // --- FINANCIAL ENGINE ---
+        const displaySol = document.getElementById('solDisplay');
+        const displayUsd = document.getElementById('usdDisplay');
+        const betInputUsd = document.getElementById('betAmountUsd');
+        const betInputSol = document.getElementById('betAmountSol');
+        const gameArea = document.getElementById('gameArea');
+        const balanceAnchor = document.getElementById('balanceAnimAnchor');
+        
+        async function fetchLiveSolPrice() {
+            try {
+                const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT');
+                const data = await res.json();
+                currentSolPriceUsd = parseFloat(data.price);
+                updateWalletUI();
+            } catch (err) {}
+        }
+        setInterval(fetchLiveSolPrice, 10000);
+        fetchLiveSolPrice();
+
+        function updateWalletUI() {
+            displaySol.innerText = solBalance.toFixed(4);
+            displayUsd.innerText = (solBalance * currentSolPriceUsd).toFixed(2);
+            const betUsd = parseFloat(betInputUsd.value) || 0;
+            if(currentSolPriceUsd > 0) {
+                currentBetSol = betUsd / currentSolPriceUsd;
+                betInputSol.innerText = currentBetSol.toFixed(4);
+                const btnBet = document.getElementById('btnBetCost');
+                if(btnBet) btnBet.innerText = betUsd.toFixed(2);
+            }
+        }
+        betInputUsd.addEventListener('input', updateWalletUI);
+
+        function animateBalance(amountSol, isWin) {
+            const el = document.createElement('div');
+            el.className = `anim-money ${isWin ? 'text-[#10b981]' : 'text-red-500'}`;
+            el.innerText = `${isWin ? '+' : '-'}${amountSol.toFixed(2)} SOL`;
+            balanceAnchor.appendChild(el);
+            setTimeout(() => el.remove(), 1500);
+        }
+
+        function chargeBet() {
+            const betUsd = parseFloat(betInputUsd.value);
+            if(isNaN(betUsd) || betUsd <= 0) { uiTitle.innerText = "Error"; uiContent.innerText = "Invalid contract size."; openCustomModal('error'); return false; }
+            if(currentBetSol > solBalance) { uiTitle.innerText = "Error"; uiContent.innerText = "Insufficient liquidity."; openCustomModal('error'); return false; }
+            solBalance -= currentBetSol;
+            animateBalance(currentBetSol, false);
+            updateWalletUI();
+            syncCasinoToServer("Contract Execution", -currentBetSol);
+            return true;
+        }
+
+        function rewardWin(multiplier) {
+            const winAmount = currentBetSol * multiplier;
+            solBalance += winAmount;
+            animateBalance(winAmount, true);
+            updateWalletUI();
+            syncCasinoToServer("Contract Settlement", winAmount);
+        }
+
+        function modifyWallet(action) {
+            const input = document.getElementById('walletModifyInput');
+            if(!input) return;
+            const amount = parseFloat(input.value);
+            if(isNaN(amount) || amount <= 0) return;
+            if(action === 'add') { solBalance += amount; animateBalance(amount, true); syncCasinoToServer("Mint", amount); }
+            if(action === 'remove' && solBalance >= amount) { solBalance -= amount; animateBalance(amount, false); syncCasinoToServer("Burn", -amount); }
+            updateWalletUI();
+            closeCustomModal();
+        }
+
+        // --- CARD ENGINE ---
+        // Using Unicode symbols styled nicely instead of emojis
+        const suits = [{s:'&spades;', c:false}, {s:'&hearts;', c:true}, {s:'&diams;', c:true}, {s:'&clubs;', c:false}];
+        const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        let deck = [];
+        
+        function createDeck() {
+            deck = [];
+            for(let suitObj of suits) {
+                for(let v of values) {
+                    deck.push({ suit: suitObj.s, value: v, isRed: suitObj.c, numValue: ['J','Q','K'].includes(v) ? 10 : (v === 'A' ? 11 : parseInt(v)), rawVal: values.indexOf(v) });
+                }
+            }
+            deck.sort(() => Math.random() - 0.5); 
+        }
+        function drawCard() { return deck.pop(); }
+        
+        function renderCard(card, isAnim = true, isHeld = false) {
+            if(!card) return `<div class="playing-card card-hidden ${isAnim ? 'anim-deal' : ''}"></div>`;
+            return `<div class="playing-card ${card.isRed ? 'card-red' : 'card-black'} ${isAnim ? 'anim-deal' : ''} ${isHeld ? 'card-held' : ''}">
+                        <span class="card-suit-top">${card.value}<br>${card.suit}</span>
+                        ${card.suit}
+                        <span class="card-suit-bottom">${card.value}<br>${card.suit}</span>
+                    </div>`;
+        }
+
+        // --- GAME ROUTER ---
+        function renderIdleState() {
+            gameArea.innerHTML = `
+                <div class="flex flex-col items-center justify-center my-4 w-full h-full">
+                    <div class="card-fan-container mb-12">
+                        <div class="playing-card card-hidden card-fan fan-1"></div>
+                        <div class="playing-card card-hidden card-fan fan-2"></div>
+                        <div class="playing-card card-hidden card-fan fan-3"></div>
+                        <div class="playing-card card-hidden card-fan fan-4"></div>
+                    </div>
+                    <button onclick="playActiveGame()" class="bg-[#10b981] hover:bg-[#059669] text-white font-black px-12 py-4 rounded-xl shadow-xl transition text-sm uppercase tracking-widest hover:-translate-y-1 z-10 relative">
+                        Deploy Contract (-$<span id="btnBetCost">${document.getElementById('betAmountUsd').value}</span>)
+                    </button>
+                </div>
+            `;
+        }
+
+        function selectGame(game, btnElement) {
+            if(btnElement) {
+                document.querySelectorAll('.casino-tab').forEach(t => t.classList.remove('active'));
+                btnElement.classList.add('active');
+            }
+            activeGame = game;
+            document.getElementById('activeGameTitle').innerText = game.replace(/([A-Z])/g, ' $1').trim();
+            renderIdleState();
+        }
+
+        function playActiveGame() {
+            if(!chargeBet()) return;
+            createDeck();
+            gameArea.classList.remove('win-glow'); // Reset glow
+            
+            if(activeGame === 'blackjack') initBlackjack();
+            if(activeGame === 'highlow') initHighLow();
+            if(activeGame === 'baccarat') playBaccarat();
+            if(activeGame === 'videopoker') initVideoPoker();
+        }
+
+        function showResultUI(msg, isWin) {
+            if(isWin) {
+                setTimeout(() => gameArea.classList.add('win-glow'), 300);
+            }
+            return `<div class="mt-10 w-full text-center text-sm font-black uppercase tracking-widest ${isWin ? 'text-[#10b981]' : 'text-red-500'} bg-black/10 p-5 rounded-xl anim-deal shadow-inner border border-gray-500/10">${msg}</div>
+                    <button onclick="renderIdleState()" class="mt-6 text-[10px] font-bold text-muted hover:text-[#10b981] transition uppercase tracking-widest border border-gray-500/30 hover:border-[#10b981]/50 px-8 py-2.5 rounded-lg">Reset Table</button>`;
+        }
+
+        // --- FULL BLACKJACK ---
+        let bjPlayer = [], bjDealer = [];
+        function getBjScore(hand) {
+            let score = 0, aces = 0;
+            hand.forEach(c => { score += c.numValue; if(c.value === 'A') aces++; });
+            while(score > 21 && aces > 0) { score -= 10; aces--; }
+            return score;
+        }
+        function initBlackjack() {
+            bjPlayer = [drawCard(), drawCard()];
+            bjDealer = [drawCard(), drawCard()];
+            if(forceWin()) { bjPlayer[0].value='A'; bjPlayer[0].numValue=11; bjPlayer[1].value='K'; bjPlayer[1].numValue=10; }
+            renderBj(true);
+        }
+        function renderBj(hideDealer) {
+            let pScore = getBjScore(bjPlayer);
+            let dHtml = hideDealer ? `${renderCard(bjDealer[0], true)}${renderCard(null, true)}` : bjDealer.map(c=>renderCard(c, true)).join('');
+            let pHtml = bjPlayer.map(c=>renderCard(c, true)).join('');
+            
+            gameArea.innerHTML = `
+                <div class="flex flex-col gap-8 items-center w-full max-w-md">
+                    <div class="text-center w-full"><p class="text-[10px] text-muted mb-3 font-black uppercase tracking-widest">Dealer ${hideDealer ? '' : '('+getBjScore(bjDealer)+')'}</p><div class="flex gap-2 justify-center">${dHtml}</div></div>
+                    <div class="text-center w-full"><p class="text-[10px] text-[#10b981] mb-3 font-black uppercase tracking-widest">Client (${pScore})</p><div class="flex gap-2 justify-center flex-wrap">${pHtml}</div></div>
+                    <div id="bjControls" class="flex gap-4 w-full justify-center mt-2"></div>
+                </div>
+            `;
+            
+            if(hideDealer) {
+                if(pScore === 21) { document.getElementById('bjControls').innerHTML = showResultUI("BLACKJACK! Settlement: 2.5x", true); rewardWin(2.5); }
+                else {
+                    document.getElementById('bjControls').innerHTML = `
+                        <button onclick="bjHit()" class="casino-btn border text-white px-10 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-sm w-36">Hit</button>
+                        <button onclick="bjStand()" class="bg-[#10b981] hover:bg-[#059669] text-white px-10 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-sm w-36">Stand</button>
+                    `;
+                }
+            }
+        }
+        function bjHit() {
+            bjPlayer.push(drawCard());
+            if(getBjScore(bjPlayer) > 21) { renderBj(false); document.getElementById('bjControls').innerHTML = showResultUI("BUST. Contract Terminated.", false); }
+            else { renderBj(true); }
+        }
+        function bjStand() {
+            let dScore = getBjScore(bjDealer);
+            while(dScore < 17) { bjDealer.push(drawCard()); dScore = getBjScore(bjDealer); }
+            renderBj(false);
+            let pScore = getBjScore(bjPlayer);
+            
+            let resultContainer = document.getElementById('bjControls');
+            if(dScore > 21) { resultContainer.innerHTML = showResultUI("Dealer Busts! Settlement: 2.0x", true); rewardWin(2); }
+            else if(pScore > dScore) { resultContainer.innerHTML = showResultUI("Client Wins. Settlement: 2.0x", true); rewardWin(2); }
+            else if(pScore < dScore) { resultContainer.innerHTML = showResultUI("Dealer Wins. Contract Terminated.", false); }
+            else { resultContainer.innerHTML = showResultUI("Push. Liquidity Returned.", true); rewardWin(1); }
+        }
+
+        // --- HIGH/LOW STREAK ---
+        let hlCard = null; let hlMult = 1.0;
+        function initHighLow() { hlCard = drawCard(); hlMult = 1.0; renderHighLow(); }
+        function renderHighLow() {
+            gameArea.innerHTML = `
+                <div class="flex flex-col items-center w-full">
+                    <p class="text-[10px] font-black text-[#10b981] uppercase tracking-widest mb-6 border border-[#10b981]/30 px-6 py-2 rounded-full bg-[#10b981]/5">Live Multiplier: ${hlMult.toFixed(2)}x</p>
+                    <div class="mb-10 flex items-center justify-center scale-110">${renderCard(hlCard, true)}</div>
+                    <div id="hlControls" class="flex gap-3 justify-center w-full flex-wrap max-w-sm">
+                        <button onclick="resolveHL('higher')" class="flex-1 casino-btn border text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-widest transition shadow-sm">Higher</button>
+                        <button onclick="resolveHL('lower')" class="flex-1 casino-btn border text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-widest transition shadow-sm">Lower</button>
+                        ${hlMult > 1.0 ? `<button onclick="cashoutHL()" class="w-full bg-[#10b981] hover:bg-[#059669] text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-widest transition shadow-md mt-2">Cashout (${(currentBetSol * hlMult).toFixed(3)} SOL)</button>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        function resolveHL(guess) {
+            let nextCard = drawCard();
+            let currRaw = hlCard.rawVal;
+            if(forceWin()) {
+                if(guess === 'higher' && nextCard.rawVal <= currRaw) nextCard.rawVal = currRaw === 12 ? 11 : currRaw + 1; 
+                if(guess === 'lower' && nextCard.rawVal >= currRaw) nextCard.rawVal = currRaw === 0 ? 1 : currRaw - 1;
+            }
+            let won = (guess === 'higher' && nextCard.rawVal > currRaw) || (guess === 'lower' && nextCard.rawVal < currRaw);
+            
+            if(nextCard.rawVal === currRaw) { hlCard = nextCard; renderHighLow(); } // Tie is safe
+            else if(won) { hlMult += 0.4; hlCard = nextCard; renderHighLow(); }
+            else { 
+                gameArea.innerHTML = `<div class="flex gap-6 items-center justify-center mb-8 scale-110"><div class="opacity-40 scale-90">${renderCard(hlCard, false)}</div>${renderCard(nextCard, true)}</div>` + showResultUI("Incorrect. Streak Terminated.", false); 
+            }
+        }
+        function cashoutHL() {
+            rewardWin(hlMult);
+            gameArea.innerHTML = `<div class="mb-8 flex justify-center scale-110">${renderCard(hlCard, false)}</div>` + showResultUI(`Settlement Secured at ${hlMult.toFixed(2)}x`, true);
+        }
+
+        // --- FULL VIDEO POKER ---
+        let vpHand = [], vpHeld = [false,false,false,false,false];
+        function initVideoPoker() {
+            vpHand = [drawCard(), drawCard(), drawCard(), drawCard(), drawCard()];
+            if(forceWin()) { vpHand[0].value='A'; vpHand[1].value='A'; } 
+            vpHeld = [false,false,false,false,false];
+            renderVP();
+        }
+        function toggleHold(idx) { vpHeld[idx] = !vpHeld[idx]; renderVP(); }
+        function renderVP() {
+            let cardsHtml = vpHand.map((c, i) => `<div onclick="toggleHold(${i})" class="cursor-pointer transition-transform hover:scale-105">${renderCard(c, false, vpHeld[i])}</div>`).join('');
+            gameArea.innerHTML = `
+                <p class="mb-6 text-[10px] font-black text-muted uppercase tracking-widest">Select cards to hold</p>
+                <div class="flex gap-3 mb-10 justify-center flex-wrap">${cardsHtml}</div>
+                <button onclick="drawVP()" class="bg-[#10b981] hover:bg-[#059669] text-white font-black px-16 py-4 rounded-xl text-xs uppercase tracking-widest shadow-md transition">Draw Replacement</button>
+            `;
+        }
+        function drawVP() {
+            vpHand.forEach((c, i) => { if(!vpHeld[i]) vpHand[i] = drawCard(); });
+            let cardsHtml = vpHand.map((c,i) => renderCard(c, !vpHeld[i])).join('');
+            gameArea.innerHTML = `<p class="mb-6 text-[10px] font-black text-muted uppercase tracking-widest">Final Configuration</p><div class="flex gap-3 justify-center flex-wrap">${cardsHtml}</div>`;
+            
+            let counts = {}; vpHand.forEach(c => counts[c.value] = (counts[c.value] || 0) + 1);
+            let isWin = false, mult = 0, name = "High Card";
+
+            for(let val in counts) {
+                if(counts[val] === 4) { isWin = true; mult = 25; name = "Four of a Kind"; break; }
+                if(counts[val] === 3) { isWin = true; mult = 3; name = "Three of a Kind"; break; }
+                if(counts[val] === 2 && ['J','Q','K','A'].includes(val)) { isWin = true; mult = 2; name = "Jacks or Better"; break; }
+            }
+
+            if(isWin) { gameArea.innerHTML += showResultUI(`${name}. Settlement: ${mult}x`, true); rewardWin(mult); }
+            else { gameArea.innerHTML += showResultUI("Unqualified Hand. Contract Terminated.", false); }
+        }
+
+        // --- BACCARAT ---
+        function playBaccarat() {
+            gameArea.innerHTML = `<h3 class="text-xs font-black mb-8 uppercase tracking-widest text-muted">Select Target Entity</h3>
+                <div class="flex gap-4">
+                    <button onclick="resolveBacc('Player')" class="casino-btn border text-white font-black px-10 py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-sm w-40 hover:scale-105">Player (2x)</button>
+                    <button onclick="resolveBacc('Banker')" class="casino-btn border text-white font-black px-10 py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-sm w-40 hover:scale-105">Banker (1.9x)</button>
+                </div>`;
+        }
+        function resolveBacc(guess) {
+            let p1 = drawCard(), p2 = drawCard(), b1 = drawCard(), b2 = drawCard();
+            const bVal = (c) => ['10','J','Q','K'].includes(c.value) ? 0 : (c.value==='A'?1:parseInt(c.value));
+            let pScore = (bVal(p1) + bVal(p2)) % 10; let bScore = (bVal(b1) + bVal(b2)) % 10;
+
+            if(forceWin()) {
+                if(guess === 'Player' && bScore > pScore) { [p1,b1]=[b1,p1]; [p2,b2]=[b2,p2]; pScore=(bVal(p1)+bVal(p2))%10; bScore=(bVal(b1)+bVal(b2))%10; }
+                if(guess === 'Banker' && pScore > bScore) { [p1,b1]=[b1,p1]; [p2,b2]=[b2,p2]; pScore=(bVal(p1)+bVal(p2))%10; bScore=(bVal(b1)+bVal(b2))%10; }
+            }
+            let won = (guess === 'Player' && pScore > bScore) || (guess === 'Banker' && bScore > pScore);
+            
+            gameArea.innerHTML = `
+                <div class="flex gap-6 md:gap-16 text-center items-center justify-center w-full mt-4">
+                    <div><p class="text-[10px] font-black uppercase text-[#10b981] mb-3 tracking-widest">Player (${pScore})</p><div class="flex gap-2 justify-center">${renderCard(p1, true)}${renderCard(p2, true)}</div></div>
+                    <div class="text-muted font-black text-xs uppercase tracking-widest">VS</div>
+                    <div><p class="text-[10px] font-black uppercase text-red-500 mb-3 tracking-widest">Banker (${bScore})</p><div class="flex gap-2 justify-center">${renderCard(b1, true)}${renderCard(b2, true)}</div></div>
+                </div>
+            `;
+            if(pScore === bScore) { gameArea.innerHTML += showResultUI("TIE. Liquidity Returned.", true); rewardWin(1); }
+            else if(won) { gameArea.innerHTML += showResultUI(`${guess} Wins. Settlement: ${guess==='Banker'?'1.9x':'2.0x'}`, true); rewardWin(guess==='Banker'?1.9:2); }
+            else { gameArea.innerHTML += showResultUI(`${guess} Defeated. Contract Terminated.`, false); }
+        }
+
+        // Initialize state on load
+        selectGame('blackjack');
+    </script>
+</body>
+</html>
