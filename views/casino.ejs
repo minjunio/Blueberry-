@@ -16,6 +16,11 @@
         .casino-dark .win-glow { box-shadow: inset 0 0 40px rgba(0, 255, 170, 0.05), 0 0 20px rgba(0, 255, 170, 0.1); border-color: rgba(0, 255, 170, 0.3); }
         .casino-dark .lose-glow { box-shadow: inset 0 0 40px rgba(239, 68, 68, 0.05), 0 0 20px rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
 
+        /* Hide HTML5 Number Input Arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
         /* Game Selector Grid */
         .game-card { border: 1px solid transparent; transition: all 0.2s; cursor: pointer; }
         .casino-dark .game-card { background: #151e32; border-color: #1f2937; }
@@ -122,11 +127,11 @@
                         <p class="text-[10px] font-black text-[#00ffaa] uppercase tracking-widest">Rainbet Contract</p>
                         <span class="w-1.5 h-1.5 bg-[#00ffaa] rounded-full animate-pulse shadow-[0_0_5px_#00ffaa]"></span>
                     </div>
-                    <div class="relative mb-4">
-                        <h3 id="solDisplayHeader" class="text-3xl font-black tracking-tight flex items-center gap-2 text-white">
-                            <span id="rainbetDisplaySOL">0.0000</span><span class="text-sm text-muted">SOL</span>
+                    <div class="relative mb-4 text-center">
+                        <h3 id="solDisplayHeader" class="text-4xl font-black tracking-tight flex items-center justify-center gap-1 text-white">
+                            <span class="text-muted text-2xl font-black">$</span><span id="rainbetDisplayUSD">0.00</span>
                         </h3>
-                        <p class="text-[11px] font-bold text-muted mt-0.5">≈ $<span id="rainbetDisplayUSD">0.00</span> USD</p>
+                        <p class="text-xs font-bold text-muted mt-1 uppercase tracking-widest">≈ <span id="rainbetDisplaySOL">0.0000</span> SOL</p>
                     </div>
                     <button onclick="openCustomModal('transfer')" class="w-full bg-[#00ffaa] hover:bg-[#00d68f] text-[#06090e] py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition shadow-md flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg> Bridge SOL
@@ -134,12 +139,20 @@
                 </div>
 
                 <div class="casino-panel border rounded-2xl p-5 relative">
-                    <label class="block text-[10px] font-black text-muted uppercase tracking-widest mb-2">Contract Stake (USD)</label>
-                    <div class="flex gap-2">
-                        <span class="casino-input font-black px-3 py-2 rounded-lg border flex items-center justify-center text-sm text-white">$</span>
-                        <input type="number" id="betAmountUsd" value="10" min="1" class="w-full casino-input border rounded-lg px-3 py-2 font-black outline-none focus:border-[#00ffaa] transition text-base">
+                    <label class="block text-[10px] font-black text-muted uppercase tracking-widest mb-3">Contract Stake (USD)</label>
+                    
+                    <div class="flex items-center gap-2 bg-[#06090e] border border-[#1f2937] rounded-xl p-1.5 focus-within:border-[#00ffaa] transition shadow-inner">
+                        <button onclick="adjustBet(-7.5)" class="w-12 h-10 flex-shrink-0 flex justify-center items-center rounded-lg bg-[#151e32] hover:bg-[#1f2937] text-white font-black text-lg transition shadow-sm">-</button>
+                        
+                        <div class="flex-grow relative flex items-center justify-center">
+                            <span class="absolute left-1 text-muted font-black text-xl">$</span>
+                            <input type="number" id="betAmountUsd" value="10.00" min="1" step="0.01" class="w-full bg-transparent text-center font-black outline-none text-2xl text-white py-1">
+                        </div>
+                        
+                        <button onclick="adjustBet(7.5)" class="w-12 h-10 flex-shrink-0 flex justify-center items-center rounded-lg bg-[#151e32] hover:bg-[#1f2937] text-white font-black text-lg transition shadow-sm">+</button>
                     </div>
-                    <div class="text-[10px] text-muted font-bold mt-3 flex justify-between items-center">
+
+                    <div class="text-[10px] text-muted font-bold mt-4 flex justify-between items-center">
                         <span>Pulls from Rainbet</span>
                         <span class="text-white flex items-center gap-1"><svg viewBox="0 0 128 128" width="10" height="10"><path fill="#00FFA3" d="M21.5 98.4l15.9-27.4h74.5L96 98.4H21.5z"/><path fill="#03E1FF" d="M21.5 29.6l15.9 27.4h74.5L96 29.6H21.5z"/><path fill="#DC1FFF" d="M96 64H21.5l15.9 27.5H112L96 64z"/></svg> <span id="betAmountSol">0.00</span></span>
                     </div>
@@ -270,6 +283,16 @@
             else { body.classList.add('hidden'); chev.style.transform = 'rotate(-90deg)'; }
         }
 
+        function adjustBet(amount) {
+            if(isGameActive) return;
+            const betInput = document.getElementById('betAmountUsd');
+            let current = parseFloat(betInput.value) || 0;
+            let newAmount = current + amount;
+            if (newAmount < 1) newAmount = 1; 
+            betInput.value = newAmount.toFixed(2);
+            updateWalletUI();
+        }
+
         function updateWalletUI() {
             let mainUsd = 0;
             let html = '';
@@ -292,9 +315,9 @@
             }
             document.getElementById('walletAssets').innerHTML = html || '<p class="text-xs text-muted text-center py-2">Node Empty. Add Liquidity.</p>';
             document.getElementById('mainUsdValue').innerText = mainUsd.toFixed(2);
-            document.getElementById('rainbetDisplaySOL').innerText = balances.rainbet.SOL.toFixed(4);
             
-            // Calc USD for Rainbet Sol
+            // Render the Rainbet Wallet (Big USD, Small SOL)
+            document.getElementById('rainbetDisplaySOL').innerText = balances.rainbet.SOL.toFixed(4);
             let rainbetUsd = balances.rainbet.SOL * prices.SOL;
             document.getElementById('rainbetDisplayUSD').innerText = rainbetUsd.toFixed(2);
             
@@ -364,6 +387,30 @@
         const uiContent = document.getElementById('uiModalContent');
         const uiActions = document.getElementById('uiModalActions');
 
+        // Dynamic Modal Bridging Utilities
+        window.setTransDir = function(dir) {
+            document.getElementById('transDir').value = dir;
+            const btnIn = document.getElementById('btnTransIn');
+            const btnOut = document.getElementById('btnTransOut');
+            if(dir === 'in') {
+                btnIn.className = "flex-1 py-2.5 rounded-lg text-xs font-black bg-[#00ffaa] text-black shadow-md transition";
+                btnOut.className = "flex-1 py-2.5 rounded-lg text-xs font-black text-muted hover:text-white transition cursor-pointer";
+            } else {
+                btnOut.className = "flex-1 py-2.5 rounded-lg text-xs font-black bg-[#00ffaa] text-black shadow-md transition";
+                btnIn.className = "flex-1 py-2.5 rounded-lg text-xs font-black text-muted hover:text-white transition cursor-pointer";
+            }
+        };
+        
+        window.setMaxTrans = function() {
+            const dir = document.getElementById('transDir').value;
+            const amtInput = document.getElementById('transAmount');
+            if(dir === 'in') {
+                amtInput.value = (balances.main.SOL || 0).toFixed(4);
+            } else {
+                amtInput.value = (balances.rainbet.SOL || 0).toFixed(4);
+            }
+        };
+
         function openCustomModal(type, msg = '') {
             uiModal.classList.remove('hidden');
             setTimeout(() => { uiModal.classList.remove('opacity-0'); uiBox.classList.remove('scale-95'); }, 10);
@@ -401,8 +448,15 @@
                 uiBox.style.borderColor = '#00ffaa';
                 uiTitle.innerHTML = `<span class="text-[#00ffaa]">Bridge SOL Protocol</span>`;
                 uiContent.innerHTML = `
-                    <select id="transDir" class="w-full casino-input border rounded-xl px-4 py-3 mb-3 font-black outline-none text-sm focus:border-[#00ffaa]"><option value="in">Main ➔ Rainbet</option><option value="out">Rainbet ➔ Main</option></select>
-                    <input type="number" id="transAmount" placeholder="SOL Amount" class="w-full casino-input border rounded-xl px-4 py-3 font-black outline-none text-sm focus:border-[#00ffaa]">`;
+                    <div class="flex gap-2 mb-4 bg-[#06090e] border border-[#1f2937] p-1.5 rounded-xl">
+                        <button id="btnTransIn" onclick="setTransDir('in')" class="flex-1 py-2.5 rounded-lg text-xs font-black bg-[#00ffaa] text-black shadow-md transition">Deposit to Rainbet</button>
+                        <button id="btnTransOut" onclick="setTransDir('out')" class="flex-1 py-2.5 rounded-lg text-xs font-black text-muted hover:text-white transition cursor-pointer">Withdraw to Main</button>
+                    </div>
+                    <input type="hidden" id="transDir" value="in">
+                    <div class="relative">
+                        <input type="number" id="transAmount" placeholder="SOL Amount" class="w-full casino-input border rounded-xl px-4 py-3 font-black outline-none text-base focus:border-[#00ffaa]">
+                        <button onclick="setMaxTrans()" class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase text-[#06090e] bg-[#00ffaa] px-2 py-1.5 rounded shadow-sm hover:scale-105 transition">MAX</button>
+                    </div>`;
                 uiActions.innerHTML = `<button onclick="execTransfer()" class="w-full bg-[#00ffaa] text-[#06090e] py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#00d68f] transition shadow-md">Execute Transfer</button>`;
             }
         }
@@ -435,7 +489,7 @@
             if(amt>0) {
                 if(dir === 'in' && balances.main.SOL >= amt) { balances.main.SOL -= amt; balances.rainbet.SOL += amt; }
                 else if(dir === 'out' && balances.rainbet.SOL >= amt) { balances.rainbet.SOL -= amt; balances.main.SOL += amt; }
-                else { openCustomModal('error', 'Insufficient SOL balance.'); return; }
+                else { openCustomModal('error', 'Insufficient SOL balance for this transfer.'); return; }
                 saveWallets(); updateWalletUI(); syncCasinoToServer(); closeCustomModal();
             }
         }
@@ -610,7 +664,6 @@
                 await sleep(500); renderBj(false, false); 
                 document.getElementById('bjControls').innerHTML = showResultUI("BUST. Terminated.", false); 
             } else if (score === 21) {
-                // BUG FIX: Auto stand on 21 so it doesn't freeze
                 await sleep(500);
                 bjStand();
             } else {
@@ -821,7 +874,6 @@
             renderHighLow(); 
         }
         function renderHighLow() {
-            // BUG FIX: Show the mathematical rank clearly on top of the card
             gameArea.innerHTML = `
                 <div class="flex flex-col items-center w-full max-w-sm">
                     <p class="text-[10px] font-black text-[#00ffaa] uppercase tracking-widest mb-6 border border-[#00ffaa]/30 px-6 py-2 rounded-full bg-[#00ffaa]/5">Live Multiplier: ${hlMult.toFixed(2)}x</p>
