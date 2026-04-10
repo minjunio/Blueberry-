@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% 
+        const seoTitle = post.seo_title || post.title;
+        const seoDesc = post.seo_desc || 'Read this post on ExamHub.';
+        const seoKeywords = post.seo_keywords || 'examhub, update, post';
+        const ogImage = post.og_image || 'https://examhub.shop/favicon.png';
+        const canonicalUrl = post.canonical_url || `https://${host}/post/${post.id}`;
+        
+        // This function securely converts your text to HTML styling
+        function formatPostText(text) {
+            if (!text) return '';
+            let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+            safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong class="font-black text-anime-textMain">$1</strong>');
+            safeText = safeText.replace(/#(.*?)#/g, '<span class="text-2xl md:text-3xl font-black block mt-8 mb-4 text-anime-textMain leading-tight">$1</span>');
+            safeText = safeText.replace(/\[img\](.*?)\[\/img\]/gi, '<img src="$1" class="rounded-2xl w-full max-w-3xl my-8 shadow-md border-2 border-gray-100 object-cover">');
+            safeText = safeText.replace(/\n/g, '<br>');
+            return safeText;
+        }
+    %>
+    <title><%= seoTitle %></title>
+    <meta name="description" content="<%= seoDesc %>">
+    <meta name="keywords" content="<%= seoKeywords %>">
+    <link rel="canonical" href="<%= canonicalUrl %>">
+    <meta property="og:title" content="<%= seoTitle %>">
+    <meta property="og:description" content="<%= seoDesc %>">
+    <meta property="og:image" content="<%= ogImage %>">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <%- include('partials/head') %>
+</head>
+<body class="antialiased flex flex-col min-h-screen bg-gray-50">
+    <nav class="py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
+        <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
+        <a href="/" class="bg-white border-2 border-gray-200 px-5 py-2.5 rounded-full font-black text-sm text-gray-600 hover:text-black shadow-sm transition flex items-center">← Back to Store</a>
+    </nav>
+    
+    <main class="flex-grow w-full max-w-4xl mx-auto px-4 md:px-8 py-10 relative z-10">
+        <article class="bg-white rounded-3xl shadow-sm border-2 border-gray-100 p-6 md:p-12 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-anime-skyLight rounded-bl-full opacity-20 pointer-events-none"></div>
+            
+            <h1 class="text-3xl md:text-5xl font-black text-anime-textMain mb-4 leading-tight"><%= post.title %></h1>
+            <p class="text-xs text-gray-400 font-black mb-10 uppercase tracking-widest flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <%= new Date(post.created_at).toLocaleDateString() %>
+            </p>
+            
+            <div class="text-gray-700 leading-relaxed font-medium text-lg">
+                <%- formatPostText(post.content) %>
+            </div>
+            
+            <% if (post.product_id || post.category_name) { %>
+                <div class="mt-16 pt-8 border-t-2 border-gray-100 flex flex-col items-start bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                    <h3 class="text-lg font-black mb-3 text-anime-textMain">Recommended for you</h3>
+                    <% if (post.product_id) { %>
+                        <a href="/?q=<%= post.product_id %>" class="inline-flex items-center gap-2 bg-anime-accent text-white px-6 py-3 rounded-xl font-black shadow-sm hover:scale-105 transition">View Featured Product →</a>
+                    <% } else if (post.category_name) { %>
+                        <a href="/?category=<%= encodeURIComponent(post.category_name) %>" class="inline-flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-xl font-black shadow-sm hover:scale-105 transition">Explore <%= post.category_name %> Category →</a>
+                    <% } %>
+                </div>
+            <% } %>
+        </article>
+    </main>
+</body>
+</html>
