@@ -34,6 +34,9 @@ db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, image1 TEXT, image2 TEXT, content TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
     db.run(`CREATE TABLE IF NOT EXISTS otps (email TEXT PRIMARY KEY, code TEXT, expires DATETIME)`);
     
+    // Blog Posts Table
+    db.run(`CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, category_name TEXT, product_id INTEGER, seo_title TEXT, seo_desc TEXT, seo_keywords TEXT, og_image TEXT, canonical_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
+
     // Casino Tracking Table
     db.run(`CREATE TABLE IF NOT EXISTS casino_ledger (id INTEGER PRIMARY KEY AUTOINCREMENT, action TEXT, amount REAL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
 
@@ -76,6 +79,21 @@ const getActiveOrders = (req, callback) => {
         callback(row ? row.count : 0);
     });
 };
+
+// --- SITEMAP ENDPOINT ---
+app.get('/sitemap.xml', (req, res) => {
+    db.all("SELECT id FROM products", (err, products) => {
+        db.all("SELECT id FROM posts", (err, posts) => {
+            let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+            xml += `\n  <url><loc>https://${req.get('host')}/</loc><changefreq>daily</changefreq></url>`;
+            if(products) products.forEach(p => { xml += `\n  <url><loc>https://${req.get('host')}/?q=${p.id}</loc></url>`; });
+            if(posts) posts.forEach(p => { xml += `\n  <url><loc>https://${req.get('host')}/post/${p.id}</loc></url>`; });
+            xml += `\n</urlset>`;
+            res.header('Content-Type', 'application/xml');
+            res.send(xml);
+        });
+    });
+});
 
 // --- OTP VERIFICATION ENDPOINTS ---
 app.post('/api/send-otp', (req, res) => {
@@ -140,11 +158,19 @@ app.get('/', (req, res) => {
         db.all("SELECT * FROM categories", (err, cats) => {
             db.all(pQuery, pParams, (err, products) => {
                 db.all(aQuery, aParams, (err, announcements) => {
-                    renderSafe(res, 'index', { 
-                        user: req.session ? req.session.user : null, 
-                        buyerEmail: req.session ? req.session.buyerEmail : null,
-                        activeOrderCount,
-                        products: products || [], announcements: announcements || [], categories: cats || [], searchQuery, categoryFilter: categoryFilter || 'All', categoryRow: null 
+                    db.all("SELECT * FROM posts ORDER BY created_at DESC", (err, posts) => {
+                        renderSafe(res, 'index', { 
+                            user: req.session ? req.session.user : null, 
+                            buyerEmail: req.session ? req.session.buyerEmail : null,
+                            activeOrderCount,
+                            products: products || [], 
+                            announcements: announcements || [], 
+                            categories: cats || [], 
+                            posts: posts || [],
+                            searchQuery, 
+                            categoryFilter: categoryFilter || 'All', 
+                            categoryRow: null 
+                        });
                     });
                 });
             });
@@ -160,11 +186,19 @@ app.get('/category/:name', (req, res) => {
             db.all("SELECT products.*, users.username as vendor_name FROM products JOIN users ON products.vendor_id = users.id WHERE LOWER(category) = LOWER(?)", [categoryName], (err, products) => {
                 db.all("SELECT * FROM announcements WHERE category = ? OR category = 'All' ORDER BY id DESC", [categoryName], (err, announcements) => {
                     db.all("SELECT * FROM categories", (err, cats) => {
-                        renderSafe(res, 'index', { 
-                            user: req.session ? req.session.user : null, 
-                            buyerEmail: req.session ? req.session.buyerEmail : null,
-                            activeOrderCount,
-                            products: products || [], announcements: announcements || [], categories: cats || [], searchQuery: '', categoryFilter: categoryRow.name, categoryRow 
+                        db.all("SELECT * FROM posts ORDER BY created_at DESC", (err, posts) => {
+                            renderSafe(res, 'index', { 
+                                user: req.session ? req.session.user : null, 
+                                buyerEmail: req.session ? req.session.buyerEmail : null,
+                                activeOrderCount,
+                                products: products || [], 
+                                announcements: announcements || [], 
+                                categories: cats || [], 
+                                posts: posts || [],
+                                searchQuery: '', 
+                                categoryFilter: categoryRow.name, 
+                                categoryRow 
+                            });
                         });
                     });
                 });
@@ -177,6 +211,14 @@ app.get('/api/search', (req, res) => {
     const q = req.query.q || '';
     if (q.length < 1) return res.json([]);
     db.all("SELECT title, category FROM products WHERE title LIKE ? LIMIT 5", [`%${q}%`], (err, rows) => res.json(rows || []));
+});
+
+// --- DYNAMIC POST ROUTE ---
+app.get('/post/:id', (req, res) => {
+    db.get("SELECT * FROM posts WHERE id = ?", [req.params.id], (err, post) => {
+        if (!post) return res.redirect('/');
+        renderSafe(res, 'post', { post, host: req.get('host'), user: req.session ? req.session.user : null, buyerEmail: req.session ? req.session.buyerEmail : null });
+    });
 });
 
 app.get('/my-orders', (req, res) => {
@@ -246,7 +288,6 @@ app.post('/login', (req, res) => {
 });
 app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/'); });
 
-// UPDATED: Now queries fresh Admin data and Casino Ledger logs
 app.get('/admin', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     
@@ -256,13 +297,16 @@ app.get('/admin', (req, res) => {
                 db.all("SELECT * FROM announcements ORDER BY id DESC", (err, announcements) => {
                     db.all("SELECT orders.*, products.title as product_title, products.price as product_price FROM orders LEFT JOIN products ON orders.product_id = products.id ORDER BY orders.created_at DESC", (err, orders) => {
                         db.all("SELECT * FROM casino_ledger ORDER BY created_at DESC LIMIT 20", (err, ledger) => {
-                            renderSafe(res, 'admin', { 
-                                user: adminUser, // Contains fresh sol_balance and rig_percentage
-                                categories: categories || [], 
-                                products: products || [], 
-                                announcements: announcements || [], 
-                                orders: orders || [],
-                                ledger: ledger || [] 
+                            db.all("SELECT * FROM posts ORDER BY created_at DESC", (err, posts) => {
+                                renderSafe(res, 'admin', { 
+                                    user: adminUser, 
+                                    categories: categories || [], 
+                                    products: products || [], 
+                                    announcements: announcements || [], 
+                                    orders: orders || [],
+                                    ledger: ledger || [],
+                                    posts: posts || []
+                                });
                             });
                         });
                     });
@@ -274,7 +318,6 @@ app.get('/admin', (req, res) => {
 
 // --- CASINO API ENDPOINTS ---
 
-// Load the Casino Lounge UI
 app.get('/admin/casino', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     renderSafe(res, 'casino', { user: req.session.user });
@@ -284,9 +327,7 @@ app.post('/admin/casino/sync', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.status(403).json({error: 'Unauthorized'});
     const { balance, rig_percentage, logAction, logAmount } = req.body;
 
-    // Save Balance and Rig percentage
     db.run("UPDATE users SET sol_balance = ?, rig_percentage = ? WHERE id = ?", [balance, rig_percentage, req.session.user.id], (err) => {
-        // Optional: Save transaction history to ledger
         if (logAction && logAmount !== undefined) {
             db.run("INSERT INTO casino_ledger (action, amount) VALUES (?, ?)", [logAction, logAmount]);
         }
@@ -341,6 +382,19 @@ app.post('/admin/edit-category', (req, res) => {
 app.post('/admin/delete-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("DELETE FROM categories WHERE name = ?", [req.body.category_name], () => res.redirect('/admin'));
+});
+
+// --- ADMIN POST CONTROLS ---
+app.post('/admin/add-post', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    const { title, content, category_name, product_id, seo_title, seo_desc, seo_keywords, og_image, canonical_url } = req.body;
+    db.run("INSERT INTO posts (title, content, category_name, product_id, seo_title, seo_desc, seo_keywords, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+    [title, content, category_name || null, product_id || null, seo_title, seo_desc, seo_keywords, og_image, canonical_url], () => { res.redirect('/admin'); });
+});
+
+app.post('/admin/delete-post', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    db.run("DELETE FROM posts WHERE id = ?", [req.body.id], () => res.redirect('/admin'));
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
