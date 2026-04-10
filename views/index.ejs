@@ -11,8 +11,9 @@
         function formatPostText(text) {
             if (!text) return '';
             let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-            safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong class="font-black text-anime-textMain">$1</strong>');
-            safeText = safeText.replace(/#(.*?)#/g, '<span class="text-xl md:text-2xl font-black block mt-4 mb-2 text-anime-textMain leading-tight">$1</span>');
+            // Fixed Regex: Using [\s\S]*? allows the bolding and headers to work across multiple lines and paragraphs
+            safeText = safeText.replace(/\*\*([\s\S]*?)\*\*/g, '<strong class="font-black text-anime-textMain">$1</strong>');
+            safeText = safeText.replace(/#([\s\S]*?)#/g, '<span class="text-xl md:text-2xl font-black block mt-4 mb-2 text-anime-textMain leading-tight">$1</span>');
             safeText = safeText.replace(/\n/g, '<br>');
             return safeText;
         }
@@ -146,18 +147,20 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 <% if (typeof posts !== 'undefined' && posts.length > 0) { %>
                     <% posts.forEach(post => { %>
-                        <a href="/post/<%= post.id %>" class="bg-white rounded-3xl p-6 border-2 border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 block group relative overflow-hidden flex flex-col h-full">
-                            <% if (post.og_image) { %>
-                                <div class="w-full h-40 bg-gray-100 rounded-2xl mb-4 overflow-hidden shrink-0 shadow-sm">
-                                    <img src="<%= post.og_image %>" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <a href="/post/<%= post.id %>" class="glass-card group hover:scale-[1.02] transition-all duration-300 flex flex-col h-full p-5 md:p-6 relative">
+                            <div class="flex items-start gap-4 mb-4 mt-2">
+                                <div class="w-16 h-16 md:w-20 md:h-20 shrink-0 bg-gray-100 rounded-2xl overflow-hidden shadow-sm border-2 border-white">
+                                    <img src="<%= post.og_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.title || 'Post')}&background=random&size=512` %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                                 </div>
-                            <% } %>
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="bg-anime-skyLight text-anime-accent text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider">Update</span>
-                                <span class="text-[10px] text-gray-400 font-bold"><%= new Date(post.created_at).toLocaleDateString() %></span>
+                                <div class="flex-grow pt-1 overflow-hidden">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="inline-block bg-anime-skyLight text-anime-accent px-2 py-0.5 rounded-md font-black text-[10px] uppercase tracking-wider">Update</span>
+                                        <span class="text-[10px] text-gray-400 font-bold"><%= new Date(post.created_at).toLocaleDateString() %></span>
+                                    </div>
+                                    <h3 class="font-black text-lg md:text-xl text-anime-textMain leading-tight break-words group-hover:text-anime-accent transition"><%= post.title %></h3>
+                                </div>
                             </div>
-                            <h3 class="text-xl font-black text-anime-textMain mb-2 leading-tight group-hover:text-anime-accent transition"><%= post.title %></h3>
-                            <p class="text-sm text-gray-500 font-medium line-clamp-3 mb-4 flex-grow"><%= post.seo_desc || 'Read the full update...' %></p>
+                            <p class="text-sm text-gray-500 font-medium line-clamp-3 mb-6 flex-grow"><%= post.seo_desc || 'Read the full update to learn more...' %></p>
                             <div class="mt-auto pt-4 border-t-2 border-dashed border-gray-100 font-black text-sm text-anime-accent flex items-center justify-between">
                                 <span>Read Article</span>
                                 <span>→</span>
