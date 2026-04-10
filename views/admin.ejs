@@ -124,12 +124,12 @@
         </div>
     </div>
 
-    <div id="createBlogPostModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl my-8">
+    <div id="createBlogPostModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
+        <div class="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl shrink-0">
             <div class="p-6 md:p-8">
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex justify-between items-center mb-6 border-b-2 border-gray-100 pb-4">
                     <h2 class="text-2xl font-black text-gray-800">Create New Post</h2>
-                    <button onclick="document.getElementById('createBlogPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-xl">&times;</button>
+                    <button onclick="document.getElementById('createBlogPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/add-post" method="POST" class="space-y-4">
                     <div>
@@ -168,91 +168,91 @@
                         </div>
 
                     </div>
-                    <div class="border-t-2 border-gray-100 pt-4 mt-2">
-                        <h3 class="font-black text-gray-800 mb-3">SEO Configuration</h3>
+                    <div class="border-t-2 border-gray-100 pt-6 mt-4">
+                        <h3 class="font-black text-gray-800 mb-4">SEO Configuration</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <input type="text" name="seo_title" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-purple-500">
-                            <input type="text" name="seo_desc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-purple-500">
-                            <input type="text" name="seo_keywords" placeholder="Keywords (comma separated)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-purple-500">
-                            <input type="text" name="canonical_url" placeholder="Canonical URL (Optional)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="text" name="seo_title" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="text" name="seo_desc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="text" name="seo_keywords" placeholder="Keywords (comma separated)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="text" name="canonical_url" placeholder="Canonical URL (Optional)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
                         </div>
-                        <input type="url" name="og_image" placeholder="OpenGraph Thumbnail Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-purple-500">
+                        <input type="url" name="og_image" placeholder="OpenGraph Thumbnail Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
                     </div>
-                    <button type="submit" class="w-full bg-purple-600 text-white py-4 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md">Publish Post</button>
+                    <button type="submit" class="w-full bg-purple-600 text-white py-4 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md mt-6">Publish Post</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <div id="createCatModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+    <div id="createCatModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl shrink-0">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-black text-gray-800">Add Category</h2>
-                    <button onclick="document.getElementById('createCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-xl">&times;</button>
+                    <button onclick="document.getElementById('createCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/add-category" method="POST" class="space-y-3">
-                    <input type="text" name="category_name" required placeholder="Category Name" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-gray-800">
-                    <input type="text" name="seo_title" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-gray-800">
-                    <input type="text" name="seo_desc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-gray-800">
-                    <input type="text" name="seo_keywords" placeholder="Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-gray-800">
-                    <input type="text" name="canonical_url" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-gray-800">
-                    <input type="url" name="og_image" placeholder="Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-gray-800">
-                    <button type="submit" class="w-full bg-gray-800 text-white py-3 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md">Save Category</button>
+                    <input type="text" name="category_name" required placeholder="Category Name" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
+                    <input type="text" name="seo_title" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
+                    <input type="text" name="seo_desc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
+                    <input type="text" name="seo_keywords" placeholder="Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
+                    <input type="text" name="canonical_url" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
+                    <input type="url" name="og_image" placeholder="Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
+                    <button type="submit" class="w-full bg-gray-800 text-white py-3 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md mt-2">Save Category</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <div id="editCatModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+    <div id="editCatModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl shrink-0">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-black text-gray-800">Edit Category</h2>
-                    <button onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-xl">&times;</button>
+                    <button onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/edit-category" method="POST" class="space-y-3">
                     <input type="hidden" name="original_name" id="editOriginalName">
-                    <input type="text" name="category_name" id="editCatName" required placeholder="Category Name" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-blue-500">
-                    <input type="text" name="seo_title" id="editSeoTitle" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-blue-500">
-                    <input type="text" name="seo_desc" id="editSeoDesc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-blue-500">
-                    <input type="text" name="seo_keywords" id="editSeoKeywords" placeholder="Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-blue-500">
-                    <input type="text" name="canonical_url" id="editCanonicalUrl" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-blue-500">
-                    <input type="url" name="og_image" id="editOgImage" placeholder="Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-blue-500">
-                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md">Update Category</button>
+                    <input type="text" name="category_name" id="editCatName" required placeholder="Category Name" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                    <input type="text" name="seo_title" id="editSeoTitle" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                    <input type="text" name="seo_desc" id="editSeoDesc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                    <input type="text" name="seo_keywords" id="editSeoKeywords" placeholder="Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                    <input type="text" name="canonical_url" id="editCanonicalUrl" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                    <input type="url" name="og_image" id="editOgImage" placeholder="Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md mt-2">Update Category</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <div id="createAnnModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+    <div id="createAnnModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl shrink-0">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-black text-gray-800">Post Announcement</h2>
-                    <button onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-xl">&times;</button>
+                    <button onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/add-announcement" method="POST" class="space-y-3">
-                    <input type="text" name="title" required placeholder="Announcement Title" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-blue-500">
-                    <select name="category" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-blue-500">
+                    <input type="text" name="title" required placeholder="Announcement Title" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                    <select name="category" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
                         <option value="All">All Categories</option>
                         <% categories.forEach(cat => { %><option value="<%= cat.name %>"><%= cat.name %></option><% }) %>
                     </select>
-                    <input type="url" name="image1" placeholder="Image URL 1" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-blue-500">
-                    <input type="url" name="image2" placeholder="Image URL 2 (Optional)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-blue-500">
-                    <textarea name="content" required placeholder="Description..." rows="3" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-sm outline-none focus:border-blue-500"></textarea>
-                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md">Post Announcement</button>
+                    <input type="url" name="image1" placeholder="Image URL 1" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                    <input type="url" name="image2" placeholder="Image URL 2 (Optional)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                    <textarea name="content" required placeholder="Description..." rows="4" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500"></textarea>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md mt-2">Post Announcement</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <div id="createPostModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl my-8">
+    <div id="createPostModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
+        <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl shrink-0">
             <div class="p-6 md:p-8">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-black text-gray-800">Add Product</h2>
-                    <button onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-xl">&times;</button>
+                    <button onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/add-product" method="POST" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -291,7 +291,7 @@
                         <label class="block text-sm font-black mb-1 text-gray-600">Description</label>
                         <textarea name="description" required rows="4" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm resize-none"></textarea>
                     </div>
-                    <button type="submit" class="w-full bg-anime-accent text-white py-4 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md">Publish Product</button>
+                    <button type="submit" class="w-full bg-anime-accent text-white py-4 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md mt-4">Publish Product</button>
                 </form>
             </div>
         </div>
