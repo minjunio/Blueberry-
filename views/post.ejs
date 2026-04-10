@@ -11,8 +11,11 @@
         function formatPostText(text, linkedProduct) {
             if (!text) return '';
             let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-            safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong class="font-black text-anime-textMain">$1</strong>');
-            safeText = safeText.replace(/#(.*?)#/g, '<span class="text-2xl md:text-3xl font-black block mt-10 mb-4 text-anime-textMain leading-tight">$1</span>');
+            
+            // FIXED: Using [\s\S]*? allows the bolding and headers to span across multiple paragraphs and line breaks!
+            safeText = safeText.replace(/\*\*([\s\S]*?)\*\*/g, '<strong class="font-black text-anime-textMain">$1</strong>');
+            safeText = safeText.replace(/#([\s\S]*?)#/g, '<span class="text-2xl md:text-3xl font-black block mt-10 mb-4 text-anime-textMain leading-tight">$1</span>');
+            
             safeText = safeText.replace(/\[img\](.*?)\[\/img\]/gi, '<img src="$1" class="rounded-2xl w-full my-8 shadow-md border-2 border-gray-100 object-cover">');
             safeText = safeText.replace(/\n/g, '<br>');
             
@@ -20,7 +23,7 @@
             if (linkedProduct) {
                 const productHtml = `
                 <div class="my-10 bg-white rounded-3xl p-4 md:p-6 shadow-xl border-2 border-gray-100 max-w-sm mx-auto transform transition duration-300 hover:-translate-y-1">
-                    <div class="w-full h-48 bg-gray-100 rounded-2xl mb-4 overflow-hidden relative">
+                    <div class="w-full h-48 bg-gray-100 rounded-2xl mb-4 overflow-hidden relative shadow-inner">
                         <img src="${linkedProduct.image_url || '/favicon.png'}" class="w-full h-full object-cover">
                         <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-black shadow-sm">${linkedProduct.category}</div>
                     </div>
