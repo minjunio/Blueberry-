@@ -214,12 +214,21 @@ app.get('/api/search', (req, res) => {
 });
 
 // --- DYNAMIC POST ROUTE ---
+// --- DYNAMIC POST ROUTE ---
 app.get('/post/:id', (req, res) => {
     db.get("SELECT * FROM posts WHERE id = ?", [req.params.id], (err, post) => {
         if (!post) return res.redirect('/');
-        renderSafe(res, 'post', { post, host: req.get('host'), user: req.session ? req.session.user : null, buyerEmail: req.session ? req.session.buyerEmail : null });
+        
+        if (post.product_id) {
+            db.get("SELECT * FROM products WHERE id = ?", [post.product_id], (err, product) => {
+                renderSafe(res, 'post', { post, linkedProduct: product || null, host: req.get('host'), user: req.session ? req.session.user : null, buyerEmail: req.session ? req.session.buyerEmail : null });
+            });
+        } else {
+            renderSafe(res, 'post', { post, linkedProduct: null, host: req.get('host'), user: req.session ? req.session.user : null, buyerEmail: req.session ? req.session.buyerEmail : null });
+        }
     });
 });
+
 
 app.get('/my-orders', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/');
