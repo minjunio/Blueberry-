@@ -10,7 +10,6 @@
 
         function formatPostText(text) {
             if (!text) return '';
-            // FIXED: Changed &#039; to &apos; so the hashtag detector doesn't break apostrophes!
             let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
             safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong class="font-black text-anime-textMain">$1</strong>');
             safeText = safeText.replace(/#(.*?)#/g, '<span class="text-xl md:text-2xl font-black block mt-4 mb-2 text-anime-textMain leading-tight">$1</span>');
@@ -100,40 +99,75 @@
             </div>
             <div class="flex items-center gap-4 mb-10 opacity-50">
                 <div class="flex-grow h-[2px] bg-gray-300 rounded-full"></div>
-                <span class="font-black text-gray-400 uppercase tracking-widest text-xs">Store Catalog</span>
+                <span class="font-black text-gray-400 uppercase tracking-widest text-xs">Marketplace</span>
                 <div class="flex-grow h-[2px] bg-gray-300 rounded-full"></div>
             </div>
         <% } %>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            <% if (products.length === 0) { %>
-                <div class="col-span-full text-center py-10 font-black text-xl md:text-2xl text-anime-textDark">No products found.</div>
-            <% } else { %>
-                <% products.forEach(product => { %>
-                    <div class="glass-card group hover:scale-[1.02] transition-all duration-300 flex flex-col h-full p-5 md:p-6 relative">
-                        <div class="flex items-start gap-4 mb-4 mt-2">
-                            <div class="w-16 h-16 md:w-20 md:h-20 shrink-0 bg-gray-100 rounded-2xl overflow-hidden shadow-sm border-2 border-white">
-                                <img src="<%= product.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title || 'Product')}&background=random&size=512` %>" alt="<%= product.title %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+        <div class="flex gap-6 mb-8 border-b-2 border-gray-100 pb-0 select-none justify-center md:justify-start overflow-x-auto no-scrollbar">
+            <button onclick="switchTab('store')" id="tab-store" class="font-black text-lg md:text-xl text-anime-accent border-b-4 border-anime-accent pb-3 px-2 transition whitespace-nowrap">Store Catalog</button>
+            <button onclick="switchTab('posts')" id="tab-posts" class="font-black text-lg md:text-xl text-gray-400 border-b-4 border-transparent hover:text-gray-600 pb-3 px-2 transition whitespace-nowrap">Posts & Updates</button>
+        </div>
+
+        <div id="store-grid">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <% if (products.length === 0) { %>
+                    <div class="col-span-full text-center py-10 font-black text-xl md:text-2xl text-anime-textDark">No products found.</div>
+                <% } else { %>
+                    <% products.forEach(product => { %>
+                        <div class="glass-card group hover:scale-[1.02] transition-all duration-300 flex flex-col h-full p-5 md:p-6 relative">
+                            <div class="flex items-start gap-4 mb-4 mt-2">
+                                <div class="w-16 h-16 md:w-20 md:h-20 shrink-0 bg-gray-100 rounded-2xl overflow-hidden shadow-sm border-2 border-white">
+                                    <img src="<%= product.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title || 'Product')}&background=random&size=512` %>" alt="<%= product.title %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                </div>
+                                <div class="flex-grow pt-1 overflow-hidden">
+                                    <span class="inline-block bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-md font-black text-[10px] text-gray-500 uppercase tracking-wider mb-2"><%= product.category %></span>
+                                    <h3 class="font-black text-lg md:text-xl text-anime-textMain leading-tight mb-2 break-words"><%= product.title %></h3>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="bg-green-100 text-green-700 font-black text-sm px-2 py-0.5 rounded-lg">$<%= Number(product.price || 0).toFixed(2) %></span>
+                                        <span class="bg-purple-100 text-purple-700 font-black text-xs px-2 py-1 rounded-lg uppercase tracking-wider"><%= product.tier || 'Standard' %></span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex-grow pt-1 overflow-hidden">
-                                <span class="inline-block bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-md font-black text-[10px] text-gray-500 uppercase tracking-wider mb-2"><%= product.category %></span>
-                                <h3 class="font-black text-lg md:text-xl text-anime-textMain leading-tight mb-2 break-words"><%= product.title %></h3>
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="bg-green-100 text-green-700 font-black text-sm px-2 py-0.5 rounded-lg">$<%= Number(product.price || 0).toFixed(2) %></span>
-                                    <span class="bg-purple-100 text-purple-700 font-black text-xs px-2 py-1 rounded-lg uppercase tracking-wider"><%= product.tier || 'Standard' %></span>
+                            
+                            <div class="text-sm font-medium text-gray-600 mb-6 flex-grow leading-relaxed break-words"><%- formatPostText(product.description) %></div>
+                            <div class="mt-auto pt-4 border-t-2 border-dashed border-gray-100">
+                                <div class="flex gap-2">
+                                    <button onclick="handleBuyClick('<%= product.id %>', '<%= product.title.replace(/'/g, "\\'") %>', '<%= product.tier || 'Standard' %>', '<%= product.price %>')" class="flex-grow bg-anime-textMain text-white font-black py-2.5 rounded-xl text-sm hover:bg-gray-800 transition">Buy Now</button>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="text-sm font-medium text-gray-600 mb-6 flex-grow leading-relaxed break-words"><%- formatPostText(product.description) %></div>
-                        <div class="mt-auto pt-4 border-t-2 border-dashed border-gray-100">
-                            <div class="flex gap-2">
-                                <button onclick="handleBuyClick('<%= product.id %>', '<%= product.title %>', '<%= product.tier || 'Standard' %>', '<%= product.price %>')" class="flex-grow bg-anime-textMain text-white font-black py-2.5 rounded-xl text-sm hover:bg-gray-800 transition">Buy Now</button>
+                    <% }) %>
+                <% } %>
+            </div>
+        </div>
+
+        <div id="posts-grid" class="hidden animate-fade-in-up">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <% if (typeof posts !== 'undefined' && posts.length > 0) { %>
+                    <% posts.forEach(post => { %>
+                        <a href="/post/<%= post.id %>" class="bg-white rounded-3xl p-6 border-2 border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 block group relative overflow-hidden flex flex-col h-full">
+                            <% if (post.og_image) { %>
+                                <div class="w-full h-40 bg-gray-100 rounded-2xl mb-4 overflow-hidden shrink-0 shadow-sm">
+                                    <img src="<%= post.og_image %>" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                </div>
+                            <% } %>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-anime-skyLight text-anime-accent text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider">Update</span>
+                                <span class="text-[10px] text-gray-400 font-bold"><%= new Date(post.created_at).toLocaleDateString() %></span>
                             </div>
-                        </div>
-                    </div>
-                <% }) %>
-            <% } %>
+                            <h3 class="text-xl font-black text-anime-textMain mb-2 leading-tight group-hover:text-anime-accent transition"><%= post.title %></h3>
+                            <p class="text-sm text-gray-500 font-medium line-clamp-3 mb-4 flex-grow"><%= post.seo_desc || 'Read the full update...' %></p>
+                            <div class="mt-auto pt-4 border-t-2 border-dashed border-gray-100 font-black text-sm text-anime-accent flex items-center justify-between">
+                                <span>Read Article</span>
+                                <span>→</span>
+                            </div>
+                        </a>
+                    <% }) %>
+                <% } else { %>
+                    <div class="col-span-full text-center py-10 font-black text-xl md:text-2xl text-gray-400">No updates posted yet.</div>
+                <% } %>
+            </div>
         </div>
     </main>
 
@@ -218,6 +252,41 @@
         let pendingBuyData = null;
         let userEmailToVerify = null;
 
+        // TAB LOGIC
+        function switchTab(tabId) {
+            const storeBtn = document.getElementById('tab-store');
+            const postsBtn = document.getElementById('tab-posts');
+            const storeGrid = document.getElementById('store-grid');
+            const postsGrid = document.getElementById('posts-grid');
+
+            if (tabId === 'store') {
+                storeGrid.classList.remove('hidden');
+                postsGrid.classList.add('hidden');
+                
+                storeBtn.classList.add('border-anime-accent', 'text-anime-accent');
+                storeBtn.classList.remove('border-transparent', 'text-gray-400');
+                postsBtn.classList.remove('border-anime-accent', 'text-anime-accent');
+                postsBtn.classList.add('border-transparent', 'text-gray-400');
+            } else {
+                postsGrid.classList.remove('hidden');
+                storeGrid.classList.add('hidden');
+                
+                postsBtn.classList.add('border-anime-accent', 'text-anime-accent');
+                postsBtn.classList.remove('border-transparent', 'text-gray-400');
+                storeBtn.classList.remove('border-anime-accent', 'text-anime-accent');
+                storeBtn.classList.add('border-transparent', 'text-gray-400');
+            }
+        }
+
+        // Auto Open Tab based on URL
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('tab') === 'posts') {
+                switchTab('posts');
+            }
+        });
+
+        // SEARCH BAR LOGIC
         const searchInput = document.getElementById('searchInput');
         const searchDropdown = document.getElementById('searchDropdown');
 
