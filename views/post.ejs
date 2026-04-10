@@ -8,14 +8,30 @@
         const ogImage = post.og_image || 'https://examhub.shop/favicon.png';
         const canonicalUrl = post.canonical_url || `https://${host}/post/${post.id}`;
         
-        // This function securely converts your text to HTML styling
-        function formatPostText(text) {
+        function formatPostText(text, linkedProduct) {
             if (!text) return '';
             let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
             safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong class="font-black text-anime-textMain">$1</strong>');
-            safeText = safeText.replace(/#(.*?)#/g, '<span class="text-2xl md:text-3xl font-black block mt-8 mb-4 text-anime-textMain leading-tight">$1</span>');
-            safeText = safeText.replace(/\[img\](.*?)\[\/img\]/gi, '<img src="$1" class="rounded-2xl w-full max-w-3xl my-8 shadow-md border-2 border-gray-100 object-cover">');
+            safeText = safeText.replace(/#(.*?)#/g, '<span class="text-2xl md:text-3xl font-black block mt-10 mb-4 text-anime-textMain leading-tight">$1</span>');
+            safeText = safeText.replace(/\[img\](.*?)\[\/img\]/gi, '<img src="$1" class="rounded-2xl w-full my-8 shadow-md border-2 border-gray-100 object-cover">');
             safeText = safeText.replace(/\n/g, '<br>');
+            
+            // Inject the Product Card if [product] is typed and a product is linked
+            if (linkedProduct) {
+                const productHtml = `
+                <div class="my-10 bg-white rounded-3xl p-4 md:p-6 shadow-xl border-2 border-gray-100 max-w-sm mx-auto transform transition duration-300 hover:-translate-y-1">
+                    <div class="w-full h-48 bg-gray-100 rounded-2xl mb-4 overflow-hidden relative">
+                        <img src="${linkedProduct.image_url || '/favicon.png'}" class="w-full h-full object-cover">
+                        <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-black shadow-sm">${linkedProduct.category}</div>
+                    </div>
+                    <h3 class="text-xl font-black text-anime-textMain mb-1 leading-tight">${linkedProduct.title}</h3>
+                    <p class="text-sm font-bold text-gray-400 mb-6">$${linkedProduct.price}</p>
+                    <a href="/?q=${linkedProduct.id}" class="flex justify-center items-center gap-2 w-full bg-anime-accent text-white font-black py-3 rounded-xl shadow-md hover:scale-105 transition">View Product →</a>
+                </div>`;
+                safeText = safeText.replace(/\[product\]/g, productHtml);
+            } else {
+                safeText = safeText.replace(/\[product\]/g, ''); // Clear placeholder if nothing linked
+            }
             return safeText;
         }
     %>
@@ -30,12 +46,12 @@
     <%- include('partials/head') %>
 </head>
 <body class="antialiased flex flex-col min-h-screen bg-gray-50">
-    <nav class="py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
-        <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
-        <a href="/" class="bg-white border-2 border-gray-200 px-5 py-2.5 rounded-full font-black text-sm text-gray-600 hover:text-black shadow-sm transition flex items-center">← Back to Store</a>
+    <nav class="pt-8 pb-4 px-4 md:px-8 flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto w-full relative z-20 gap-4">
+        <a href="/" class="text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
+        <a href="/?tab=posts" class="bg-white border-2 border-gray-200 px-5 py-2.5 rounded-full font-black text-sm text-gray-600 hover:text-black shadow-sm transition flex items-center">← Back to Posts</a>
     </nav>
     
-    <main class="flex-grow w-full max-w-4xl mx-auto px-4 md:px-8 py-10 relative z-10">
+    <main class="flex-grow w-full max-w-3xl mx-auto px-4 md:px-8 py-6 md:py-10 relative z-10">
         <article class="bg-white rounded-3xl shadow-sm border-2 border-gray-100 p-6 md:p-12 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32 bg-anime-skyLight rounded-bl-full opacity-20 pointer-events-none"></div>
             
@@ -43,22 +59,13 @@
             <p class="text-xs text-gray-400 font-black mb-10 uppercase tracking-widest flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 <%= new Date(post.created_at).toLocaleDateString() %>
+                <% if (post.category_name) { %> <span class="bg-gray-100 px-2 py-1 rounded-md text-gray-600 ml-2"><%= post.category_name %></span> <% } %>
             </p>
             
-            <div class="text-gray-700 leading-relaxed font-medium text-lg">
-                <%- formatPostText(post.content) %>
+            <div class="text-gray-700 leading-relaxed font-medium text-lg mobile-post-content">
+                <%- formatPostText(post.content, linkedProduct) %>
             </div>
             
-            <% if (post.product_id || post.category_name) { %>
-                <div class="mt-16 pt-8 border-t-2 border-gray-100 flex flex-col items-start bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                    <h3 class="text-lg font-black mb-3 text-anime-textMain">Recommended for you</h3>
-                    <% if (post.product_id) { %>
-                        <a href="/?q=<%= post.product_id %>" class="inline-flex items-center gap-2 bg-anime-accent text-white px-6 py-3 rounded-xl font-black shadow-sm hover:scale-105 transition">View Featured Product →</a>
-                    <% } else if (post.category_name) { %>
-                        <a href="/?category=<%= encodeURIComponent(post.category_name) %>" class="inline-flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-xl font-black shadow-sm hover:scale-105 transition">Explore <%= post.category_name %> Category →</a>
-                    <% } %>
-                </div>
-            <% } %>
         </article>
     </main>
 </body>
