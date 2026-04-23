@@ -1364,4 +1364,33 @@ return "NEUTRAL";`;
                         };
                         let getOpenExposure = () => b.activeTxs.reduce((sum, t) => sum + t.size, 0);
                         let getOpenPnL = () => { let p = 0; b.activeTxs.forEach(t => { p += t.side === 'buy' ? ((t.size/t.entry * price) - t.size) : (t.size - (t.size/t.entry * price)); }); return p; };
-                        let getAverageEntry = () => b.activeTxs.length ? b.activeTxs.reduce((sum, t) => sum + t.entry, 0)/b.active
+                        let getAverageEntry = () => b.activeTxs.length ? b.activeTxs.reduce((sum, t) => sum + t.entry, 0)/b.activeTxs.length : 0;
+                        let setTrailingStop = (pct) => {}; 
+                        let setStopLoss = (pct) => {}; 
+                        let setTakeProfit = (pct) => {}; 
+                        
+                        let logMsg = "";
+                        let log = (msg) => { logMsg = msg; console.log(`[Bot: ${b.name}]`, msg); };
+                        
+                        let fnBody = b.code + `\n\nif(typeof onTick === 'function') { onTick(price, rsi, volume); }`;
+                        let botFn = new Function('price', 'rsi', 'volume', 'bot', 'executeMarket', 'closeAllPositions', 'getOpenExposure', 'getOpenPnL', 'getAverageEntry', 'setTrailingStop', 'setStopLoss', 'setTakeProfit', 'log', 'ATH', fnBody);
+                        
+                        botFn(price, globalRsi, currentVol, b, executeMarket, closeAllPositions, getOpenExposure, getOpenPnL, getAverageEntry, setTrailingStop, setStopLoss, setTakeProfit, log, currentATH);
+
+                        b.lastStatusMsg = logMsg || (b.activeTxs.length > 0 ? `Status: Executing - ${b.activeTxs.length} Open Pos` : "Status: Waiting for conditions");
+
+                    } catch(e) {
+                        b.lastStatusMsg = "Status: HALTED - SYNTAX ERROR";
+                        console.error(`Runtime Error in Bot [${b.name}]:`, e);
+                    }
+                }
+            });
+            
+            if(document.getElementById('app-bot').style.display === 'block') renderBots();
+            if(activeBotViewId) { const b = state.bots.find(x => x.id === activeBotViewId); if(b) updateBotModalUI(b); }
+        }
+
+        init();
+    </script>
+</body>
+</html>
