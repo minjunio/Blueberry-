@@ -7,53 +7,54 @@
     <link rel="icon" type="image/png" href="/favicon.png">
     
     <style>
-        /* Deep Quant Purple Theme */
-        body { background: #05020a; background-image: radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.1), transparent 50%), radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.05), transparent 50%); color: #f8fafc; font-family: 'Inter', system-ui, sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        /* Flat Deep Quant Purple Theme (NO NEON) */
+        body { background: #05020a; color: #f8fafc; font-family: 'Inter', system-ui, sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
         
-        .glass-panel { background: rgba(13, 8, 20, 0.8); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(139, 92, 246, 0.2); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); border-radius: 1rem; }
-        .glass-overlay { background: rgba(5, 2, 10, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 0.75rem; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+        /* Clean solid borders, no box-shadow glows */
+        .glass-panel { background: rgba(13, 8, 20, 0.95); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 0.5rem; }
+        .glass-overlay { background: #0a0510; border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 0.5rem; }
         
-        .neo-input { background: rgba(5, 2, 10, 0.8); border: 1px solid rgba(139, 92, 246, 0.3); color: white; outline: none; transition: 0.3s; cursor: pointer; }
-        .neo-input:focus, .neo-input:hover { border-color: #a78bfa; box-shadow: 0 0 10px rgba(139, 92, 246, 0.2); }
-        .neo-btn { background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #ddd; transition: 0.2s; cursor: pointer; }
-        .neo-btn:hover { background: rgba(139, 92, 246, 0.2); color: white; border-color: #a78bfa; }
+        .neo-input { background: rgba(5, 2, 10, 0.8); border: 1px solid rgba(139, 92, 246, 0.3); color: white; outline: none; transition: 0.2s; cursor: pointer; border-radius: 0.5rem; }
+        .neo-input:focus, .neo-input:hover { border-color: #a78bfa; }
+        
+        .neo-btn { background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #ddd; transition: 0.2s; cursor: pointer; border-radius: 0.5rem; }
+        .neo-btn:hover { background: rgba(139, 92, 246, 0.3); color: white; border-color: #a78bfa; }
         .text-muted { color: #8b839e; }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
         
+        /* Flat Leverage Slider */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer; }
         input[type=range]:focus { outline: none; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: rgba(139, 92, 246, 0.2); border-radius: 3px; border: 1px solid rgba(139, 92, 246, 0.3); }
-        input[type=range]::-webkit-slider-thumb { height: 18px; width: 18px; border-radius: 50%; background: #a78bfa; border: 2px solid #05020a; -webkit-appearance: none; margin-top: -7px; box-shadow: 0 0 12px rgba(167, 139, 250, 0.8); transition: transform 0.1s; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(139, 92, 246, 0.2); border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { height: 16px; width: 16px; border-radius: 50%; background: #a78bfa; -webkit-appearance: none; margin-top: -6px; transition: transform 0.1s; }
         input[type=range]::-webkit-slider-thumb:active { transform: scale(1.2); }
 
-        .modal-overlay { transition: opacity 0.3s; }
-        .modal-content { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-overlay { transition: opacity 0.2s; }
+        .modal-content { transition: transform 0.2s; }
         .modal-hidden { opacity: 0; pointer-events: none; }
-        .modal-hidden .modal-content { transform: scale(0.95) translateY(10px); }
+        .modal-hidden .modal-content { transform: scale(0.98) translateY(5px); }
         .modal-active { opacity: 1; pointer-events: auto; }
         .modal-active .modal-content { transform: scale(1) translateY(0); }
 
-        .tf-btn { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 900; color: #8b839e; cursor: pointer; transition: 0.2s; }
+        .tf-btn { padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 900; color: #8b839e; cursor: pointer; transition: 0.2s; }
         .tf-btn.active { background: rgba(167, 139, 250, 0.2); color: #a78bfa; border: 1px solid #a78bfa; }
 
-        /* Custom Dropdown Animations */
         .dropdown-menu { transform-origin: top; transition: transform 0.2s ease, opacity 0.2s ease; z-index: 100; }
         .dropdown-hidden { transform: scaleY(0); opacity: 0; pointer-events: none; }
         .dropdown-active { transform: scaleY(1); opacity: 1; pointer-events: auto; }
 
-        /* Dramatic Graph Effects & Popups */
-        @keyframes megaPump { 0% { box-shadow: inset 0 0 100px rgba(52, 211, 153, 0.4); transform: translateY(-2px); } 50% { box-shadow: inset 0 0 150px rgba(52, 211, 153, 0.2); transform: translateY(2px); } 100% { box-shadow: inset 0 0 0 transparent; transform: translateY(0); } }
-        @keyframes megaDump { 0% { box-shadow: inset 0 0 100px rgba(251, 113, 133, 0.4); transform: translateY(2px); } 50% { box-shadow: inset 0 0 150px rgba(251, 113, 133, 0.2); transform: translateY(-2px); } 100% { box-shadow: inset 0 0 0 transparent; transform: translateY(0); } }
+        /* Dramatic Graph Flashes (Flat Background, No Glow) */
+        @keyframes megaPump { 0% { background-color: rgba(52, 211, 153, 0.15); } 100% { background-color: transparent; } }
+        @keyframes megaDump { 0% { background-color: rgba(251, 113, 133, 0.15); } 100% { background-color: transparent; } }
         .flash-mega-pump { animation: megaPump 0.8s ease-out; border-color: #34d399 !important; }
         .flash-mega-dump { animation: megaDump 0.8s ease-out; border-color: #fb7185 !important; }
 
-        @keyframes floatPopup { 0% { opacity: 0; transform: translateY(10px) scale(0.9); } 20% { opacity: 1; transform: translateY(0) scale(1.1); } 80% { opacity: 1; transform: translateY(-30px) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(0.9); } }
-        .on-chart-popup { position: absolute; pointer-events: none; animation: floatPopup 2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; padding: 4px 8px; border-radius: 6px; font-family: monospace; font-size: 10px; font-weight: 900; background: rgba(5,2,10,0.85); backdrop-filter: blur(4px); border: 1px solid; text-shadow: 0 0 5px rgba(0,0,0,0.8); z-index: 40; }
-        .pop-buy { color: #34d399; border-color: #34d399; box-shadow: 0 5px 15px rgba(52,211,153,0.2); }
-        .pop-sell { color: #fb7185; border-color: #fb7185; box-shadow: 0 5px 15px rgba(251,113,133,0.2); }
+        /* Bottom Left On-Chart Popups */
+        @keyframes popupSlideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        .bottom-popup { animation: popupSlideIn 0.2s ease-out forwards; transition: opacity 0.3s ease-out; }
 
         .code-area { font-family: 'Fira Code', monospace; line-height: 1.5; tab-size: 4; }
     </style>
@@ -61,22 +62,22 @@
 </head>
 <body>
 
-    <header class="flex flex-col shrink-0 z-50 sticky top-0 bg-[#05020a]/90 backdrop-blur-xl border-b border-purple-900/40">
+    <header class="flex flex-col shrink-0 z-50 sticky top-0 bg-[#05020a] border-b border-purple-900/40">
         <div class="flex justify-between items-center p-3 md:p-4 max-w-[1600px] w-full mx-auto">
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(147,51,234,0.5)]">
+                    <div class="w-8 h-8 rounded bg-purple-600 flex items-center justify-center">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </div>
                     <h2 class="text-lg font-black uppercase tracking-tighter text-white hidden sm:block">Cloud<span class="text-purple-400">Quant</span></h2>
                 </div>
-                <div class="flex gap-1 bg-[#05020a] border border-purple-900/50 p-1 rounded-lg">
-                    <button onclick="switchApp('terminal')" id="nav-terminal" class="px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition shadow-[0_0_10px_rgba(147,51,234,0.3)]">Terminal</button>
-                    <button onclick="switchApp('bot')" id="nav-bot" class="px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition">DCA Bots</button>
+                <div class="flex gap-1 bg-[#05020a] border border-purple-900/50 p-1 rounded-md">
+                    <button onclick="switchApp('terminal')" id="nav-terminal" class="px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition">Terminal</button>
+                    <button onclick="switchApp('bot')" id="nav-bot" class="px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition">DCA Bots</button>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="toggleModal('history-modal')" class="neo-btn px-3 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest flex items-center gap-2">History</button>
+                <button onclick="toggleModal('history-modal')" class="neo-btn px-3 py-2 rounded font-black text-[10px] uppercase tracking-widest flex items-center gap-2">History</button>
             </div>
         </div>
     </header>
@@ -94,14 +95,14 @@
                     <h2 id="hero-total-balance" class="text-4xl md:text-5xl lg:text-6xl font-black text-white font-mono tracking-tighter">$0.00</h2>
                     <div class="flex flex-col mb-1 md:mb-2">
                         <span id="hero-daily-pnl" class="text-xs md:text-sm font-black text-green-400 tracking-wide">+ $0.00</span>
-                        <span id="hero-daily-roi" class="text-[9px] md:text-[10px] font-black text-green-500/80 bg-green-500/10 px-1.5 py-0.5 rounded w-fit mt-0.5 border border-green-500/20">+0.00% Today</span>
+                        <span id="hero-daily-roi" class="text-[9px] md:text-[10px] font-black text-green-500 bg-green-500/10 px-1.5 py-0.5 rounded w-fit mt-0.5 border border-green-500/20">+0.00% Today</span>
                     </div>
                 </div>
                 
                 <div class="border-t border-purple-900/40 pt-4 mt-4 z-10">
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="text-[10px] font-black uppercase tracking-widest text-muted">Asset Holdings</h3>
-                        <button onclick="toggleModal('settings-modal')" class="text-purple-400 hover:text-white transition p-1 bg-purple-900/20 rounded-md border border-purple-900/50">
+                        <button onclick="toggleModal('settings-modal')" class="text-purple-400 hover:text-white transition p-1 bg-purple-900/20 rounded border border-purple-900/50">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </button>
                     </div>
@@ -115,34 +116,33 @@
                     
                     <div class="glass-panel p-3 md:p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-l-4 border-l-purple-500">
                         <div class="flex items-center gap-3">
-                            <div class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
-                            <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400">AI Logic Engine v3.0</h3>
+                            <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                            <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400">AI Logic Engine v4.0</h3>
                         </div>
                         <div class="flex flex-wrap items-center gap-3 md:gap-6 w-full md:w-auto">
                             <div class="flex flex-col"><span class="text-[8px] uppercase text-muted">RSI (14)</span><span id="ai-rsi" class="text-xs font-mono font-black text-white">--</span></div>
                             <div class="flex flex-col"><span class="text-[8px] uppercase text-muted">SMA (20)</span><span id="ai-sma" class="text-xs font-mono font-black text-white">--</span></div>
-                            <div class="flex flex-col"><span class="text-[8px] uppercase text-muted">Volatility</span><span id="ai-vol" class="text-xs font-mono font-black text-white">--</span></div>
+                            <div class="flex flex-col"><span class="text-[8px] uppercase text-muted">Trend Volatility</span><span id="ai-vol" class="text-xs font-mono font-black text-white">--</span></div>
                             <div class="flex items-center gap-2 ml-auto">
                                 <span id="ai-signal" class="text-[10px] font-black uppercase px-2 py-1 rounded bg-purple-900/30 text-purple-400 border border-purple-500/20">ANALYZING</span>
-                                <button onclick="toggleModal('ai-code-modal')" class="text-[9px] font-black uppercase tracking-widest text-purple-400 hover:text-white bg-purple-900/40 px-2 py-1 rounded transition border border-purple-900">Edit Code</button>
+                                <button onclick="toggleModal('ai-code-modal')" class="text-[9px] font-black uppercase tracking-widest text-purple-400 hover:text-white bg-purple-900/40 px-2 py-1 rounded border border-purple-900">Edit Code</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="glass-panel p-4 md:p-6 flex flex-col relative min-h-[55vh] transition-all duration-300" id="main-chart-wrapper">
+                    <div class="glass-panel p-4 md:p-6 flex flex-col relative min-h-[55vh] transition-colors duration-300" id="main-chart-wrapper">
                         <div class="flex justify-between items-start z-20">
                             
                             <div class="relative w-fit">
-                                <button onclick="toggleDropdown('term-dropdown')" class="neo-input px-3 py-2 md:px-4 md:py-2.5 rounded-xl flex items-center gap-3 w-[150px] md:w-48 shadow-lg">
-                                    <img id="term-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-6 h-6 rounded-full">
+                                <button onclick="toggleDropdown('term-dropdown')" class="neo-input px-3 py-2 rounded flex items-center gap-3 w-[150px] md:w-48">
+                                    <img id="term-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-5 h-5 rounded-full">
                                     <span id="term-text" class="font-black text-sm uppercase">BTC/USDT</span>
                                     <svg class="w-4 h-4 ml-auto text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
-                                <div id="term-dropdown" class="absolute top-full left-0 mt-2 w-48 glass-overlay py-2 dropdown-menu dropdown-hidden">
-                                    </div>
+                                <div id="term-dropdown" class="absolute top-full left-0 mt-1 w-48 glass-overlay py-1 dropdown-menu dropdown-hidden"></div>
                             </div>
 
-                            <div class="flex bg-[#05020a] p-1 rounded-lg border border-purple-900/30">
+                            <div class="flex bg-[#05020a] p-1 rounded border border-purple-900/30">
                                 <div class="tf-btn" onclick="setTimeframe('live')" id="tf-live">LIVE</div>
                                 <div class="tf-btn active" onclick="setTimeframe('5m')" id="tf-5m">5m</div>
                                 <div class="tf-btn" onclick="setTimeframe('15m')" id="tf-15m">15m</div>
@@ -153,25 +153,27 @@
                         <div class="flex gap-6 mt-4 z-10 border-b border-purple-900/20 pb-3">
                             <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">24h High</span><p class="text-xs font-mono text-green-400 font-black" id="stat-high">--</p></div>
                             <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">24h Low</span><p class="text-xs font-mono text-pink-400 font-black" id="stat-low">--</p></div>
-                            
                             <div class="flex-grow flex justify-end items-end pointer-events-none">
                                 <h2 id="main-price" class="text-4xl md:text-5xl font-black text-white font-mono tracking-tighter leading-none">--</h2>
                             </div>
                         </div>
 
-                        <div class="flex-grow mt-2 relative w-full h-full min-h-[300px] cursor-crosshair overflow-hidden rounded-lg" id="canvas-container">
+                        <div class="flex-grow mt-2 relative w-full h-full min-h-[300px] cursor-crosshair overflow-hidden rounded" id="canvas-container">
                             <canvas id="custom-chart" class="absolute inset-0 w-full h-full"></canvas>
+                            
+                            <div id="chart-popups-container" class="absolute bottom-2 left-2 flex flex-col-reverse gap-1.5 z-30 pointer-events-none overflow-hidden max-h-[250px]">
+                                </div>
                         </div>
                     </div>
 
                     <div class="glass-panel flex flex-col h-[180px]">
-                        <div class="flex justify-between items-center p-3 border-b border-purple-900/30 shrink-0 bg-[#0a0510]/50 rounded-t-xl">
+                        <div class="flex justify-between items-center p-3 border-b border-purple-900/30 shrink-0 bg-[#0a0510]/50 rounded-t">
                             <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400">Live Block Order Log</h3>
                             <div class="flex items-center gap-2 w-48">
                                 <span class="text-[8px] font-black text-green-400 w-6 text-right" id="ratio-buy-text">50%</span>
-                                <div class="flex-grow h-1.5 bg-[#05020a] rounded-full overflow-hidden flex border border-purple-900/30">
-                                    <div id="ratio-buy-bar" class="h-full bg-green-500 shadow-[0_0_8px_#34d399]" style="width: 50%"></div>
-                                    <div id="ratio-sell-bar" class="h-full bg-pink-500 shadow-[0_0_8px_#fb7185]" style="width: 50%"></div>
+                                <div class="flex-grow h-1.5 bg-[#05020a] rounded overflow-hidden flex border border-purple-900/30">
+                                    <div id="ratio-buy-bar" class="h-full bg-green-500" style="width: 50%"></div>
+                                    <div id="ratio-sell-bar" class="h-full bg-pink-500" style="width: 50%"></div>
                                 </div>
                                 <span class="text-[8px] font-black text-pink-400 w-6" id="ratio-sell-text">50%</span>
                             </div>
@@ -202,9 +204,9 @@
                     <div class="glass-panel p-5 flex flex-col h-full relative z-10">
                         <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-purple-900/30 pb-2">Manual Execution</h3>
                         
-                        <div class="flex gap-2 bg-[#05020a] p-1 border border-purple-900/50 rounded-xl mb-5">
-                            <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest bg-green-500/20 text-green-400 border border-green-500/50 transition shadow-[0_0_10px_rgba(52,211,153,0.2)]">Long</button>
-                            <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-muted hover:text-pink-400 transition">Short</button>
+                        <div class="flex gap-2 bg-[#05020a] p-1 border border-purple-900/50 rounded mb-5">
+                            <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-3 rounded text-[10px] font-black uppercase tracking-widest bg-green-500/20 text-green-400 border border-green-500/50 transition">Long</button>
+                            <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-3 rounded text-[10px] font-black uppercase tracking-widest text-muted hover:text-pink-400 transition">Short</button>
                         </div>
 
                         <div class="space-y-6">
@@ -213,7 +215,7 @@
                                     <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USDT)</label>
                                     <span class="text-[10px] font-black text-purple-400 cursor-pointer hover:text-purple-300" onclick="setMax()">MAX</span>
                                 </div>
-                                <input type="number" id="trade-margin" placeholder="0.00" class="w-full neo-input p-3 rounded-xl text-lg font-black font-mono text-center">
+                                <input type="number" id="trade-margin" placeholder="0.00" class="w-full neo-input p-3 rounded text-lg font-black font-mono text-center">
                             </div>
 
                             <div>
@@ -227,7 +229,7 @@
                                 </div>
                             </div>
 
-                            <div class="p-3 bg-[#05020a] border border-purple-900/30 rounded-xl space-y-2 mt-4">
+                            <div class="p-3 bg-[#05020a] border border-purple-900/30 rounded space-y-2 mt-4">
                                 <div class="flex justify-between text-[10px] font-black uppercase">
                                     <span class="text-muted">Available</span>
                                     <span class="text-white font-mono" id="ui-avail">0.00</span>
@@ -239,7 +241,7 @@
                             </div>
                         </div>
 
-                        <button onclick="executeOrder()" id="btn-execute" class="mt-auto w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 transition active:scale-95 shadow-[0_0_20px_rgba(52,211,153,0.4)]">
+                        <button onclick="executeOrder()" id="btn-execute" class="mt-auto w-full py-4 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 transition active:scale-95">
                             Execute Long
                         </button>
                     </div>
@@ -260,11 +262,11 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="flex flex-col gap-4">
-                        <div class="bg-[#05020a] p-5 rounded-xl border border-purple-900/40 space-y-5 shadow-inner">
+                        <div class="bg-[#05020a] p-5 rounded border border-purple-900/40 space-y-5">
                             <div>
                                 <label class="text-[10px] font-black uppercase tracking-widest text-muted block mb-2">Bot Strategy Mode</label>
                                 <div class="relative w-full">
-                                    <div onclick="toggleDropdown('bot-mode-dropdown')" class="neo-input p-3 rounded-lg text-xs font-black uppercase flex justify-between">
+                                    <div onclick="toggleDropdown('bot-mode-dropdown')" class="neo-input p-3 rounded text-xs font-black uppercase flex justify-between">
                                         <span id="bot-mode-text">Standard DCA</span>
                                         <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
@@ -279,7 +281,7 @@
                                 <div>
                                     <label class="text-[10px] font-black uppercase tracking-widest text-muted block mb-2">Target Asset</label>
                                     <div class="relative w-full">
-                                        <div onclick="toggleDropdown('bot-asset-dropdown')" class="neo-input p-3 rounded-lg text-xs font-black uppercase flex items-center gap-2 justify-between">
+                                        <div onclick="toggleDropdown('bot-asset-dropdown')" class="neo-input p-3 rounded text-xs font-black uppercase flex items-center gap-2 justify-between">
                                             <div class="flex items-center gap-2"><img id="bot-asset-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-4 h-4 rounded-full"><span id="bot-asset-text">BTCUSDT</span></div>
                                             <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                         </div>
@@ -288,37 +290,63 @@
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-black uppercase tracking-widest text-muted block mb-2">Base Order (USDT)</label>
-                                    <input type="number" id="bot-size" value="100" class="w-full neo-input p-3 rounded-lg text-xs font-mono">
+                                    <input type="number" id="bot-size" value="100" class="w-full neo-input p-3 rounded text-xs font-mono">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="text-[10px] font-black uppercase tracking-widest text-muted block mb-2">Trigger Threshold (%)</label>
-                                    <input type="number" id="bot-drop" value="2.5" class="w-full neo-input p-3 rounded-lg text-xs font-mono">
+                                    <input type="number" id="bot-drop" value="2.5" class="w-full neo-input p-3 rounded text-xs font-mono">
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-black uppercase tracking-widest text-muted block mb-2">Execution Leverage</label>
-                                    <input type="number" id="bot-lev" value="1" class="w-full neo-input p-3 rounded-lg text-xs font-mono">
+                                    <input type="number" id="bot-lev" value="1" class="w-full neo-input p-3 rounded text-xs font-mono">
                                 </div>
                             </div>
                             
                             <div>
                                 <label class="text-[10px] font-black uppercase tracking-widest text-muted block mb-2">Bot Identification Name</label>
-                                <input type="text" id="bot-name" value="Alpha-01" class="w-full neo-input p-3 rounded-lg text-xs font-black uppercase">
+                                <input type="text" id="bot-name" value="Alpha-01" class="w-full neo-input p-3 rounded text-xs font-black uppercase">
                             </div>
                         </div>
-                        <button onclick="deployBot()" class="w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-purple-600 text-white hover:bg-purple-500 shadow-[0_0_20px_rgba(147,51,234,0.4)] transition active:scale-95">
+                        <button onclick="deployBot()" class="w-full py-4 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-purple-600 text-white hover:bg-purple-500 transition active:scale-95">
                             Deploy Bot Instance
                         </button>
                     </div>
 
                     <div class="flex flex-col h-full min-h-[400px]">
-                        <h3 class="text-sm font-black uppercase tracking-widest text-white mb-4 border-b border-purple-900/30 pb-2">Active Deployments</h3>
-                        <div id="active-bots-list" class="flex flex-col gap-3 overflow-y-auto no-scrollbar flex-grow">
+                        <div class="bg-[#1e1e1e] rounded-t border border-gray-800 p-2 flex justify-between items-center">
+                            <span class="text-[10px] font-mono text-gray-400 ml-2">bot_core.js</span>
+                            <div class="flex gap-1.5 mr-2">
+                                <div class="w-3 h-3 rounded-full bg-gray-600"></div><div class="w-3 h-3 rounded-full bg-gray-600"></div><div class="w-3 h-3 rounded-full bg-gray-600"></div>
                             </div>
+                        </div>
+                        <textarea id="code-editor" class="code-area w-full flex-grow bg-[#1e1e1e] text-[#d4d4d4] p-4 text-xs outline-none border border-t-0 border-gray-800 rounded-b resize-none" spellcheck="false">
+// Advanced Bot Logic Engine
+// Ensure to write clean JS. Variables available: price, rsi, volume.
+
+function onTick(price, rsi, volume) {
+    if (bot.mode === 'sniper') {
+        if (rsi > 80 && volume > 1000000) {
+            executeMarket({ side: 'sell', size: bot.size, lev: bot.lev });
+        }
+    } else {
+        const dropFromATH = ((ATH - price) / ATH) * 100;
+        if (dropFromATH >= bot.dropPercent) {
+            executeMarket({ side: 'buy', size: bot.size, lev: 1 });
+        }
+    }
+}
+</textarea>
                     </div>
                 </div>
+            </div>
+
+            <div class="glass-panel p-6 mt-2">
+                <h3 class="text-sm font-black uppercase tracking-widest text-white mb-6 border-b border-purple-900/30 pb-3">Active Deployments</h3>
+                <div id="active-bots-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    </div>
             </div>
         </main>
     </div>
@@ -327,54 +355,62 @@
         <div class="modal-content glass-panel w-full max-w-lg p-6 relative flex flex-col">
             <button onclick="toggleModal('ai-code-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <h2 class="text-sm font-black uppercase tracking-widest text-white mb-4 border-b border-purple-900/50 pb-2">Advanced AI Predictor Logic</h2>
-            <p class="text-[9px] text-muted mb-2 font-mono">Write JS to return a string. Variables available: `rsi`, `sma`, `volatility`</p>
-            <textarea id="ai-logic-editor" class="code-area w-full h-48 bg-[#1e1e1e] text-[#d4d4d4] p-3 text-xs outline-none border border-gray-800 rounded-lg resize-none shadow-inner mb-4" spellcheck="false"></textarea>
-            <button onclick="saveAILogic()" class="w-full neo-btn py-3 rounded-lg text-[10px] font-black uppercase bg-purple-600 text-white">Save & Compile Engine</button>
+            <p class="text-[9px] text-muted mb-2 font-mono">Write JS to return a string. Variables available: `rsi`, `sma`, `volatility`, `trend`</p>
+            <textarea id="ai-logic-editor" class="code-area w-full h-48 bg-[#1e1e1e] text-[#d4d4d4] p-3 text-xs outline-none border border-gray-800 rounded resize-none mb-4" spellcheck="false"></textarea>
+            <button onclick="saveAILogic()" class="w-full neo-btn py-3 rounded text-[10px] font-black uppercase bg-purple-600 text-white">Save & Compile Engine</button>
         </div>
     </div>
 
     <div id="bot-details-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="modal-content glass-panel w-full max-w-3xl p-6 relative max-h-[85vh] flex flex-col">
+        <div class="modal-content glass-panel w-full max-w-4xl p-6 relative max-h-[90vh] flex flex-col">
             <button onclick="toggleModal('bot-details-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <div class="flex items-center gap-3 mb-4 border-b border-purple-900/50 pb-4">
-                <div class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e] animate-pulse"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
                 <h2 id="bot-detail-title" class="text-lg font-black uppercase tracking-widest text-white">Bot details</h2>
             </div>
             
             <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="bg-[#05020a] p-3 rounded-lg border border-purple-900/30">
+                <div class="bg-[#05020a] p-3 rounded border border-purple-900/30">
                     <span class="text-[9px] text-muted uppercase">Total Realized PnL</span>
                     <p id="bot-detail-pnl" class="text-lg font-mono font-black text-green-400">+$0.00</p>
                 </div>
-                <div class="bg-[#05020a] p-3 rounded-lg border border-purple-900/30">
+                <div class="bg-[#05020a] p-3 rounded border border-purple-900/30">
                     <span class="text-[9px] text-muted uppercase">Bot ROI</span>
                     <p id="bot-detail-roi" class="text-lg font-mono font-black text-green-400">+0.00%</p>
                 </div>
             </div>
 
-            <div class="flex-grow overflow-hidden flex flex-col gap-4">
-                <div class="flex flex-col flex-grow min-h-[150px]">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-2">Live Active Trades</h3>
-                    <div class="overflow-y-auto no-scrollbar border border-purple-900/30 rounded-lg bg-[#05020a]/50">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="bg-[#0a0510] sticky top-0"><tr class="text-[9px] font-black uppercase text-muted border-b border-purple-900/30"><th class="p-2">Asset</th><th class="p-2">Side</th><th class="p-2">Entry</th><th class="p-2 text-right">Live PnL</th></tr></thead>
-                            <tbody id="bot-active-tx" class="text-[10px] font-bold text-slate-200 font-mono"></tbody>
-                        </table>
-                    </div>
+            <div class="flex-grow overflow-hidden flex flex-col md:flex-row gap-4">
+                <div class="flex flex-col md:w-1/2 min-h-[200px]">
+                    <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-2">Bot Logic Override</h3>
+                    <textarea id="bot-modal-code" class="w-full flex-grow bg-[#1e1e1e] text-[#d4d4d4] p-3 text-[10px] font-mono rounded border border-gray-800 outline-none resize-none"></textarea>
+                    <button onclick="saveBotModalCode()" class="mt-2 w-full bg-purple-600 hover:bg-purple-500 text-white text-[10px] py-2 font-black uppercase rounded transition">Update Code on Live Bot</button>
                 </div>
 
-                <div class="flex flex-col flex-grow min-h-[150px]">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-2">Closed History</h3>
-                    <div class="overflow-y-auto no-scrollbar border border-purple-900/30 rounded-lg bg-[#05020a]/50">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="bg-[#0a0510] sticky top-0"><tr class="text-[9px] font-black uppercase text-muted border-b border-purple-900/30"><th class="p-2">Action</th><th class="p-2">Side</th><th class="p-2">Size</th><th class="p-2 text-right">Result</th></tr></thead>
-                            <tbody id="bot-closed-tx" class="text-[10px] font-bold text-slate-200 font-mono"></tbody>
-                        </table>
+                <div class="flex flex-col md:w-1/2 gap-4">
+                    <div class="flex flex-col flex-grow min-h-[100px]">
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-2">Live Active Trades</h3>
+                        <div class="overflow-y-auto no-scrollbar border border-purple-900/30 rounded bg-[#05020a]/50">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-[#0a0510] sticky top-0"><tr class="text-[9px] font-black uppercase text-muted border-b border-purple-900/30"><th class="p-2">Asset</th><th class="p-2">Side</th><th class="p-2">Entry</th><th class="p-2 text-right">Live PnL</th></tr></thead>
+                                <tbody id="bot-active-tx" class="text-[10px] font-bold text-slate-200 font-mono"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col flex-grow min-h-[100px]">
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-2">Closed History</h3>
+                        <div class="overflow-y-auto no-scrollbar border border-purple-900/30 rounded bg-[#05020a]/50">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-[#0a0510] sticky top-0"><tr class="text-[9px] font-black uppercase text-muted border-b border-purple-900/30"><th class="p-2">Action</th><th class="p-2">Side</th><th class="p-2">Size</th><th class="p-2 text-right">Result</th></tr></thead>
+                                <tbody id="bot-closed-tx" class="text-[10px] font-bold text-slate-200 font-mono"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <button onclick="killBot()" class="mt-4 w-full py-3 rounded-lg font-black uppercase text-[10px] bg-pink-500/20 text-pink-400 border border-pink-500/50 hover:bg-pink-500 hover:text-white transition shadow-lg">Deactivate Engine</button>
+            <button onclick="killBot()" class="mt-4 w-full py-3 rounded font-black uppercase text-[10px] bg-pink-500/20 text-pink-400 border border-pink-500/50 hover:bg-pink-500 hover:text-white transition">Deactivate Engine</button>
         </div>
     </div>
 
@@ -386,17 +422,17 @@
                 <div>
                     <label class="text-[9px] font-black uppercase text-purple-400 mb-1 block">USDT Balance</label>
                     <div class="flex gap-2">
-                        <input type="number" id="add-usdt-input" placeholder="Amount" class="flex-grow neo-input p-2 rounded-lg text-sm font-mono">
-                        <button onclick="setUsdt()" class="bg-purple-600 px-3 rounded-lg text-[10px] font-black uppercase">Set</button>
+                        <input type="number" id="add-usdt-input" placeholder="Amount" class="flex-grow neo-input p-2 rounded text-sm font-mono">
+                        <button onclick="setUsdt()" class="bg-purple-600 px-3 rounded text-[10px] font-black uppercase">Set</button>
                     </div>
                 </div>
                 <div class="pt-2 border-t border-purple-900/30">
                     <label class="text-[9px] font-black uppercase text-muted mb-2 block">Add/Edit Coin</label>
                     <div class="flex gap-2">
-                        <input type="text" id="new-asset-name" placeholder="BTC" class="w-1/3 neo-input p-2 rounded-lg text-xs font-black uppercase">
-                        <input type="number" id="new-asset-amt" placeholder="Amount" class="w-2/3 neo-input p-2 rounded-lg text-xs font-mono">
+                        <input type="text" id="new-asset-name" placeholder="BTC" class="w-1/3 neo-input p-2 rounded text-xs font-black uppercase">
+                        <input type="number" id="new-asset-amt" placeholder="Amount" class="w-2/3 neo-input p-2 rounded text-xs font-mono">
                     </div>
-                    <button onclick="addManualAsset()" class="w-full mt-2 neo-btn py-2 rounded-lg text-[10px] font-black uppercase">Save Asset</button>
+                    <button onclick="addManualAsset()" class="w-full mt-2 neo-btn py-2 rounded text-[10px] font-black uppercase">Save Asset</button>
                 </div>
             </div>
         </div>
@@ -421,8 +457,8 @@
             document.getElementById('app-terminal').style.display = appName === 'terminal' ? 'block' : 'none';
             document.getElementById('app-bot').style.display = appName === 'bot' ? 'block' : 'none';
             
-            document.getElementById('nav-terminal').className = appName === 'terminal' ? "px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition shadow-[0_0_10px_rgba(147,51,234,0.3)]" : "px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition";
-            document.getElementById('nav-bot').className = appName === 'bot' ? "px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition shadow-[0_0_10px_rgba(147,51,234,0.3)]" : "px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition";
+            document.getElementById('nav-terminal').className = appName === 'terminal' ? "px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition" : "px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition";
+            document.getElementById('nav-bot').className = appName === 'bot' ? "px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition" : "px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition";
             
             if(appName === 'terminal') setupCanvas(); 
         }
@@ -449,7 +485,6 @@
             
             ASSETS.forEach(a => {
                 const img = `<img src="https://cryptologos.cc/logos/${a.icon}" class="w-5 h-5 rounded-full">`;
-                // Terminal item
                 const elT = document.createElement('div');
                 elT.className = "px-4 py-3 hover:bg-purple-900/40 cursor-pointer flex items-center gap-3 transition";
                 elT.innerHTML = `${img}<span class="text-xs font-black uppercase text-white">${a.name}</span>`;
@@ -462,7 +497,6 @@
                 };
                 termDrop.appendChild(elT);
 
-                // Bot item
                 const elB = document.createElement('div');
                 elB.className = "px-4 py-2 hover:bg-purple-900/40 cursor-pointer flex items-center gap-3 transition";
                 elB.innerHTML = `${img}<span class="text-xs font-black uppercase text-white">${a.name}</span>`;
@@ -475,7 +509,6 @@
                 botDrop.appendChild(elB);
             });
             
-            // Close dropdowns when clicking outside
             document.addEventListener('click', (e) => {
                 if(!e.target.closest('#term-dropdown') && !e.target.closest('button[onclick="toggleDropdown(\'term-dropdown\')"]')) {
                     document.getElementById('term-dropdown').classList.add('dropdown-hidden');
@@ -498,9 +531,21 @@
             toggleDropdown('bot-mode-dropdown');
         }
 
-        const defaultAI = `// Logic Variables available:\n// rsi (0-100)\n// sma (Simple Moving Average)\n// volatility (Range high-low)\n\nif(rsi > 70 && volatility > 50) return "STRONG SELL";\nif(rsi > 60) return "BEARISH";\nif(rsi < 30 && volatility > 50) return "STRONG BUY";\nif(rsi < 40) return "BULLISH";\nreturn "NEUTRAL";`;
+        const defaultAI = `// AI Advanced Quantitative Engine
+// Variables: rsi (0-100), sma (Simple Moving Average), volatility (Range)
 
-        let state = JSON.parse(localStorage.getItem('cloud_state_v7')) || {
+let score = 0;
+if (rsi > 70) score -= 2;
+if (rsi < 30) score += 2;
+if (volatility > 50) score *= 1.5;
+
+if (score > 1.5) return "STRONG BUY";
+if (score > 0) return "BULLISH";
+if (score < -1.5) return "STRONG SELL";
+if (score < 0) return "BEARISH";
+return "NEUTRAL";`;
+
+        let state = JSON.parse(localStorage.getItem('cloud_state_v8')) || {
             usdtBalance: 10000.00, startOfDayValue: 10000.00, orders: [], history: [], manualAssets: { 'BTC': 0.1 }, bots: [], aiLogic: defaultAI
         };
         
@@ -518,7 +563,7 @@
             document.getElementById('ai-logic-editor').value = state.aiLogic;
             setupCanvas();
             connectMultiStream();
-            triggerPairChange(); // Fetches trades, chart, stats
+            triggerPairChange(); 
             updateUI();
             renderOrders();
             renderHistory();
@@ -531,6 +576,7 @@
             ui.price = livePrices[ui.pair] || 0;
             document.getElementById('main-price').innerText = "Syncing...";
             document.getElementById('below-chart-log').innerHTML = '<div class="text-[9px] text-muted text-center py-4 italic">Awaiting on-chain / DEX block trades...</div>';
+            document.getElementById('chart-popups-container').innerHTML = '';
             connectTradeStream(); 
             fetchChartData();
             fetch24hStats();
@@ -564,7 +610,7 @@
                 b.activeTxs.forEach(t => {
                     let livePrice = livePrices[b.asset] || t.entry;
                     let pnl = t.side === 'buy' ? ((t.size/t.entry * livePrice) - t.size) : (t.size - (t.size/t.entry * livePrice));
-                    totalUsdValue += pnl; // Paper PnL added to net worth
+                    totalUsdValue += pnl; 
                 });
             });
 
@@ -589,13 +635,13 @@
         }
 
         function createWalletCard(coin, amount, valueUsd) {
-            const valStr = valueUsd > 0 ? `$${valueUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'Syncing...';
+            const valStr = valueUsd >= 0 ? `$${valueUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'Syncing...';
             const aInfo = ASSETS.find(x => x.id.replace('USDT','') === coin);
             const icon = aInfo ? `https://cryptologos.cc/logos/${aInfo.icon}` : (coin==='USDT'?'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029':`https://ui-avatars.com/api/?name=${coin}&background=0D0814&color=A78BFA&rounded=true`);
             
             return `
             <div class="bg-[#05020a]/80 border border-purple-900/30 p-2 lg:p-3 rounded-lg flex items-center gap-3">
-                <img src="${icon}" class="w-6 h-6 lg:w-8 lg:h-8 rounded-full shadow-[0_0_10px_rgba(147,51,234,0.2)] shrink-0">
+                <img src="${icon}" class="w-6 h-6 lg:w-8 lg:h-8 rounded-full shrink-0">
                 <div class="flex flex-col min-w-0">
                     <span class="text-[10px] font-black text-white uppercase truncate">${coin}</span>
                     <span class="text-[9px] lg:text-[10px] font-mono text-purple-400 truncate">${amount.toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
@@ -604,7 +650,7 @@
             </div>`;
         }
 
-        // --- 3. HIGH RES SHARP CANVAS ENGINE ---
+        // --- 3. HIGH RES SHARP CANVAS ENGINE (CLAMPED BOUNDS) ---
         function setupCanvas() {
             const container = document.getElementById('canvas-container');
             const canvas = document.getElementById('custom-chart');
@@ -612,7 +658,7 @@
             
             function resize() {
                 const rect = container.getBoundingClientRect();
-                if(rect.width === 0) return; // Hidden tab
+                if(rect.width === 0) return; 
                 const dpr = window.devicePixelRatio || 1;
                 canvas.width = rect.width * dpr;
                 canvas.height = rect.height * dpr;
@@ -620,7 +666,7 @@
                 drawChart();
             }
             window.addEventListener('resize', resize);
-            setTimeout(resize, 100); // initial sizing
+            setTimeout(resize, 100); 
 
             canvas.addEventListener('mousemove', (e) => {
                 const rect = canvas.getBoundingClientRect();
@@ -637,7 +683,7 @@
                 let json = await res.json();
                 ui.chartData = json.map(d => ({ time: parseInt(d[0]), price: parseFloat(d[4]) }));
                 drawChart();
-                calcAIEngine(); // calculate Initial RSI/SMA
+                calcAIEngine(); 
             } catch(e) {}
         }
 
@@ -685,7 +731,8 @@
             let points = [];
             for(let i = 0; i < data.length; i++) {
                 const x = (i / (data.length - 1)) * gW;
-                const y = ((maxPrice - data[i].price) / range) * (gH * 0.8) + (gH * 0.1); 
+                let y = ((maxPrice - data[i].price) / range) * (gH * 0.8) + (gH * 0.1); 
+                y = Math.max(5, Math.min(gH - 5, y)); // Clamped so it doesn't go off screen
                 points.push({x, y, p: data[i].price});
                 if(i === 0) chartCtx.moveTo(x, y); else chartCtx.lineTo(x, y);
             }
@@ -708,23 +755,25 @@
                 chartCtx.beginPath(); chartCtx.arc(closest.x, closest.y, 4, 0, Math.PI*2);
                 chartCtx.fillStyle = '#a78bfa'; chartCtx.fill();
                 
+                let tagY = Math.max(10, Math.min(gH - 10, closest.y)); // Clamped Tag Height
                 chartCtx.fillStyle = '#a78bfa';
-                chartCtx.fillRect(gW, closest.y - 10, padXRight, 20);
+                chartCtx.fillRect(gW, tagY - 10, padXRight, 20);
                 chartCtx.fillStyle = '#05020a'; chartCtx.font = 'bold 10px monospace';
-                chartCtx.fillText(closest.p.toFixed(minPrice<1?4:2), gW + 4, closest.y);
+                chartCtx.fillText(closest.p.toFixed(minPrice<1?4:2), gW + 4, tagY);
             } else {
                 const last = points[points.length-1];
                 chartCtx.beginPath(); chartCtx.arc(last.x, last.y, 4, 0, Math.PI*2);
                 chartCtx.fillStyle = '#a78bfa'; chartCtx.fill();
                 
+                let tagY = Math.max(10, Math.min(gH - 10, last.y)); // Clamped Tag Height
                 chartCtx.fillStyle = '#a78bfa';
-                chartCtx.fillRect(gW, last.y - 10, padXRight, 20);
+                chartCtx.fillRect(gW, tagY - 10, padXRight, 20);
                 chartCtx.fillStyle = '#05020a'; chartCtx.font = 'bold 10px monospace';
-                chartCtx.fillText(last.p.toFixed(minPrice<1?4:2), gW + 4, last.y);
+                chartCtx.fillText(last.p.toFixed(minPrice<1?4:2), gW + 4, tagY);
             }
         }
 
-        // --- 4. DATA, AI & WHALES ---
+        // --- 4. DATA, AI, ORDER LOGS & POPUPS ---
         function connectMultiStream() {
             let streamSet = new Set(['btcusdt@ticker', 'ethusdt@ticker', 'solusdt@ticker', 'xrpusdt@ticker', 'dogeusdt@ticker', 'adausdt@ticker']);
             for(const coin of Object.keys(state.manualAssets)) streamSet.add((coin+'USDT').toLowerCase() + '@ticker');
@@ -755,15 +804,14 @@
                     if(isBuy) flowData.buy += usdVal; else flowData.sell += usdVal;
                     updateRatioBar();
                     
-                    // Add to bottom log
                     addLogFeed(isBuy, qty, price);
 
-                    // Massive Whale -> Dramatic Effects
-                    if(usdVal > 80000) {
+                    // Thresholds for On-Chart Popups & Flashes
+                    if(usdVal > 1000) { 
+                        spawnBottomLeftPopup(isBuy, qty, price, usdVal);
+                    }
+                    if(usdVal > 50000) {
                         triggerDramaticEffect(isBuy);
-                        spawnOnChartPopup(isBuy, qty, price);
-                    } else if(usdVal > 15000) {
-                        spawnOnChartPopup(isBuy, qty, price);
                     }
                 }
             };
@@ -776,34 +824,46 @@
             wrap.classList.add(isBuy ? 'flash-mega-pump' : 'flash-mega-dump');
         }
 
-        function spawnOnChartPopup(isBuy, qty, price) {
-            const container = document.getElementById('canvas-container');
+        // Gathered Bottom Left Popups inside Canvas Wrap
+        function spawnBottomLeftPopup(isBuy, qty, price, usdVal) {
+            const container = document.getElementById('chart-popups-container');
             const el = document.createElement('div');
-            const addr = '0x' + Math.random().toString(16).substring(2, 6);
+            const addr = '0x' + Math.random().toString(16).substring(2, 6).toUpperCase();
             
-            el.className = `on-chart-popup ${isBuy ? 'pop-buy' : 'pop-sell'}`;
-            el.innerHTML = `${addr}.. ${isBuy ? 'BUY' : 'SELL'} ${qty.toFixed(2)}`;
+            let duration = 2000;
+            let bgStyle = isBuy ? 'bg-[#05020a]/90 text-green-400 border border-green-500/30' : 'bg-[#05020a]/90 text-pink-400 border border-pink-500/30';
             
-            const leftPct = 10 + Math.random() * 70; 
-            const bottomPct = 20 + Math.random() * 40; 
+            if (usdVal >= 50000) {
+                duration = 6000;
+                bgStyle = isBuy ? 'bg-green-500 text-[#05020a] font-black border-2 border-white' : 'bg-pink-500 text-[#05020a] font-black border-2 border-white';
+            } else if (usdVal >= 15000) {
+                duration = 4000;
+                bgStyle = isBuy ? 'bg-green-800 text-white font-bold border border-green-400' : 'bg-pink-800 text-white font-bold border border-pink-400';
+            }
             
-            el.style.left = `${leftPct}%`;
-            el.style.bottom = `${bottomPct}%`;
+            el.className = `bottom-popup flex flex-col px-2 py-1 rounded ${bgStyle} backdrop-blur w-fit min-w-[120px]`;
+            el.innerHTML = `<div class="flex justify-between items-center gap-3"><span class="text-[8px] font-mono opacity-80">${addr}</span><span class="text-[10px] uppercase">${isBuy?'BUY':'SELL'}</span></div><div class="text-[11px] font-mono mt-0.5">${qty.toFixed(4)} @ $${price.toLocaleString()}</div>`;
             
-            container.appendChild(el);
-            setTimeout(() => el.remove(), 2000);
+            container.prepend(el);
+            
+            if(container.children.length > 8) container.removeChild(container.lastChild);
+            
+            setTimeout(() => {
+                el.style.opacity = '0';
+                setTimeout(() => { if(el.parentNode) el.remove(); }, 300);
+            }, duration);
         }
 
         function addLogFeed(isBuy, qty, price) {
             const feed = document.getElementById('below-chart-log');
-            if(feed.querySelector('div.italic')) feed.innerHTML = ''; // remove waiting message
+            if(feed.querySelector('div.italic')) feed.innerHTML = ''; 
             
             const el = document.createElement('div');
             const cStr = isBuy ? 'text-green-400' : 'text-pink-400';
             const bStr = isBuy ? 'bg-green-500/10 border-green-500/20' : 'bg-pink-500/10 border-pink-500/20';
             const addr = '0x' + Math.random().toString(16).substring(2, 8).toUpperCase();
             
-            el.className = `whale-feed-item flex justify-between items-center px-3 py-1.5 rounded border ${bStr}`;
+            el.className = `flex justify-between items-center px-3 py-1.5 rounded border ${bStr}`;
             el.innerHTML = `
                 <span class="text-[9px] font-mono text-muted w-16">${addr}</span>
                 <span class="text-[10px] font-black ${cStr} uppercase">${isBuy?'Market Buy':'Market Sell'} ${qty.toFixed(4)}</span>
@@ -818,7 +878,6 @@
             let bPct = 50, sPct = 50;
             if(t > 0) { bPct = (flowData.buy/t)*100; sPct = (flowData.sell/t)*100; }
             
-            // Updates both UI elements (Chart side & Log side)
             document.querySelectorAll('#ratio-buy-bar').forEach(el => el.style.width = `${bPct}%`);
             document.querySelectorAll('#ratio-sell-bar').forEach(el => el.style.width = `${sPct}%`);
             document.querySelectorAll('#ratio-buy-text').forEach(el => el.innerText = `${bPct.toFixed(0)}%`);
@@ -833,7 +892,7 @@
         }
 
         function calcAIEngine() {
-            if(ui.chartData.length < 21) return; // Need enough data for SMA20
+            if(ui.chartData.length < 21) return; 
             
             let gains = 0, losses = 0;
             const rsiData = ui.chartData.slice(-15);
@@ -874,7 +933,6 @@
             }
             ui.lastPrice = newPrice; ui.price = newPrice;
             
-            // Fast tick updating for Live
             if(ui.timeframe === 'live') {
                 ui.chartData.push({time: Date.now(), price: newPrice});
                 if(ui.chartData.length > 50) ui.chartData.shift();
@@ -882,10 +940,9 @@
                 ui.chartData[ui.chartData.length - 1].price = newPrice;
             }
             
-            // Only calc AI periodically to save performance
             if(Math.random() < 0.1) calcAIEngine(); 
-            
             if(!canvasHoverPos) drawChart(); 
+            
             el.innerText = `$${newPrice.toLocaleString(undefined, {minimumFractionDigits: newPrice<1?4:2, maximumFractionDigits: newPrice<1?4:2})}`;
             renderOrders(); 
         }
@@ -893,12 +950,12 @@
         // --- 5. MANUAL EXECUTION ---
         function setSide(side) {
             ui.side = side;
-            document.getElementById('btn-buy').className = side==='buy' ? "flex-1 py-3 rounded-lg text-[10px] font-black uppercase bg-green-500/20 text-green-400 border border-green-500/50 shadow-[0_0_10px_rgba(52,211,153,0.2)]" : "flex-1 py-3 rounded-lg text-[10px] font-black uppercase text-muted hover:text-green-400 transition";
-            document.getElementById('btn-sell').className = side==='sell' ? "flex-1 py-3 rounded-lg text-[10px] font-black uppercase bg-pink-500/20 text-pink-400 border border-pink-500/50 shadow-[0_0_10px_rgba(251,113,133,0.2)]" : "flex-1 py-3 rounded-lg text-[10px] font-black uppercase text-muted hover:text-pink-400 transition";
+            document.getElementById('btn-buy').className = side==='buy' ? "flex-1 py-3 rounded text-[10px] font-black uppercase tracking-widest bg-green-500/20 text-green-400 border border-green-500/50" : "flex-1 py-3 rounded text-[10px] font-black uppercase tracking-widest text-muted hover:text-green-400 transition";
+            document.getElementById('btn-sell').className = side==='sell' ? "flex-1 py-3 rounded text-[10px] font-black uppercase tracking-widest bg-pink-500/20 text-pink-400 border border-pink-500/50" : "flex-1 py-3 rounded text-[10px] font-black uppercase tracking-widest text-muted hover:text-pink-400 transition";
             
             const exec = document.getElementById('btn-execute');
             exec.innerText = side==='buy'?"Execute Long":"Execute Short";
-            exec.className = side==='buy'?"mt-auto w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 transition active:scale-95 shadow-[0_0_20px_rgba(52,211,153,0.4)]" : "mt-auto w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-pink-500 text-[#05020a] hover:bg-pink-400 transition active:scale-95 shadow-[0_0_20px_rgba(251,113,133,0.4)]";
+            exec.className = side==='buy'?"mt-auto w-full py-4 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 transition active:scale-95" : "mt-auto w-full py-4 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-pink-500 text-[#05020a] hover:bg-pink-400 transition active:scale-95";
         }
 
         document.getElementById('trade-lev').addEventListener('input', (e) => { ui.lev = parseInt(e.target.value); document.getElementById('lev-val').innerText = ui.lev; calcSize(); });
@@ -979,7 +1036,7 @@
             if(n && a) { state.manualAssets[n] = a; document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); }
         }
         function updateUI() { document.getElementById('ui-avail').innerText = state.usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; }
-        function saveState() { localStorage.setItem('cloud_state_v7', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
+        function saveState() { localStorage.setItem('cloud_state_v8', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
 
         // --- 7. DCA BOT LOGIC ---
         function exportBotConfig() {
@@ -1026,6 +1083,7 @@
                 mode: botModeConfig, asset: botAssetConfig,
                 size: parseFloat(document.getElementById('bot-size').value) || 0,
                 lev: parseFloat(document.getElementById('bot-lev').value) || 1,
+                code: document.getElementById('code-editor').value,
                 activeTxs: [], closedTxs: [], realizedPnl: 0
             };
             if(bot.size <= 0) return alert("Invalid size");
@@ -1039,7 +1097,6 @@
             const list = document.getElementById('active-bots-list');
             let html = '';
             state.bots.forEach(b => {
-                // Calc live PnL including active trades
                 let livePnl = b.realizedPnl;
                 b.activeTxs.forEach(t => {
                     let livePrice = livePrices[b.asset] || t.entry;
@@ -1050,10 +1107,10 @@
                 let cColor = isProf ? 'text-green-400' : 'text-pink-400';
                 
                 html += `
-                <div class="bg-[#05020a]/80 p-4 rounded-xl border border-purple-900/40 cursor-pointer hover:border-purple-500 transition shadow-lg" onclick="openBotDetails('${b.id}')">
+                <div class="bg-[#05020a]/80 p-4 rounded border border-purple-900/40 cursor-pointer hover:border-purple-500 transition" onclick="openBotDetails('${b.id}')">
                     <div class="flex justify-between items-center mb-3">
                         <span class="text-xs font-black text-white uppercase">${b.name}</span>
-                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
                     </div>
                     <div class="flex justify-between items-end">
                         <div class="flex flex-col">
@@ -1076,8 +1133,21 @@
             activeBotViewId = id;
             document.getElementById('bot-detail-title').innerText = b.name;
             
+            // Set code in modal
+            document.getElementById('bot-modal-code').value = b.code;
+            
             updateBotModalUI(b);
             toggleModal('bot-details-modal');
+        }
+
+        function saveBotModalCode() {
+            if(!activeBotViewId) return;
+            const b = state.bots.find(x => x.id === activeBotViewId);
+            if(b) {
+                b.code = document.getElementById('bot-modal-code').value;
+                saveState();
+                alert("Bot logic updated successfully.");
+            }
         }
 
         function updateBotModalUI(b) {
@@ -1106,7 +1176,7 @@
             const cColor = isNetProf ? 'text-green-400' : 'text-pink-400';
             document.getElementById('bot-detail-pnl').innerText = `${isNetProf?'+':''}$${livePnl.toFixed(2)}`;
             document.getElementById('bot-detail-pnl').className = `text-lg font-mono font-black ${cColor}`;
-            document.getElementById('bot-detail-roi').innerText = "Live";
+            document.getElementById('bot-detail-roi').innerText = "Live Active";
         }
 
         function killBot() {
@@ -1117,15 +1187,12 @@
             toggleModal('bot-details-modal');
         }
 
-        // Mock background paper-trading for Bots
         function tickBots(symbol, price) {
             state.bots.forEach(b => {
                 if(b.asset === symbol) {
-                    // Randomly mock an entry for visual life
                     if(Math.random() < 0.02 && b.activeTxs.length < 3) {
                         b.activeTxs.push({ side: Math.random()>0.5?'buy':'sell', size: b.size, entry: price });
                     }
-                    // Randomly mock a close
                     if(Math.random() < 0.05 && b.activeTxs.length > 0) {
                         let tx = b.activeTxs.shift();
                         let pnl = tx.side === 'buy' ? ((tx.size/tx.entry * price) - tx.size) : (tx.size - (tx.size/tx.entry * price));
