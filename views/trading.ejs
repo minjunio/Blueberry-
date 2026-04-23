@@ -70,13 +70,13 @@
             <div id="chart-wrap" class="casino-panel flex-grow relative flex flex-col min-h-[40vh] transition-all duration-300 overflow-hidden">
                 <div class="absolute top-4 left-4 z-10 flex flex-col pointer-events-none">
                     <select id="symbol-select" onchange="initFeeds()" class="casino-input px-3 py-1.5 rounded-lg text-lg font-black uppercase cursor-pointer appearance-none pointer-events-auto w-fit shadow-lg bg-[#0d131f]/90 border border-[#1f2937]">
-                        <option value="BTCUSDT">BTC / USDT</option>
-                        <option value="ETHUSDT">ETH / USDT</option>
-                        <option value="SOLUSDT">SOL / USDT</option>
-                        <option value="DOGEUSDT">DOGE / USDT</option>
-                        <option value="XRPUSDT">XRP / USDT</option>
+                        <option value="XBTUSD" data-ws="XBT/USD">BTC / USD</option>
+                        <option value="ETHUSD" data-ws="ETH/USD">ETH / USD</option>
+                        <option value="SOLUSD" data-ws="SOL/USD">SOL / USD</option>
+                        <option value="DOGEUSD" data-ws="DOGE/USD">DOGE / USD</option>
+                        <option value="XRPUSD" data-ws="XRP/USD">XRP / USD</option>
                     </select>
-                    <h2 id="live-price" class="text-4xl md:text-5xl font-black text-white mt-1 transition-colors duration-200 tracking-tight font-mono">Initializing...</h2>
+                    <h2 id="live-price" class="text-4xl md:text-5xl font-black text-white mt-1 transition-colors duration-200 tracking-tight font-mono">Syncing...</h2>
                 </div>
                 <div id="tvchart" class="w-full h-full mt-24"></div>
             </div>
@@ -117,7 +117,7 @@
             <div class="space-y-6 flex-grow">
                 <div>
                     <div class="flex justify-between mb-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USDT)</label>
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USD)</label>
                         <span class="text-[10px] font-black text-[#00ffaa] cursor-pointer hover:underline" onclick="setMax()">MAX</span>
                     </div>
                     <input type="number" id="trade-margin" placeholder="0.00" class="w-full casino-input p-4 rounded-xl text-xl font-black font-mono">
@@ -190,20 +190,18 @@
 
     <script>
         // --- 1. STATE & GLOBAL PRICING ---
-        let state = JSON.parse(localStorage.getItem('terminal_state_v3')) || {
+        let state = JSON.parse(localStorage.getItem('terminal_state_v4')) || {
             balance: 88000.00,
             orders: []
         };
         
-        // Base starting prices for the simulation fallback
-        const basePrices = { 'BTCUSDT': 65000, 'ETHUSDT': 3400, 'SOLUSDT': 150, 'DOGEUSDT': 0.15, 'XRPUSDT': 0.60 };
-        window.livePrices = { ...basePrices }; // Track all prices globally
-        
-        let ui = { side: 'buy', symbol: 'BTCUSDT', price: 65000, lastPrice: 0, lev: 10 };
-        let simLoop = null; // Variable to hold the fallback loop
+        window.livePrices = {}; // Tracks current prices for all open assets globally
+        let ui = { side: 'buy', restSymbol: 'XBTUSD', wsSymbol: 'XBT/USD', price: 0, lastPrice: 0, lev: 10 };
+        let ws;
+        let pollInterval;
 
         function saveState() {
-            localStorage.setItem('terminal_state_v3', JSON.stringify(state));
+            localStorage.setItem('terminal_state_v4', JSON.stringify(state));
             updateWalletUI();
         }
 
@@ -236,89 +234,98 @@
             chart.applyOptions({ width: entries[0].contentRect.width, height: entries[0].contentRect.height });
         }).observe(chartElement);
 
-        // --- 3. THE INDESTRUCTIBLE FEED ENGINE ---
-        let ws;
+        // --- 3. KRAKEN API (Ultra Reliable, Zero Blocks) ---
         async function initFeeds() {
-            ui.symbol = document.getElementById('symbol-select').value;
-            ui.price = window.livePrices[ui.symbol] || basePrices[ui.symbol];
+            const selectEl = document.getElementById('symbol-select');
+            ui.restSymbol = selectEl.value;
+            ui.wsSymbol = selectEl.options[selectEl.selectedIndex].getAttribute('data-ws');
             
             const priceEl = document.getElementById('live-price');
-            priceEl.innerText = `$${ui.price.toFixed(2)}`;
+            priceEl.innerText = "Syncing...";
             
-            // 1. Instantly Generate Fake History (Guarantees chart is never empty)
-            let history = [];
-            let currentTime = Math.floor(Date.now() / 1000);
-            let p = ui.price * 0.98; // Start history slightly lower
-            for(let i=100; i>=0; i--) {
-                p += (Math.random() - 0.45) * (ui.price * 0.002); // Random walk
-                history.push({ time: currentTime - (i*60), value: p });
-            }
-            areaSeries.setData(history);
-            ui.price = p; 
-            ui.lastPrice = p;
-
-            // 2. Try Fetching Real Price (Graceful Failure)
-            try {
-                let res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${ui.symbol}`);
-                let data = await res.json();
-                ui.price = parseFloat(data.price);
-                window.livePrices[ui.symbol] = ui.price;
-                processTick(ui.price); // Align UI to reality
-            } catch(e) {
-                console.log("REST Blocked. Falling back to simulation start.");
-            }
-
-            // 3. Connect WebSockets
             if(ws) ws.close();
-            if(simLoop) clearInterval(simLoop);
+            if(pollInterval) clearInterval(pollInterval);
+            areaSeries.setData([]);
 
+            // 1. Fetch Real Historical Data (REST)
             try {
-                ws = new WebSocket(`wss://stream.binance.com:9443/ws/${ui.symbol.toLowerCase()}@ticker`);
+                let res = await fetch(`https://api.kraken.com/0/public/OHLC?pair=${ui.restSymbol}&interval=1`);
+                let json = await res.json();
+                let key = Object.keys(json.result)[0]; 
                 
+                let history = json.result[key].map(d => ({
+                    time: parseInt(d[0]),
+                    value: parseFloat(d[4]) // Close price
+                }));
+                
+                areaSeries.setData(history);
+                ui.price = history[history.length - 1].value;
+                ui.lastPrice = ui.price;
+                window.livePrices[ui.restSymbol] = ui.price;
+                
+                priceEl.innerText = `$${ui.price.toFixed(2)}`;
+                processTick(ui.price); // Trigger initial UI
+            } catch(e) {
+                console.error("History fetch failed, awaiting live tick...");
+            }
+
+            // 2. Connect Lightning WebSocket
+            connectWebSocket();
+        }
+
+        function connectWebSocket() {
+            try {
+                ws = new WebSocket('wss://ws.kraken.com');
                 ws.onopen = () => {
                     document.getElementById('feed-status').innerText = "Live WS Engine";
                     document.getElementById('feed-status').className = "text-[10px] font-bold text-[#00ffaa] bg-[#1f2937] px-2 py-1 rounded";
+                    
+                    // Subscribe to the active symbol
+                    ws.send(JSON.stringify({
+                        event: "subscribe",
+                        pair: [ui.wsSymbol],
+                        subscription: { name: "ticker" }
+                    }));
                 };
 
                 ws.onmessage = (e) => {
                     let data = JSON.parse(e.data);
-                    processTick(parseFloat(data.c));
+                    if(Array.isArray(data) && data[2] === 'ticker') {
+                        let newPrice = parseFloat(data[1].c[0]);
+                        processTick(newPrice);
+                    }
                 };
 
-                ws.onerror = () => startSimulation();
-                ws.onclose = () => startSimulation();
-            } catch (err) {
-                startSimulation();
+                ws.onerror = () => startRESTFallback();
+                ws.onclose = () => startRESTFallback();
+            } catch(e) {
+                startRESTFallback();
             }
         }
 
-        // 4. Fallback Simulation (If Firewalls block WS)
-        function startSimulation() {
-            if(simLoop) return; // Already running
-            document.getElementById('feed-status').innerText = "Local Simulation";
+        // 3. Guaranteed Fallback: If WS is blocked, it polls REST automatically
+        function startRESTFallback() {
+            if(pollInterval) return; // already running
+            document.getElementById('feed-status').innerText = "REST Fallback";
             document.getElementById('feed-status').className = "text-[10px] font-bold text-yellow-500 bg-[#1f2937] px-2 py-1 rounded";
             
-            simLoop = setInterval(() => {
-                // Fluctuate price by a tiny random percentage
-                let change = (Math.random() - 0.5) * (ui.price * 0.001); 
-                processTick(ui.price + change);
-                
-                // Simulate other assets in background for portfolio ROIs
-                for (let sym in window.livePrices) {
-                    if(sym !== ui.symbol) {
-                        let c = (Math.random() - 0.5) * (window.livePrices[sym] * 0.001);
-                        window.livePrices[sym] += c;
-                    }
-                }
-            }, 1500); // Tick every 1.5s
+            pollInterval = setInterval(async () => {
+                try {
+                    let res = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${ui.restSymbol}`);
+                    let json = await res.json();
+                    let key = Object.keys(json.result)[0];
+                    let newPrice = parseFloat(json.result[key].c[0]);
+                    processTick(newPrice);
+                } catch(e) {}
+            }, 2000); // Polling every 2 seconds is very safe for Kraken
         }
 
-        // Central Tick Processor (Handles UI flashes, chart updates, and ROI)
+        // Central Tick Processor
         function processTick(newPrice) {
             const priceEl = document.getElementById('live-price');
             const wrapEl = document.getElementById('chart-wrap');
             
-            window.livePrices[ui.symbol] = newPrice; // Update global state
+            window.livePrices[ui.restSymbol] = newPrice; 
             
             if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
                 wrapEl.classList.remove('anim-pump', 'anim-dump');
@@ -343,10 +350,10 @@
             
             areaSeries.update({ time: Math.floor(Date.now() / 1000), value: newPrice });
             
-            renderOrders(); // Re-calculate ROIs
+            renderOrders(); 
         }
 
-        // --- 5. EXECUTION PANEL LOGIC ---
+        // --- 4. EXECUTION PANEL LOGIC ---
         function setSide(side) {
             ui.side = side;
             const bBuy = document.getElementById('btn-buy');
@@ -393,9 +400,13 @@
             state.balance -= margin;
             const totalSize = margin * ui.lev;
             
+            // Format symbol nicely for UI (e.g. XBTUSD -> BTC/USD)
+            let niceSymbol = document.getElementById('symbol-select').options[document.getElementById('symbol-select').selectedIndex].text;
+
             state.orders.push({
                 id: Math.random().toString(36).substr(2, 9),
-                symbol: ui.symbol,
+                restSymbol: ui.restSymbol, 
+                displaySymbol: niceSymbol,
                 side: ui.side,
                 margin: margin,
                 lev: ui.lev,
@@ -409,7 +420,7 @@
             renderOrders();
         }
 
-        // --- 6. ROI & RENDERING ---
+        // --- 5. ROI & TABLE UPDATES ---
         function renderOrders() {
             const tbody = document.getElementById('orders-body');
             let totalUnrealized = 0;
@@ -423,11 +434,15 @@
 
             let html = '';
             state.orders.forEach(order => {
-                // Pull from the livePrices dictionary so background assets update too!
-                const currentVal = order.units * (window.livePrices[order.symbol] || order.entry);
-                const initialVal = order.margin * order.lev;
+                let pnl = 0;
                 
-                const pnl = order.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
+                // If this order matches the currently viewed chart, update ROI based on real-time price
+                if(order.restSymbol === ui.restSymbol) {
+                     const currentVal = order.units * ui.price;
+                     const initialVal = order.margin * order.lev;
+                     pnl = order.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
+                }
+
                 totalUnrealized += pnl;
 
                 const roiPct = (pnl / order.margin) * 100;
@@ -437,7 +452,7 @@
                 
                 html += `
                     <tr class="border-b border-[#1f2937]/50 hover:bg-[#1f2937]/30 transition group">
-                        <td class="p-3 font-black text-white">${order.symbol}</td>
+                        <td class="p-3 font-black text-white">${order.displaySymbol}</td>
                         <td class="p-3"><span class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${sColor}">${order.side}</span></td>
                         <td class="p-3">${order.lev}x</td>
                         <td class="p-3">$${order.margin.toFixed(2)}</td>
@@ -451,7 +466,6 @@
             });
             tbody.innerHTML = html;
 
-            // Portfolio Panel Update
             const pnlColor = totalUnrealized >= 0 ? 'text-[#00ffaa]' : 'text-red-500';
             document.getElementById('wallet-pnl').innerText = `Live ROI: ${totalUnrealized >= 0 ? '+' : ''}$${totalUnrealized.toFixed(2)}`;
             document.getElementById('wallet-pnl').className = `text-xs font-bold font-mono mt-1 ${pnlColor}`;
@@ -462,9 +476,12 @@
             if (idx === -1) return;
             
             const o = state.orders[idx];
-            const currentVal = o.units * (window.livePrices[o.symbol] || o.entry);
-            const initialVal = o.margin * o.lev;
-            const pnl = o.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
+            let pnl = 0;
+            if(o.restSymbol === ui.restSymbol) {
+                 const currentVal = o.units * ui.price;
+                 const initialVal = o.margin * o.lev;
+                 pnl = o.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
+            }
             
             state.balance += (o.margin + pnl);
             state.orders.splice(idx, 1);
