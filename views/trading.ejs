@@ -198,8 +198,8 @@
                     </div>
                 </div>
 
-                <div class="lg:col-span-3 flex flex-col">
-                    <div class="glass-panel p-5 flex flex-col h-full relative z-10">
+                <div class="lg:col-span-3 flex flex-col gap-4">
+                    <div class="glass-panel p-5 flex flex-col relative z-10">
                         <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-purple-900/30 pb-2">Manual Execution</h3>
                         
                         <div class="flex gap-2 bg-[#05020a] p-1 border border-purple-900/50 rounded mb-5">
@@ -239,9 +239,33 @@
                             </div>
                         </div>
 
-                        <button onclick="executeOrder()" id="btn-execute" class="mt-auto w-full py-4 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 transition active:scale-95">
+                        <button onclick="executeOrder()" id="btn-execute" class="mt-4 w-full py-4 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 transition active:scale-95">
                             Execute Long
                         </button>
+                    </div>
+
+                    <div class="glass-panel p-5 flex flex-col flex-grow relative z-10">
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-3 border-b border-purple-900/30 pb-2">On-Chain Alpha</h3>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-green-400 mb-2 border-b border-green-500/20 pb-1">Top Purchases (2H)</h4>
+                            <div id="ui-top-buys" class="space-y-1.5">
+                                <div class="text-[9px] text-muted text-center italic py-2">Syncing chain...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-pink-400 mb-2 border-b border-pink-500/20 pb-1">Top Sells (2H)</h4>
+                            <div id="ui-top-sells" class="space-y-1.5">
+                                <div class="text-[9px] text-muted text-center italic py-2">Syncing chain...</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto">
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-purple-400 mb-2 border-b border-purple-500/20 pb-1">Top Holders (Wallets)</h4>
+                            <div id="ui-top-holders" class="space-y-1.5">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -268,7 +292,7 @@
                                         <span id="bot-mode-text">Standard DCA</span>
                                         <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
-                                    <div id="bot-mode-dropdown" class="absolute top-full left-0 mt-1 w-full glass-overlay py-1 dropdown-menu dropdown-hidden">
+                                    <div id="bot-mode-dropdown" class="absolute top-full left-0 mt-1 w-full glass-overlay py-1 dropdown-menu dropdown-hidden z-50">
                                         <div onclick="setBotMode('standard', 'Standard DCA')" class="px-4 py-2 hover:bg-purple-900/40 cursor-pointer text-xs font-black uppercase text-white">Standard DCA</div>
                                         <div onclick="setBotMode('sniper', 'Sniper Pump Scalp')" class="px-4 py-2 hover:bg-purple-900/40 cursor-pointer text-xs font-black uppercase text-white">Sniper Pump Scalp</div>
                                     </div>
@@ -283,7 +307,7 @@
                                             <div class="flex items-center gap-2"><img id="bot-asset-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-4 h-4 rounded-full"><span id="bot-asset-text">BTCUSDT</span></div>
                                             <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                         </div>
-                                        <div id="bot-asset-dropdown" class="absolute top-full left-0 mt-1 w-full glass-overlay py-1 dropdown-menu dropdown-hidden max-h-40 overflow-y-auto no-scrollbar"></div>
+                                        <div id="bot-asset-dropdown" class="absolute top-full left-0 mt-1 w-full glass-overlay py-1 dropdown-menu dropdown-hidden max-h-40 overflow-y-auto no-scrollbar z-50"></div>
                                     </div>
                                 </div>
                                 <div>
@@ -324,61 +348,14 @@
                         </button>
                     </div>
 
-                    <div class="flex flex-col h-full min-h-[400px]">
+                    <div class="flex flex-col h-full min-h-[500px]">
                         <div class="bg-[#1e1e1e] rounded-t border border-gray-800 p-2 flex justify-between items-center">
                             <span class="text-[10px] font-mono text-gray-400 ml-2">bot_core.js</span>
                             <div class="flex gap-1.5 mr-2">
                                 <div class="w-3 h-3 rounded-full bg-gray-600"></div><div class="w-3 h-3 rounded-full bg-gray-600"></div><div class="w-3 h-3 rounded-full bg-gray-600"></div>
                             </div>
                         </div>
-                        <textarea id="code-editor" class="code-area w-full flex-grow bg-[#1e1e1e] text-[#d4d4d4] p-4 text-[10px] outline-none border border-t-0 border-gray-800 rounded-b resize-none" spellcheck="false">
-// --- ADVANCED BOT LOGIC ENGINE ---
-// ENVIRONMENT VARIABLES:
-// * price (Number) - Current live asset price
-// * rsi (Number) - Current Relative Strength Index (14)
-// * volume (Number) - Current tick volume
-// * volatility (Number) - Current price variance
-// * bot (Object) - Context: { mode, size, lev, dropPercent, maxTx, maxCap, activeTxs[] }
-// 
-// AVAILABLE ADVANCED FUNCTIONS:
-// * executeMarket({ side: 'buy'|'sell', size: USDT, lev: Integer })
-// * closeAllPositions() - Closes all active trades for this instance
-// * closePosition(id) - Closes a specific transaction by ID
-// * setTrailingStop(percent) - Activates trailing stop loss dynamically
-// * setTakeProfit(percent) - Sets a hard TP for open orders
-// * setStopLoss(percent) - Sets a hard SL for open orders
-// * getAverageEntry() - Returns volume-weighted avg entry price
-// * getOpenExposure() - Returns total active capital deployed
-// * getOpenPnL() - Returns total unrealized profit/loss
-// * log(msg) - Prints string output to bot debug console
-//
-// NOTE: Evaluated tick-by-tick. Handle execution gates properly.
-
-function onTick(price, rsi, volume) {
-    // 1. Safety Check: Respect Max Capital & Max TX Limits
-    if (bot.activeTxs.length >= bot.maxTx || getOpenExposure() >= bot.maxCap) {
-        if(getOpenPnL() > (bot.maxCap * 0.1)) { // Take profit at 10%
-            closeAllPositions();
-        }
-        return;
-    }
-
-    // 2. Strategy Execution
-    if (bot.mode === 'sniper') {
-        if (rsi > 80 && volume > 1000000) {
-            executeMarket({ side: 'sell', size: bot.size, lev: bot.lev });
-            setStopLoss(2.0); // 2% Stop Loss
-        }
-    } else {
-        // Standard DCA Mode logic
-        const dropFromATH = ((ATH - price) / ATH) * 100;
-        if (dropFromATH >= bot.dropPercent) {
-            executeMarket({ side: 'buy', size: bot.size, lev: 1 });
-            setTrailingStop(1.5); // 1.5% Trailing Stop
-        }
-    }
-}
-</textarea>
+                        <textarea id="code-editor" class="code-area w-full flex-grow bg-[#1e1e1e] text-[#d4d4d4] p-4 text-[10px] outline-none border border-t-0 border-gray-800 rounded-b resize-none" spellcheck="false"></textarea>
                     </div>
                 </div>
             </div>
@@ -492,6 +469,194 @@ function onTick(price, rsi, volume) {
 
     <script>
         // --- 1. STATE, DROPDOWNS & ROUTING ---
+        const standardBotCode = `// --- PROFESSIONAL DCA LOGIC ENGINE ---
+// Evaluated tick-by-tick. Assumes global 'ATH' (All-Time High) is available.
+
+function onTick(price, rsi, volume) {
+    // --- 0. STATE INITIALIZATION ---
+    if (!bot.state) {
+        bot.state = {
+            tickCount: 0,
+            lastBuyPrice: 0,       // Tracks the exact price of the last execution
+            lastBuyTick: -999,     // Prevents rapid-fire buying during flash crashes
+            targetBasketProfit: 3.5 // The overall profit percentage desired for the entire DCA basket
+        };
+    }
+    bot.state.tickCount++;
+
+    const currentExposure = getOpenExposure();
+    const pnl = getOpenPnL();
+
+    // --- 1. PORTFOLIO PROTECTION (HARD UNCLE POINT) ---
+    // Even in DCA, you must protect the principal. If the entire allocated basket
+    // drops by 15% of the bot's maximum allowed capital, liquidate and reassess.
+    if (currentExposure > 0 && pnl < -(bot.maxCap * 0.15)) {
+        log(\`RISK MANAGER: Max drawdown of 15% reached! Liquidating basket to preserve capital.\`);
+        closeAllPositions();
+        return; 
+    }
+
+    // --- 2. BASKET PROFIT TAKING ---
+    if (currentExposure > 0) {
+        const avgEntry = getAverageEntry();
+        
+        // Calculate the percentage profit of the entire combined position
+        const basketProfitPercent = ((price - avgEntry) / avgEntry) * 100;
+
+        // If the unified basket hits the target profit, we don't hard close immediately.
+        // Instead, we lock it in with a tight trailing stop to let runners run.
+        if (basketProfitPercent >= bot.state.targetBasketProfit) {
+            setTrailingStop(0.5); // Protect the accumulated profit with a 0.5% leash
+        }
+    }
+
+    // --- 3. SMART DCA ACCUMULATION ---
+    // Ensure we haven't hit our transaction or capital limits
+    if (bot.activeTxs.length < bot.maxTx && currentExposure + bot.size <= bot.maxCap) {
+        
+        let shouldBuy = false;
+
+        // SCENARIO A: First Entry (Establishing the baseline)
+        if (bot.activeTxs.length === 0) {
+            const dropFromATH = ((ATH - price) / ATH) * 100;
+            
+            // Wait for the asset to hit the required drop AND confirm it is actually oversold
+            if (dropFromATH >= bot.dropPercent && rsi < 45) {
+                shouldBuy = true;
+                log(\`INITIAL ENTRY: Dropped \${dropFromATH.toFixed(1)}% from ATH, RSI \${rsi.toFixed(1)}.\`);
+            }
+        } 
+        
+        // SCENARIO B: Averaging Down (The DCA process)
+        else {
+            const dropFromLastBuy = ((bot.state.lastBuyPrice - price) / bot.state.lastBuyPrice) * 100;
+            
+            // Dynamic Grid Spacing: As we accumulate more bags, require a LARGER drop to buy again.
+            // Example: If base drop is 2%, 1st DCA needs 2%, 2nd needs 3%, 3rd needs 4%.
+            const requiredDrop = bot.dropPercent * (1 + (bot.activeTxs.length * 0.5)); 
+            
+            // Time Cooldown: Wait at least 150 ticks since the last buy to avoid "falling knife" clustering.
+            const isCooldownFinished = (bot.state.tickCount - bot.state.lastBuyTick) > 150;
+
+            // Execution Gate: Needs the required drop, cooldown finished, AND severe oversold RSI
+            if (dropFromLastBuy >= requiredDrop && isCooldownFinished && rsi < 35) {
+                shouldBuy = true;
+                log(\`DCA ENTRY #\${bot.activeTxs.length}: Price dropped \${dropFromLastBuy.toFixed(1)}% from last buy.\`);
+            }
+        }
+
+        // --- 4. EXECUTION ---
+        if (shouldBuy) {
+            // Volume-Weighted Martingale (Optional/Safe): Increase size slightly as we go lower
+            const sizeMultiplier = 1 + (bot.activeTxs.length * 0.2); 
+            let executionSize = bot.size * sizeMultiplier;
+
+            if (currentExposure + executionSize > bot.maxCap) {
+                executionSize = bot.maxCap - currentExposure; 
+            }
+
+            // Strictly 1x Leverage for DCA safety
+            executeMarket({ side: 'buy', size: executionSize, lev: 1 });
+            
+            bot.state.lastBuyPrice = price;
+            bot.state.lastBuyTick = bot.state.tickCount;
+        }
+    }
+}`;
+
+        const sniperBotCode = `// --- ADVANCED BOT LOGIC ENGINE ---
+// Evaluated tick-by-tick.
+
+function onTick(price, rsi, volume) {
+    // --- 0. STATE INITIALIZATION ---
+    // Create a persistent memory state within the 'bot' object to track data across ticks
+    if (!bot.state) {
+        bot.state = {
+            tickCount: 0,
+            lastTradeTick: -999,      // Ensures bot can trade immediately on first setup
+            avgVolume: volume,        // Rolling average volume tracker
+            peakPnL: 0,               // Tracks highest unrealized PnL during a trade
+            circuitBreakerTripped: false
+        };
+    }
+    bot.state.tickCount++;
+
+    // Calculate rolling volume to detect sudden anomalies (Exponential Moving Average)
+    bot.state.avgVolume = (bot.state.avgVolume * 19 + volume) / 20;
+
+    // --- 1. GLOBAL SAFETY & CIRCUIT BREAKERS ---
+    if (bot.state.circuitBreakerTripped) {
+        log("SYSTEM HALTED: Circuit breaker tripped due to excessive risk. Manual reset required.");
+        return; // Completely halt execution
+    }
+
+    const exposure = getOpenExposure();
+    const currentPnL = getOpenPnL();
+
+    // Failsafe: If global portfolio PnL drops more than 5% of Max Cap, panic close and halt.
+    if (exposure > 0 && currentPnL < -(bot.maxCap * 0.05)) {
+        log("CRITICAL: Global Drawdown limit reached! Liquidating and triggering circuit breaker.");
+        closeAllPositions();
+        bot.state.circuitBreakerTripped = true;
+        return;
+    }
+
+    // --- 2. ACTIVE TRADE MANAGEMENT (DYNAMIC RISK) ---
+    if (bot.activeTxs.length > 0) {
+        // Track the highest PnL achieved during this trade
+        if (currentPnL > bot.state.peakPnL) {
+            bot.state.peakPnL = currentPnL;
+        }
+
+        // Dynamic Trailing Stop: Tighten the leash as we get deeper into profit
+        if (currentPnL > (exposure * 0.05)) {
+            setTrailingStop(0.5); 
+        }
+
+        // If momentum completely dies (RSI drops fast) while in a trade, front-run the sell
+        if (rsi < 50 && currentPnL > 0) {
+            log("Momentum exhausted. Executing manual early exit to secure profits.");
+            closeAllPositions();
+            bot.state.lastTradeTick = bot.state.tickCount; // Trigger cooldown
+        }
+        
+        return; // Do not open new positions while managing an active snipe
+    } else {
+        // Reset peak PnL when flat
+        bot.state.peakPnL = 0; 
+    }
+
+    // --- 3. COOLDOWN GATE ---
+    // Wait at least 50 ticks after closing a trade before looking for a new entry 
+    if (bot.state.tickCount - bot.state.lastTradeTick < 50) {
+        return; 
+    }
+
+    // --- 4. ADVANCED PUMP DETECTION (THE SNIPER) ---
+    // Condition A: Volume Spike (Current tick volume is 400% higher than recent average)
+    const isVolumeSpike = volume > (bot.state.avgVolume * 4);
+
+    // Condition B: The Goldilocks RSI Zone
+    const isMomentumOptimal = rsi > 72 && rsi < 88;
+
+    // Condition C: Volatility Filter
+    let simulatedVolatility = 2.0; // Mock volatility check for sandbox
+    const isVolatilitySafe = simulatedVolatility > 1.2 && simulatedVolatility < 6.0;
+
+    // --- 5. EXECUTION ---
+    if (isVolumeSpike && isMomentumOptimal && isVolatilitySafe) {
+        log(\`PUMP DETECTED @ $\${price} | Vol: \${volume} | RSI: \${rsi.toFixed(1)} | Executing High-Lev Snipe!\`);
+        
+        executeMarket({ side: 'buy', size: bot.size, lev: bot.lev });
+        
+        setStopLoss(1.5);
+        setTakeProfit(8.0);
+        setTrailingStop(1.0);
+
+        bot.state.lastTradeTick = bot.state.tickCount;
+    }
+}`;
+
         function switchApp(appName) {
             document.getElementById('app-terminal').style.display = appName === 'terminal' ? 'block' : 'none';
             document.getElementById('app-bot').style.display = appName === 'bot' ? 'block' : 'none';
@@ -515,6 +680,13 @@ function onTick(price, rsi, volume) {
             const el = document.getElementById(id);
             el.classList.toggle('dropdown-hidden');
             el.classList.toggle('dropdown-active');
+        }
+
+        function setBotMode(mode, text) {
+            botModeConfig = mode;
+            document.getElementById('bot-mode-text').innerText = text;
+            toggleDropdown('bot-mode-dropdown');
+            document.getElementById('code-editor').value = mode === 'sniper' ? sniperBotCode : standardBotCode;
         }
 
         function buildCustomDropdowns() {
@@ -570,10 +742,6 @@ function onTick(price, rsi, volume) {
 // * sma (Number) - Simple Moving Average (20 periods)
 // * volatility (Number) - Price range over last 20 periods
 // * prices (Array) - Last 100 closing prices [oldest, ..., newest]
-// 
-// SYNTAX EXPECTATION:
-// Must return a STRING evaluating the signal.
-// Valid strings: "STRONG BUY", "BUY", "NEUTRAL", "SELL", "STRONG SELL"
 
 let score = 0;
 if (rsi > 70) score -= 2;
@@ -586,7 +754,7 @@ if (score < -1.5) return "STRONG SELL";
 if (score < 0) return "SELL";
 return "NEUTRAL";`;
 
-        let state = JSON.parse(localStorage.getItem('cloud_state_v13')) || {
+        let state = JSON.parse(localStorage.getItem('cloud_state_v14')) || {
             usdtBalance: 10000.00, startOfDayValue: 10000.00, orders: [], history: [], manualAssets: { 'BTC': 0.1 }, bots: [], aiLogic: defaultAI
         };
         
@@ -597,9 +765,14 @@ return "NEUTRAL";`;
         let flowData = { buy: 0, sell: 0 };
         let canvasHoverPos = null; 
         let activeBotViewId = null;
+
+        // Tracks highest value orders in current session
+        let topBuysArray = [];
+        let topSellsArray = [];
         
         // --- 2. INIT & PORTFOLIO ---
         function init() {
+            document.getElementById('code-editor').value = standardBotCode; // Set default
             buildCustomDropdowns();
             document.getElementById('ai-logic-editor').value = state.aiLogic;
             setupCanvas();
@@ -609,18 +782,22 @@ return "NEUTRAL";`;
             renderOrders();
             renderHistory();
             renderBots();
+            renderTopHolders();
             setInterval(updateWalletSystem, 1000);
         }
 
         function triggerPairChange() {
             ui.chartData = [];
             ui.price = livePrices[ui.pair] || 0;
+            topBuysArray = []; topSellsArray = []; // Reset on pair change
+            renderOnChainAlpha();
             document.getElementById('main-price').innerText = "Syncing...";
             document.getElementById('below-chart-log').innerHTML = '<div class="text-[9px] text-muted text-center py-4 italic">Awaiting on-chain / DEX block trades...</div>';
             document.getElementById('chart-popups-container').innerHTML = '';
             connectTradeStream(); 
             fetchChartData();
             fetch24hStats();
+            renderTopHolders();
         }
 
         function toggleModal(id) {
@@ -691,7 +868,7 @@ return "NEUTRAL";`;
             </div>`;
         }
 
-        // --- 3. HIGH RES SHARP CANVAS ENGINE (DYNAMIC BOUNDS) ---
+        // --- 3. HIGH RES SHARP CANVAS ENGINE ---
         function setupCanvas() {
             const container = document.getElementById('canvas-container');
             const canvas = document.getElementById('custom-chart');
@@ -825,7 +1002,30 @@ return "NEUTRAL";`;
             }
         }
 
-        // --- 4. DATA, AI, ORDER LOGS & POPUPS ---
+        // --- 4. DATA, ON-CHAIN ALPHA, & AI ---
+        function renderOnChainAlpha() {
+            const buysContainer = document.getElementById('ui-top-buys');
+            const sellsContainer = document.getElementById('ui-top-sells');
+
+            if (topBuysArray.length === 0) buysContainer.innerHTML = `<div class="text-[9px] text-muted text-center italic py-2">Syncing chain...</div>`;
+            else buysContainer.innerHTML = topBuysArray.map(t => `<div class="flex justify-between items-center text-[10px] font-mono"><span class="text-white">${t.qty.toFixed(ui.price<1?0:4)} <span class="text-[8px] text-muted">${ui.pair.replace('USDT','')}</span></span><span class="text-green-400 font-black">$${t.usdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>`).join('');
+
+            if (topSellsArray.length === 0) sellsContainer.innerHTML = `<div class="text-[9px] text-muted text-center italic py-2">Syncing chain...</div>`;
+            else sellsContainer.innerHTML = topSellsArray.map(t => `<div class="flex justify-between items-center text-[10px] font-mono"><span class="text-white">${t.qty.toFixed(ui.price<1?0:4)} <span class="text-[8px] text-muted">${ui.pair.replace('USDT','')}</span></span><span class="text-pink-400 font-black">$${t.usdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>`).join('');
+        }
+
+        function renderTopHolders() {
+            const isBtc = ui.pair.includes('BTC');
+            const holders = [
+                {addr: "0x3f9A...8cA1", pct: isBtc?"1.54%":"4.20%"},
+                {addr: "0x88bC...11C9", pct: isBtc?"1.12%":"3.81%"},
+                {addr: "0x1aF2...E4F2", pct: isBtc?"0.89%":"2.11%"},
+                {addr: "0x7cE4...00B1", pct: isBtc?"0.76%":"1.95%"},
+                {addr: "0x99D1...FA00", pct: isBtc?"0.45%":"1.50%"}
+            ];
+            document.getElementById('ui-top-holders').innerHTML = holders.map(h => `<div class="flex justify-between items-center text-[10px] font-mono py-0.5"><span class="text-muted hover:text-purple-400 cursor-pointer transition">${h.addr}</span><span class="text-purple-400 font-black bg-purple-900/30 px-1 rounded">${h.pct}</span></div>`).join('');
+        }
+
         function connectMultiStream() {
             let streamSet = new Set(['btcusdt@ticker', 'ethusdt@ticker', 'solusdt@ticker', 'xrpusdt@ticker', 'dogeusdt@ticker', 'adausdt@ticker']);
             for(const coin of Object.keys(state.manualAssets)) streamSet.add((coin+'USDT').toLowerCase() + '@ticker');
@@ -853,10 +1053,21 @@ return "NEUTRAL";`;
                     const price = parseFloat(data.p), qty = parseFloat(data.q);
                     const isBuy = !data.m, usdVal = price * qty;
                     
-                    if(isBuy) flowData.buy += usdVal; else flowData.sell += usdVal;
-                    updateRatioBar();
+                    if(isBuy) {
+                        flowData.buy += usdVal;
+                        topBuysArray.push({qty, price, usdVal});
+                        topBuysArray.sort((a,b) => b.usdVal - a.usdVal);
+                        if(topBuysArray.length > 5) topBuysArray.pop();
+                    } else {
+                        flowData.sell += usdVal;
+                        topSellsArray.push({qty, price, usdVal});
+                        topSellsArray.sort((a,b) => b.usdVal - a.usdVal);
+                        if(topSellsArray.length > 5) topSellsArray.pop();
+                    }
                     
+                    updateRatioBar();
                     addLogFeed(isBuy, qty, price);
+                    renderOnChainAlpha(); // Refresh the On-Chain UI
 
                     if(usdVal >= 25000) { 
                         spawnBottomLeftPopup(isBuy, qty, price, usdVal);
@@ -895,7 +1106,6 @@ return "NEUTRAL";`;
             el.innerHTML = `<div class="flex justify-between items-center gap-3"><span class="text-[8px] font-mono opacity-80">${addr}</span><span class="text-[10px] uppercase">${isBuy?'WHALE BUY':'WHALE SELL'}</span></div><div class="text-[11px] font-mono mt-0.5">${qty.toFixed(4)} @ $${price.toLocaleString()}</div>`;
             
             container.prepend(el);
-            
             if(container.children.length > 8) container.removeChild(container.lastChild);
             
             setTimeout(() => {
@@ -1005,7 +1215,7 @@ return "NEUTRAL";`;
             
             const exec = document.getElementById('btn-execute');
             exec.innerText = side==='buy'?"Execute Long":"Execute Short";
-            exec.className = side==='buy'?"mt-auto w-full py-4 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 transition active:scale-95" : "mt-auto w-full py-4 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-pink-500 text-[#05020a] hover:bg-pink-400 transition active:scale-95";
+            exec.className = side==='buy'?"mt-4 w-full py-4 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 transition active:scale-95" : "mt-4 w-full py-4 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-pink-500 text-[#05020a] hover:bg-pink-400 transition active:scale-95";
         }
 
         document.getElementById('trade-lev').addEventListener('input', (e) => { ui.lev = parseInt(e.target.value); document.getElementById('lev-val').innerText = ui.lev; calcSize(); });
@@ -1086,10 +1296,11 @@ return "NEUTRAL";`;
             if(n && a) { state.manualAssets[n] = a; document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); }
         }
         function updateUI() { document.getElementById('ui-avail').innerText = state.usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; }
-        function saveState() { localStorage.setItem('cloud_state_v13', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
+        function saveState() { localStorage.setItem('cloud_state_v14', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
 
-        // --- 7. DCA BOT LOGIC ---
+        // --- 7. REAL-TIME DCA & SNIPER ENGINE ---
         function deployBot() {
+            const dropVal = parseFloat(document.getElementById('bot-drop').value) || 2.5;
             const bot = {
                 id: Math.random().toString(36).substr(2, 9),
                 name: document.getElementById('bot-name').value || "Unnamed Bot",
@@ -1098,8 +1309,10 @@ return "NEUTRAL";`;
                 lev: parseFloat(document.getElementById('bot-lev').value) || 1,
                 maxTx: parseInt(document.getElementById('bot-max-tx').value) || 1,
                 maxCap: parseFloat(document.getElementById('bot-max-cap').value) || 0,
+                dropPercent: dropVal, // Explicitly mapped for Standard DCA logic
                 code: document.getElementById('code-editor').value,
-                activeTxs: [], closedTxs: [], realizedPnl: 0
+                activeTxs: [], closedTxs: [], realizedPnl: 0,
+                state: null // Persistent memory for the bot logic
             };
             if(bot.size <= 0) return alert("Invalid size");
             state.bots.push(bot);
@@ -1125,7 +1338,7 @@ return "NEUTRAL";`;
                 <div class="bg-[#05020a]/80 p-4 rounded border border-purple-900/40 cursor-pointer hover:border-purple-500 transition" onclick="openBotDetails('${b.id}')">
                     <div class="flex justify-between items-center mb-3">
                         <span class="text-xs font-black text-white uppercase">${b.name}</span>
-                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                     </div>
                     <div class="flex justify-between items-end">
                         <div class="flex flex-col">
@@ -1160,8 +1373,9 @@ return "NEUTRAL";`;
             const b = state.bots.find(x => x.id === activeBotViewId);
             if(b) {
                 b.code = document.getElementById('bot-modal-code').value;
+                b.state = null; // reset state memory if logic changes
                 saveState();
-                alert("Bot logic updated successfully.");
+                alert("Live logic updated successfully.");
             }
         }
 
@@ -1203,24 +1417,47 @@ return "NEUTRAL";`;
         }
 
         function tickBots(symbol, price) {
+            // Live Sandbox Execution Engine for custom bot JS
+            let globalRsi = parseFloat(document.getElementById('ai-rsi').innerText) || 50;
+            let currentVol = (flowData.buy + flowData.sell) || 10000;
+            let currentATH = document.getElementById('stat-high').innerText ? parseFloat(document.getElementById('stat-high').innerText.replace(/,/g, '')) : price * 1.05;
+
             state.bots.forEach(b => {
-                if(b.asset === symbol) {
-                    
-                    if(Math.random() < 0.02 && b.activeTxs.length < b.maxTx) {
-                        let currentCap = b.activeTxs.reduce((sum, t) => sum + t.size, 0);
-                        if((currentCap + b.size) <= b.maxCap) {
-                            b.activeTxs.push({ side: Math.random()>0.5?'buy':'sell', size: b.size, entry: price });
-                        }
-                    }
-                    if(Math.random() < 0.05 && b.activeTxs.length > 0) {
-                        let tx = b.activeTxs.shift();
-                        let pnl = tx.side === 'buy' ? ((tx.size/tx.entry * price) - tx.size) : (tx.size - (tx.size/tx.entry * price));
-                        b.realizedPnl += pnl;
-                        b.closedTxs.unshift({ side: tx.side, size: tx.size, result: pnl });
-                        if(b.closedTxs.length > 20) b.closedTxs.pop();
+                if(b.asset === symbol && b.code) {
+                    try {
+                        let executeMarket = (opts) => { b.activeTxs.push({ side: opts.side, size: opts.size, entry: price, lev: opts.lev || 1 }); };
+                        let closeAllPositions = () => {
+                            b.activeTxs.forEach(tx => {
+                                let pnl = tx.side === 'buy' ? ((tx.size/tx.entry * price) - tx.size) : (tx.size - (tx.size/tx.entry * price));
+                                b.realizedPnl += pnl;
+                                b.closedTxs.unshift({ side: tx.side, size: tx.size, result: pnl });
+                                if(b.closedTxs.length > 20) b.closedTxs.pop();
+                            });
+                            b.activeTxs = [];
+                        };
+                        let getOpenExposure = () => b.activeTxs.reduce((sum, t) => sum + t.size, 0);
+                        let getOpenPnL = () => {
+                            let p = 0;
+                            b.activeTxs.forEach(t => { p += t.side === 'buy' ? ((t.size/t.entry * price) - t.size) : (t.size - (t.size/t.entry * price)); });
+                            return p;
+                        };
+                        let getAverageEntry = () => b.activeTxs.length ? b.activeTxs.reduce((sum, t) => sum + t.entry, 0)/b.activeTxs.length : 0;
+                        let setTrailingStop = (pct) => {}; // Hook for backend logic mapping
+                        let setStopLoss = (pct) => {}; // Hook for backend logic mapping
+                        let setTakeProfit = (pct) => {}; // Hook for backend logic mapping
+                        let log = (msg) => console.log(`[Bot: ${b.name}]`, msg);
+                        
+                        let fnBody = b.code + `\n\nif(typeof onTick === 'function') { onTick(price, rsi, volume); }`;
+                        let botFn = new Function('price', 'rsi', 'volume', 'bot', 'executeMarket', 'closeAllPositions', 'getOpenExposure', 'getOpenPnL', 'getAverageEntry', 'setTrailingStop', 'setStopLoss', 'setTakeProfit', 'log', 'ATH', fnBody);
+                        
+                        botFn(price, globalRsi, currentVol, b, executeMarket, closeAllPositions, getOpenExposure, getOpenPnL, getAverageEntry, setTrailingStop, setStopLoss, setTakeProfit, log, currentATH);
+
+                    } catch(e) {
+                        console.error(`Runtime Error in Bot [${b.name}]:`, e);
                     }
                 }
             });
+            
             if(document.getElementById('app-bot').style.display === 'block') renderBots();
             if(activeBotViewId) {
                 const b = state.bots.find(x => x.id === activeBotViewId);
