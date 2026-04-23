@@ -146,11 +146,11 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-6 mt-4 z-10 border-b border-purple-900/20 pb-3">
-                            <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">24h High</span><p class="text-xs font-mono text-green-400 font-black" id="stat-high">--</p></div>
-                            <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">24h Low</span><p class="text-xs font-mono text-pink-400 font-black" id="stat-low">--</p></div>
-                            <div class="flex-grow flex justify-end items-end pointer-events-none">
-                                <h2 id="main-price" class="text-4xl md:text-5xl font-black text-white font-mono tracking-tighter leading-none">--</h2>
+                        <div class="flex gap-3 sm:gap-6 mt-4 z-10 border-b border-purple-900/20 pb-3 overflow-hidden items-end">
+                            <div class="flex flex-col shrink-0"><span class="text-[9px] text-muted uppercase tracking-widest">24h High</span><p class="text-xs font-mono text-green-400 font-black" id="stat-high">--</p></div>
+                            <div class="flex flex-col shrink-0"><span class="text-[9px] text-muted uppercase tracking-widest">24h Low</span><p class="text-xs font-mono text-pink-400 font-black" id="stat-low">--</p></div>
+                            <div class="flex-grow flex justify-end items-end pointer-events-none min-w-0">
+                                <h2 id="main-price" class="text-2xl sm:text-3xl md:text-5xl font-black text-white font-mono tracking-tighter leading-none truncate text-right max-w-full">--</h2>
                             </div>
                         </div>
 
@@ -584,7 +584,7 @@ if (score < -1.5) return "STRONG SELL";
 if (score < 0) return "SELL";
 return "NEUTRAL";`;
 
-        let state = JSON.parse(localStorage.getItem('cloud_state_v11')) || {
+        let state = JSON.parse(localStorage.getItem('cloud_state_v12')) || {
             usdtBalance: 10000.00, startOfDayValue: 10000.00, orders: [], history: [], manualAssets: { 'BTC': 0.1 }, bots: [], aiLogic: defaultAI
         };
         
@@ -745,7 +745,6 @@ return "NEUTRAL";`;
             
             chartCtx.clearRect(0, 0, w, h);
             
-            // SIGNIFICANTLY expanded the right padding so large numbers ($65,000.00) never breach the edge
             const padYBottom = 20, padXRight = 100; 
             const gW = w - padXRight, gH = h - padYBottom;
             
@@ -785,7 +784,6 @@ return "NEUTRAL";`;
             chartCtx.lineJoin = 'round';
             chartCtx.stroke();
             
-            // Dynamic text width calculation to prevent layout bleeding
             function drawPriceTag(yPos, priceVal) {
                 let tagY = Math.max(10, Math.min(gH - 10, yPos));
                 let priceText = priceVal >= 1000 ? priceVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : priceVal.toFixed(minPrice<1?6:2);
@@ -1086,7 +1084,7 @@ return "NEUTRAL";`;
             if(n && a) { state.manualAssets[n] = a; document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); }
         }
         function updateUI() { document.getElementById('ui-avail').innerText = state.usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; }
-        function saveState() { localStorage.setItem('cloud_state_v11', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
+        function saveState() { localStorage.setItem('cloud_state_v12', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
 
         // --- 7. DCA BOT LOGIC ---
         function deployBot() {
