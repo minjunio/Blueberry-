@@ -584,7 +584,7 @@ if (score < -1.5) return "STRONG SELL";
 if (score < 0) return "SELL";
 return "NEUTRAL";`;
 
-        let state = JSON.parse(localStorage.getItem('cloud_state_v10')) || {
+        let state = JSON.parse(localStorage.getItem('cloud_state_v11')) || {
             usdtBalance: 10000.00, startOfDayValue: 10000.00, orders: [], history: [], manualAssets: { 'BTC': 0.1 }, bots: [], aiLogic: defaultAI
         };
         
@@ -689,7 +689,7 @@ return "NEUTRAL";`;
             </div>`;
         }
 
-        // --- 3. HIGH RES SHARP CANVAS ENGINE (CLAMPED BOUNDS) ---
+        // --- 3. HIGH RES SHARP CANVAS ENGINE (DYNAMIC WIDTH FIX) ---
         function setupCanvas() {
             const container = document.getElementById('canvas-container');
             const canvas = document.getElementById('custom-chart');
@@ -745,7 +745,6 @@ return "NEUTRAL";`;
             
             chartCtx.clearRect(0, 0, w, h);
             
-            // Forced strict box width allocation on the right edge so numbers cannot clip
             const padYBottom = 20, padXRight = 85; 
             const gW = w - padXRight, gH = h - padYBottom;
             
@@ -758,13 +757,15 @@ return "NEUTRAL";`;
             chartCtx.lineWidth = 1;
             chartCtx.fillStyle = '#8b839e';
             chartCtx.font = '9px monospace';
-            chartCtx.textAlign = 'left';
+            
+            // Align grid text to the absolute right side so it never overflows
+            chartCtx.textAlign = 'right'; 
             chartCtx.textBaseline = 'middle';
             
             for(let i=0; i<=4; i++) {
                 const yPos = (i / 4) * gH;
                 chartCtx.beginPath(); chartCtx.moveTo(0, yPos); chartCtx.lineTo(gW, yPos); chartCtx.stroke();
-                chartCtx.fillText((maxPrice - (i / 4) * range).toFixed(minPrice<1?4:1), gW + 4, yPos);
+                chartCtx.fillText((maxPrice - (i / 4) * range).toFixed(minPrice<1?6:2), w - 5, yPos);
             }
             
             chartCtx.beginPath();
@@ -781,16 +782,21 @@ return "NEUTRAL";`;
             chartCtx.lineJoin = 'round';
             chartCtx.stroke();
             
-            // Draw box exactly to the canvas right edge
+            // Draw box dynamically anchoring from the right edge `w` extending inward
             function drawPriceTag(yPos, priceVal) {
                 let tagY = Math.max(10, Math.min(gH - 10, yPos));
-                let priceText = priceVal.toFixed(minPrice<1?6:2); // handled small coins too
+                let priceText = priceVal.toFixed(minPrice<1?6:2); 
 
                 chartCtx.font = 'bold 11px monospace';
+                let textWidth = chartCtx.measureText(priceText).width;
+                let boxWidth = Math.max(padXRight, textWidth + 12); 
+                
                 chartCtx.fillStyle = '#a78bfa';
-                chartCtx.fillRect(gW, tagY - 11, padXRight, 22);
+                chartCtx.fillRect(w - boxWidth, tagY - 11, boxWidth, 22);
+                
                 chartCtx.fillStyle = '#05020a'; 
-                chartCtx.fillText(priceText, gW + 5, tagY);
+                chartCtx.textAlign = 'right';
+                chartCtx.fillText(priceText, w - 6, tagY);
             }
 
             if(canvasHoverPos !== null && canvasHoverPos <= gW) {
@@ -1078,7 +1084,7 @@ return "NEUTRAL";`;
             if(n && a) { state.manualAssets[n] = a; document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); }
         }
         function updateUI() { document.getElementById('ui-avail').innerText = state.usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; }
-        function saveState() { localStorage.setItem('cloud_state_v10', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
+        function saveState() { localStorage.setItem('cloud_state_v11', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
 
         // --- 7. DCA BOT LOGIC ---
         function deployBot() {
