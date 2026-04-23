@@ -6,213 +6,226 @@
     <%- include('partials/head') %>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
-        /* Exact Rainbet/Admin Casino Theme */
-        body { background: #06090e; color: #f8fafc; font-family: 'Inter', sans-serif; transition: background-color 0.3s; }
-        .casino-panel { background: #0d131f; border: 1px solid #1f2937; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border-radius: 1rem; }
+        /* Pro Casino Dark Theme */
+        body { background: #06090e; color: #f8fafc; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        .casino-panel { background: #0d131f; border: 1px solid #1f2937; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 1rem; }
         .casino-input { background: #06090e; border: 1px solid #1f2937; color: white; outline: none; transition: 0.2s; }
-        .casino-input:focus { border-color: #00ffaa; }
-        .casino-btn { background: #1f2937; border: 1px solid #374151; color: white; transition: 0.2s; }
+        .casino-input:focus { border-color: #00ffaa; box-shadow: 0 0 10px rgba(0,255,170,0.2); }
+        .casino-btn { background: #1f2937; border: 1px solid #374151; color: white; transition: 0.2s; cursor: pointer; }
         .casino-btn:hover { background: #374151; }
         .text-muted { color: #6b7280; }
         
         /* Dramatic Market Effects */
         @keyframes flashGreen {
-            0% { box-shadow: inset 0 0 60px rgba(0, 255, 170, 0.15), 0 0 20px rgba(0, 255, 170, 0.2); border-color: rgba(0, 255, 170, 0.5); }
+            0% { box-shadow: inset 0 0 80px rgba(0, 255, 170, 0.15), 0 0 20px rgba(0, 255, 170, 0.2); border-color: rgba(0, 255, 170, 0.5); }
             100% { box-shadow: inset 0 0 0 transparent; border-color: #1f2937; }
         }
         @keyframes flashRed {
-            0% { box-shadow: inset 0 0 60px rgba(239, 68, 68, 0.15), 0 0 20px rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); }
+            0% { box-shadow: inset 0 0 80px rgba(239, 68, 68, 0.15), 0 0 20px rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); }
             100% { box-shadow: inset 0 0 0 transparent; border-color: #1f2937; }
         }
         .anim-pump { animation: flashGreen 0.6s ease-out; }
         .anim-dump { animation: flashRed 0.6s ease-out; }
 
-        .text-pump { color: #00ffaa !important; text-shadow: 0 0 15px rgba(0,255,170,0.5); }
-        .text-dump { color: #ef4444 !important; text-shadow: 0 0 15px rgba(239,68,68,0.5); }
+        .text-pump { color: #00ffaa !important; text-shadow: 0 0 20px rgba(0,255,170,0.6); }
+        .text-dump { color: #ef4444 !important; text-shadow: 0 0 20px rgba(239,68,68,0.6); }
 
-        /* Custom UI */
-        .tab-active { background: #00ffaa !important; color: #06090e !important; border-color: #00ffaa !important; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+        /* Custom Scrollbar & Inputs */
+        .no-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .no-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .no-scrollbar::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
         
-        /* Range Slider */
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
         input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #00ffaa; cursor: pointer; margin-top: -6px; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #374151; border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #00ffaa; cursor: pointer; box-shadow: 0 0 10px #00ffaa; margin-top: -7px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #374151; border-radius: 2px; cursor: pointer; }
+
+        /* Portfolio Modal Transition */
+        #portfolio-modal { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s; }
+        .modal-hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
+        .modal-active { transform: translateX(0); opacity: 1; pointer-events: auto; }
     </style>
 </head>
-<body class="p-3 md:p-6 h-screen flex flex-col">
+<body>
 
-    <div class="max-w-[1600px] mx-auto w-full flex-grow flex flex-col relative z-10">
+    <header class="flex justify-between items-center p-3 md:p-4 bg-[#0d131f] border-b border-[#1f2937] shrink-0 z-50">
+        <div class="flex items-center gap-3">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 5 12 2 12 2C12 2 2 5 2 12C2 17.5228 6.47715 22 12 22Z" fill="#00ffaa"/><path d="M12 16C13.6569 16 15 14.6569 15 13C15 11.3431 12 8 12 8C12 8 9 11.3431 9 13C9 14.6569 10.3431 16 12 16Z" fill="#06090e"/></svg>
+            <h2 class="text-lg md:text-xl font-black uppercase tracking-tighter text-white">Pro Terminal</h2>
+        </div>
         
-        <div class="flex justify-between items-center mb-4 shrink-0 bg-[#0d131f] border border-[#1f2937] p-3 md:p-4 rounded-2xl shadow-lg">
-            <div class="flex items-center gap-3">
-                <svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 5 12 2 12 2C12 2 2 5 2 12C2 17.5228 6.47715 22 12 22Z" fill="#00ffaa"/><path d="M12 16C13.6569 16 15 14.6569 15 13C15 11.3431 12 8 12 8C12 8 9 11.3431 9 13C9 14.6569 10.3431 16 12 16Z" fill="#06090e"/></svg>
-                <h2 class="text-xl md:text-2xl font-black uppercase tracking-tighter text-white">Pro Terminal</h2>
-            </div>
+        <div class="flex items-center gap-2">
+            <a href="/admin" class="casino-btn px-3 md:px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition hover:text-[#00ffaa] hidden sm:block">Exit Node</a>
+            <button onclick="togglePortfolio()" class="bg-[#00ffaa] text-[#06090e] px-4 md:px-6 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-[0_0_15px_rgba(0,255,170,0.2)] hover:scale-105 transition flex items-center gap-2">
+                <svg class="w-4 h-4 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                Portfolio <span id="hdr-bal" class="ml-1 opacity-80">$0.00</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col lg:flex-row p-2 md:p-4 gap-4 overflow-hidden relative">
+        
+        <div class="flex-grow flex flex-col gap-4 overflow-hidden">
             
-            <div class="flex gap-2 bg-[#06090e] p-1 rounded-xl border border-[#1f2937]">
-                <button onclick="switchTab('wallet')" id="btn-wallet" class="px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest casino-btn">Portfolio</button>
-                <button onclick="switchTab('trading')" id="btn-trading" class="px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest casino-btn tab-active">Trading</button>
+            <div id="chart-wrap" class="casino-panel flex-grow relative flex flex-col min-h-[40vh] transition-all duration-300 overflow-hidden">
+                <div class="absolute top-4 left-4 z-10 flex flex-col pointer-events-none">
+                    <select id="symbol-select" onchange="initFeeds()" class="casino-input px-3 py-1.5 rounded-lg text-lg font-black uppercase cursor-pointer appearance-none pointer-events-auto w-fit shadow-lg bg-[#0d131f]/90 border border-[#1f2937]">
+                        <option value="BTC-USD">BTC / USDT</option>
+                        <option value="ETH-USD">ETH / USDT</option>
+                        <option value="SOL-USD">SOL / USDT</option>
+                        <option value="DOGE-USD">DOGE / USDT</option>
+                        <option value="XRP-USD">XRP / USDT</option>
+                    </select>
+                    <h2 id="live-price" class="text-3xl md:text-5xl font-black text-white mt-1 transition-colors duration-200 tracking-tight font-mono">Syncing...</h2>
+                </div>
+                <div id="tvchart" class="w-full h-full mt-24"></div>
             </div>
 
-            <a href="/admin" class="casino-btn px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition hover:text-[#00ffaa]">Exit Node</a>
+            <div class="casino-panel h-[35vh] flex flex-col shrink-0">
+                <div class="flex justify-between items-center p-3 md:p-4 border-b border-[#1f2937] bg-[#06090e]/50">
+                    <h3 class="text-[10px] font-black uppercase tracking-widest text-[#00ffaa]">Active Market Positions</h3>
+                    <span class="text-[10px] font-bold text-muted bg-[#1f2937] px-2 py-1 rounded">Live WS Feed</span>
+                </div>
+                <div class="flex-grow overflow-auto no-scrollbar">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead class="sticky top-0 bg-[#0d131f] shadow-sm z-10">
+                            <tr class="text-[9px] font-black uppercase tracking-widest text-muted border-b border-[#1f2937]">
+                                <th class="p-3">Asset</th>
+                                <th class="p-3">Side</th>
+                                <th class="p-3">Leverage</th>
+                                <th class="p-3">Margin</th>
+                                <th class="p-3">Entry</th>
+                                <th class="p-3 text-right">Live ROI</th>
+                                <th class="p-3 text-center">Execute</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-body" class="text-xs font-bold text-slate-300 font-mono">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
-        <div class="flex-grow relative overflow-hidden">
+        <div class="casino-panel lg:w-[350px] xl:w-[400px] shrink-0 p-4 md:p-6 flex flex-col overflow-y-auto no-scrollbar">
+            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-[#1f2937] pb-2">Execution Protocol</h3>
             
-            <div id="tab-wallet" class="absolute inset-0 hidden overflow-y-auto no-scrollbar">
-                <div class="casino-panel p-8 md:p-12 mb-6 relative overflow-hidden">
-                    <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-[#00ffaa]/10 rounded-full blur-[80px]"></div>
-                    <p class="text-[10px] font-black text-[#00ffaa] uppercase tracking-widest mb-2">Total Node Equity</p>
-                    <h2 class="text-5xl md:text-6xl font-black tracking-tight text-white mb-2" id="wallet-total">$88,000.00</h2>
-                    <p class="text-xs font-bold text-muted">Available Liquidity: <span class="text-white" id="wallet-avail">88000.00</span> USDT</p>
+            <div class="flex gap-2 bg-[#06090e] p-1 border border-[#1f2937] rounded-xl mb-6 shrink-0">
+                <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest bg-[#00ffaa] text-[#06090e] shadow-[0_0_10px_rgba(0,255,170,0.3)] transition">Long</button>
+                <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-muted hover:text-red-500 transition">Short</button>
+            </div>
+
+            <div class="space-y-6 flex-grow">
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USDT)</label>
+                        <span class="text-[10px] font-black text-[#00ffaa] cursor-pointer hover:underline" onclick="setMax()">MAX</span>
+                    </div>
+                    <input type="number" id="trade-margin" placeholder="0.00" class="w-full casino-input p-4 rounded-xl text-xl font-black font-mono">
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="casino-panel p-5 flex flex-col justify-between hover:border-[#00ffaa]/50 transition">
-                        <div class="flex justify-between items-start mb-4">
-                            <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029" class="w-8 h-8 rounded-full shadow-lg">
-                            <span class="text-[10px] font-black uppercase text-muted">Tether</span>
-                        </div>
-                        <h4 class="text-xl font-black text-white" id="wallet-usdt-display">88,000.00</h4>
+                <div>
+                    <div class="flex justify-between mb-3">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Leverage Factor</label>
+                        <span class="text-[10px] font-black text-white bg-[#1f2937] px-2 py-0.5 rounded"><span id="lev-val">10</span>x</span>
                     </div>
-                    <div class="casino-panel p-5 flex flex-col justify-between opacity-50">
-                        <div class="flex justify-between items-start mb-4">
-                            <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-8 h-8 rounded-full shadow-lg filter grayscale">
-                            <span class="text-[10px] font-black uppercase text-muted">Bitcoin</span>
-                        </div>
-                        <h4 class="text-xl font-black text-white">0.000</h4>
+                    <input type="range" id="trade-lev" min="1" max="100" value="10" class="w-full">
+                    <div class="flex justify-between text-[9px] font-black text-muted mt-2">
+                        <span>1x</span><span>25x</span><span>50x</span><span>75x</span><span>100x</span>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-[#06090e] border border-[#1f2937] rounded-xl space-y-3">
+                    <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                        <span class="text-muted">Available</span>
+                        <span class="text-white font-mono"><span id="ui-avail">88000.00</span> USDT</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-black uppercase tracking-widest border-t border-[#1f2937] pt-2">
+                        <span class="text-muted">Position Size</span>
+                        <span class="text-[#00ffaa] font-mono"><span id="ui-size">0.00</span> USDT</span>
                     </div>
                 </div>
             </div>
 
-            <div id="tab-trading" class="absolute inset-0 flex flex-col lg:flex-row gap-4 h-full overflow-y-auto lg:overflow-hidden pb-4">
-                
-                <div class="flex-grow flex flex-col gap-4 lg:w-2/3 h-full">
-                    
-                    <div id="chart-wrap" class="casino-panel flex-grow relative flex flex-col min-h-[40vh] transition-all duration-300 overflow-hidden">
-                        
-                        <div class="absolute top-4 left-4 z-10 flex flex-col pointer-events-none">
-                            <div class="flex items-center gap-2 pointer-events-auto">
-                                <select id="symbol-select" onchange="initFeeds()" class="casino-input px-3 py-1.5 rounded-lg text-lg font-black uppercase cursor-pointer appearance-none">
-                                    <option value="BTCUSDT">BTC/USDT</option>
-                                    <option value="ETHUSDT">ETH/USDT</option>
-                                    <option value="SOLUSDT">SOL/USDT</option>
-                                    <option value="DOGEUSDT">DOGE/USDT</option>
-                                </select>
-                            </div>
-                            <h2 id="live-price" class="text-4xl font-black text-white mt-1 transition-colors duration-200">Loading...</h2>
-                        </div>
+            <button onclick="executeOrder()" id="btn-execute" class="mt-6 w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] text-xs bg-[#00ffaa] text-[#06090e] hover:bg-[#00d68f] shadow-[0_0_20px_rgba(0,255,170,0.3)] transition active:scale-95 shrink-0">
+                Execute Long
+            </button>
+        </div>
+    </main>
 
-                        <div id="tvchart" class="w-full h-full mt-20"></div>
-                    </div>
+    <div id="portfolio-modal" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-[#0d131f] border-l border-[#1f2937] shadow-[-20px_0_50px_rgba(0,0,0,0.8)] z-[100] modal-hidden flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b border-[#1f2937] bg-[#06090e]">
+            <h2 class="text-xl font-black uppercase tracking-widest text-white flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#00ffaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                Portfolio
+            </h2>
+            <button onclick="togglePortfolio()" class="text-muted hover:text-white transition">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <div class="p-6 flex-grow overflow-y-auto no-scrollbar">
+            <div class="bg-[#06090e] border border-[#1f2937] p-6 rounded-2xl mb-8 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-[#00ffaa]/10 rounded-full blur-[50px]"></div>
+                <p class="text-[10px] font-black text-[#00ffaa] uppercase tracking-widest mb-1">Total Net Equity</p>
+                <h2 class="text-4xl font-black tracking-tight text-white mb-2 font-mono" id="wallet-total">$88,000.00</h2>
+                <p class="text-xs font-bold text-muted font-mono" id="wallet-pnl">Unrealized PNL: $0.00</p>
+            </div>
 
-                    <div class="casino-panel h-[35vh] flex flex-col shrink-0">
-                        <div class="flex justify-between items-center p-4 border-b border-[#1f2937] bg-[#06090e]/50">
-                            <h3 class="text-[10px] font-black uppercase tracking-widest text-[#00ffaa]">Active Contracts</h3>
-                            <span class="text-[10px] font-bold text-muted">Live ROI Updates via WebSocket</span>
-                        </div>
-                        <div class="flex-grow overflow-auto no-scrollbar p-0">
-                            <table class="w-full text-left border-collapse min-w-[600px]">
-                                <thead class="sticky top-0 bg-[#0d131f] shadow-sm">
-                                    <tr class="text-[9px] font-black uppercase tracking-widest text-muted border-b border-[#1f2937]">
-                                        <th class="p-3">Asset</th>
-                                        <th class="p-3">Side</th>
-                                        <th class="p-3">Lev</th>
-                                        <th class="p-3">Margin</th>
-                                        <th class="p-3">Entry</th>
-                                        <th class="p-3 text-right">Live ROI</th>
-                                        <th class="p-3 text-center">Execute</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="orders-body" class="text-xs font-bold text-slate-300">
-                                    </tbody>
-                            </table>
+            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-[#1f2937] pb-2">Spot Assets</h3>
+            
+            <div class="space-y-3">
+                <div class="bg-[#06090e] border border-[#1f2937] p-4 rounded-xl flex justify-between items-center hover:border-[#00ffaa]/50 transition cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029" class="w-8 h-8 rounded-full">
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-white">Tether</p>
+                            <p class="text-[10px] font-bold text-muted">USDT</p>
                         </div>
                     </div>
+                    <h4 class="text-lg font-black text-white font-mono" id="wallet-usdt-display">88,000.00</h4>
                 </div>
 
-                <div class="casino-panel lg:w-[340px] shrink-0 p-5 flex flex-col h-full">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-[#1f2937] pb-2">Order Execution</h3>
-                    
-                    <div class="flex gap-2 bg-[#06090e] p-1 border border-[#1f2937] rounded-xl mb-6 shrink-0">
-                        <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest bg-[#00ffaa] text-[#06090e] shadow-[0_0_10px_rgba(0,255,170,0.3)] transition">Long</button>
-                        <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-muted hover:text-red-500 transition">Short</button>
-                    </div>
-
-                    <div class="space-y-6 flex-grow overflow-y-auto no-scrollbar">
-                        
+                <div class="bg-[#06090e] border border-[#1f2937] p-4 rounded-xl flex justify-between items-center opacity-50">
+                    <div class="flex items-center gap-3">
+                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-8 h-8 rounded-full filter grayscale">
                         <div>
-                            <div class="flex justify-between mb-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USDT)</label>
-                                <span class="text-[10px] font-black text-[#00ffaa] cursor-pointer hover:underline" onclick="setMax()">MAX</span>
-                            </div>
-                            <input type="number" id="trade-margin" placeholder="0.00" class="w-full casino-input p-4 rounded-xl text-xl font-black">
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between mb-3">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-muted">Leverage</label>
-                                <span class="text-[10px] font-black text-white"><span id="lev-val">10</span>x</span>
-                            </div>
-                            <input type="range" id="trade-lev" min="1" max="100" value="10" class="w-full">
-                            <div class="flex justify-between text-[9px] font-black text-muted mt-2">
-                                <span>1x</span><span>50x</span><span>100x</span>
-                            </div>
-                        </div>
-
-                        <div class="p-4 bg-[#06090e] border border-[#1f2937] rounded-xl space-y-2">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                                <span class="text-muted">Available</span>
-                                <span class="text-white"><span id="ui-avail">88000.00</span> USDT</span>
-                            </div>
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                                <span class="text-muted">Total Size</span>
-                                <span class="text-blue-400"><span id="ui-size">0.00</span> USDT</span>
-                            </div>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-white">Bitcoin</p>
+                            <p class="text-[10px] font-bold text-muted">BTC</p>
                         </div>
                     </div>
-
-                    <button onclick="executeOrder()" id="btn-execute" class="mt-4 w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] text-xs bg-[#00ffaa] text-[#06090e] hover:bg-[#00d68f] shadow-[0_0_20px_rgba(0,255,170,0.3)] transition active:scale-95 shrink-0">
-                        Open Long
-                    </button>
+                    <h4 class="text-lg font-black text-white font-mono">0.0000</h4>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. CORE DATA & PERSISTENCE ---
+        // --- 1. STATE MANAGEMENT ---
         let state = JSON.parse(localStorage.getItem('terminal_state')) || {
             balance: 88000.00,
             orders: []
         };
-        let ui = { side: 'buy', symbol: 'BTCUSDT', price: 0, lastPrice: 0, lev: 10 };
+        let ui = { side: 'buy', symbol: 'BTC-USD', price: 0, lastPrice: 0, lev: 10 };
 
         function saveState() {
             localStorage.setItem('terminal_state', JSON.stringify(state));
             updateWalletUI();
         }
 
-        // --- 2. TAB CONTROLS ---
-        function switchTab(tab) {
-            document.getElementById('btn-trading').classList.replace('tab-active', 'casino-btn');
-            document.getElementById('btn-wallet').classList.replace('tab-active', 'casino-btn');
-            document.getElementById(`btn-${tab}`).classList.add('tab-active');
-            
-            document.getElementById('tab-trading').style.display = tab === 'trading' ? 'flex' : 'none';
-            document.getElementById('tab-wallet').style.display = tab === 'wallet' ? 'block' : 'none';
-            
-            if(tab === 'trading') setTimeout(() => chart.timeScale().fitContent(), 50);
-            updateWalletUI();
+        function togglePortfolio() {
+            const modal = document.getElementById('portfolio-modal');
+            if (modal.classList.contains('modal-hidden')) {
+                modal.classList.replace('modal-hidden', 'modal-active');
+            } else {
+                modal.classList.replace('modal-active', 'modal-hidden');
+            }
         }
 
-        // --- 3. CHARTING (Lightweight Charts - Exact Theme Colors) ---
+        // --- 2. CHARTING INITIALIZATION ---
         const chartElement = document.getElementById('tvchart');
         const chart = LightweightCharts.createChart(chartElement, {
             layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#6b7280' },
-            grid: { vertLines: { color: 'rgba(31, 41, 55, 0.5)' }, horzLines: { color: 'rgba(31, 41, 55, 0.5)' } },
+            grid: { vertLines: { color: 'rgba(31, 41, 55, 0.4)' }, horzLines: { color: 'rgba(31, 41, 55, 0.4)' } },
             crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
             rightPriceScale: { borderColor: '#1f2937' },
             timeScale: { borderColor: '#1f2937', timeVisible: true }
@@ -228,7 +241,7 @@
             chart.applyOptions({ width: entries[0].contentRect.width, height: entries[0].contentRect.height });
         }).observe(chartElement);
 
-        // --- 4. GUARANTEED DATA FEEDS (Binance REST + WebSockets) ---
+        // --- 3. COINBASE ADVANCED API (Ultra Stable, No CORS, No Blocks) ---
         let ws;
         async function initFeeds() {
             ui.symbol = document.getElementById('symbol-select').value;
@@ -239,64 +252,69 @@
             if(ws) ws.close();
 
             try {
-                // 1. Fetch historical data so chart is never empty
-                const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${ui.symbol}&interval=1m&limit=100`);
+                // 1. Fetch REST History (Coinbase API)
+                const res = await fetch(`https://api.exchange.coinbase.com/products/${ui.symbol}/candles?granularity=60`);
                 if (!res.ok) throw new Error("REST API Failed");
                 const data = await res.json();
                 
+                // Format: [ timestamp, price_low, price_high, price_open, price_close ]
                 const history = data.map(d => ({
-                    time: d[0] / 1000,
-                    open: parseFloat(d[1]), high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4])
-                }));
+                    time: d[0], open: d[3], high: d[2], low: d[1], close: d[4]
+                })).reverse(); // Coinbase gives newest first, we need oldest first
+                
                 candleSeries.setData(history);
                 ui.price = history[history.length - 1].close;
                 priceEl.innerText = `$${ui.price.toFixed(2)}`;
 
             } catch (err) {
-                console.error("API Error, injecting simulated history.", err);
-                // Guaranteed Fallback: If network blocks Binance, generate a fake graph so UI works
-                let fakeHistory = [];
-                let p = 60000;
-                for(let i=100; i>0; i--) {
-                    let move = (Math.random()-0.5)*100;
-                    fakeHistory.push({ time: (Date.now()/1000) - (i*60), open: p, high: p+50, low: p-50, close: p+move });
-                    p += move;
-                }
-                candleSeries.setData(fakeHistory);
-                ui.price = p;
+                console.error("API Error - Network blocked?", err);
+                priceEl.innerText = "API Error";
+                // Simple offline fallback so UI doesn't break
+                candleSeries.setData([{time: Date.now()/1000, open: 100, high: 105, low: 95, close: 100}]);
+                ui.price = 100;
             }
 
-            // 2. Connect Binance WebSocket for live data
-            ws = new WebSocket(`wss://stream.binance.com:9443/ws/${ui.symbol.toLowerCase()}@kline_1m`);
+            // 2. Connect Coinbase WebSocket for pure live ticks
+            ws = new WebSocket("wss://ws-feed.exchange.coinbase.com");
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ type: "subscribe", product_ids: [ui.symbol], channels: ["ticker"] }));
+            };
+            
             ws.onmessage = (e) => {
-                const k = JSON.parse(e.data).k;
-                const newPrice = parseFloat(k.c);
-                
-                // Dramatic UI Flashes
-                if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
-                    wrapEl.classList.remove('anim-pump', 'anim-dump');
-                    priceEl.classList.remove('text-pump', 'text-dump');
-                    void wrapEl.offsetWidth; // Reflow
+                const data = JSON.parse(e.data);
+                if (data.type === 'ticker' && data.price) {
+                    const newPrice = parseFloat(data.price);
                     
-                    const isUp = newPrice > ui.lastPrice;
-                    wrapEl.classList.add(isUp ? 'anim-pump' : 'anim-dump');
-                    priceEl.classList.add(isUp ? 'text-pump' : 'text-dump');
+                    // Dramatic UI Flashes
+                    if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
+                        wrapEl.classList.remove('anim-pump', 'anim-dump');
+                        priceEl.classList.remove('text-pump', 'text-dump');
+                        void wrapEl.offsetWidth; // Force Reflow
+                        
+                        const isUp = newPrice > ui.lastPrice;
+                        wrapEl.classList.add(isUp ? 'anim-pump' : 'anim-dump');
+                        priceEl.classList.add(isUp ? 'text-pump' : 'text-dump');
+                    }
+                    
+                    ui.lastPrice = newPrice;
+                    ui.price = newPrice;
+                    const dec = newPrice < 10 ? 4 : 2;
+                    priceEl.innerText = `$${newPrice.toLocaleString(undefined, {minimumFractionDigits: dec})}`;
+
+                    // Update live candle safely
+                    try {
+                        candleSeries.update({
+                            time: new Date(data.time).getTime() / 1000, 
+                            open: newPrice, high: newPrice, low: newPrice, close: newPrice
+                        });
+                    } catch(e) {} // Ignore minor time sorting errors from fast ticks
+
+                    renderOrders(); // Update ROI instantly
                 }
-                
-                ui.lastPrice = newPrice;
-                ui.price = newPrice;
-                const dec = newPrice < 10 ? 4 : 2;
-                priceEl.innerText = `$${newPrice.toLocaleString(undefined, {minimumFractionDigits: dec})}`;
-
-                candleSeries.update({
-                    time: k.t / 1000, open: parseFloat(k.o), high: parseFloat(k.h), low: parseFloat(k.l), close: parseFloat(k.c)
-                });
-
-                renderOrders(); // Update ROI
             };
         }
 
-        // --- 5. EXECUTION PANEL ---
+        // --- 4. EXECUTION PANEL LOGIC ---
         function setSide(side) {
             ui.side = side;
             const bBuy = document.getElementById('btn-buy');
@@ -306,13 +324,13 @@
             if(side === 'buy') {
                 bBuy.className = "flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest bg-[#00ffaa] text-[#06090e] shadow-[0_0_10px_rgba(0,255,170,0.3)] transition";
                 bSell.className = "flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-muted hover:text-red-500 transition";
-                bExec.className = "mt-4 w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] text-xs bg-[#00ffaa] text-[#06090e] hover:bg-[#00d68f] shadow-[0_0_20px_rgba(0,255,170,0.3)] transition active:scale-95 shrink-0";
-                bExec.innerText = "Open Long";
+                bExec.className = "mt-6 w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] text-xs bg-[#00ffaa] text-[#06090e] hover:bg-[#00d68f] shadow-[0_0_20px_rgba(0,255,170,0.3)] transition active:scale-95 shrink-0";
+                bExec.innerText = "Execute Long";
             } else {
                 bSell.className = "flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest bg-red-500 text-white shadow-[0_0_10px_rgba(239,68,68,0.3)] transition";
                 bBuy.className = "flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-muted hover:text-[#00ffaa] transition";
-                bExec.className = "mt-4 w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] text-xs bg-red-500 text-white hover:bg-red-400 shadow-[0_0_20px_rgba(239,68,68,0.3)] transition active:scale-95 shrink-0";
-                bExec.innerText = "Open Short";
+                bExec.className = "mt-6 w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] text-xs bg-red-500 text-white hover:bg-red-400 shadow-[0_0_20px_rgba(239,68,68,0.3)] transition active:scale-95 shrink-0";
+                bExec.innerText = "Execute Short";
             }
         }
 
@@ -331,7 +349,7 @@
         }
 
         function setMax() {
-            marginInput.value = state.balance.toFixed(2);
+            marginInput.value = Math.floor(state.balance * 100) / 100;
             calcSize();
         }
 
@@ -341,8 +359,8 @@
             if (margin > state.balance) return alert("Insufficient USDT.");
 
             state.balance -= margin;
-            
             const totalSize = margin * ui.lev;
+            
             state.orders.push({
                 id: Math.random().toString(36).substr(2, 9),
                 symbol: ui.symbol,
@@ -359,45 +377,55 @@
             renderOrders();
         }
 
-        // --- 6. ROI & ORDER RENDERING ---
+        // --- 5. ROI & ORDERS TABLE ---
         function renderOrders() {
             const tbody = document.getElementById('orders-body');
+            let totalUnrealized = 0;
             
             if (state.orders.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-muted font-black uppercase tracking-widest text-xs">No Active Positions</td></tr>`;
+                document.getElementById('wallet-pnl').innerText = `Unrealized PNL: $0.00`;
+                document.getElementById('wallet-pnl').className = `text-xs font-bold text-muted font-mono`;
                 return;
             }
 
             let html = '';
             state.orders.forEach(order => {
                 let pnl = 0;
-                // Live PNL updates automatically if symbol matches the active websocket
+                // Update ROI if symbol matches active WS
                 if (order.symbol === ui.symbol) {
                     const currentVal = order.units * ui.price;
                     const initialVal = order.margin * order.lev;
                     pnl = order.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
                 }
+                totalUnrealized += pnl;
 
                 const roiPct = (pnl / order.margin) * 100;
                 const isProf = pnl >= 0;
                 const cColor = isProf ? 'text-[#00ffaa]' : 'text-red-500';
                 const sColor = order.side === 'buy' ? 'text-[#00ffaa] bg-[#00ffaa]/10' : 'text-red-500 bg-red-500/10';
+                const dispSymbol = order.symbol.replace('-USD', ''); // Format nicely for UI
                 
                 html += `
                     <tr class="border-b border-[#1f2937]/50 hover:bg-[#1f2937]/30 transition group">
-                        <td class="p-3 font-black text-white">${order.symbol}</td>
+                        <td class="p-3 font-black text-white">${dispSymbol}</td>
                         <td class="p-3"><span class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${sColor}">${order.side}</span></td>
                         <td class="p-3">${order.lev}x</td>
                         <td class="p-3">$${order.margin.toFixed(2)}</td>
                         <td class="p-3">$${order.entry.toFixed(4)}</td>
                         <td class="p-3 text-right ${cColor} font-black">${isProf?'+':''}$${pnl.toFixed(2)} (${isProf?'+':''}${roiPct.toFixed(2)}%)</td>
                         <td class="p-3 text-center">
-                            <button onclick="closeOrder('${order.id}')" class="px-3 py-2 bg-[#1f2937] hover:bg-white hover:text-black text-white rounded text-[9px] uppercase font-black transition">Close</button>
+                            <button onclick="closeOrder('${order.id}')" class="px-3 py-2 bg-[#1f2937] hover:bg-white hover:text-black text-white rounded text-[9px] uppercase font-black transition md:opacity-0 group-hover:opacity-100">Close</button>
                         </td>
                     </tr>
                 `;
             });
             tbody.innerHTML = html;
+
+            // Update Portfolio Modal PNL
+            const pnlColor = totalUnrealized >= 0 ? 'text-[#00ffaa]' : 'text-red-500';
+            document.getElementById('wallet-pnl').innerText = `Unrealized PNL: ${totalUnrealized >= 0 ? '+' : ''}$${totalUnrealized.toFixed(2)}`;
+            document.getElementById('wallet-pnl').className = `text-xs font-bold font-mono mt-1 ${pnlColor}`;
         }
 
         function closeOrder(id) {
@@ -422,13 +450,12 @@
         function updateWalletUI() {
             const bal = state.balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('ui-avail').innerText = bal;
+            document.getElementById('hdr-bal').innerText = `$${bal}`;
             document.getElementById('wallet-total').innerText = `$${bal}`;
             document.getElementById('wallet-usdt-display').innerText = bal;
-            document.getElementById('wallet-avail').innerText = bal;
         }
 
-        // --- Initialization ---
-        switchTab('trading');
+        // Boot
         initFeeds();
         updateWalletUI();
         renderOrders();
