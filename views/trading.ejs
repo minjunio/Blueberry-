@@ -6,214 +6,519 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link rel="icon" type="image/png" href="/favicon.png">
     
-    <style>
-        /* Exact Casino Dark Theme */
-        body { background: #06090e; color: #f8fafc; font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-        .casino-panel { background: #0d131f; border: 1px solid #1f2937; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 1rem; }
-        .casino-input { background: #06090e; border: 1px solid #1f2937; color: white; outline: none; transition: 0.2s; }
-        .casino-input:focus { border-color: #00ffaa; box-shadow: 0 0 10px rgba(0,255,170,0.2); }
-        .casino-btn { background: #1f2937; border: 1px solid #374151; color: white; transition: 0.2s; cursor: pointer; }
-        .casino-btn:hover { background: #374151; }
-        .text-muted { color: #6b7280; }
-        
-        /* Dramatic Market Effects for Price Ticker */
-        @keyframes flashGreen {
-            0% { text-shadow: 0 0 40px rgba(0,255,170,0.8); color: #00ffaa; }
-            100% { text-shadow: 0 0 0 transparent; color: white; }
-        }
-        @keyframes flashRed {
-            0% { text-shadow: 0 0 40px rgba(239,68,68,0.8); color: #ef4444; }
-            100% { text-shadow: 0 0 0 transparent; color: white; }
-        }
-        .text-pump { animation: flashGreen 0.6s ease-out; }
-        .text-dump { animation: flashRed 0.6s ease-out; }
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
-        /* Custom UI Tools */
+    <style>
+        /* Blue Book Theme Variables & Base */
+        :root {
+            --bg-base: #070e1d;
+            --bg-panel: #0d172e;
+            --border-color: #1e315d;
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+            --accent-up: #00d4ff; /* Cyan for Pump */
+            --accent-down: #ff3366; /* Coral Pink for Dump */
+        }
+
+        body { background: var(--bg-base); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+        .blue-panel { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 0.75rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .blue-input { background: var(--bg-base); border: 1px solid var(--border-color); color: white; outline: none; transition: 0.2s; }
+        .blue-input:focus { border-color: var(--accent-up); box-shadow: 0 0 10px rgba(0, 212, 255, 0.15); }
+        
+        /* Typography */
+        .text-up { color: var(--accent-up) !important; }
+        .text-down { color: var(--accent-down) !important; }
+        .bg-up { background-color: var(--accent-up) !important; color: #000 !important;}
+        .bg-down { background-color: var(--accent-down) !important; color: #fff !important; }
+
+        /* Dynamic Flashes */
+        @keyframes flashPump {
+            0% { text-shadow: 0 0 30px rgba(0, 212, 255, 0.8); color: var(--accent-up); }
+            100% { text-shadow: 0 0 0 transparent; color: white; }
+        }
+        @keyframes flashDump {
+            0% { text-shadow: 0 0 30px rgba(255, 51, 102, 0.8); color: var(--accent-down); }
+            100% { text-shadow: 0 0 0 transparent; color: white; }
+        }
+        .anim-pump { animation: flashPump 0.6s ease-out; }
+        .anim-dump { animation: flashDump 0.6s ease-out; }
+
+        /* Scrollbars & Sliders */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
         
-        input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #00ffaa; cursor: pointer; box-shadow: 0 0 10px #00ffaa; margin-top: -7px; transition: background 0.2s; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #374151; border-radius: 2px; }
+        input[type=range] { -webkit-appearance: none; background: transparent; width: 100%; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--accent-up); cursor: pointer; box-shadow: 0 0 10px var(--accent-up); margin-top: -6px; transition: 0.2s; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; }
 
-        /* Off-Canvas Portfolio Drawer */
+        /* Portfolio Drawer */
         #portfolio-modal { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s; }
         .modal-hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
         .modal-active { transform: translateX(0); opacity: 1; pointer-events: auto; }
     </style>
-    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 
-    <header class="flex justify-between items-center p-3 md:p-4 bg-[#0d131f] border-b border-[#1f2937] shrink-0 z-50 sticky top-0">
-        <div class="flex items-center gap-2 md:gap-3">
-            <svg viewBox="0 0 24 24" class="w-6 h-6 md:w-7 md:h-7" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 5 12 2 12 2C12 2 2 5 2 12C2 17.5228 6.47715 22 12 22Z" fill="#00ffaa"/><path d="M12 16C13.6569 16 15 14.6569 15 13C15 11.3431 12 8 12 8C12 8 9 11.3431 9 13C9 14.6569 10.3431 16 12 16Z" fill="#06090e"/></svg>
-            <h2 class="text-base md:text-xl font-black uppercase tracking-tighter text-white">BlueCrypto</h2>
-        </div>
-        
+    <header class="flex justify-between items-center p-3 bg-[#0d172e] border-b border-[#1e315d] shrink-0 sticky top-0 z-[60]">
         <div class="flex items-center gap-2">
-            <button onclick="togglePortfolio()" class="bg-[#1f2937] border border-[#374151] hover:border-[#00ffaa] text-white px-3 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-xs uppercase tracking-widest transition flex items-center gap-2">
-                <svg class="w-4 h-4 text-[#00ffaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                minjunio
-            </button>
+            <svg viewBox="0 0 24 24" class="w-6 h-6 text-[#00d4ff]" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            <h2 class="text-sm md:text-lg font-black uppercase tracking-tight text-white">BlueCrypto</h2>
         </div>
+        <button onclick="togglePortfolio()" class="bg-[#070e1d] border border-[#1e315d] hover:border-[#00d4ff] text-white px-3 py-1.5 rounded-md font-bold text-[10px] md:text-xs uppercase tracking-wider transition flex items-center gap-2 shadow-sm">
+            <svg class="w-3.5 h-3.5 text-[#00d4ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+            Portfolio
+        </button>
     </header>
 
-    <main class="flex-grow flex flex-col lg:flex-row p-2 md:p-4 gap-4 overflow-x-hidden">
+    <main class="flex-grow flex flex-col lg:flex-row p-2 gap-2 lg:gap-4 overflow-x-hidden relative">
         
-        <div class="flex-grow flex flex-col gap-4">
+        <div class="flex-grow flex flex-col gap-2 min-w-0">
             
-            <div class="casino-panel p-6 md:p-10 flex flex-col items-center justify-center min-h-[30vh] md:min-h-[40vh] relative overflow-hidden group">
-                <div class="absolute inset-0 bg-gradient-to-b from-[#00ffaa]/5 to-transparent opacity-50 pointer-events-none"></div>
+            <div class="blue-panel relative flex flex-col h-[320px] md:h-[45vh] overflow-hidden p-2">
                 
-                <select id="symbol-select" onchange="initFeeds()" class="casino-input px-4 py-2 rounded-xl text-sm md:text-lg font-black uppercase cursor-pointer appearance-none w-fit shadow-lg bg-[#06090e] border border-[#1f2937] mb-6 text-center z-10">
-                    <option value="BTC-USD">BTC / USD</option>
-                    <option value="ETH-USD">ETH / USD</option>
-                    <option value="SOL-USD">SOL / USD</option>
-                    <option value="ATOM-USD">ATOM / USD</option>
-                    <option value="XRP-USD">XRP / USD</option>
-                    <option value="DOGE-USD">DOGE / USD</option>
-                    <option value="ADA-USD">ADA / USD</option>
-                    <option value="DOT-USD">DOT / USD</option>
-                    <option value="LINK-USD">LINK / USD</option>
-                    <option value="AVAX-USD">AVAX / USD</option>
-                    <option value="LTC-USD">LTC / USD</option>
-                    <option value="BCH-USD">BCH / USD</option>
-                </select>
-                
-                <h2 id="live-price" class="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter font-mono transition-colors z-10 text-center w-full break-words">
-                    Syncing...
-                </h2>
-                
-                <div class="absolute top-4 right-4 flex items-center gap-2">
-                    <div id="status-dot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
-                    <span id="feed-status" class="text-[9px] font-black uppercase tracking-widest text-muted">Connecting</span>
+                <div class="absolute top-4 left-4 z-10 flex flex-col gap-1 pointer-events-none">
+                    
+                    <div class="relative inline-block text-left pointer-events-auto" id="custom-dropdown-container">
+                        <button onclick="toggleDropdown()" class="flex items-center justify-between gap-2 bg-[#070e1d]/90 backdrop-blur-sm border border-[#1e315d] text-white px-3 py-1.5 rounded-lg text-xs md:text-sm font-black shadow-lg hover:border-[#00d4ff] transition min-w-[130px]">
+                            <div class="flex items-center gap-2">
+                                <img id="selected-icon" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-4 h-4 md:w-5 md:h-5 rounded-full">
+                                <span id="selected-text">BTC / USDT</span>
+                            </div>
+                            <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        
+                        <ul id="dropdown-list" class="hidden absolute left-0 mt-1 w-[180px] bg-[#0d172e] border border-[#1e315d] rounded-lg shadow-2xl z-50 max-h-48 overflow-y-auto no-scrollbar py-1">
+                            </ul>
+                    </div>
+
+                    <h2 id="live-price" class="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tighter font-mono transition-colors drop-shadow-md">
+                        ---
+                    </h2>
                 </div>
+
+                <div class="absolute top-4 right-4 flex items-center gap-2 z-10 bg-[#070e1d]/50 px-2 py-1 rounded-md backdrop-blur-sm border border-[#1e315d]">
+                    <div id="status-dot" class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></div>
+                    <span id="feed-status" class="text-[8px] font-black uppercase tracking-widest text-[#64748b]">Sync</span>
+                </div>
+
+                <div id="tvchart" class="w-full flex-grow mt-16"></div>
             </div>
 
-            <div class="casino-panel flex flex-col flex-grow min-h-[30vh]">
-                <div class="flex justify-between items-center p-4 border-b border-[#1f2937] bg-[#06090e]/50 shrink-0">
-                    <h3 class="text-[10px] md:text-xs font-black uppercase tracking-widest text-[#00ffaa]">Active Positions</h3>
+            <div class="blue-panel flex flex-col flex-grow min-h-[200px]">
+                <div class="p-3 border-b border-[#1e315d] bg-[#070e1d]/50 shrink-0">
+                    <h3 class="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#00d4ff]">Open Positions</h3>
                 </div>
-                <div class="flex-grow overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[600px]">
-                        <thead class="bg-[#0d131f] shadow-sm">
-                            <tr class="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-muted border-b border-[#1f2937]">
-                                <th class="p-3 md:p-4">Asset</th>
-                                <th class="p-3 md:p-4">Side</th>
-                                <th class="p-3 md:p-4">Lev</th>
-                                <th class="p-3 md:p-4">Margin</th>
-                                <th class="p-3 md:p-4">Entry</th>
-                                <th class="p-3 md:p-4 text-right">Live ROI</th>
-                                <th class="p-3 md:p-4 text-center">Execute</th>
+                <div class="flex-grow overflow-x-auto no-scrollbar">
+                    <table class="w-full text-left border-collapse min-w-[550px]">
+                        <thead class="bg-[#0d172e] sticky top-0 z-10 shadow-sm">
+                            <tr class="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-[#64748b] border-b border-[#1e315d]">
+                                <th class="p-2 md:p-3">Asset</th>
+                                <th class="p-2 md:p-3">Side</th>
+                                <th class="p-2 md:p-3">Lev</th>
+                                <th class="p-2 md:p-3">Margin</th>
+                                <th class="p-2 md:p-3 text-right">ROI (Live)</th>
+                                <th class="p-2 md:p-3 text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="orders-body" class="text-xs font-bold text-slate-300 font-mono">
+                        <tbody id="orders-body" class="text-[10px] md:text-xs font-bold text-slate-200 font-mono">
                             </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div class="casino-panel lg:w-[360px] shrink-0 p-4 md:p-6 flex flex-col h-fit sticky top-20">
-            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-[#1f2937] pb-2">Order Setup</h3>
+        <div class="blue-panel lg:w-[300px] xl:w-[320px] shrink-0 p-3 md:p-4 flex flex-col h-fit sticky top-14">
+            <h3 class="text-[9px] font-black uppercase tracking-widest text-[#64748b] mb-3 border-b border-[#1e315d] pb-2">Order Setup</h3>
             
-            <div class="flex gap-2 bg-[#06090e] p-1 border border-[#1f2937] rounded-xl mb-6 shrink-0">
-                <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest bg-[#00ffaa] text-[#06090e] shadow-[0_0_10px_rgba(0,255,170,0.3)] transition">Long</button>
-                <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-muted hover:text-red-500 transition">Short</button>
+            <div class="flex gap-1 bg-[#070e1d] p-1 border border-[#1e315d] rounded-lg mb-4 shrink-0">
+                <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-2 rounded-md text-[9px] font-black uppercase tracking-widest bg-up shadow-[0_0_8px_rgba(0,212,255,0.3)] transition">Long</button>
+                <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-2 rounded-md text-[9px] font-black uppercase tracking-widest text-[#64748b] hover:text-[#ff3366] transition">Short</button>
             </div>
 
-            <div class="space-y-6">
+            <div class="space-y-4">
                 <div>
-                    <div class="flex justify-between mb-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USD)</label>
-                        <span class="text-[10px] font-black text-[#00ffaa] cursor-pointer hover:underline" onclick="setMax()">MAX</span>
+                    <div class="flex justify-between mb-1.5">
+                        <label class="text-[9px] font-black uppercase tracking-widest text-[#64748b]">Margin (USDT)</label>
+                        <span class="text-[9px] font-black text-[#00d4ff] cursor-pointer hover:underline" onclick="setMax()">MAX</span>
                     </div>
-                    <input type="number" id="trade-margin" placeholder="0.00" class="w-full casino-input p-4 rounded-xl text-xl font-black font-mono">
+                    <input type="number" id="trade-margin" placeholder="0.00" class="w-full blue-input p-3 rounded-lg text-lg font-black font-mono">
                 </div>
 
                 <div>
-                    <div class="flex justify-between mb-3">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Leverage</label>
-                        <span class="text-[10px] font-black text-white bg-[#1f2937] px-2 py-0.5 rounded"><span id="lev-val">10</span>x</span>
+                    <div class="flex justify-between mb-2">
+                        <label class="text-[9px] font-black uppercase tracking-widest text-[#64748b]">Leverage</label>
+                        <span class="text-[9px] font-black text-white bg-[#1e315d] px-1.5 py-0.5 rounded-sm"><span id="lev-val">10</span>x</span>
                     </div>
-                    <input type="range" id="trade-lev" min="1" max="100" value="10" class="w-full">
-                    <div class="flex justify-between text-[9px] font-black text-muted mt-2">
+                    <input type="range" id="trade-lev" min="1" max="100" value="10">
+                    <div class="flex justify-between text-[8px] font-black text-[#64748b] mt-1">
                         <span>1x</span><span>50x</span><span>100x</span>
                     </div>
                 </div>
 
-                <div class="p-4 bg-[#06090e] border border-[#1f2937] rounded-xl space-y-3">
-                    <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                        <span class="text-muted">Available</span>
+                <div class="p-3 bg-[#070e1d] border border-[#1e315d] rounded-lg space-y-2">
+                    <div class="flex justify-between text-[9px] font-black uppercase tracking-widest">
+                        <span class="text-[#64748b]">Available</span>
                         <span class="text-white font-mono">$<span id="ui-avail">88000.00</span></span>
                     </div>
-                    <div class="flex justify-between text-[10px] font-black uppercase tracking-widest border-t border-[#1f2937] pt-2">
-                        <span class="text-muted">Est. Size</span>
-                        <span class="text-[#00ffaa] font-mono">$<span id="ui-size">0.00</span></span>
+                    <div class="flex justify-between text-[9px] font-black uppercase tracking-widest border-t border-[#1e315d] pt-1.5">
+                        <span class="text-[#64748b]">Est. Size</span>
+                        <span class="text-[#00d4ff] font-mono">$<span id="ui-size">0.00</span></span>
                     </div>
                 </div>
             </div>
 
-            <button onclick="executeOrder()" id="btn-execute" class="mt-6 w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] text-xs bg-[#00ffaa] text-[#06090e] hover:bg-[#00d68f] shadow-[0_0_20px_rgba(0,255,170,0.3)] transition active:scale-95 shrink-0">
+            <button onclick="executeOrder()" id="btn-execute" class="mt-4 w-full py-3.5 rounded-lg font-black uppercase tracking-[0.15em] text-[10px] bg-up shadow-[0_0_15px_rgba(0,212,255,0.2)] transition active:scale-95">
                 Execute Long
             </button>
         </div>
     </main>
 
-    <div id="portfolio-modal" class="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-[#0d131f] border-l border-[#1f2937] shadow-[-20px_0_50px_rgba(0,0,0,0.8)] z-[100] modal-hidden flex flex-col">
-        <div class="flex justify-between items-center p-4 md:p-6 border-b border-[#1f2937] bg-[#06090e]">
-            <h2 class="text-lg md:text-xl font-black uppercase tracking-widest text-white flex items-center gap-2">
-                <svg class="w-5 h-5 text-[#00ffaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+    <div id="portfolio-modal" class="fixed inset-y-0 right-0 w-full sm:w-[380px] bg-[#0d172e] border-l border-[#1e315d] shadow-[0_0_50px_rgba(0,0,0,0.8)] z-[100] modal-hidden flex flex-col">
+        <div class="flex justify-between items-center p-4 border-b border-[#1e315d] bg-[#070e1d]">
+            <h2 class="text-sm md:text-base font-black uppercase tracking-widest text-white flex items-center gap-2">
+                <svg class="w-4 h-4 text-[#00d4ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                 My Portfolio
             </h2>
-            <button onclick="togglePortfolio()" class="text-muted hover:text-[#00ffaa] transition">
-                <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <button onclick="togglePortfolio()" class="text-[#64748b] hover:text-[#00d4ff] transition p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
         
-        <div class="p-4 md:p-6 flex-grow overflow-y-auto no-scrollbar">
-            <div class="bg-[#06090e] border border-[#1f2937] p-6 rounded-2xl mb-8 relative overflow-hidden">
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-[#00ffaa]/10 rounded-full blur-[50px]"></div>
-                <p class="text-[10px] font-black text-[#00ffaa] uppercase tracking-widest mb-1">Total Net Equity</p>
-                <h2 class="text-3xl md:text-4xl font-black tracking-tight text-white mb-2 font-mono" id="wallet-total">$88,000.00</h2>
-                <p class="text-xs font-bold text-muted font-mono" id="wallet-pnl">Live ROI: $0.00</p>
+        <div class="p-4 flex-grow overflow-y-auto no-scrollbar">
+            <div class="bg-[#070e1d] border border-[#1e315d] p-5 rounded-xl mb-6 relative overflow-hidden">
+                <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-[#00d4ff]/10 rounded-full blur-[40px]"></div>
+                <p class="text-[9px] font-black text-[#00d4ff] uppercase tracking-widest mb-1">Total Net Equity</p>
+                <h2 class="text-2xl md:text-3xl font-black tracking-tight text-white mb-1 font-mono" id="wallet-total">$88,000.00</h2>
+                <p class="text-[10px] font-bold text-[#64748b] font-mono" id="wallet-pnl">Live ROI: $0.00</p>
             </div>
 
-            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-[#1f2937] pb-2">Fiat Assets</h3>
+            <h3 class="text-[9px] font-black uppercase tracking-widest text-[#64748b] mb-3 border-b border-[#1e315d] pb-1.5">Spot Assets</h3>
             
-            <div class="space-y-3">
-                <div class="bg-[#06090e] border border-[#1f2937] p-4 rounded-xl flex justify-between items-center hover:border-[#00ffaa]/50 transition cursor-pointer">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-[#1f2937] text-[#00ffaa] flex items-center justify-center font-black text-lg">
-                            $
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-white">US Dollar (USD)</p>
-                            <p class="text-[10px] font-bold text-[#00ffaa]">Available Margin</p>
-                        </div>
+            <div class="bg-[#070e1d] border border-[#1e315d] p-3 rounded-lg flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029" class="w-6 h-6 rounded-full">
+                    <div>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-white">Tether (USDT)</p>
+                        <p class="text-[8px] font-bold text-[#00d4ff]">Available Margin</p>
                     </div>
-                    <h4 class="text-lg font-black text-white font-mono" id="wallet-usd-display">88,000.00</h4>
                 </div>
+                <h4 class="text-sm font-black text-white font-mono" id="wallet-usdt-display">88,000.00</h4>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. STATE & GLOBALS ---
-        let state = JSON.parse(localStorage.getItem('terminal_state_v5_pure')) || {
+        // --- 1. ASSET LIST & STATE ---
+        const cryptoAssets = [
+            { id: 'BTCUSDT', name: 'BTC', icon: 'https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029' },
+            { id: 'ETHUSDT', name: 'ETH', icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=029' },
+            { id: 'SOLUSDT', name: 'SOL', icon: 'https://cryptologos.cc/logos/solana-sol-logo.svg?v=029' },
+            { id: 'XRPUSDT', name: 'XRP', icon: 'https://cryptologos.cc/logos/xrp-xrp-logo.svg?v=029' },
+            { id: 'DOGEUSDT', name: 'DOGE', icon: 'https://cryptologos.cc/logos/dogecoin-doge-logo.svg?v=029' },
+            { id: 'ADAUSDT', name: 'ADA', icon: 'https://cryptologos.cc/logos/cardano-ada-logo.svg?v=029' },
+            { id: 'AVAXUSDT', name: 'AVAX', icon: 'https://cryptologos.cc/logos/avalanche-avax-logo.svg?v=029' },
+            { id: 'LINKUSDT', name: 'LINK', icon: 'https://cryptologos.cc/logos/chainlink-link-logo.svg?v=029' }
+        ];
+
+        let state = JSON.parse(localStorage.getItem('bluebook_terminal_v1')) || {
             balance: 88000.00,
             orders: []
         };
         
-        window.livePrices = {}; 
-        let ui = { side: 'buy', symbolId: 'BTC-USD', price: 0, lastPrice: 0, lev: 10 };
+        let ui = { 
+            side: 'buy', 
+            asset: cryptoAssets[0], // Starts with BTC
+            price: 0, 
+            lastPrice: 0, 
+            lev: 10 
+        };
+        
         let ws;
+        let chart, areaSeries;
 
-        function saveState() {
-            localStorage.setItem('terminal_state_v5_pure', JSON.stringify(state));
-            updateWalletUI();
+        // --- 2. CUSTOM DROPDOWN LOGIC ---
+        function initDropdown() {
+            const listEl = document.getElementById('dropdown-list');
+            listEl.innerHTML = cryptoAssets.map(c => `
+                <li onclick="selectAsset('${c.id}')" class="px-3 py-2 hover:bg-[#1e315d] cursor-pointer flex items-center gap-2 transition border-b border-[#1e315d]/50 last:border-0">
+                    <img src="${c.icon}" class="w-4 h-4 rounded-full">
+                    <span class="text-xs font-black text-white">${c.name} / USDT</span>
+                </li>
+            `).join('');
+        }
+
+        function toggleDropdown() {
+            document.getElementById('dropdown-list').classList.toggle('hidden');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!document.getElementById('custom-dropdown-container').contains(e.target)) {
+                document.getElementById('dropdown-list').classList.add('hidden');
+            }
+        });
+
+        function selectAsset(id) {
+            ui.asset = cryptoAssets.find(c => c.id === id);
+            document.getElementById('selected-icon').src = ui.asset.icon;
+            document.getElementById('selected-text').innerText = `${ui.asset.name} / USDT`;
+            document.getElementById('dropdown-list').classList.add('hidden');
+            initFeeds(); // Restart engine for new pair
+        }
+
+        // --- 3. CHART & BINANCE ENGINE ---
+        function initChart() {
+            const chartElement = document.getElementById('tvchart');
+            chart = LightweightCharts.createChart(chartElement, {
+                layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#64748b' },
+                grid: { vertLines: { color: 'rgba(30, 49, 93, 0.3)' }, horzLines: { color: 'rgba(30, 49, 93, 0.3)' } },
+                crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+                rightPriceScale: { borderColor: '#1e315d' },
+                timeScale: { borderColor: '#1e315d', timeVisible: true }
+            });
+
+            // Default Blue Book Theme Chart
+            areaSeries = chart.addAreaSeries({
+                lineColor: '#00d4ff', topColor: 'rgba(0, 212, 255, 0.2)', bottomColor: 'rgba(0, 212, 255, 0.0)',
+                lineWidth: 2, crosshairMarkerBorderColor: '#070e1d', crosshairMarkerBackgroundColor: '#00d4ff'
+            });
+
+            new ResizeObserver(entries => {
+                if (entries.length === 0 || entries[0].target !== chartElement) return;
+                chart.applyOptions({ width: entries[0].contentRect.width, height: entries[0].contentRect.height });
+            }).observe(chartElement);
+        }
+
+        async function initFeeds() {
+            const priceEl = document.getElementById('live-price');
+            priceEl.innerText = "Syncing...";
+            priceEl.className = "text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tighter font-mono drop-shadow-md";
+            
+            document.getElementById('status-dot').className = "w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse";
+            document.getElementById('feed-status').innerText = "Loading";
+            
+            if(ws) ws.close();
+            areaSeries.setData([]);
+            ui.lastPrice = 0; // Reset last price for new pair
+
+            // 1. Fetch History (Klines) to fill chart
+            try {
+                let res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${ui.asset.id}&interval=1m&limit=60`);
+                let json = await res.json();
+                
+                let history = json.map(d => ({
+                    time: Math.floor(d[0] / 1000), 
+                    value: parseFloat(d[4]) 
+                }));
+                
+                areaSeries.setData(history);
+                ui.price = history[history.length - 1].value;
+                ui.lastPrice = ui.price;
+                
+                priceEl.innerText = formatPrice(ui.price);
+                renderOrders(); 
+            } catch(e) { console.error("History fail", e); }
+
+            // 2. Connect Live Engine
+            connectWebSocket();
+        }
+
+        function connectWebSocket() {
+            try {
+                let streamName = ui.asset.id.toLowerCase();
+                ws = new WebSocket(`wss://stream.binance.com:9443/ws/${streamName}@ticker`);
+                
+                ws.onopen = () => {
+                    document.getElementById('status-dot').className = "w-1.5 h-1.5 rounded-full bg-[#00d4ff] shadow-[0_0_8px_#00d4ff]";
+                    document.getElementById('feed-status').innerText = "Live";
+                };
+
+                ws.onmessage = (e) => {
+                    let data = JSON.parse(e.data);
+                    if(data.c) processTick(parseFloat(data.c));
+                };
+
+                ws.onerror = () => reconnectFallback();
+                ws.onclose = () => reconnectFallback();
+            } catch(e) { reconnectFallback(); }
+        }
+
+        function reconnectFallback() {
+            document.getElementById('status-dot').className = "w-1.5 h-1.5 rounded-full bg-red-500";
+            document.getElementById('feed-status').innerText = "Recon...";
+            setTimeout(connectWebSocket, 3000);
+        }
+
+        // --- 4. DYNAMIC TICK PROCESSOR (Graph Effects) ---
+        function processTick(newPrice) {
+            const priceEl = document.getElementById('live-price');
+            
+            if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
+                const isUp = newPrice > ui.lastPrice;
+                
+                // Text Flash
+                priceEl.classList.remove('anim-pump', 'anim-dump');
+                void priceEl.offsetWidth; // Trigger reflow
+                priceEl.classList.add(isUp ? 'anim-pump' : 'anim-dump');
+                
+                // Chart Color Swap
+                areaSeries.applyOptions({ 
+                    lineColor: isUp ? '#00d4ff' : '#ff3366',
+                    topColor: isUp ? 'rgba(0, 212, 255, 0.2)' : 'rgba(255, 51, 102, 0.2)',
+                    crosshairMarkerBackgroundColor: isUp ? '#00d4ff' : '#ff3366'
+                });
+            }
+            
+            ui.lastPrice = newPrice;
+            ui.price = newPrice;
+            priceEl.innerText = formatPrice(newPrice);
+            
+            // Update chart live
+            areaSeries.update({ time: Math.floor(Date.now() / 1000), value: newPrice });
+            renderOrders(); 
+        }
+
+        function formatPrice(val) {
+            const dec = val < 1 ? 4 : 2;
+            return `$${val.toLocaleString(undefined, {minimumFractionDigits: dec, maximumFractionDigits: dec})}`;
+        }
+
+        // --- 5. EXECUTION & UI ---
+        function setSide(side) {
+            ui.side = side;
+            const bBuy = document.getElementById('btn-buy');
+            const bSell = document.getElementById('btn-sell');
+            const bExec = document.getElementById('btn-execute');
+
+            if(side === 'buy') {
+                bBuy.className = "flex-1 py-2 rounded-md text-[9px] font-black uppercase tracking-widest bg-up shadow-[0_0_8px_rgba(0,212,255,0.3)] transition";
+                bSell.className = "flex-1 py-2 rounded-md text-[9px] font-black uppercase tracking-widest text-[#64748b] hover:text-[#ff3366] transition";
+                bExec.className = "mt-4 w-full py-3.5 rounded-lg font-black uppercase tracking-[0.15em] text-[10px] bg-up shadow-[0_0_15px_rgba(0,212,255,0.2)] transition active:scale-95";
+                bExec.innerText = "Execute Long";
+            } else {
+                bSell.className = "flex-1 py-2 rounded-md text-[9px] font-black uppercase tracking-widest bg-down shadow-[0_0_8px_rgba(255,51,102,0.3)] transition";
+                bBuy.className = "flex-1 py-2 rounded-md text-[9px] font-black uppercase tracking-widest text-[#64748b] hover:text-[#00d4ff] transition";
+                bExec.className = "mt-4 w-full py-3.5 rounded-lg font-black uppercase tracking-[0.15em] text-[10px] bg-down shadow-[0_0_15px_rgba(255,51,102,0.2)] transition active:scale-95";
+                bExec.innerText = "Execute Short";
+            }
+        }
+
+        document.getElementById('trade-lev').addEventListener('input', (e) => {
+            ui.lev = parseInt(e.target.value);
+            document.getElementById('lev-val').innerText = ui.lev;
+            calcSize();
+        });
+
+        document.getElementById('trade-margin').addEventListener('input', calcSize);
+
+        function calcSize() {
+            const margin = parseFloat(document.getElementById('trade-margin').value) || 0;
+            document.getElementById('ui-size').innerText = (margin * ui.lev).toLocaleString(undefined, {minimumFractionDigits: 2});
+        }
+
+        function setMax() {
+            document.getElementById('trade-margin').value = Math.floor(state.balance * 100) / 100;
+            calcSize();
+        }
+
+        function executeOrder() {
+            if (ui.price === 0) return alert("Waiting for live price feed...");
+            const margin = parseFloat(document.getElementById('trade-margin').value);
+            if (isNaN(margin) || margin <= 0) return alert("Enter valid margin.");
+            if (margin > state.balance) return alert("Insufficient USDT.");
+
+            state.balance -= margin;
+            const totalSize = margin * ui.lev;
+
+            state.orders.push({
+                id: Math.random().toString(36).substr(2, 9),
+                assetId: ui.asset.id, 
+                displaySymbol: ui.asset.name,
+                side: ui.side,
+                margin: margin,
+                lev: ui.lev,
+                entry: ui.price,
+                units: totalSize / ui.price
+            });
+
+            document.getElementById('trade-margin').value = '';
+            calcSize();
+            saveState();
+            renderOrders();
+        }
+
+        function renderOrders() {
+            const tbody = document.getElementById('orders-body');
+            let totalUnrealized = 0;
+            
+            if (state.orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-[#64748b] font-black uppercase tracking-widest text-[9px]">No Active Positions</td></tr>`;
+                document.getElementById('wallet-pnl').innerText = `Live ROI: $0.00`;
+                document.getElementById('wallet-pnl').className = `text-[10px] font-bold text-[#64748b] font-mono`;
+                return;
+            }
+
+            let html = '';
+            state.orders.forEach(order => {
+                let pnl = 0;
+                // Live sync if order matches viewed asset
+                if(order.assetId === ui.asset.id && ui.price > 0) {
+                     const currentVal = order.units * ui.price;
+                     const initialVal = order.margin * order.lev;
+                     pnl = order.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
+                }
+
+                totalUnrealized += pnl;
+                const roiPct = (pnl / order.margin) * 100;
+                const isProf = pnl >= 0;
+                const cColor = isProf ? 'text-up' : 'text-down';
+                const sColor = order.side === 'buy' ? 'text-up bg-[#00d4ff]/10' : 'text-down bg-[#ff3366]/10';
+                
+                html += `
+                    <tr class="border-b border-[#1e315d]/50 hover:bg-[#1e315d]/30 transition group">
+                        <td class="p-2 md:p-3 font-black text-white whitespace-nowrap">${order.displaySymbol}</td>
+                        <td class="p-2 md:p-3"><span class="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${sColor}">${order.side}</span></td>
+                        <td class="p-2 md:p-3">${order.lev}x</td>
+                        <td class="p-2 md:p-3">$${order.margin.toFixed(2)}</td>
+                        <td class="p-2 md:p-3 text-right ${cColor} font-black">${isProf?'+':''}$${pnl.toFixed(2)}</td>
+                        <td class="p-2 md:p-3 text-center">
+                            <button onclick="closeOrder('${order.id}')" class="px-2 py-1 bg-[#1e315d] hover:bg-white hover:text-black text-white rounded text-[8px] uppercase font-black transition lg:opacity-0 group-hover:opacity-100">Close</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+
+            const pnlColor = totalUnrealized >= 0 ? 'text-up' : 'text-down';
+            document.getElementById('wallet-pnl').innerText = `Live ROI: ${totalUnrealized >= 0 ? '+' : ''}$${totalUnrealized.toFixed(2)}`;
+            document.getElementById('wallet-pnl').className = `text-[10px] font-bold font-mono mt-1 ${pnlColor}`;
+        }
+
+        function closeOrder(id) {
+            const idx = state.orders.findIndex(p => p.id === id);
+            if (idx === -1) return;
+            
+            const o = state.orders[idx];
+            let pnl = 0;
+            if(o.assetId === ui.asset.id) {
+                 const currentVal = o.units * ui.price;
+                 const initialVal = o.margin * o.lev;
+                 pnl = o.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
+            }
+            
+            state.balance += (o.margin + pnl);
+            state.orders.splice(idx, 1);
+            saveState();
+            renderOrders();
+        }
+
+        function updateWalletUI() {
+            const bal = state.balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('ui-avail').innerText = bal;
+            document.getElementById('wallet-total').innerText = `$${bal}`;
+            document.getElementById('wallet-usdt-display').innerText = bal;
         }
 
         function togglePortfolio() {
@@ -225,235 +530,11 @@
             }
         }
 
-        // --- 2. PURE WEBSOCKET ENGINE (NO REST API BLOCKS) ---
-        function initFeeds() {
-            const selectEl = document.getElementById('symbol-select');
-            ui.symbolId = selectEl.value; 
-            
-            document.getElementById('live-price').innerText = "Syncing...";
-            document.getElementById('live-price').style.color = "white";
-            document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse";
-            document.getElementById('feed-status').innerText = "Connecting";
-            
-            if(ws) ws.close(); // Cleanly close existing connection before swapping
-            
-            connectWebSocket();
-        }
-
-        function connectWebSocket() {
-            try {
-                // Direct to Coinbase WebSocket for true USD prices
-                ws = new WebSocket('wss://ws-feed.exchange.coinbase.com');
-                
-                ws.onopen = () => {
-                    document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-[#00ffaa] shadow-[0_0_8px_#00ffaa]";
-                    document.getElementById('feed-status').innerText = "Live";
-                    
-                    // Subscribe directly to the ticker channel
-                    ws.send(JSON.stringify({
-                        type: "subscribe",
-                        product_ids: [ui.symbolId],
-                        channels: ["ticker"]
-                    }));
-                };
-
-                ws.onmessage = (e) => {
-                    let data = JSON.parse(e.data);
-                    // Filter for actual price updates
-                    if(data.type === 'ticker' && data.price) { 
-                        let newPrice = parseFloat(data.price);
-                        processTick(newPrice);
-                    }
-                };
-
-                ws.onerror = (err) => console.error("WS Error", err);
-                
-                // Auto-reconnect if it drops
-                ws.onclose = () => {
-                    document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-red-500";
-                    document.getElementById('feed-status').innerText = "Reconnecting...";
-                    setTimeout(connectWebSocket, 2000);
-                };
-                
-            } catch(e) {
-                console.error("Connection failed", e);
-            }
-        }
-
-        // --- 3. UI UPDATER ---
-        function processTick(newPrice) {
-            const priceEl = document.getElementById('live-price');
-            
-            window.livePrices[ui.symbolId] = newPrice; 
-            
-            // Dramatic Text Animation
-            if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
-                priceEl.classList.remove('text-pump', 'text-dump');
-                void priceEl.offsetWidth; // Force CSS Reflow
-                
-                const isUp = newPrice > ui.lastPrice;
-                priceEl.classList.add(isUp ? 'text-pump' : 'text-dump');
-            }
-            
-            ui.lastPrice = newPrice;
-            ui.price = newPrice;
-            
-            // Format decimals based on asset value (e.g. DOGE needs more decimals than BTC)
-            const dec = newPrice < 1 ? 4 : 2;
-            priceEl.innerText = `$${newPrice.toLocaleString(undefined, {minimumFractionDigits: dec, maximumFractionDigits: dec})}`;
-            
-            renderOrders(); // Update live PnL for active positions
-        }
-
-        // --- 4. EXECUTION LOGIC ---
-        function setSide(side) {
-            ui.side = side;
-            const bBuy = document.getElementById('btn-buy');
-            const bSell = document.getElementById('btn-sell');
-            const bExec = document.getElementById('btn-execute');
-
-            if(side === 'buy') {
-                bBuy.className = "flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest bg-[#00ffaa] text-[#06090e] shadow-[0_0_10px_rgba(0,255,170,0.3)] transition";
-                bSell.className = "flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-muted hover:text-red-500 transition";
-                bExec.className = "mt-6 w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] text-xs bg-[#00ffaa] text-[#06090e] hover:bg-[#00d68f] shadow-[0_0_20px_rgba(0,255,170,0.3)] transition active:scale-95 shrink-0";
-                bExec.innerText = "Execute Long";
-            } else {
-                bSell.className = "flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest bg-red-500 text-white shadow-[0_0_10px_rgba(239,68,68,0.3)] transition";
-                bBuy.className = "flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-muted hover:text-[#00ffaa] transition";
-                bExec.className = "mt-6 w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] text-xs bg-red-500 text-white hover:bg-red-400 shadow-[0_0_20px_rgba(239,68,68,0.3)] transition active:scale-95 shrink-0";
-                bExec.innerText = "Execute Short";
-            }
-        }
-
-        document.getElementById('trade-lev').addEventListener('input', (e) => {
-            ui.lev = parseInt(e.target.value);
-            document.getElementById('lev-val').innerText = ui.lev;
-            calcSize();
-        });
-
-        const marginInput = document.getElementById('trade-margin');
-        marginInput.addEventListener('input', calcSize);
-
-        function calcSize() {
-            const margin = parseFloat(marginInput.value) || 0;
-            document.getElementById('ui-size').innerText = (margin * ui.lev).toLocaleString(undefined, {minimumFractionDigits: 2});
-        }
-
-        function setMax() {
-            marginInput.value = Math.floor(state.balance * 100) / 100;
-            calcSize();
-        }
-
-        function executeOrder() {
-            if (ui.price === 0) return alert("Waiting for live price feed...");
-            
-            const margin = parseFloat(marginInput.value);
-            if (isNaN(margin) || margin <= 0) return alert("Enter valid margin.");
-            if (margin > state.balance) return alert("Insufficient USD.");
-
-            state.balance -= margin;
-            const totalSize = margin * ui.lev;
-            
-            let niceSymbol = document.getElementById('symbol-select').options[document.getElementById('symbol-select').selectedIndex].text;
-
-            state.orders.push({
-                id: Math.random().toString(36).substr(2, 9),
-                symbolId: ui.symbolId, 
-                displaySymbol: niceSymbol,
-                side: ui.side,
-                margin: margin,
-                lev: ui.lev,
-                entry: ui.price,
-                units: totalSize / ui.price
-            });
-
-            marginInput.value = '';
-            calcSize();
-            saveState();
-            renderOrders();
-        }
-
-        // --- 5. ROI & TABLE UPDATES ---
-        function renderOrders() {
-            const tbody = document.getElementById('orders-body');
-            let totalUnrealized = 0;
-            
-            if (state.orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-muted font-black uppercase tracking-widest text-xs">No Active Positions</td></tr>`;
-                document.getElementById('wallet-pnl').innerText = `Live ROI: $0.00`;
-                document.getElementById('wallet-pnl').className = `text-xs font-bold text-muted font-mono`;
-                return;
-            }
-
-            let html = '';
-            state.orders.forEach(order => {
-                let pnl = 0;
-                
-                // Track live PnL if looking at the active asset
-                if(order.symbolId === ui.symbolId && ui.price > 0) {
-                     const currentVal = order.units * ui.price;
-                     const initialVal = order.margin * order.lev;
-                     pnl = order.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
-                }
-
-                totalUnrealized += pnl;
-
-                const roiPct = (pnl / order.margin) * 100;
-                const isProf = pnl >= 0;
-                const cColor = isProf ? 'text-[#00ffaa]' : 'text-red-500';
-                const sColor = order.side === 'buy' ? 'text-[#00ffaa] bg-[#00ffaa]/10' : 'text-red-500 bg-red-500/10';
-                
-                html += `
-                    <tr class="border-b border-[#1f2937]/50 hover:bg-[#1f2937]/30 transition group">
-                        <td class="p-3 md:p-4 font-black text-white whitespace-nowrap">${order.displaySymbol}</td>
-                        <td class="p-3 md:p-4"><span class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${sColor}">${order.side}</span></td>
-                        <td class="p-3 md:p-4">${order.lev}x</td>
-                        <td class="p-3 md:p-4">$${order.margin.toFixed(2)}</td>
-                        <td class="p-3 md:p-4">$${order.entry.toFixed(4)}</td>
-                        <td class="p-3 md:p-4 text-right ${cColor} font-black">${isProf?'+':''}$${pnl.toFixed(2)} <span class="hidden sm:inline">(${isProf?'+':''}${roiPct.toFixed(2)}%)</span></td>
-                        <td class="p-3 md:p-4 text-center">
-                            <button onclick="closeOrder('${order.id}')" class="px-3 py-2 bg-[#1f2937] hover:bg-white hover:text-black text-white rounded text-[9px] uppercase font-black transition lg:opacity-0 group-hover:opacity-100">Close</button>
-                        </td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = html;
-
-            const pnlColor = totalUnrealized >= 0 ? 'text-[#00ffaa]' : 'text-red-500';
-            document.getElementById('wallet-pnl').innerText = `Live ROI: ${totalUnrealized >= 0 ? '+' : ''}$${totalUnrealized.toFixed(2)}`;
-            document.getElementById('wallet-pnl').className = `text-xs font-bold font-mono mt-1 ${pnlColor}`;
-        }
-
-        function closeOrder(id) {
-            const idx = state.orders.findIndex(p => p.id === id);
-            if (idx === -1) return;
-            
-            const o = state.orders[idx];
-            let pnl = 0;
-            if(o.symbolId === ui.symbolId) {
-                 const currentVal = o.units * ui.price;
-                 const initialVal = o.margin * o.lev;
-                 pnl = o.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
-            }
-            
-            state.balance += (o.margin + pnl);
-            state.orders.splice(idx, 1);
-            
-            saveState();
-            renderOrders();
-        }
-
-        function updateWalletUI() {
-            const bal = state.balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('ui-avail').innerText = bal;
-            document.getElementById('wallet-total').innerText = `$${bal}`;
-            document.getElementById('wallet-usd-display').innerText = bal;
-        }
-
         // Boot
+        initDropdown();
+        initChart();
         initFeeds();
         updateWalletUI();
-        renderOrders();
     </script>
 </body>
 </html>
