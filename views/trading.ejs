@@ -38,27 +38,21 @@
         .neo-btn:hover { background: rgba(139, 92, 246, 0.2); color: white; border-color: #a78bfa; }
         
         .text-muted { color: #8b839e; }
-        
-        /* Dramatic Graph & Price Effects */
-        .text-pump { color: #34d399; text-shadow: 0 0 20px rgba(52, 211, 153, 0.6); transition: color 0.1s; }
-        .text-dump { color: #fb7185; text-shadow: 0 0 20px rgba(251, 113, 133, 0.6); transition: color 0.1s; }
+        .text-pump { color: #34d399; text-shadow: 0 0 20px rgba(52, 211, 153, 0.6); }
+        .text-dump { color: #fb7185; text-shadow: 0 0 20px rgba(251, 113, 133, 0.6); }
 
-        /* Custom Scrollbars */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
         
-        /* Neon Leverage Slider */
         input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #a78bfa; cursor: pointer; box-shadow: 0 0 15px #a78bfa; margin-top: -7px; transition: 0.2s; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #a78bfa; cursor: pointer; box-shadow: 0 0 15px #a78bfa; margin-top: -7px; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(139, 92, 246, 0.2); border-radius: 2px; }
 
-        /* Dropdown Animation */
         .dropdown-menu { transform-origin: top; transition: transform 0.2s ease, opacity 0.2s ease; }
         .dropdown-hidden { transform: scaleY(0); opacity: 0; pointer-events: none; }
         .dropdown-active { transform: scaleY(1); opacity: 1; pointer-events: auto; }
 
-        /* Modal Animation */
         .modal-overlay { transition: opacity 0.3s; }
         .modal-content { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .modal-hidden { opacity: 0; pointer-events: none; }
@@ -66,9 +60,8 @@
         .modal-active { opacity: 1; pointer-events: auto; }
         .modal-active .modal-content { transform: scale(1) translateY(0); }
 
-        /* Top Portfolio Ticker Scroll */
-        .ticker-wrap { width: 100%; overflow: hidden; white-space: nowrap; }
-        .ticker-item { display: inline-block; padding: 0 1rem; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; color: #a78bfa; }
+        .tf-btn { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 900; color: #8b839e; cursor: pointer; transition: 0.2s; }
+        .tf-btn.active { background: #a78bfa; color: #05020a; box-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -83,21 +76,25 @@
                 <h2 class="text-lg font-black uppercase tracking-tighter text-white">Cloud<span class="text-purple-400">Trade</span></h2>
             </div>
             
-            <div class="flex items-center gap-2">
-                <button onclick="toggleSettings()" class="neo-btn p-2 rounded-lg transition flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p class="text-[9px] font-black uppercase tracking-widest text-purple-400">Total Net Worth</p>
+                    <p class="text-lg font-black text-white font-mono leading-none" id="top-net-worth">$0.00</p>
+                </div>
+                
+                <button onclick="toggleModal('history-modal')" class="neo-btn p-2 rounded-lg transition flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </button>
-                <button class="neo-btn px-3 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
+                <button onclick="toggleModal('settings-modal')" class="neo-btn px-3 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
                     <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                    Wallet
+                    Portfolio
                 </button>
             </div>
         </div>
         
-        <div class="border-t border-purple-900/30 bg-purple-900/10 py-1.5 ticker-wrap font-mono">
-            <div id="top-ticker" class="flex gap-4 overflow-x-auto no-scrollbar px-4">
-                <span class="ticker-item">Loading Live Streams...</span>
-            </div>
+        <div class="sm:hidden border-t border-purple-900/30 bg-purple-900/10 py-2 px-4 flex justify-between items-center">
+            <span class="text-[10px] font-black uppercase tracking-widest text-purple-400">Net Worth</span>
+            <span class="text-sm font-black text-white font-mono" id="mobile-net-worth">$0.00</span>
         </div>
     </header>
 
@@ -105,43 +102,51 @@
         
         <div class="flex-grow flex flex-col gap-3 lg:gap-4">
             
-            <div class="glass-panel p-4 md:p-6 flex flex-col relative h-[35vh] lg:min-h-[45vh] overflow-hidden group">
+            <div class="glass-panel p-3 md:p-5 flex flex-col relative min-h-[40vh] lg:min-h-[50vh]">
                 
-                <div class="relative z-20 w-fit">
-                    <button onclick="togglePairDropdown()" class="neo-input px-3 py-2 rounded-xl flex items-center gap-3 w-40 hover:bg-purple-900/30">
-                        <img id="active-coin-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-6 h-6 rounded-full">
-                        <span id="active-coin-text" class="font-black text-sm uppercase">BTC/USDT</span>
-                        <svg class="w-4 h-4 ml-auto text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    
-                    <div id="pair-dropdown" class="absolute top-full left-0 mt-2 w-48 glass-panel py-2 dropdown-menu dropdown-hidden">
-                        </div>
+                <div class="flex justify-between items-start z-20">
+                    <div class="relative w-fit">
+                        <button onclick="togglePairDropdown()" class="neo-input px-3 py-2 rounded-xl flex items-center gap-2 md:gap-3 w-[140px] md:w-40 hover:bg-purple-900/30">
+                            <img id="active-coin-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-5 h-5 md:w-6 md:h-6 rounded-full">
+                            <span id="active-coin-text" class="font-black text-xs md:text-sm uppercase">BTC/USDT</span>
+                            <svg class="w-4 h-4 ml-auto text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div id="pair-dropdown" class="absolute top-full left-0 mt-2 w-48 glass-panel py-2 dropdown-menu dropdown-hidden">
+                            </div>
+                    </div>
+
+                    <div class="flex bg-[#05020a] p-1 rounded-lg border border-purple-900/30">
+                        <div class="tf-btn" onclick="setTimeframe('live')" id="tf-live">LIVE</div>
+                        <div class="tf-btn" onclick="setTimeframe('1m')" id="tf-1m">1m</div>
+                        <div class="tf-btn active" onclick="setTimeframe('5m')" id="tf-5m">5m</div>
+                        <div class="tf-btn" onclick="setTimeframe('15m')" id="tf-15m">15m</div>
+                        <div class="tf-btn" onclick="setTimeframe('1h')" id="tf-1h">1H</div>
+                    </div>
                 </div>
 
-                <div class="mt-4 z-10 flex flex-col">
-                    <h2 id="main-price" class="text-4xl md:text-5xl lg:text-6xl font-black text-white font-mono tracking-tighter">--</h2>
-                    <p class="text-[10px] font-bold text-purple-400 uppercase tracking-widest mt-1 ml-1" id="price-status">Connecting WS...</p>
+                <div class="mt-2 z-10 flex flex-col">
+                    <h2 id="main-price" class="text-3xl md:text-5xl font-black text-white font-mono tracking-tighter">--</h2>
                 </div>
 
-                <div class="absolute inset-0 mt-20 pt-10 px-0 md:px-4 z-0 flex items-end">
-                    <canvas id="custom-chart" class="w-full h-full opacity-80"></canvas>
+                <div class="flex-grow mt-2 relative w-full h-full min-h-[250px]" id="canvas-container">
+                    <canvas id="custom-chart" class="absolute inset-0 w-full h-full"></canvas>
                 </div>
             </div>
 
             <div class="glass-panel flex flex-col flex-grow min-h-[25vh]">
                 <div class="flex justify-between items-center p-3 md:p-4 border-b border-purple-900/30 shrink-0">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400">Active Positions</h3>
+                    <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400">Open Trades</h3>
                 </div>
                 <div class="flex-grow overflow-x-auto no-scrollbar">
-                    <table class="w-full text-left border-collapse min-w-[500px]">
+                    <table class="w-full text-left border-collapse min-w-[550px]">
                         <thead class="bg-[#0a0510]/50 sticky top-0">
                             <tr class="text-[9px] font-black uppercase tracking-widest text-muted border-b border-purple-900/30">
                                 <th class="p-3">Asset</th>
                                 <th class="p-3">Side</th>
                                 <th class="p-3">Margin</th>
                                 <th class="p-3">Entry</th>
-                                <th class="p-3 text-right">ROI</th>
-                                <th class="p-3 text-center">X</th>
+                                <th class="p-3 text-right">Live ROI</th>
+                                <th class="p-3 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody id="orders-body" class="text-[11px] font-bold text-slate-200 font-mono">
@@ -178,12 +183,12 @@
 
                 <div class="p-3 bg-[#05020a] border border-purple-900/30 rounded-xl space-y-2 mt-4">
                     <div class="flex justify-between text-[9px] font-black uppercase tracking-widest">
-                        <span class="text-muted">Wallet Balance</span>
-                        <span class="text-white font-mono" id="ui-avail">0.00 USDT</span>
+                        <span class="text-muted">Available USDT</span>
+                        <span class="text-white font-mono" id="ui-avail">0.00</span>
                     </div>
                     <div class="flex justify-between text-[9px] font-black uppercase tracking-widest border-t border-purple-900/30 pt-2">
                         <span class="text-muted">Position Size</span>
-                        <span class="text-purple-400 font-mono" id="ui-size">0.00 USDT</span>
+                        <span class="text-purple-400 font-mono" id="ui-size">0.00</span>
                     </div>
                 </div>
             </div>
@@ -196,31 +201,53 @@
 
     <div id="settings-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-sm p-6 relative">
-            <button onclick="toggleSettings()" class="absolute top-4 right-4 text-muted hover:text-white">
+            <button onclick="toggleModal('settings-modal')" class="absolute top-4 right-4 text-muted hover:text-white">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
-            <h2 class="text-sm font-black uppercase tracking-widest text-white mb-6 border-b border-purple-900/50 pb-2">Asset Settings</h2>
+            <h2 class="text-sm font-black uppercase tracking-widest text-white mb-6 border-b border-purple-900/50 pb-2">Portfolio Management</h2>
             
             <div class="space-y-4">
                 <div>
-                    <label class="text-[9px] font-black uppercase tracking-widest text-purple-400 mb-1 block">Add USDT Balance</label>
+                    <label class="text-[9px] font-black uppercase tracking-widest text-purple-400 mb-1 block">Add/Update USDT</label>
                     <div class="flex gap-2">
-                        <input type="number" id="add-usdt-input" placeholder="Amount" class="flex-grow neo-input p-2.5 rounded-lg text-sm font-mono">
-                        <button onclick="addUsdt()" class="bg-purple-600 px-4 rounded-lg text-[10px] font-black uppercase text-white hover:bg-purple-500 transition">Add</button>
+                        <input type="number" id="add-usdt-input" placeholder="Set Amount" class="flex-grow neo-input p-2.5 rounded-lg text-sm font-mono">
+                        <button onclick="setUsdt()" class="bg-purple-600 px-4 rounded-lg text-[10px] font-black uppercase text-white hover:bg-purple-500 transition">Set</button>
                     </div>
                 </div>
                 
                 <div class="pt-4 border-t border-purple-900/30">
-                    <label class="text-[9px] font-black uppercase tracking-widest text-muted mb-2 block">Current Assets (Visual Only)</label>
-                    <div id="manual-assets-list" class="space-y-2 max-h-[150px] overflow-y-auto no-scrollbar">
-                        </div>
+                    <label class="text-[9px] font-black uppercase tracking-widest text-muted mb-2 block">Custom Holdings</label>
+                    <div id="manual-assets-list" class="space-y-2 max-h-[150px] overflow-y-auto no-scrollbar"></div>
                     
                     <div class="flex gap-2 mt-3">
                         <input type="text" id="new-asset-name" placeholder="Coin (e.g. BTC)" class="w-1/2 neo-input p-2 rounded-lg text-xs font-black uppercase">
                         <input type="number" id="new-asset-amt" placeholder="Amount" class="w-1/2 neo-input p-2 rounded-lg text-xs font-mono">
                     </div>
-                    <button onclick="addManualAsset()" class="w-full mt-2 neo-btn py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest">Add Custom Holding</button>
+                    <button onclick="addManualAsset()" class="w-full mt-2 neo-btn py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest">Add Holding</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="history-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="modal-content glass-panel w-full max-w-lg p-6 relative max-h-[80vh] flex flex-col">
+            <button onclick="toggleModal('history-modal')" class="absolute top-4 right-4 text-muted hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h2 class="text-sm font-black uppercase tracking-widest text-white mb-4 border-b border-purple-900/50 pb-2">Trade History</h2>
+            
+            <div class="flex-grow overflow-y-auto no-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-[#0a0510]/80 sticky top-0">
+                        <tr class="text-[9px] font-black uppercase tracking-widest text-muted border-b border-purple-900/30">
+                            <th class="p-2">Asset</th>
+                            <th class="p-2">Side</th>
+                            <th class="p-2 text-right">Result PnL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body" class="text-xs font-bold text-slate-200 font-mono">
+                        </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -235,20 +262,18 @@
             { id: 'DOGEUSDT', name: 'DOGE/USDT', icon: 'dogecoin-doge-logo.svg?v=029' }
         ];
 
-        let state = JSON.parse(localStorage.getItem('cloud_state_v1')) || {
+        let state = JSON.parse(localStorage.getItem('cloud_state_v2')) || {
             usdtBalance: 10000.00,
             orders: [],
-            manualAssets: { 'BTC': 0.5, 'ETH': 2.0 }
+            history: [],
+            manualAssets: { 'BTC': 0.1, 'ETH': 1.0 }
         };
         
         let livePrices = {}; 
         let ui = { 
-            side: 'buy', 
-            pair: 'BTCUSDT', 
-            price: 0, 
-            lastPrice: 0, 
-            lev: 10,
-            chartData: [] // For custom canvas
+            side: 'buy', pair: 'BTCUSDT', price: 0, lastPrice: 0, lev: 10,
+            timeframe: '5m', // live, 1m, 5m, 15m, 1h
+            chartData: [] // Array of {time, price}
         };
         let ws;
         let chartCtx;
@@ -258,22 +283,30 @@
             buildDropdown();
             setupCanvas();
             connectMultiStream();
+            fetchChartData(); // initial fetch
             updateUI();
             renderOrders();
+            renderHistory();
             renderManualAssets();
+            
+            // Loop to calculate net worth frequently
+            setInterval(calculateNetWorth, 1000);
         }
 
-        // --- 3. CUSTOM UI COMPONENTS ---
+        function toggleModal(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('modal-hidden');
+            el.classList.toggle('modal-active');
+        }
+
+        // --- 3. UI COMPONENTS & DROPDOWN ---
         function buildDropdown() {
             const menu = document.getElementById('pair-dropdown');
             menu.innerHTML = '';
             ASSETS.forEach(a => {
                 const el = document.createElement('div');
                 el.className = "px-4 py-2 hover:bg-purple-900/40 cursor-pointer flex items-center gap-3 transition";
-                el.innerHTML = `
-                    <img src="https://cryptologos.cc/logos/${a.icon}" class="w-5 h-5 rounded-full">
-                    <span class="text-xs font-black uppercase text-white">${a.name}</span>
-                `;
+                el.innerHTML = `<img src="https://cryptologos.cc/logos/${a.icon}" class="w-5 h-5 rounded-full"><span class="text-xs font-black uppercase text-white">${a.name}</span>`;
                 el.onclick = () => selectPair(a);
                 menu.appendChild(el);
             });
@@ -291,144 +324,186 @@
             document.getElementById('active-coin-logo').src = `https://cryptologos.cc/logos/${asset.icon}`;
             togglePairDropdown();
             
-            // Reset Chart & Price
             ui.chartData = [];
             ui.price = livePrices[ui.pair] || 0;
             document.getElementById('main-price').innerText = "Syncing...";
-            document.getElementById('main-price').className = "text-4xl md:text-5xl lg:text-6xl font-black text-white font-mono tracking-tighter";
+            fetchChartData();
         }
 
-        function toggleSettings() {
-            const el = document.getElementById('settings-modal');
-            el.classList.toggle('modal-hidden');
-            el.classList.toggle('modal-active');
-        }
-
-        // --- 4. CUSTOM HTML5 CANVAS GRAPH ---
+        // --- 4. HIGH RES CUSTOM CANVAS ENGINE ---
         function setupCanvas() {
+            const container = document.getElementById('canvas-container');
             const canvas = document.getElementById('custom-chart');
-            // Make internal resolution match display size to prevent blur
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
             chartCtx = canvas.getContext('2d');
             
-            // Handle resize
-            window.addEventListener('resize', () => {
-                const parent = canvas.parentElement;
-                canvas.width = parent.clientWidth;
-                canvas.height = parent.clientHeight;
+            function resize() {
+                const rect = container.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                
+                chartCtx.scale(dpr, dpr);
+                canvas.style.width = `${rect.width}px`;
+                canvas.style.height = `${rect.height}px`;
                 drawChart();
-            });
+            }
+            
+            window.addEventListener('resize', resize);
+            resize();
         }
 
-        function addChartPoint(price) {
-            ui.chartData.push(price);
-            if(ui.chartData.length > 50) ui.chartData.shift(); // Keep last 50 ticks
-            drawChart();
+        async function fetchChartData() {
+            if(ui.timeframe === 'live') {
+                ui.chartData = [];
+                return;
+            }
+            try {
+                // Fetch Historical Klines from Binance
+                let res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${ui.pair}&interval=${ui.timeframe}&limit=50`);
+                let json = await res.json();
+                ui.chartData = json.map(d => ({
+                    time: parseInt(d[0]),
+                    price: parseFloat(d[4])
+                }));
+                drawChart();
+            } catch(e) { console.error("Klines fetch error", e); }
+        }
+
+        function setTimeframe(tf) {
+            ui.timeframe = tf;
+            document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tf-${tf}`).classList.add('active');
+            fetchChartData();
         }
 
         function drawChart() {
             if(!chartCtx || ui.chartData.length < 2) return;
-            const w = chartCtx.canvas.width;
-            const h = chartCtx.canvas.height;
+            
+            // Get CSS display size (not internal canvas resolution)
+            const canvas = document.getElementById('custom-chart');
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
             const data = ui.chartData;
             
             chartCtx.clearRect(0, 0, w, h);
             
-            const min = Math.min(...data);
-            const max = Math.max(...data);
-            const range = max - min || 1; // avoid /0
+            // Dimensions & Padding
+            const padYBottom = 20; // X axis text
+            const padXRight = 60; // Y axis text
+            const gW = w - padXRight;
+            const gH = h - padYBottom;
             
-            // Determine color based on trend (first vs last point)
-            const isUp = data[data.length-1] >= data[0];
+            const prices = data.map(d => d.price);
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            const range = maxPrice - minPrice || 1; 
+            
+            const isUp = data[data.length-1].price >= data[0].price;
             const strokeColor = isUp ? '#34d399' : '#fb7185';
             const gradientTop = isUp ? 'rgba(52, 211, 153, 0.4)' : 'rgba(251, 113, 133, 0.4)';
             
-            chartCtx.beginPath();
+            // Draw Grid & Axes
+            chartCtx.strokeStyle = 'rgba(139, 92, 246, 0.1)';
+            chartCtx.lineWidth = 1;
+            chartCtx.fillStyle = '#8b839e';
+            chartCtx.font = '10px "Inter", monospace';
+            chartCtx.textAlign = 'left';
+            chartCtx.textBaseline = 'middle';
             
-            for(let i = 0; i < data.length; i++) {
-                const x = (i / (49)) * w; // Spread 50 points across width
-                // Add padding top and bottom (h*0.8)
-                const y = h - ((data[i] - min) / range) * (h * 0.7) - (h * 0.15); 
+            // Y-Axis Lines & Labels
+            const levels = 4;
+            for(let i=0; i<=levels; i++) {
+                const yPos = (i / levels) * gH;
+                const priceLvl = maxPrice - (i / levels) * range;
+                chartCtx.beginPath();
+                chartCtx.moveTo(0, yPos);
+                chartCtx.lineTo(gW, yPos);
+                chartCtx.stroke();
                 
-                if(i === 0) chartCtx.moveTo(x, y);
-                else {
-                    // Smooth curve approximation (bezier would be better but linear is fine for high tick rate)
-                    chartCtx.lineTo(x, y);
-                }
+                const dec = priceLvl < 1 ? 4 : 2;
+                chartCtx.fillText(priceLvl.toFixed(dec), gW + 5, yPos);
             }
             
-            // Stroke Line
+            // Draw Line
+            chartCtx.beginPath();
+            let lastX = 0, lastY = 0;
+            
+            for(let i = 0; i < data.length; i++) {
+                const x = (i / (data.length - 1)) * gW;
+                // Add tiny vertical padding inside graph bounds so it doesn't clip top/bottom
+                const y = ((maxPrice - data[i].price) / range) * (gH * 0.8) + (gH * 0.1); 
+                
+                if(i === 0) chartCtx.moveTo(x, y);
+                else chartCtx.lineTo(x, y);
+                
+                if(i === data.length - 1) { lastX = x; lastY = y; }
+            }
+            
             chartCtx.strokeStyle = strokeColor;
-            chartCtx.lineWidth = 3;
+            chartCtx.lineWidth = 2.5;
             chartCtx.lineJoin = 'round';
             chartCtx.shadowColor = strokeColor;
-            chartCtx.shadowBlur = 10;
+            chartCtx.shadowBlur = 8;
             chartCtx.stroke();
             
-            // Fill Area
-            chartCtx.lineTo(w, h);
-            chartCtx.lineTo(0, h);
+            // Fill Gradient
+            chartCtx.lineTo(lastX, gH);
+            chartCtx.lineTo(0, gH);
             chartCtx.closePath();
-            
-            const gradient = chartCtx.createLinearGradient(0, 0, 0, h);
+            const gradient = chartCtx.createLinearGradient(0, 0, 0, gH);
             gradient.addColorStop(0, gradientTop);
             gradient.addColorStop(1, 'rgba(0,0,0,0)');
-            
             chartCtx.fillStyle = gradient;
-            chartCtx.shadowBlur = 0; // disable shadow for fill
+            chartCtx.shadowBlur = 0; 
             chartCtx.fill();
+            
+            // Current Price Dot (Tip of line)
+            chartCtx.beginPath();
+            chartCtx.arc(lastX, lastY, 4, 0, 2 * Math.PI);
+            chartCtx.fillStyle = strokeColor;
+            chartCtx.shadowColor = strokeColor;
+            chartCtx.shadowBlur = 10;
+            chartCtx.fill();
+            
+            // Current Price Tag on Y Axis
+            chartCtx.shadowBlur = 0;
+            chartCtx.fillStyle = strokeColor;
+            chartCtx.fillRect(gW, lastY - 10, padXRight, 20);
+            chartCtx.fillStyle = '#05020a'; // Text color inside tag
+            chartCtx.font = 'bold 10px monospace';
+            const currPrice = data[data.length-1].price;
+            const dec2 = currPrice < 1 ? 4 : 2;
+            chartCtx.fillText(currPrice.toFixed(dec2), gW + 4, lastY);
+            
+            // X-Axis Time (Start & End)
+            chartCtx.fillStyle = '#8b839e';
+            const tStart = new Date(data[0].time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const tEnd = new Date(data[data.length-1].time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            chartCtx.textAlign = 'left';
+            chartCtx.fillText(tStart, 0, gH + 10);
+            chartCtx.textAlign = 'right';
+            chartCtx.fillText(tEnd, gW, gH + 10);
         }
 
-        // --- 5. BINANCE MULTI-STREAM WEBSOCKET ---
+        // --- 5. LIVE WEBSOCKET ---
         function connectMultiStream() {
-            // Build streams string: btcusdt@ticker/ethusdt@ticker...
             const streams = ASSETS.map(a => a.id.toLowerCase() + '@ticker').join('/');
-            
             ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
             
-            ws.onopen = () => {
-                document.getElementById('price-status').innerText = "Live Engine Online";
-                document.getElementById('price-status').className = "text-[10px] font-bold text-green-400 uppercase tracking-widest mt-1 ml-1";
-            };
-
             ws.onmessage = (e) => {
                 const payload = JSON.parse(e.data);
                 if(payload.data && payload.data.c) {
-                    const symbol = payload.data.s; // e.g. BTCUSDT
+                    const symbol = payload.data.s; 
                     const price = parseFloat(payload.data.c);
-                    
                     livePrices[symbol] = price;
-                    
-                    // Update Top Ticker Bar
-                    updateTopTicker();
 
-                    // If it's the active chart pair, update main UI
                     if(symbol === ui.pair) {
                         processMainTick(price);
                     }
                 }
             };
-
-            ws.onclose = () => setTimeout(connectMultiStream, 3000); // Reconnect
-        }
-
-        function updateTopTicker() {
-            const container = document.getElementById('top-ticker');
-            let html = '';
-            
-            // Include dynamic prices + manual assets
-            ASSETS.forEach(a => {
-                const p = livePrices[a.id];
-                if(p) {
-                    const base = a.id.replace('USDT', '');
-                    const dec = p < 1 ? 4 : 2;
-                    html += `<span class="ticker-item">${base} ≈ $${p.toLocaleString(undefined, {minimumFractionDigits: dec})}</span>`;
-                }
-            });
-            
-            container.innerHTML = html;
+            ws.onclose = () => setTimeout(connectMultiStream, 3000); 
         }
 
         function processMainTick(newPrice) {
@@ -436,21 +511,57 @@
             
             if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
                 el.classList.remove('text-pump', 'text-dump');
-                void el.offsetWidth; // Force Reflow
+                void el.offsetWidth; 
                 el.classList.add(newPrice > ui.lastPrice ? 'text-pump' : 'text-dump');
             }
             
             ui.lastPrice = newPrice;
             ui.price = newPrice;
-            addChartPoint(newPrice);
+            
+            // Update chart data
+            if(ui.timeframe === 'live') {
+                ui.chartData.push({time: Date.now(), price: newPrice});
+                if(ui.chartData.length > 50) ui.chartData.shift();
+            } else if (ui.chartData.length > 0) {
+                // If historical, just update the very last candle's price
+                ui.chartData[ui.chartData.length - 1].price = newPrice;
+            }
+            
+            drawChart();
             
             const dec = newPrice < 1 ? 4 : 2;
             el.innerText = `$${newPrice.toLocaleString(undefined, {minimumFractionDigits: dec, maximumFractionDigits: dec})}`;
             
-            renderOrders(); // Update live PnL
+            renderOrders(); 
         }
 
-        // --- 6. EXECUTION & SETTINGS ---
+        // --- 6. NET WORTH CALCULATOR ---
+        function calculateNetWorth() {
+            let total = state.usdtBalance;
+            
+            // Add Open Positions PnL & Margin
+            state.orders.forEach(o => {
+                total += o.margin; // Initial margin locked
+                let currentPrice = livePrices[o.pair] || o.entry;
+                const currentVal = o.units * currentPrice;
+                const initialVal = o.margin * o.lev;
+                let pnl = o.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
+                total += pnl;
+            });
+            
+            // Add Manual Assets Value
+            for (const [coin, amt] of Object.entries(state.manualAssets)) {
+                // Find matching pair price (e.g. BTC -> BTCUSDT)
+                const price = livePrices[coin + 'USDT'];
+                if(price) total += (amt * price);
+            }
+            
+            const str = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('top-net-worth').innerText = str;
+            document.getElementById('mobile-net-worth').innerText = str;
+        }
+
+        // --- 7. EXECUTION ---
         function setSide(side) {
             ui.side = side;
             const bBuy = document.getElementById('btn-buy');
@@ -496,7 +607,6 @@
             if (margin > state.usdtBalance) return alert("Insufficient USDT.");
 
             state.usdtBalance -= margin;
-            
             const aName = ASSETS.find(x => x.id === ui.pair).name;
 
             state.orders.push({
@@ -507,7 +617,8 @@
                 margin: margin,
                 lev: ui.lev,
                 entry: ui.price,
-                units: (margin * ui.lev) / ui.price
+                units: (margin * ui.lev) / ui.price,
+                time: new Date().getTime()
             });
 
             marginInput.value = '';
@@ -516,24 +627,22 @@
             renderOrders();
         }
 
+        // --- 8. ORDERS & HISTORY ---
         function renderOrders() {
             const tbody = document.getElementById('orders-body');
             
             if (state.orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-5 text-center text-muted font-black uppercase tracking-widest text-[10px]">No Active Positions</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-5 text-center text-muted font-black uppercase tracking-widest text-[10px]">No Open Trades</td></tr>`;
                 return;
             }
 
             let html = '';
             state.orders.forEach(o => {
-                let pnl = 0;
                 let currentPrice = livePrices[o.pair] || o.entry;
-                
                 const currentVal = o.units * currentPrice;
                 const initialVal = o.margin * o.lev;
-                pnl = o.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
+                let pnl = o.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
                 
-                const roiPct = (pnl / o.margin) * 100;
                 const isProf = pnl >= 0;
                 const cColor = isProf ? 'text-green-400' : 'text-pink-400';
                 const sColor = o.side === 'buy' ? 'text-purple-300 bg-purple-900/40' : 'text-pink-300 bg-pink-900/40';
@@ -541,12 +650,12 @@
                 html += `
                     <tr class="border-b border-purple-900/20 hover:bg-purple-900/20 transition">
                         <td class="p-3 text-white whitespace-nowrap">${o.display}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded ${sColor}">${o.lev}x ${o.side}</span></td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded ${sColor} uppercase text-[9px]">${o.lev}x ${o.side}</span></td>
                         <td class="p-3">$${o.margin.toFixed(2)}</td>
                         <td class="p-3">$${o.entry.toFixed(4)}</td>
-                        <td class="p-3 text-right ${cColor}">${isProf?'+':''}$${pnl.toFixed(2)}</td>
+                        <td class="p-3 text-right ${cColor} font-black">${isProf?'+':''}$${pnl.toFixed(2)}</td>
                         <td class="p-3 text-center">
-                            <button onclick="closeOrder('${o.id}')" class="px-2 py-1 bg-purple-900/50 hover:bg-pink-600 hover:text-white text-muted rounded transition">X</button>
+                            <button onclick="closeOrder('${o.id}')" class="px-3 py-1.5 bg-purple-900/50 hover:bg-pink-600 hover:text-white text-muted rounded uppercase text-[9px] font-black transition shadow">Close</button>
                         </td>
                     </tr>
                 `;
@@ -565,17 +674,51 @@
             let pnl = o.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
             
             state.usdtBalance += (o.margin + pnl);
+            
+            // Add to history
+            state.history.unshift({
+                display: o.display,
+                side: o.side,
+                pnl: pnl,
+                time: new Date().getTime()
+            });
+            if(state.history.length > 50) state.history.pop(); // Keep last 50
+            
             state.orders.splice(idx, 1);
             
             saveState();
             renderOrders();
+            renderHistory();
         }
 
-        // --- Settings / Assets Functions ---
-        function addUsdt() {
+        function renderHistory() {
+            const tbody = document.getElementById('history-body');
+            if (state.history.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-5 text-center text-muted font-black uppercase tracking-widest text-[10px]">No Trade History</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            state.history.forEach(h => {
+                const isProf = h.pnl >= 0;
+                const cColor = isProf ? 'text-green-400' : 'text-pink-400';
+                
+                html += `
+                    <tr class="border-b border-purple-900/20 hover:bg-purple-900/20 transition">
+                        <td class="p-2 text-white">${h.display}</td>
+                        <td class="p-2 text-[10px] text-muted uppercase">${h.side}</td>
+                        <td class="p-2 text-right ${cColor} font-black">${isProf?'+':''}$${h.pnl.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // --- 9. PORTFOLIO MANAGER ---
+        function setUsdt() {
             const amt = parseFloat(document.getElementById('add-usdt-input').value);
-            if(amt && amt > 0) {
-                state.usdtBalance += amt;
+            if(amt !== isNaN) {
+                state.usdtBalance = amt;
                 document.getElementById('add-usdt-input').value = '';
                 saveState();
             }
@@ -614,16 +757,15 @@
         }
 
         function updateUI() {
-            const bal = state.usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('ui-avail').innerText = bal + ' USDT';
+            document.getElementById('ui-avail').innerText = state.usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            calculateNetWorth();
         }
 
         function saveState() {
-            localStorage.setItem('cloud_state_v1', JSON.stringify(state));
+            localStorage.setItem('cloud_state_v2', JSON.stringify(state));
             updateUI();
         }
 
-        // Boot up
         init();
     </script>
 </body>
