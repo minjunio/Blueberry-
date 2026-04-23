@@ -26,8 +26,8 @@ const db = new sqlite3.Database('./data/database.sqlite', (err) => {
 });
 
 db.serialize(() => {
-    // Core Tables
-    db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, sol_balance REAL DEFAULT 5.0, rig_percentage INTEGER DEFAULT -1)`);
+    // Core Tables (Added usdt_balance for the Trading Terminal)
+    db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, sol_balance REAL DEFAULT 5.0, rig_percentage INTEGER DEFAULT -1, usdt_balance REAL DEFAULT 88000.0)`);
     db.run(`CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, seo_title TEXT, seo_desc TEXT, seo_keywords TEXT, og_image TEXT, canonical_url TEXT)`);
     db.run(`CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, description TEXT, price REAL, tier TEXT DEFAULT 'Standard', image_url TEXT, platform TEXT, tags TEXT, vendor_id INTEGER, FOREIGN KEY(vendor_id) REFERENCES users(id))`);
     db.run(`CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id TEXT UNIQUE, product_id INTEGER, tier TEXT, payment_method TEXT, email TEXT, discord_username TEXT, status TEXT DEFAULT 'Pending Payment', giftcard_code TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
@@ -40,7 +40,7 @@ db.serialize(() => {
     // Casino Tracking Table
     db.run(`CREATE TABLE IF NOT EXISTS casino_ledger (id INTEGER PRIMARY KEY AUTOINCREMENT, action TEXT, amount REAL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
 
-    // Safe Alterations for older DB versions
+    // Safe Alterations for older DB versions (Including new Trading features)
     db.run("ALTER TABLE categories ADD COLUMN seo_title TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_desc TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_keywords TEXT", () => {});
@@ -50,12 +50,13 @@ db.serialize(() => {
     db.run("ALTER TABLE orders ADD COLUMN email TEXT", () => {});
     db.run("ALTER TABLE users ADD COLUMN sol_balance REAL DEFAULT 5.0", () => {});
     db.run("ALTER TABLE users ADD COLUMN rig_percentage INTEGER DEFAULT -1", () => {});
+    db.run("ALTER TABLE users ADD COLUMN usdt_balance REAL DEFAULT 88000.0", () => {});
 
     // Initialize Admin
     db.get("SELECT * FROM users WHERE role = 'admin'", async (err, row) => {
         if (!row) {
             const hashedAdminPass = await bcrypt.hash('monterysasd', 10);
-            db.run("INSERT INTO users (username, password, role, sol_balance, rig_percentage) VALUES ('admin', ?, 'admin', 5.0, -1)", [hashedAdminPass]);
+            db.run("INSERT INTO users (username, password, role, sol_balance, rig_percentage, usdt_balance) VALUES ('admin', ?, 'admin', 5.0, -1, 88000.0)", [hashedAdminPass]);
         }
     });
 });
@@ -214,7 +215,6 @@ app.get('/api/search', (req, res) => {
 });
 
 // --- DYNAMIC POST ROUTE ---
-// --- DYNAMIC POST ROUTE ---
 app.get('/post/:id', (req, res) => {
     db.get("SELECT * FROM posts WHERE id = ?", [req.params.id], (err, post) => {
         if (!post) return res.redirect('/');
@@ -228,7 +228,6 @@ app.get('/post/:id', (req, res) => {
         }
     });
 });
-
 
 app.get('/my-orders', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/');
@@ -326,7 +325,6 @@ app.get('/admin', (req, res) => {
 });
 
 // --- CASINO API ENDPOINTS ---
-
 app.get('/admin/casino', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     renderSafe(res, 'casino', { user: req.session.user });
@@ -344,6 +342,26 @@ app.post('/admin/casino/sync', (req, res) => {
     });
 });
 
+// --- TRADING API ENDPOINTS (NEW) ---
+app.get('/admin/trading', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    
+    // Fetch fresh user data so the terminal loads the exact database balance
+    db.get("SELECT * FROM users WHERE id = ?", [req.session.user.id], (err, user) => {
+        renderSafe(res, 'trading', { user: user });
+    });
+});
+
+app.post('/admin/trading/sync', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.status(403).json({error: 'Unauthorized'});
+    const { balance } = req.body;
+
+    // Save the new USDT balance directly into the SQLite database
+    db.run("UPDATE users SET usdt_balance = ? WHERE id = ?", [balance, req.session.user.id], (err) => {
+        res.json({ success: true });
+    });
+});
+
 // --- ADMIN STORE MANAGEMENT ---
 app.post('/admin/close-order', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
@@ -356,12 +374,14 @@ app.post('/admin/add-product', (req, res) => {
     if (parseFloat(price) > 900) tier = 'Ultra';
     db.run("INSERT INTO products (title, category, description, price, tier, image_url, platform, tags, vendor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [title, category, description, price, tier || 'Standard', image_url, platform, tags, req.session.user.id], () => res.redirect('/'));
 });
+
 app.post('/admin/edit-product', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     let { id, title, category, description, price, tier, image_url, platform } = req.body;
     if (parseFloat(price) > 900) tier = 'Ultra';
     db.run("UPDATE products SET title = ?, category = ?, description = ?, price = ?, tier = ?, image_url = ?, platform = ? WHERE id = ?", [title, category, description, price, tier, image_url, platform, id], () => res.redirect('/admin'));
 });
+
 app.post('/admin/delete-product', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("DELETE FROM products WHERE id = ?", [req.body.id], () => res.redirect('back'));
@@ -371,34 +391,29 @@ app.post('/admin/add-announcement', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("INSERT INTO announcements (title, category, image1, image2, content) VALUES (?, ?, ?, ?, ?)", [req.body.title, req.body.category, req.body.image1, req.body.image2, req.body.content], () => res.redirect('/admin'));
 });
-app.post('/admin/edit-announcement', (req, res) => {
-    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    db.run("UPDATE announcements SET title = ?, category = ?, image1 = ?, image2 = ?, content = ? WHERE id = ?", [req.body.title, req.body.category, req.body.image1, req.body.image2, req.body.content, req.body.id], () => res.redirect('/admin'));
-});
-app.post('/admin/delete-announcement', (req, res) => {
-    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    db.run("DELETE FROM announcements WHERE id = ?", [req.body.id], () => res.redirect('/admin'));
-});
 
-app.post('/admin/add-category', (req, res) => {
-    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    db.run("INSERT INTO categories (name, seo_title, seo_desc, seo_keywords, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?)", [req.body.category_name, req.body.seo_title, req.body.seo_desc, req.body.seo_keywords, req.body.og_image, req.body.canonical_url], () => res.redirect('/admin'));
-});
-app.post('/admin/edit-category', (req, res) => {
-    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
-    db.run("UPDATE categories SET name = ?, seo_title = ?, seo_desc = ?, seo_keywords = ?, og_image = ?, canonical_url = ? WHERE name = ?", [req.body.category_name, req.body.seo_title, req.body.seo_desc, req.body.seo_keywords, req.body.og_image, req.body.canonical_url, req.body.original_name], () => res.redirect('/admin'));
-});
 app.post('/admin/delete-category', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("DELETE FROM categories WHERE name = ?", [req.body.category_name], () => res.redirect('/admin'));
 });
 
-// --- ADMIN POST CONTROLS ---
+app.post('/admin/add-category', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    db.run("INSERT INTO categories (name, seo_title, seo_desc, seo_keywords, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?)", 
+    [req.body.category_name, req.body.seo_title, req.body.seo_desc, req.body.seo_keywords, req.body.og_image, req.body.canonical_url], () => res.redirect('/admin'));
+});
+
+app.post('/admin/edit-category', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    db.run("UPDATE categories SET name = ?, seo_title = ?, seo_desc = ?, seo_keywords = ?, og_image = ?, canonical_url = ? WHERE name = ?", 
+    [req.body.category_name, req.body.seo_title, req.body.seo_desc, req.body.seo_keywords, req.body.og_image, req.body.canonical_url, req.body.original_name], () => res.redirect('/admin'));
+});
+
 app.post('/admin/add-post', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     const { title, content, category_name, product_id, seo_title, seo_desc, seo_keywords, og_image, canonical_url } = req.body;
     db.run("INSERT INTO posts (title, content, category_name, product_id, seo_title, seo_desc, seo_keywords, og_image, canonical_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-    [title, content, category_name || null, product_id || null, seo_title, seo_desc, seo_keywords, og_image, canonical_url], () => { res.redirect('/admin'); });
+    [title, content, category_name || null, product_id || null, seo_title, seo_desc, seo_keywords, og_image, canonical_url], () => res.redirect('/admin'));
 });
 
 app.post('/admin/delete-post', (req, res) => {
