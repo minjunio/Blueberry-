@@ -25,9 +25,10 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
         
-        input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #a78bfa; cursor: pointer; transition: 0.2s;}
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(139, 92, 246, 0.2); border-radius: 2px; }
+        /* Pro Leverage Slider */
+        .pro-slider { -webkit-appearance: none; width: 100%; height: 6px; background: linear-gradient(90deg, #34d399 0%, #a78bfa 50%, #fb7185 100%); border-radius: 3px; outline: none; transition: opacity .2s; }
+        .pro-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.6); cursor: pointer; border: 2px solid #a78bfa; transition: 0.2s; }
+        .pro-slider::-webkit-slider-thumb:active { transform: scale(1.2); }
 
         .modal-overlay { transition: opacity 0.3s; }
         .modal-content { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -39,12 +40,10 @@
         .tf-btn { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 900; color: #8b839e; cursor: pointer; transition: 0.2s; }
         .tf-btn.active { background: rgba(167, 139, 250, 0.2); color: #a78bfa; border: 1px solid #a78bfa; }
 
-        .whale-feed-item { animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        .code-editor-area { font-family: 'Fira Code', monospace; line-height: 1.5; tab-size: 4; white-space: pre; overflow-x: auto; }
+        
         @keyframes pulseAlert { 0% { box-shadow: 0 0 0 0 rgba(251, 113, 133, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(251, 113, 133, 0); } 100% { box-shadow: 0 0 0 0 rgba(251, 113, 133, 0); } }
         .pump-alert { animation: pulseAlert 1s infinite; border-color: #fb7185 !important; color: #fb7185 !important; }
-
-        #code-editor { font-family: 'Fira Code', monospace; line-height: 1.5; tab-size: 4; }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -52,21 +51,22 @@
 
     <header class="flex flex-col shrink-0 z-50 sticky top-0 bg-[#05020a]/90 backdrop-blur-xl border-b border-purple-900/40">
         <div class="flex justify-between items-center p-3 md:p-4 max-w-[1600px] w-full mx-auto">
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4 lg:gap-8">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(147,51,234,0.5)]">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </div>
                     <h2 class="text-lg font-black uppercase tracking-tighter text-white hidden sm:block">Cloud<span class="text-purple-400">Quant</span></h2>
                 </div>
+                
                 <div class="flex gap-1 bg-[#05020a] border border-purple-900/50 p-1 rounded-lg">
-                    <button onclick="switchApp('terminal')" id="nav-terminal" class="px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition">Terminal</button>
-                    <button onclick="switchApp('bot')" id="nav-bot" class="px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition">DCA Bots</button>
+                    <button onclick="switchApp('terminal')" id="nav-terminal" class="px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition">Terminal</button>
+                    <button onclick="switchApp('bot')" id="nav-bot" class="px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition">Algorithmic Bots</button>
                 </div>
             </div>
             
             <div class="flex items-center gap-2">
-                <button onclick="toggleModal('history-modal')" class="neo-btn px-3 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest flex items-center gap-2">History</button>
+                <button onclick="toggleModal('history-modal')" class="neo-btn px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest hidden md:block">Trade Ledger</button>
             </div>
         </div>
     </header>
@@ -85,7 +85,7 @@
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="text-[10px] font-black uppercase tracking-widest text-muted">Asset Holdings</h3>
                         <button onclick="toggleModal('settings-modal')" class="text-purple-400 hover:text-white transition p-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </button>
                     </div>
                     <div id="wallet-asset-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"></div>
@@ -96,26 +96,18 @@
                 
                 <div class="lg:col-span-3 flex flex-col gap-4 order-2 lg:order-1">
                     <div class="glass-panel p-4 flex flex-col gap-4">
-                        <div class="bg-[#05020a] border border-purple-900/40 p-3 rounded-xl flex flex-col gap-2">
-                            <h3 class="text-[9px] font-black uppercase tracking-widest text-muted">AI Predictor (RSI Model)</h3>
-                            <div class="flex justify-between items-center">
-                                <span id="rsi-val" class="text-sm font-mono font-black text-white">RSI: --</span>
-                                <span id="rsi-pred" class="text-[10px] font-black uppercase px-2 py-1 rounded bg-purple-900/30 text-purple-400">ANALYZING</span>
-                            </div>
-                        </div>
-
                         <div id="pump-detector" class="bg-[#05020a] border border-purple-900/40 p-3 rounded-xl flex items-center justify-between transition-all">
-                            <span class="text-[9px] font-black uppercase tracking-widest text-muted">Market Volatility</span>
+                            <span class="text-[9px] font-black uppercase tracking-widest text-muted">Volatility Scan</span>
                             <span id="pump-status" class="text-[10px] font-black text-green-400">NORMAL</span>
                         </div>
 
-                        <div class="flex flex-col gap-2">
-                            <span class="text-[9px] font-black uppercase tracking-widest text-muted">Order Flow (Buy/Sell)</span>
-                            <div class="flex items-center gap-2">
+                        <div class="flex flex-col gap-2 bg-[#05020a] border border-purple-900/40 p-3 rounded-xl">
+                            <span class="text-[9px] font-black uppercase tracking-widest text-muted">Real-Time Flow (Volume)</span>
+                            <div class="flex items-center gap-2 mt-1">
                                 <span class="text-[9px] font-black text-green-400 w-8 text-right" id="ratio-buy-text">50%</span>
-                                <div class="flex-grow h-1.5 bg-[#05020a] rounded-full overflow-hidden flex border border-purple-900/30">
-                                    <div id="ratio-buy-bar" class="h-full bg-green-500" style="width: 50%"></div>
-                                    <div id="ratio-sell-bar" class="h-full bg-pink-500" style="width: 50%"></div>
+                                <div class="flex-grow h-2 bg-[#05020a] rounded-full overflow-hidden flex border border-purple-900/30">
+                                    <div id="ratio-buy-bar" class="h-full bg-green-500 transition-all duration-300" style="width: 50%"></div>
+                                    <div id="ratio-sell-bar" class="h-full bg-pink-500 transition-all duration-300" style="width: 50%"></div>
                                 </div>
                                 <span class="text-[9px] font-black text-pink-400 w-8" id="ratio-sell-text">50%</span>
                             </div>
@@ -123,15 +115,22 @@
                     </div>
 
                     <div class="glass-panel p-4 flex-grow flex flex-col h-[300px]">
-                        <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-3 border-b border-purple-900/30 pb-2">Live Block Trades</h3>
-                        <div id="whale-feed" class="flex-grow overflow-y-auto no-scrollbar flex flex-col gap-2">
-                            <span class="text-[9px] text-muted text-center mt-4">Waiting for large orders...</span>
-                        </div>
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-3 border-b border-purple-900/30 pb-2">Whale Ledger (>$5k)</h3>
+                        <div id="whale-feed" class="flex-grow overflow-y-auto no-scrollbar flex flex-col gap-2"></div>
                     </div>
                 </div>
                 
                 <div class="lg:col-span-6 flex flex-col gap-4 order-1 lg:order-2">
-                    <div class="glass-panel p-4 flex flex-col relative min-h-[45vh]">
+                    <div class="glass-panel p-4 flex flex-col relative min-h-[50vh]">
+                        
+                        <div class="absolute top-16 right-4 z-30 bg-[#05020a]/80 backdrop-blur border border-purple-900/50 p-2 md:p-3 rounded-xl flex flex-col gap-1 items-end pointer-events-auto">
+                            <div class="flex items-center gap-3">
+                                <span class="text-[9px] font-black uppercase tracking-widest text-muted">AI Model Output</span>
+                                <button onclick="toggleModal('predictor-modal')" class="text-[8px] font-black uppercase text-purple-400 hover:text-white bg-purple-900/30 px-2 py-0.5 rounded transition">&lt;/&gt; Edit Code</button>
+                            </div>
+                            <h4 id="ai-prediction-text" class="text-sm md:text-lg font-black uppercase text-purple-400 font-mono tracking-tighter">ANALYZING...</h4>
+                        </div>
+
                         <div class="flex justify-between items-start z-20">
                             <select id="symbol-select" onchange="selectPair(this.value)" class="neo-input px-3 py-2 rounded-xl text-xs font-black uppercase w-32 md:w-40">
                                 <option value="BTCUSDT">BTC/USDT</option>
@@ -150,23 +149,23 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-4 mt-3 z-10">
-                            <div><span class="text-[9px] text-muted uppercase">24h High</span><p class="text-xs font-mono text-green-400" id="stat-high">--</p></div>
-                            <div><span class="text-[9px] text-muted uppercase">24h Low</span><p class="text-xs font-mono text-pink-400" id="stat-low">--</p></div>
+                        <div class="flex gap-6 mt-3 z-10 pointer-events-none">
+                            <div><span class="text-[9px] text-muted uppercase">24h High</span><p class="text-xs font-mono text-white" id="stat-high">--</p></div>
+                            <div><span class="text-[9px] text-muted uppercase">24h Low</span><p class="text-xs font-mono text-white" id="stat-low">--</p></div>
                         </div>
 
                         <div class="mt-2 z-10 flex flex-col pointer-events-none">
                             <h2 id="main-price" class="text-4xl md:text-5xl font-black text-white font-mono tracking-tighter">--</h2>
                         </div>
 
-                        <div class="flex-grow mt-2 relative w-full h-full min-h-[250px] cursor-crosshair" id="canvas-container">
+                        <div class="flex-grow mt-2 relative w-full h-full min-h-[300px] cursor-crosshair overflow-hidden rounded-lg border border-purple-900/20" id="canvas-container">
                             <canvas id="custom-chart" class="absolute inset-0 w-full h-full"></canvas>
                         </div>
                     </div>
 
-                    <div class="glass-panel flex flex-col flex-grow min-h-[20vh]">
+                    <div class="glass-panel flex flex-col min-h-[20vh]">
                         <div class="flex justify-between items-center p-3 border-b border-purple-900/30 shrink-0">
-                            <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400">Open Trades</h3>
+                            <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400">Open Manual Trades</h3>
                         </div>
                         <div class="flex-grow overflow-x-auto no-scrollbar">
                             <table class="w-full text-left border-collapse min-w-[500px]">
@@ -186,7 +185,7 @@
                 </div>
 
                 <div class="lg:col-span-3 flex flex-col order-3 lg:order-3">
-                    <div class="glass-panel p-5 flex flex-col h-full relative z-10">
+                    <div class="glass-panel p-5 flex flex-col h-full relative z-10 sticky top-20">
                         <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-purple-900/30 pb-2">Manual Execution</h3>
                         
                         <div class="flex gap-2 bg-[#05020a] p-1 border border-purple-900/50 rounded-xl mb-5">
@@ -194,21 +193,24 @@
                             <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-muted hover:text-pink-400 transition">Short</button>
                         </div>
 
-                        <div class="space-y-5">
+                        <div class="space-y-6">
                             <div>
                                 <div class="flex justify-between mb-1">
                                     <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin</label>
                                     <span class="text-[10px] font-black text-purple-400 cursor-pointer" onclick="setMax()">MAX</span>
                                 </div>
-                                <input type="number" id="trade-margin" placeholder="USDT" class="w-full neo-input p-3 rounded-xl text-lg font-black font-mono">
+                                <div class="relative">
+                                    <input type="number" id="trade-margin" placeholder="0.00" class="w-full neo-input p-3 pl-4 rounded-xl text-lg font-black font-mono">
+                                    <span class="absolute right-4 top-3.5 text-xs font-black text-muted uppercase">USDT</span>
+                                </div>
                             </div>
 
                             <div>
-                                <div class="flex justify-between mb-2">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-muted">Leverage</label>
-                                    <span class="text-[10px] font-black text-white bg-purple-900/50 px-2 py-0.5 rounded border border-purple-700/50"><span id="lev-val">10</span>x</span>
+                                <div class="flex justify-between mb-3">
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-muted">Leverage <span id="lev-val" class="text-white ml-1">10x</span></label>
+                                    <input type="number" id="lev-input" value="10" min="1" max="100" class="w-12 neo-input p-1 text-center rounded text-[10px] font-mono">
                                 </div>
-                                <input type="range" id="trade-lev" min="1" max="100" value="10" class="w-full">
+                                <input type="range" id="trade-lev" min="1" max="100" value="10" class="pro-slider">
                             </div>
 
                             <div class="p-3 bg-[#05020a] border border-purple-900/30 rounded-xl space-y-2 mt-4">
@@ -217,13 +219,13 @@
                                     <span class="text-white font-mono" id="ui-avail">0.00</span>
                                 </div>
                                 <div class="flex justify-between text-[10px] font-black uppercase border-t border-purple-900/30 pt-2">
-                                    <span class="text-muted">Size</span>
+                                    <span class="text-muted">Size Ext.</span>
                                     <span class="text-purple-400 font-mono" id="ui-size">0.00</span>
                                 </div>
                             </div>
                         </div>
 
-                        <button onclick="executeOrder()" id="btn-execute" class="mt-auto w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 transition active:scale-95">
+                        <button onclick="executeOrder()" id="btn-execute" class="mt-auto w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 shadow-[0_0_15px_rgba(52,211,153,0.3)] transition active:scale-95">
                             Execute Long
                         </button>
                     </div>
@@ -234,98 +236,108 @@
 
     <div id="app-bot" class="w-full hidden">
         <main class="flex flex-col p-2 md:p-4 gap-4 w-full max-w-[1600px] mx-auto">
-            <div class="glass-panel p-6">
+            
+            <div class="glass-panel p-6 mb-4">
                 <div class="flex justify-between items-center mb-6 border-b border-purple-900/30 pb-4">
                     <div>
-                        <h1 class="text-xl font-black uppercase text-white">Bot Factory</h1>
-                        <p class="text-xs text-muted">Configure algorithmic execution engines.</p>
+                        <h1 class="text-xl font-black uppercase text-white">Bot Fleet Dashboard</h1>
+                        <p class="text-xs text-muted">Monitor and manage running algorithms.</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="exportBotConfig()" class="neo-btn px-4 py-2 rounded-lg text-[10px] font-black uppercase">Export JSON</button>
-                        <label class="neo-btn px-4 py-2 rounded-lg text-[10px] font-black uppercase cursor-pointer">
-                            Import JSON <input type="file" id="import-json" class="hidden" accept=".json" onchange="importBotConfig(event)">
-                        </label>
-                    </div>
+                    <button onclick="toggleModal('bot-factory-modal')" class="neo-btn px-5 py-2 rounded-lg text-[10px] font-black uppercase bg-purple-600/20 border-purple-500 text-purple-400 hover:bg-purple-600 hover:text-white">+ Create Bot</button>
                 </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="flex flex-col gap-4">
-                        <div class="bg-[#05020a] p-4 rounded-xl border border-purple-900/40 space-y-4">
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-muted block mb-2">Bot Mode</label>
-                                <select id="bot-mode" class="w-full neo-input p-3 rounded-lg text-xs font-black uppercase">
-                                    <option value="standard">Standard DCA (Accumulation)</option>
-                                    <option value="sniper">Sniper (Pump Leveraged Scalp)</option>
-                                </select>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-muted block mb-2">Target Asset</label>
-                                    <input type="text" id="bot-asset" value="BTCUSDT" class="w-full neo-input p-3 rounded-lg text-xs font-black uppercase">
-                                </div>
-                                <div>
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-muted block mb-2">Base Order (USDT)</label>
-                                    <input type="number" id="bot-size" value="100" class="w-full neo-input p-3 rounded-lg text-xs font-mono">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-muted block mb-2">Price Drop % (Trigger)</label>
-                                    <input type="number" id="bot-drop" value="2.5" class="w-full neo-input p-3 rounded-lg text-xs font-mono">
-                                </div>
-                                <div>
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-muted block mb-2">Leverage</label>
-                                    <input type="number" id="bot-lev" value="1" class="w-full neo-input p-3 rounded-lg text-xs font-mono">
-                                </div>
-                            </div>
-                        </div>
-                        <button onclick="deployBot()" class="w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-purple-600 text-white hover:bg-purple-500 shadow-[0_0_20px_rgba(147,51,234,0.4)] transition">
-                            Deploy Bot
-                        </button>
+                
+                <div id="bot-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     </div>
+            </div>
 
-                    <div class="flex flex-col h-full min-h-[400px]">
-                        <div class="bg-[#1e1e1e] rounded-t-xl border border-gray-800 p-2 flex justify-between items-center">
-                            <span class="text-[10px] font-mono text-gray-400">custom_logic.js</span>
-                            <div class="flex gap-1">
-                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                            </div>
-                        </div>
-                        <textarea id="code-editor" class="w-full flex-grow bg-[#1e1e1e] text-[#d4d4d4] p-4 text-xs font-mono outline-none border border-t-0 border-gray-800 rounded-b-xl resize-none" spellcheck="false">
-// Custom Bot Logic Hook
-// Language: JavaScript
+        </main>
+    </div>
 
-function onTick(price, rsi, volume) {
-    if (bot.mode === 'sniper') {
-        // Leveraged Pump Scalping
-        if (rsi > 80 && volume > 1000000) {
-            executeMarket({ side: 'sell', size: bot.size, lev: bot.lev });
-            log("Sniper triggered SHORT at " + price);
-        }
-    } else {
-        // Standard DCA Accumulation
-        const dropFromATH = ((ATH - price) / ATH) * 100;
-        if (dropFromATH >= bot.dropPercent) {
-            executeMarket({ side: 'buy', size: bot.size, lev: 1 });
-            log("DCA executed BUY at " + price);
-        }
-    }
-}
-</textarea>
-                    </div>
+    <div id="predictor-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="modal-content glass-panel w-full max-w-2xl p-6 relative flex flex-col h-[70vh]">
+            <button onclick="toggleModal('predictor-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <h2 class="text-sm font-black uppercase tracking-widest text-white mb-2">AI Predictor Core</h2>
+            <p class="text-[10px] text-muted mb-4 font-mono">Write JavaScript logic to analyze the chart. Must return string.</p>
+            
+            <div class="flex-grow flex flex-col min-h-0 bg-[#1e1e1e] rounded-xl border border-purple-900/50 overflow-hidden">
+                <div class="bg-[#2d2d2d] px-3 py-1 flex items-center gap-2 border-b border-[#1e1e1e]">
+                    <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div><div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div><div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                    <span class="text-[10px] font-mono text-gray-400 ml-2">predictor.js</span>
+                </div>
+                <textarea id="predictor-code" class="w-full h-full bg-[#1e1e1e] text-[#d4d4d4] p-4 text-xs font-mono outline-none resize-none code-editor-area" spellcheck="false"></textarea>
+            </div>
+            <button onclick="savePredictor()" class="mt-4 w-full py-3 rounded-lg font-black uppercase tracking-[0.2em] text-[10px] bg-purple-600 text-white hover:bg-purple-500 transition">Compile & Inject Core</button>
+        </div>
+    </div>
+
+    <div id="bot-factory-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="modal-content glass-panel w-full max-w-4xl p-6 relative flex flex-col h-[85vh]">
+            <button onclick="toggleModal('bot-factory-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            
+            <div class="flex justify-between items-center mb-4 border-b border-purple-900/30 pb-4">
+                <h2 class="text-sm font-black uppercase tracking-widest text-white">Algorithm Factory</h2>
+                <div class="flex gap-2">
+                    <button onclick="exportBotConfig()" class="neo-btn px-3 py-1.5 rounded text-[9px] font-black uppercase">Export JSON</button>
+                    <label class="neo-btn px-3 py-1.5 rounded text-[9px] font-black uppercase cursor-pointer">
+                        Import JSON <input type="file" id="import-json" class="hidden" accept=".json" onchange="importBotConfig(event)">
+                    </label>
                 </div>
             </div>
-        </main>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow min-h-0 overflow-y-auto no-scrollbar">
+                <div class="flex flex-col gap-4">
+                    <div class="bg-[#05020a] p-4 rounded-xl border border-purple-900/40 space-y-4">
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-muted mb-1 block">Bot Name</label>
+                            <input type="text" id="bot-name" value="Alpha DCA" class="w-full neo-input p-2 rounded text-xs font-black">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="text-[9px] font-black uppercase text-muted block mb-1">Target Asset</label><input type="text" id="bot-asset" value="BTCUSDT" class="w-full neo-input p-2 rounded text-xs font-black uppercase"></div>
+                            <div><label class="text-[9px] font-black uppercase text-muted block mb-1">Base Order (USDT)</label><input type="number" id="bot-size" value="100" class="w-full neo-input p-2 rounded text-xs font-mono"></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="text-[9px] font-black uppercase text-muted block mb-1">Leverage</label><input type="number" id="bot-lev" value="1" class="w-full neo-input p-2 rounded text-xs font-mono"></div>
+                            <div><label class="text-[9px] font-black uppercase text-muted block mb-1">Max Positions</label><input type="number" id="bot-max" value="5" class="w-full neo-input p-2 rounded text-xs font-mono"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col min-h-[300px]">
+                    <div class="bg-[#1e1e1e] rounded-t-xl border border-gray-800 p-2 flex justify-center"><span class="text-[10px] font-mono text-gray-400">logic.js</span></div>
+                    <textarea id="bot-code-editor" class="w-full flex-grow bg-[#1e1e1e] text-[#d4d4d4] p-4 text-xs font-mono outline-none border border-t-0 border-gray-800 rounded-b-xl resize-none code-editor-area" spellcheck="false"></textarea>
+                </div>
+            </div>
+            <button onclick="deployBot()" class="mt-4 w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-purple-600 text-white hover:bg-purple-500 transition">Compile & Deploy Algorithmic Bot</button>
+        </div>
+    </div>
+
+    <div id="bot-ledger-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="modal-content glass-panel w-full max-w-3xl p-6 relative max-h-[85vh] flex flex-col">
+            <button onclick="toggleModal('bot-ledger-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <h2 id="ledger-title" class="text-sm font-black uppercase tracking-widest text-white mb-2">Bot Ledger</h2>
+            <div class="flex gap-4 mb-4 border-b border-purple-900/30 pb-4">
+                <span class="text-xs font-mono text-muted">Total PnL: <span id="ledger-pnl" class="text-white">--</span></span>
+                <span class="text-xs font-mono text-muted">Running Since: <span id="ledger-time" class="text-white">--</span></span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow overflow-hidden">
+                <div class="flex flex-col h-full">
+                    <h3 class="text-[9px] font-black uppercase text-purple-400 mb-2">Active Positions</h3>
+                    <div class="flex-grow overflow-y-auto no-scrollbar bg-[#05020a] border border-purple-900/30 rounded p-2" id="ledger-active"></div>
+                </div>
+                <div class="flex flex-col h-full">
+                    <h3 class="text-[9px] font-black uppercase text-purple-400 mb-2">Closed History</h3>
+                    <div class="flex-grow overflow-y-auto no-scrollbar bg-[#05020a] border border-purple-900/30 rounded p-2" id="ledger-history"></div>
+                </div>
+            </div>
+            <button onclick="killBot()" id="btn-kill-bot" class="mt-4 w-full py-2 rounded font-black uppercase text-[10px] bg-pink-900/50 text-pink-400 border border-pink-500/50 hover:bg-pink-600 hover:text-white transition">KILL BOT (Liquidate Positions)</button>
+        </div>
     </div>
 
     <div id="settings-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-sm p-6 relative">
             <button onclick="toggleModal('settings-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h2 class="text-sm font-black uppercase tracking-widest text-white mb-6 border-b border-purple-900/50 pb-2">Modify Balances</h2>
+            <h2 class="text-sm font-black uppercase tracking-widest text-white mb-6 border-b border-purple-900/50 pb-2">Portfolio Edit</h2>
             <div class="space-y-4">
                 <div>
                     <label class="text-[9px] font-black uppercase text-purple-400 mb-1 block">USDT Balance</label>
@@ -335,7 +347,7 @@ function onTick(price, rsi, volume) {
                     </div>
                 </div>
                 <div class="pt-2 border-t border-purple-900/30">
-                    <label class="text-[9px] font-black uppercase text-muted mb-2 block">Add/Edit Coin</label>
+                    <label class="text-[9px] font-black uppercase text-muted mb-2 block">Add/Edit Asset</label>
                     <div class="flex gap-2">
                         <input type="text" id="new-asset-name" placeholder="BTC" class="w-1/3 neo-input p-2 rounded-lg text-xs font-black uppercase">
                         <input type="number" id="new-asset-amt" placeholder="Amount" class="w-2/3 neo-input p-2 rounded-lg text-xs font-mono">
@@ -349,7 +361,7 @@ function onTick(price, rsi, volume) {
     <div id="history-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-lg p-6 relative max-h-[80vh] flex flex-col">
             <button onclick="toggleModal('history-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h2 class="text-sm font-black uppercase tracking-widest text-white mb-4 border-b border-purple-900/50 pb-2">Trade History</h2>
+            <h2 class="text-sm font-black uppercase tracking-widest text-white mb-4 border-b border-purple-900/50 pb-2">Manual Trade Ledger</h2>
             <div class="flex-grow overflow-y-auto no-scrollbar">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-[#0a0510]/80 sticky top-0 z-10"><tr class="text-[9px] font-black uppercase text-muted border-b border-purple-900/30"><th class="p-3">Asset</th><th class="p-3 text-right">PnL</th></tr></thead>
@@ -360,19 +372,42 @@ function onTick(price, rsi, volume) {
     </div>
 
     <script>
-        // --- 1. STATE & ROUTING ---
-        function switchApp(appName) {
-            document.getElementById('app-terminal').style.display = appName === 'terminal' ? 'block' : 'none';
-            document.getElementById('app-bot').style.display = appName === 'bot' ? 'block' : 'none';
-            
-            document.getElementById('nav-terminal').className = appName === 'terminal' ? "px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition" : "px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition";
-            document.getElementById('nav-bot').className = appName === 'bot' ? "px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition" : "px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition";
-            
-            if(appName === 'terminal') setupCanvas(); // Fix resize bug if switching back
-        }
+        // --- 1. DEFAULT CODE TEMPLATES ---
+        const DEFAULT_PREDICTOR = `// Predictor Engine (JS Evaluated)
+// Variables available: 'prices' (array of last 50 close prices), 'currentPrice'
+function analyze() {
+    if(prices.length < 15) return "WAITING...";
+    let gains = 0, losses = 0;
+    for(let i=1; i<15; i++) {
+        let d = prices[prices.length - 15 + i] - prices[prices.length - 15 + i - 1];
+        if(d >= 0) gains += d; else losses -= d;
+    }
+    let rs = (gains/14) / ((losses/14)||1);
+    let rsi = 100 - (100/(1+rs));
+    
+    if(rsi > 70) return "BEARISH (RSI: " + rsi.toFixed(0) + ")";
+    if(rsi < 30) return "BULLISH (RSI: " + rsi.toFixed(0) + ")";
+    return "NEUTRAL (RSI: " + rsi.toFixed(0) + ")";
+}
+return analyze();`;
 
-        let state = JSON.parse(localStorage.getItem('cloud_state_v5')) || {
-            usdtBalance: 10000.00, orders: [], history: [], manualAssets: { 'BTC': 0.1 }
+        const DEFAULT_BOT = `// Algo Bot Hook
+// Context: 'bot' (config object), 'price' (current tick price)
+// Functions: executeMarket(side, sizeUsdt, leverage)
+
+// Example DCA accumulation if price drops 2% from entry
+if(!bot.data.entry) bot.data.entry = price;
+
+let drop = ((bot.data.entry - price) / bot.data.entry) * 100;
+if(drop > 2.0 && bot.positions.length < bot.config.max) {
+    executeMarket('buy', bot.config.size, bot.config.lev);
+    bot.data.entry = price; // Reset anchor
+}`;
+
+        // --- 2. STATE & ROUTING ---
+        let state = JSON.parse(localStorage.getItem('cloud_quant_v1')) || {
+            usdtBalance: 10000.00, orders: [], history: [], manualAssets: { 'BTC': 0.1 },
+            predictorCode: DEFAULT_PREDICTOR, bots: []
         };
         
         let livePrices = {}; 
@@ -380,10 +415,24 @@ function onTick(price, rsi, volume) {
         let wsTicker, wsTrade;
         let chartCtx;
         let flowData = { buy: 0, sell: 0 };
-        let canvasHoverPos = null; // For crosshair
-        
-        // --- 2. INIT & PORTFOLIO ---
+        let canvasHoverPos = null;
+        let whaleMarkers = []; // Array of {time, price, isBuy} to plot on chart
+        let predictorEngine = null; // Compiled Function
+        let currentBotViewId = null;
+
+        function switchApp(appName) {
+            document.getElementById('app-terminal').style.display = appName === 'terminal' ? 'block' : 'none';
+            document.getElementById('app-bot').style.display = appName === 'bot' ? 'block' : 'none';
+            document.getElementById('nav-terminal').className = appName === 'terminal' ? "px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition" : "px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition";
+            document.getElementById('nav-bot').className = appName === 'bot' ? "px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-purple-600 text-white transition" : "px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition";
+            if(appName === 'terminal') window.dispatchEvent(new Event('resize'));
+            if(appName === 'bot') renderBotDashboard();
+        }
+
         function init() {
+            document.getElementById('predictor-code').value = state.predictorCode;
+            document.getElementById('bot-code-editor').value = DEFAULT_BOT;
+            compilePredictor();
             setupCanvas();
             connectMultiStream();
             connectTradeStream(); 
@@ -404,6 +453,7 @@ function onTick(price, rsi, volume) {
         function selectPair(val) {
             ui.pair = val;
             ui.chartData = [];
+            whaleMarkers = []; // clear chart markers on swap
             ui.price = livePrices[ui.pair] || 0;
             document.getElementById('main-price').innerText = "Syncing...";
             connectTradeStream(); 
@@ -411,6 +461,7 @@ function onTick(price, rsi, volume) {
             fetch24hStats();
         }
 
+        // --- 3. DATA & PORTFOLIO ---
         async function fetch24hStats() {
             try {
                 let res = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${ui.pair}`);
@@ -425,12 +476,23 @@ function onTick(price, rsi, volume) {
             const grid = document.getElementById('wallet-asset-grid');
             let gridHtml = createWalletCard('USDT', state.usdtBalance, state.usdtBalance);
 
+            // Manual Trades
             state.orders.forEach(o => {
                 totalUsdValue += o.margin; 
                 let pnl = o.side === 'buy' ? ((o.units * (livePrices[o.pair]||o.entry)) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * (livePrices[o.pair]||o.entry)));
                 totalUsdValue += pnl;
             });
 
+            // Bot Trades
+            state.bots.forEach(b => {
+                b.positions.forEach(o => {
+                    totalUsdValue += o.margin;
+                    let pnl = o.side === 'buy' ? ((o.units * (livePrices[o.pair]||o.entry)) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * (livePrices[o.pair]||o.entry)));
+                    totalUsdValue += pnl;
+                });
+            });
+
+            // Spot holdings
             for (const [coin, amt] of Object.entries(state.manualAssets)) {
                 let valUsd = amt * (livePrices[coin + 'USDT'] || 0);
                 totalUsdValue += valUsd;
@@ -443,17 +505,10 @@ function onTick(price, rsi, volume) {
 
         function createWalletCard(coin, amount, valueUsd) {
             const valStr = valueUsd > 0 ? `$${valueUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'Syncing...';
-            return `
-            <div class="bg-[#05020a]/80 border border-purple-900/30 p-2 rounded-lg flex items-center gap-2">
-                <div class="flex flex-col min-w-0">
-                    <span class="text-[10px] font-black text-white uppercase truncate">${coin}</span>
-                    <span class="text-[9px] font-mono text-purple-400 truncate">${amount.toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
-                    <span class="text-[8px] font-bold text-muted truncate">≈ ${valStr}</span>
-                </div>
-            </div>`;
+            return `<div class="bg-[#05020a]/80 border border-purple-900/30 p-2 rounded-lg flex items-center gap-2"><div class="flex flex-col min-w-0"><span class="text-[10px] font-black text-white uppercase truncate">${coin}</span><span class="text-[9px] font-mono text-purple-400 truncate">${amount.toLocaleString(undefined, {maximumFractionDigits: 4})}</span><span class="text-[8px] font-bold text-muted truncate">≈ ${valStr}</span></div></div>`;
         }
 
-        // --- 3. HIGH RES SHARP CANVAS ENGINE ---
+        // --- 4. HIGH RES CHART WITH MARKERS ---
         function setupCanvas() {
             const container = document.getElementById('canvas-container');
             const canvas = document.getElementById('custom-chart');
@@ -470,7 +525,6 @@ function onTick(price, rsi, volume) {
             window.addEventListener('resize', resize);
             resize();
 
-            // Crosshair interaction
             canvas.addEventListener('mousemove', (e) => {
                 const rect = canvas.getBoundingClientRect();
                 canvasHoverPos = e.clientX - rect.left;
@@ -528,46 +582,61 @@ function onTick(price, rsi, volume) {
                 chartCtx.fillText((maxPrice - (i / 4) * range).toFixed(minPrice<1?4:1), gW + 4, yPos);
             }
             
-            // Sharp Line (Solid Purple)
+            // Sharp Line
             chartCtx.beginPath();
             let points = [];
             for(let i = 0; i < data.length; i++) {
                 const x = (i / (data.length - 1)) * gW;
                 const y = ((maxPrice - data[i].price) / range) * (gH * 0.8) + (gH * 0.1); 
-                points.push({x, y, p: data[i].price});
+                points.push({x, y, p: data[i].price, t: data[i].time});
                 if(i === 0) chartCtx.moveTo(x, y); else chartCtx.lineTo(x, y);
             }
-            chartCtx.strokeStyle = '#a78bfa'; // Clean purple
+            chartCtx.strokeStyle = '#a78bfa'; 
             chartCtx.lineWidth = 1.5;
             chartCtx.lineJoin = 'round';
             chartCtx.stroke();
+
+            // Plot Whale Markers on Canvas
+            const minTime = data[0].time;
+            const maxTime = data[data.length-1].time;
+            whaleMarkers.forEach(m => {
+                // Only draw if within chart time domain
+                if(m.time >= minTime && m.time <= maxTime) {
+                    const x = ((m.time - minTime) / (maxTime - minTime)) * gW;
+                    const y = ((maxPrice - m.price) / range) * (gH * 0.8) + (gH * 0.1);
+                    
+                    chartCtx.beginPath();
+                    chartCtx.arc(x, y, 3, 0, Math.PI*2);
+                    chartCtx.fillStyle = m.isBuy ? 'rgba(52,211,153,0.8)' : 'rgba(251,113,133,0.8)';
+                    chartCtx.fill();
+                    // Border ring
+                    chartCtx.beginPath();
+                    chartCtx.arc(x, y, 5, 0, Math.PI*2);
+                    chartCtx.strokeStyle = m.isBuy ? 'rgba(52,211,153,0.3)' : 'rgba(251,113,133,0.3)';
+                    chartCtx.stroke();
+                }
+            });
             
-            // Crosshair Logic
+            // Crosshair
             if(canvasHoverPos !== null && canvasHoverPos <= gW) {
-                // Find closest point
                 let closest = points.reduce((prev, curr) => Math.abs(curr.x - canvasHoverPos) < Math.abs(prev.x - canvasHoverPos) ? curr : prev);
                 
                 chartCtx.strokeStyle = 'rgba(255,255,255,0.2)';
                 chartCtx.lineWidth = 1;
                 chartCtx.setLineDash([4, 4]);
                 
-                // Vertical line
                 chartCtx.beginPath(); chartCtx.moveTo(closest.x, 0); chartCtx.lineTo(closest.x, gH); chartCtx.stroke();
-                // Horizontal line
                 chartCtx.beginPath(); chartCtx.moveTo(0, closest.y); chartCtx.lineTo(gW, closest.y); chartCtx.stroke();
                 chartCtx.setLineDash([]);
                 
-                // Dot
                 chartCtx.beginPath(); chartCtx.arc(closest.x, closest.y, 4, 0, Math.PI*2);
                 chartCtx.fillStyle = '#a78bfa'; chartCtx.fill();
                 
-                // Price Tag
                 chartCtx.fillStyle = '#a78bfa';
                 chartCtx.fillRect(gW, closest.y - 10, padXRight, 20);
                 chartCtx.fillStyle = '#05020a'; chartCtx.font = 'bold 10px monospace';
                 chartCtx.fillText(closest.p.toFixed(minPrice<1?4:2), gW + 4, closest.y);
             } else {
-                // Default Live Price Tag
                 const last = points[points.length-1];
                 chartCtx.beginPath(); chartCtx.arc(last.x, last.y, 4, 0, Math.PI*2);
                 chartCtx.fillStyle = '#a78bfa'; chartCtx.fill();
@@ -579,12 +648,12 @@ function onTick(price, rsi, volume) {
             }
         }
 
-        // --- 4. DATA, AI & WHALES ---
+        // --- 5. STREAMS, AI & BOTS ---
         function connectMultiStream() {
-            let streamSet = new Set(['btcusdt@ticker', 'ethusdt@ticker', 'solusdt@ticker', 'xrpusdt@ticker', 'dogeusdt@ticker', 'adausdt@ticker']);
-            for(const coin of Object.keys(state.manualAssets)) streamSet.add((coin+'USDT').toLowerCase() + '@ticker');
+            const coins = ['btc', 'eth', 'sol', 'xrp', 'doge', 'ada'];
+            const streams = coins.map(c => `${c}usdt@ticker`).join('/');
+            wsTicker = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
             
-            wsTicker = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${Array.from(streamSet).join('/')}`);
             wsTicker.onmessage = (e) => {
                 const payload = JSON.parse(e.data);
                 if(payload.data && payload.data.c) {
@@ -599,7 +668,7 @@ function onTick(price, rsi, volume) {
             if(wsTrade) wsTrade.close();
             wsTrade = new WebSocket(`wss://stream.binance.com:9443/ws/${ui.pair.toLowerCase()}@aggTrade`);
             flowData = { buy: 0, sell: 0 };
-            document.getElementById('whale-feed').innerHTML = ''; // reset feed
+            document.getElementById('whale-feed').innerHTML = ''; 
             
             wsTrade.onmessage = (e) => {
                 const data = JSON.parse(e.data);
@@ -610,8 +679,15 @@ function onTick(price, rsi, volume) {
                     if(isBuy) flowData.buy += usdVal; else flowData.sell += usdVal;
                     updateRatioBar();
                     
-                    if(usdVal > 50000) triggerPumpAlert(); // Massive volume spike
-                    if(usdVal > 5000) addWhaleFeed(isBuy, qty, price); // Whale trade log
+                    if(usdVal > 15000) {
+                        // Add chart marker
+                        whaleMarkers.push({time: data.T, price: price, isBuy: isBuy});
+                        if(whaleMarkers.length > 30) whaleMarkers.shift();
+                        drawChart();
+                    }
+                    
+                    if(usdVal > 50000) triggerPumpAlert(); 
+                    if(usdVal > 5000) addWhaleFeed(isBuy, qty, price); 
                 }
             };
         }
@@ -647,39 +723,43 @@ function onTick(price, rsi, volume) {
             const bStr = isBuy ? 'bg-green-500/10 border-green-500/30' : 'bg-pink-500/10 border-pink-500/30';
             
             el.className = `whale-feed-item flex justify-between items-center p-2 rounded border ${bStr}`;
-            el.innerHTML = `
-                <span class="text-[9px] font-mono text-muted">${addr}</span>
-                <span class="text-[10px] font-black ${cStr} uppercase">${isBuy?'Buy':'Sell'} ${qty.toFixed(2)}</span>
-                <span class="text-[9px] font-mono text-white">$${price.toLocaleString()}</span>
-            `;
+            el.innerHTML = `<span class="text-[9px] font-mono text-muted">${addr}</span><span class="text-[10px] font-black ${cStr} uppercase">${isBuy?'Buy':'Sell'} ${qty.toFixed(2)}</span><span class="text-[9px] font-mono text-white">$${price.toLocaleString()}</span>`;
             feed.prepend(el);
-            if(feed.children.length > 8) feed.removeChild(feed.lastChild);
+            if(feed.children.length > 10) feed.removeChild(feed.lastChild);
         }
 
-        function calcRSI() {
-            if(ui.chartData.length < 15) return;
-            let gains = 0, losses = 0;
-            const data = ui.chartData.slice(-15);
-            for(let i=1; i<data.length; i++) {
-                let diff = data[i].price - data[i-1].price;
-                if(diff >= 0) gains += diff; else losses -= diff;
+        function compilePredictor() {
+            try {
+                // Create a function from the textarea code
+                predictorEngine = new Function('prices', 'currentPrice', state.predictorCode);
+            } catch(e) {
+                document.getElementById('ai-prediction-text').innerText = "CODE ERROR";
             }
-            let rs = (gains/14) / ((losses/14) || 1);
-            let rsi = 100 - (100 / (1 + rs));
-            
-            document.getElementById('rsi-val').innerText = `RSI: ${rsi.toFixed(1)}`;
-            const predEl = document.getElementById('rsi-pred');
-            if(rsi > 70) { predEl.innerText = "OVERBOUGHT (BEAR)"; predEl.className = "text-[10px] font-black uppercase px-2 py-1 rounded bg-pink-900/30 text-pink-400"; }
-            else if(rsi < 30) { predEl.innerText = "OVERSOLD (BULL)"; predEl.className = "text-[10px] font-black uppercase px-2 py-1 rounded bg-green-900/30 text-green-400"; }
-            else { predEl.innerText = "NEUTRAL"; predEl.className = "text-[10px] font-black uppercase px-2 py-1 rounded bg-purple-900/30 text-purple-400"; }
+        }
+
+        function savePredictor() {
+            state.predictorCode = document.getElementById('predictor-code').value;
+            saveState();
+            compilePredictor();
+            toggleModal('predictor-modal');
+        }
+
+        function runPredictor(pricesArray, currentPrice) {
+            if(!predictorEngine) return;
+            try {
+                let res = predictorEngine(pricesArray, currentPrice);
+                const el = document.getElementById('ai-prediction-text');
+                el.innerText = res;
+                if(res.includes('BULL')) el.className = "text-sm md:text-lg font-black uppercase text-green-400 font-mono tracking-tighter";
+                else if(res.includes('BEAR')) el.className = "text-sm md:text-lg font-black uppercase text-pink-400 font-mono tracking-tighter";
+                else el.className = "text-sm md:text-lg font-black uppercase text-purple-400 font-mono tracking-tighter";
+            } catch(e) {
+                document.getElementById('ai-prediction-text').innerText = "EXEC ERROR";
+            }
         }
 
         function processMainTick(newPrice) {
             const el = document.getElementById('main-price');
-            if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
-                el.style.color = newPrice > ui.lastPrice ? '#34d399' : '#fb7185';
-                setTimeout(()=>el.style.color='white', 200);
-            }
             ui.lastPrice = newPrice; ui.price = newPrice;
             
             if(ui.timeframe === 'live') {
@@ -689,24 +769,36 @@ function onTick(price, rsi, volume) {
                 ui.chartData[ui.chartData.length - 1].price = newPrice;
             }
             
-            calcRSI();
+            // Run AI
+            if(ui.chartData.length > 1) {
+                runPredictor(ui.chartData.map(d=>d.price), newPrice);
+            }
+
+            // Tick Bots
+            tickBots(ui.pair, newPrice);
+
             if(!canvasHoverPos) drawChart(); 
             el.innerText = `$${newPrice.toLocaleString(undefined, {minimumFractionDigits: newPrice<1?4:2, maximumFractionDigits: newPrice<1?4:2})}`;
             renderOrders(); 
         }
 
-        // --- 5. MANUAL EXECUTION ---
+        // --- 6. MANUAL EXECUTION ---
         function setSide(side) {
             ui.side = side;
-            document.getElementById('btn-buy').className = side==='buy' ? "flex-1 py-3 rounded-lg text-[10px] font-black uppercase bg-green-500/20 text-green-400 border border-green-500/50" : "flex-1 py-3 rounded-lg text-[10px] font-black uppercase text-muted hover:text-green-400 transition";
+            document.getElementById('btn-buy').className = side==='buy' ? "flex-1 py-3 rounded-lg text-[10px] font-black uppercase bg-green-500/20 text-green-400 border border-green-500/50" : "flex-1 py-3 rounded-lg text-[10px] font-black uppercase text-muted hover:text-pink-400 transition";
             document.getElementById('btn-sell').className = side==='sell' ? "flex-1 py-3 rounded-lg text-[10px] font-black uppercase bg-pink-500/20 text-pink-400 border border-pink-500/50" : "flex-1 py-3 rounded-lg text-[10px] font-black uppercase text-muted hover:text-pink-400 transition";
             
             const exec = document.getElementById('btn-execute');
             exec.innerText = side==='buy'?"Execute Long":"Execute Short";
-            exec.className = side==='buy'?"mt-auto w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 transition active:scale-95" : "mt-auto w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-pink-500 text-[#05020a] hover:bg-pink-400 transition active:scale-95";
+            exec.className = side==='buy'?"mt-auto w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-[#05020a] hover:bg-green-400 shadow-[0_0_15px_rgba(52,211,153,0.3)] transition active:scale-95" : "mt-auto w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] bg-pink-500 text-[#05020a] hover:bg-pink-400 shadow-[0_0_15px_rgba(251,113,133,0.3)] transition active:scale-95";
         }
 
-        document.getElementById('trade-lev').addEventListener('input', (e) => { ui.lev = parseInt(e.target.value); document.getElementById('lev-val').innerText = ui.lev; calcSize(); });
+        const levSlider = document.getElementById('trade-lev');
+        const levInput = document.getElementById('lev-input');
+        
+        levSlider.addEventListener('input', (e) => { ui.lev = parseInt(e.target.value); document.getElementById('lev-val').innerText = ui.lev + 'x'; levInput.value = ui.lev; calcSize(); });
+        levInput.addEventListener('input', (e) => { ui.lev = parseInt(e.target.value)||1; if(ui.lev>100) ui.lev=100; document.getElementById('lev-val').innerText = ui.lev + 'x'; levSlider.value = ui.lev; calcSize(); });
+        
         document.getElementById('trade-margin').addEventListener('input', calcSize);
 
         function calcSize() {
@@ -739,14 +831,7 @@ function onTick(price, rsi, volume) {
             state.orders.forEach(o => {
                 let pnl = o.side === 'buy' ? ((o.units * (livePrices[o.pair]||o.entry)) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * (livePrices[o.pair]||o.entry)));
                 const isProf = pnl >= 0;
-                html += `
-                    <tr class="border-b border-purple-900/20">
-                        <td class="p-3 text-white">${o.pair}</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded ${o.side==='buy'?'bg-green-900/40 text-green-400':'bg-pink-900/40 text-pink-400'} uppercase text-[9px]">${o.lev}x ${o.side}</span></td>
-                        <td class="p-3">$${o.margin.toFixed(2)}</td>
-                        <td class="p-3 text-right ${isProf?'text-green-400':'text-pink-400'}">${isProf?'+':''}$${pnl.toFixed(2)}</td>
-                        <td class="p-3 text-center"><button onclick="closeOrder('${o.id}')" class="px-2 py-1 bg-purple-900/50 hover:bg-pink-600 text-white rounded text-[9px] uppercase transition">X</button></td>
-                    </tr>`;
+                html += `<tr class="border-b border-purple-900/20"><td class="p-3 text-white">${o.pair}</td><td class="p-3"><span class="px-2 py-1 rounded ${o.side==='buy'?'bg-green-900/40 text-green-400':'bg-pink-900/40 text-pink-400'} uppercase text-[9px]">${o.lev}x ${o.side}</span></td><td class="p-3">$${o.margin.toFixed(2)}</td><td class="p-3 text-right ${isProf?'text-green-400':'text-pink-400'}">${isProf?'+':''}$${pnl.toFixed(2)}</td><td class="p-3 text-center"><button onclick="closeOrder('${o.id}')" class="px-2 py-1 bg-purple-900/50 hover:bg-pink-600 text-white rounded text-[9px] uppercase transition">X</button></td></tr>`;
             });
             tbody.innerHTML = html;
         }
@@ -756,11 +841,9 @@ function onTick(price, rsi, volume) {
             if(idx===-1) return;
             const o = state.orders[idx];
             let pnl = o.side === 'buy' ? ((o.units * (livePrices[o.pair]||o.entry)) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * (livePrices[o.pair]||o.entry)));
-            
             state.usdtBalance += (o.margin + pnl);
             state.history.unshift({ pair: o.pair, pnl: pnl });
             if(state.history.length > 50) state.history.pop();
-            
             state.orders.splice(idx, 1);
             saveState(); renderOrders(); renderHistory();
         }
@@ -774,7 +857,7 @@ function onTick(price, rsi, volume) {
             tbody.innerHTML = html || `<tr><td colspan="2" class="p-4 text-center text-muted text-[9px] uppercase">No History</td></tr>`;
         }
 
-        // --- 6. SETTINGS ---
+        // --- 7. SETTINGS ---
         function setUsdt() {
             const amt = parseFloat(document.getElementById('add-usdt-input').value);
             if(amt >= 0) { state.usdtBalance = amt; document.getElementById('add-usdt-input').value = ''; saveState(); }
@@ -784,50 +867,139 @@ function onTick(price, rsi, volume) {
             if(n && a) { state.manualAssets[n] = a; document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); }
         }
         function updateUI() { document.getElementById('ui-avail').innerText = state.usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; }
-        function saveState() { localStorage.setItem('cloud_state_v5', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
+        function saveState() { localStorage.setItem('cloud_quant_v1', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
 
-        // --- 7. DCA BOT LOGIC ---
-        function exportBotConfig() {
-            const config = {
-                mode: document.getElementById('bot-mode').value,
-                asset: document.getElementById('bot-asset').value,
-                size: document.getElementById('bot-size').value,
-                drop: document.getElementById('bot-drop').value,
-                lev: document.getElementById('bot-lev').value,
-                code: document.getElementById('code-editor').value
-            };
-            const blob = new Blob([JSON.stringify(config, null, 2)], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = 'cloud_bot_config.json';
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        }
-
-        function importBotConfig(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const config = JSON.parse(e.target.result);
-                    if(config.mode) document.getElementById('bot-mode').value = config.mode;
-                    if(config.asset) document.getElementById('bot-asset').value = config.asset;
-                    if(config.size) document.getElementById('bot-size').value = config.size;
-                    if(config.drop) document.getElementById('bot-drop').value = config.drop;
-                    if(config.lev) document.getElementById('bot-lev').value = config.lev;
-                    if(config.code) document.getElementById('code-editor').value = config.code;
-                    alert("Bot config loaded successfully.");
-                } catch(err) { alert("Invalid JSON file."); }
-            };
-            reader.readAsText(file);
-        }
-
+        // --- 8. BOT ENGINE ---
         function deployBot() {
-            alert("Bot deployed virtually! Logic engine running in background.");
-            switchApp('terminal');
+            const bot = {
+                id: 'bot_' + Math.random().toString(36).substr(2, 6),
+                name: document.getElementById('bot-name').value,
+                pair: document.getElementById('bot-asset').value.toUpperCase(),
+                config: {
+                    size: parseFloat(document.getElementById('bot-size').value),
+                    lev: parseFloat(document.getElementById('bot-lev').value),
+                    max: parseInt(document.getElementById('bot-max').value)
+                },
+                code: document.getElementById('bot-code-editor').value,
+                data: {}, // For bot to store persistent vars
+                positions: [],
+                history: [],
+                totalPnl: 0,
+                startTime: Date.now()
+            };
+            
+            // Try compile
+            try { new Function('bot', 'price', 'executeMarket', bot.code); } 
+            catch(e) { alert("Code Error: " + e.message); return; }
+
+            state.bots.push(bot);
+            saveState();
+            toggleModal('bot-factory-modal');
+            renderBotDashboard();
         }
 
-        init();
-    </script>
-</body>
-</html>
+        function tickBots(symbol, price) {
+            state.bots.forEach(bot => {
+                if(bot.pair === symbol) {
+                    try {
+                        const botFn = new Function('bot', 'price', 'executeMarket', bot.code);
+                        
+                        // Define executor inside context
+                        const executeMarket = (side, sizeUsdt, lev) => {
+                            if(sizeUsdt > state.usdtBalance) return; // Insufficient
+                            state.usdtBalance -= sizeUsdt;
+                            bot.positions.push({
+                                id: Math.random().toString(36).substr(2, 9),
+                                pair: bot.pair, side: side, margin: sizeUsdt, lev: lev, 
+                                entry: price, units: (sizeUsdt * lev) / price, time: Date.now()
+                            });
+                            saveState();
+                            if(currentBotViewId === bot.id) renderBotLedger(bot.id);
+                        };
+
+                        botFn(bot, price, executeMarket);
+                    } catch(e) { console.error("Bot Exception:", bot.name, e); }
+                }
+            });
+            if(currentBotViewId) renderBotLedger(currentBotViewId); // Update modal if open
+        }
+
+        function renderBotDashboard() {
+            const grid = document.getElementById('bot-grid');
+            let html = '';
+            state.bots.forEach(b => {
+                let currentPnl = b.totalPnl;
+                b.positions.forEach(o => {
+                    let p = livePrices[o.pair] || o.entry;
+                    currentPnl += o.side === 'buy' ? ((o.units * p) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * p));
+                });
+                
+                const isProf = currentPnl >= 0;
+                html += `
+                <div class="bg-[#05020a] border border-purple-900/40 rounded-xl p-4 flex flex-col cursor-pointer hover:border-purple-500 transition" onclick="openBotLedger('${b.id}')">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="text-xs font-black text-white uppercase">${b.name}</h3>
+                            <p class="text-[9px] font-mono text-muted uppercase">${b.pair} • ${b.positions.length}/${b.config.max} POS</p>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#34d399] animate-pulse"></div>
+                    </div>
+                    <div class="mt-auto pt-3 border-t border-purple-900/30 flex justify-between items-end">
+                        <span class="text-[9px] font-black uppercase text-muted">Total ROI</span>
+                        <span class="text-sm font-black font-mono ${isProf?'text-green-400':'text-pink-400'}">${isProf?'+':''}$${currentPnl.toFixed(2)}</span>
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html || '<p class="text-xs text-muted text-center col-span-full py-10 uppercase tracking-widest">No Active Bots</p>';
+        }
+
+        function openBotLedger(id) {
+            currentBotViewId = id;
+            renderBotLedger(id);
+            toggleModal('bot-ledger-modal');
+        }
+
+        function renderBotLedger(id) {
+            const bot = state.bots.find(b => b.id === id);
+            if(!bot) return;
+
+            document.getElementById('ledger-title').innerText = bot.name + " (" + bot.pair + ")";
+            document.getElementById('ledger-time').innerText = new Date(bot.startTime).toLocaleString();
+            
+            let currentPnl = bot.totalPnl;
+            let actHtml = '';
+            bot.positions.forEach(o => {
+                let p = livePrices[o.pair] || o.entry;
+                let pnl = o.side === 'buy' ? ((o.units * p) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * p));
+                currentPnl += pnl;
+                actHtml += `<div class="flex justify-between items-center mb-2 pb-2 border-b border-purple-900/20"><div class="flex flex-col"><span class="text-[9px] font-black uppercase ${o.side==='buy'?'text-green-400':'text-pink-400'}">${o.side} @ $${o.entry.toFixed(2)}</span><span class="text-[8px] text-muted">Margin: $${o.margin}</span></div><span class="text-xs font-black font-mono ${pnl>=0?'text-green-400':'text-pink-400'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</span></div>`;
+            });
+            document.getElementById('ledger-active').innerHTML = actHtml || '<p class="text-[9px] text-muted text-center mt-4">No active positions</p>';
+
+            document.getElementById('ledger-pnl').innerText = `${currentPnl>=0?'+':''}$${currentPnl.toFixed(2)}`;
+            document.getElementById('ledger-pnl').className = currentPnl>=0?'text-green-400':'text-pink-400';
+
+            let histHtml = '';
+            bot.history.forEach(h => {
+                histHtml += `<div class="flex justify-between items-center mb-2 pb-2 border-b border-purple-900/20"><span class="text-[9px] text-muted">${new Date(h.time).toLocaleTimeString()}</span><span class="text-[10px] font-black font-mono ${h.pnl>=0?'text-green-400':'text-pink-400'}">${h.pnl>=0?'+':''}$${h.pnl.toFixed(2)}</span></div>`;
+            });
+            document.getElementById('ledger-history').innerHTML = histHtml || '<p class="text-[9px] text-muted text-center mt-4">No history yet</p>';
+        }
+
+        function killBot() {
+            if(!currentBotViewId) return;
+            const idx = state.bots.findIndex(b => b.id === currentBotViewId);
+            if(idx === -1) return;
+            const bot = state.bots[idx];
+
+            // Liquidate all
+            bot.positions.forEach(o => {
+                let p = livePrices[o.pair] || o.entry;
+                let pnl = o.side === 'buy' ? ((o.units * p) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * p));
+                state.usdtBalance += (o.margin + pnl);
+            });
+            
+            state.bots.splice(idx, 1);
+            saveState();
+            toggleModal('bot-ledger-modal');
+            currentBotViewId
