@@ -329,35 +329,50 @@
                                 <div class="w-3 h-3 rounded-full bg-gray-600"></div><div class="w-3 h-3 rounded-full bg-gray-600"></div><div class="w-3 h-3 rounded-full bg-gray-600"></div>
                             </div>
                         </div>
-                        <textarea id="code-editor" class="code-area w-full flex-grow bg-[#1e1e1e] text-[#d4d4d4] p-4 text-xs outline-none border border-t-0 border-gray-800 rounded-b resize-none" spellcheck="false">
+                        <textarea id="code-editor" class="code-area w-full flex-grow bg-[#1e1e1e] text-[#d4d4d4] p-4 text-[10px] outline-none border border-t-0 border-gray-800 rounded-b resize-none" spellcheck="false">
 // --- ADVANCED BOT LOGIC ENGINE ---
 // ENVIRONMENT VARIABLES:
 // * price (Number) - Current live asset price
 // * rsi (Number) - Current Relative Strength Index (14)
 // * volume (Number) - Current tick volume
+// * volatility (Number) - Current price variance
 // * bot (Object) - Context: { mode, size, lev, dropPercent, maxTx, maxCap, activeTxs[] }
 // 
-// AVAILABLE FUNCTIONS:
+// AVAILABLE ADVANCED FUNCTIONS:
 // * executeMarket({ side: 'buy'|'sell', size: USDT, lev: Integer })
-// * closeAllPositions() - Closes all active trades for this specific bot instance
+// * closeAllPositions() - Closes all active trades for this instance
+// * closePosition(id) - Closes a specific transaction by ID
+// * setTrailingStop(percent) - Activates trailing stop loss dynamically
+// * setTakeProfit(percent) - Sets a hard TP for open orders
+// * setStopLoss(percent) - Sets a hard SL for open orders
+// * getAverageEntry() - Returns volume-weighted avg entry price
+// * getOpenExposure() - Returns total active capital deployed
+// * getOpenPnL() - Returns total unrealized profit/loss
+// * log(msg) - Prints string output to bot debug console
 //
-// NOTE: The engine evaluates this tick-by-tick.
+// NOTE: Evaluated tick-by-tick. Handle execution gates properly.
 
 function onTick(price, rsi, volume) {
     // 1. Safety Check: Respect Max Capital & Max TX Limits
-    let currentExposure = bot.activeTxs.reduce((sum, tx) => sum + tx.size, 0);
-    if (bot.activeTxs.length >= bot.maxTx || currentExposure >= bot.maxCap) return;
+    if (bot.activeTxs.length >= bot.maxTx || getOpenExposure() >= bot.maxCap) {
+        if(getOpenPnL() > (bot.maxCap * 0.1)) { // Take profit at 10%
+            closeAllPositions();
+        }
+        return;
+    }
 
     // 2. Strategy Execution
     if (bot.mode === 'sniper') {
         if (rsi > 80 && volume > 1000000) {
             executeMarket({ side: 'sell', size: bot.size, lev: bot.lev });
+            setStopLoss(2.0); // 2% Stop Loss
         }
     } else {
         // Standard DCA Mode logic
         const dropFromATH = ((ATH - price) / ATH) * 100;
         if (dropFromATH >= bot.dropPercent) {
             executeMarket({ side: 'buy', size: bot.size, lev: 1 });
+            setTrailingStop(1.5); // 1.5% Trailing Stop
         }
     }
 }
@@ -569,7 +584,7 @@ if (score < -1.5) return "STRONG SELL";
 if (score < 0) return "SELL";
 return "NEUTRAL";`;
 
-        let state = JSON.parse(localStorage.getItem('cloud_state_v9')) || {
+        let state = JSON.parse(localStorage.getItem('cloud_state_v10')) || {
             usdtBalance: 10000.00, startOfDayValue: 10000.00, orders: [], history: [], manualAssets: { 'BTC': 0.1 }, bots: [], aiLogic: defaultAI
         };
         
@@ -730,8 +745,8 @@ return "NEUTRAL";`;
             
             chartCtx.clearRect(0, 0, w, h);
             
-            // Increased padXRight so price box never gets cut off
-            const padYBottom = 20, padXRight = 70; 
+            // Forced strict box width allocation on the right edge so numbers cannot clip
+            const padYBottom = 20, padXRight = 85; 
             const gW = w - padXRight, gH = h - padYBottom;
             
             const prices = data.map(d => d.price);
@@ -757,7 +772,7 @@ return "NEUTRAL";`;
             for(let i = 0; i < data.length; i++) {
                 const x = (i / (data.length - 1)) * gW;
                 let y = ((maxPrice - data[i].price) / range) * (gH * 0.8) + (gH * 0.1); 
-                y = Math.max(5, Math.min(gH - 5, y)); // Clamped so it doesn't go off screen
+                y = Math.max(5, Math.min(gH - 5, y)); 
                 points.push({x, y, p: data[i].price});
                 if(i === 0) chartCtx.moveTo(x, y); else chartCtx.lineTo(x, y);
             }
@@ -766,18 +781,16 @@ return "NEUTRAL";`;
             chartCtx.lineJoin = 'round';
             chartCtx.stroke();
             
-            // Function to dynamically draw background box and text to ensure it always fits
+            // Draw box exactly to the canvas right edge
             function drawPriceTag(yPos, priceVal) {
-                let tagY = Math.max(10, Math.min(gH - 10, yPos)); // Clamped Tag Height
-                let priceText = priceVal.toFixed(minPrice<1?4:2);
-                
-                chartCtx.font = 'bold 10px monospace';
-                let textWidth = chartCtx.measureText(priceText).width;
-                
+                let tagY = Math.max(10, Math.min(gH - 10, yPos));
+                let priceText = priceVal.toFixed(minPrice<1?6:2); // handled small coins too
+
+                chartCtx.font = 'bold 11px monospace';
                 chartCtx.fillStyle = '#a78bfa';
-                chartCtx.fillRect(gW, tagY - 10, textWidth + 10, 20); // Dynamic width box
+                chartCtx.fillRect(gW, tagY - 11, padXRight, 22);
                 chartCtx.fillStyle = '#05020a'; 
-                chartCtx.fillText(priceText, gW + 4, tagY);
+                chartCtx.fillText(priceText, gW + 5, tagY);
             }
 
             if(canvasHoverPos !== null && canvasHoverPos <= gW) {
@@ -837,7 +850,6 @@ return "NEUTRAL";`;
                     
                     addLogFeed(isBuy, qty, price);
 
-                    // Thresholds for On-Chart Popups & Flashes (ONLY BIG TRADES)
                     if(usdVal >= 25000) { 
                         spawnBottomLeftPopup(isBuy, qty, price, usdVal);
                     }
@@ -1066,7 +1078,7 @@ return "NEUTRAL";`;
             if(n && a) { state.manualAssets[n] = a; document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); }
         }
         function updateUI() { document.getElementById('ui-avail').innerText = state.usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; }
-        function saveState() { localStorage.setItem('cloud_state_v9', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
+        function saveState() { localStorage.setItem('cloud_state_v10', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
 
         // --- 7. DCA BOT LOGIC ---
         function deployBot() {
@@ -1129,7 +1141,6 @@ return "NEUTRAL";`;
             activeBotViewId = id;
             document.getElementById('bot-detail-title').innerText = b.name;
             
-            // Set code in modal
             document.getElementById('bot-modal-code').value = b.code;
             
             updateBotModalUI(b);
@@ -1187,7 +1198,6 @@ return "NEUTRAL";`;
             state.bots.forEach(b => {
                 if(b.asset === symbol) {
                     
-                    // Respect user constraints for mock execution logic
                     if(Math.random() < 0.02 && b.activeTxs.length < b.maxTx) {
                         let currentCap = b.activeTxs.reduce((sum, t) => sum + t.size, 0);
                         if((currentCap + b.size) <= b.maxCap) {
