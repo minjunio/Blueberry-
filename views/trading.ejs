@@ -146,13 +146,13 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap md:flex-nowrap gap-4 mt-4 z-10 border-b border-purple-900/20 pb-3 items-end justify-between w-full">
+                        <div class="flex flex-wrap justify-between gap-4 sm:gap-6 mt-4 z-10 border-b border-purple-900/20 pb-3 items-end">
                             <div class="flex gap-4 sm:gap-6 shrink-0">
-                                <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">24h High</span><p class="text-xs sm:text-sm font-mono text-green-400 font-black" id="stat-high">--</p></div>
-                                <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">24h Low</span><p class="text-xs sm:text-sm font-mono text-pink-400 font-black" id="stat-low">--</p></div>
+                                <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">24h High</span><p class="text-xs font-mono text-green-400 font-black" id="stat-high">--</p></div>
+                                <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">24h Low</span><p class="text-xs font-mono text-pink-400 font-black" id="stat-low">--</p></div>
                             </div>
                             <div class="flex-grow flex justify-end items-end pointer-events-none min-w-0">
-                                <h2 id="main-price" class="text-3xl md:text-5xl font-black text-white font-mono tracking-tighter leading-none truncate text-right w-full">--</h2>
+                                <h2 id="main-price" class="text-3xl sm:text-4xl md:text-5xl font-black text-white font-mono tracking-tighter leading-none truncate text-right max-w-full">--</h2>
                             </div>
                         </div>
 
@@ -633,12 +633,8 @@ return "NEUTRAL";`;
             try {
                 let res = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${ui.pair}`);
                 let data = await res.json();
-                
-                let high = parseFloat(data.highPrice);
-                let low = parseFloat(data.lowPrice);
-                
-                document.getElementById('stat-high').innerText = high >= 10 ? high.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : high.toFixed(6);
-                document.getElementById('stat-low').innerText = low >= 10 ? low.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : low.toFixed(6);
+                document.getElementById('stat-high').innerText = parseFloat(data.highPrice).toLocaleString();
+                document.getElementById('stat-low').innerText = parseFloat(data.lowPrice).toLocaleString();
             } catch(e){}
         }
 
@@ -1216,3 +1212,23 @@ return "NEUTRAL";`;
                             b.activeTxs.push({ side: Math.random()>0.5?'buy':'sell', size: b.size, entry: price });
                         }
                     }
+                    if(Math.random() < 0.05 && b.activeTxs.length > 0) {
+                        let tx = b.activeTxs.shift();
+                        let pnl = tx.side === 'buy' ? ((tx.size/tx.entry * price) - tx.size) : (tx.size - (tx.size/tx.entry * price));
+                        b.realizedPnl += pnl;
+                        b.closedTxs.unshift({ side: tx.side, size: tx.size, result: pnl });
+                        if(b.closedTxs.length > 20) b.closedTxs.pop();
+                    }
+                }
+            });
+            if(document.getElementById('app-bot').style.display === 'block') renderBots();
+            if(activeBotViewId) {
+                const b = state.bots.find(x => x.id === activeBotViewId);
+                if(b) updateBotModalUI(b);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
