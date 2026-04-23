@@ -1,195 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>BlueCrypto Pro Terminal</title>
+    <title>Pro Terminal - BlueCrypto</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(59, 130, 246, 0.1); }
-        .trading-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
-        .neon-text-green { color: #00ff88; text-shadow: 0 0 5px rgba(0,255,136,0.5); }
+        /* Protocol Dark Theme Integration */
+        body { background: #06090e; color: #f8fafc; font-family: 'Inter', sans-serif; }
+        .trading-panel { background: #0d131f; border: 1px solid #1f2937; border-radius: 1rem; }
+        .trading-input { background: #06090e; border: 1px solid #1f2937; color: white; border-radius: 0.5rem; outline: none; transition: 0.2s; }
+        .trading-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+        .btn-buy { background: #00ffaa; color: #06090e; font-weight: 900; }
+        .btn-short { background: #ef4444; color: white; font-weight: 900; }
+        .text-neon-blue { color: #3b82f6; text-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+        .text-neon-green { color: #00ffaa; text-shadow: 0 0 10px rgba(0, 255, 170, 0.3); }
+        
+        /* Custom Scrollbar for Assets */
+        .asset-scroll::-webkit-scrollbar { width: 4px; }
+        .asset-scroll::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 10px; }
+
+        @keyframes pulse-green { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .live-dot { width: 8px; height: 8px; background: #00ffaa; border-radius: 50%; display: inline-block; animation: pulse-green 2s infinite; }
     </style>
 </head>
-<body class="bg-[#f0f5ff] min-h-screen font-sans text-slate-800">
+<body class="p-3 md:p-6">
 
-    <div class="max-w-[1600px] mx-auto p-4 md:p-6">
-        <div class="flex flex-col lg:flex-row gap-6 mb-6">
-            
-            <div class="lg:w-1/3 glass-card rounded-[2rem] p-8 trading-glow bg-gradient-to-br from-blue-600 to-blue-800 text-white relative overflow-hidden">
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-8">
-                        <div>
-                            <p class="text-blue-100 font-bold uppercase tracking-wider text-xs">Total Balance</p>
-                            <h1 class="text-4xl font-black mt-1">$88,000.00 <span class="text-lg font-medium opacity-80">USDT</span></h1>
-                        </div>
-                        <button onclick="toggleSettings()" class="bg-white/20 p-3 rounded-2xl hover:bg-white/30 transition">
-                            ⚙️
-                        </button>
-                    </div>
-                    
-                    <div class="flex gap-4">
-                        <div class="bg-white/10 p-4 rounded-2xl flex-1 border border-white/10">
-                            <p class="text-[10px] uppercase font-bold opacity-70">Active Assets</p>
-                            <p class="text-xl font-bold">12 Tokens</p>
-                        </div>
-                        <div class="bg-white/10 p-4 rounded-2xl flex-1 border border-white/10">
-                            <p class="text-[10px] uppercase font-bold opacity-70">24h Profit</p>
-                            <p class="text-xl font-bold text-green-300">+$2,410.20</p>
-                        </div>
-                    </div>
+    <div class="max-w-[1600px] mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-blue-600 rounded-lg shadow-lg shadow-blue-900/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                 </div>
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+                <h1 class="text-xl font-black uppercase tracking-tighter">BlueCrypto <span class="text-blue-500">Pro Terminal</span></h1>
             </div>
-
-            <div class="lg:w-2/3 glass-card rounded-[2rem] p-6 flex flex-col justify-center">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="ticker-container">
-                    <div class="p-4 border-r border-gray-100">
-                        <p class="text-xs font-bold text-gray-400">BTC/USDT</p>
-                        <p id="btc-price" class="text-xl font-black text-blue-600">Loading...</p>
-                    </div>
-                    <div class="p-4 border-r border-gray-100">
-                        <p class="text-xs font-bold text-gray-400">ETH/USDT</p>
-                        <p id="eth-price" class="text-xl font-black text-blue-600">Loading...</p>
-                    </div>
-                    <div class="p-4 border-r border-gray-100">
-                        <p class="text-xs font-bold text-gray-400">SOL/USDT</p>
-                        <p id="sol-price" class="text-xl font-black text-blue-600">Loading...</p>
-                    </div>
-                    <div class="p-4">
-                        <p class="text-xs font-bold text-gray-400">Market Status</p>
-                        <p class="text-xl font-black text-green-500 flex items-center gap-2">
-                            LIVE <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span>
-                        </p>
-                    </div>
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex gap-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    <span>BTC/USDT: <span id="header-btc" class="text-white">---</span></span>
+                    <span>SOL/USDT: <span id="header-sol" class="text-white">---</span></span>
                 </div>
+                <a href="/admin" class="px-4 py-2 border border-gray-800 rounded-lg text-xs font-black hover:bg-gray-800 transition uppercase tracking-widest">Exit Node</a>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <div class="xl:col-span-3 space-y-6">
-                <div class="glass-card rounded-[2rem] p-6 h-[500px] overflow-hidden">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="font-black text-xl flex items-center gap-2">
-                            <span class="p-2 bg-blue-100 rounded-lg">📊</span> Market Analysis
-                        </h2>
-                        <div class="flex gap-2">
-                            <button class="px-4 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold">1H</button>
-                            <button class="px-4 py-1 bg-gray-100 rounded-lg text-xs font-bold">4H</button>
-                            <button class="px-4 py-1 bg-gray-100 rounded-lg text-xs font-bold">1D</button>
-                        </div>
+            <div class="lg:col-span-3 flex flex-col gap-6">
+                <div class="trading-panel p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.75 16h-3.5v-1.1c-1.37-.2-2.52-.94-3.13-2.1l1.43-.83c.36.72 1 1.25 1.7 1.43v-3.23l-1.5-.38c-1.3-.32-2.38-1.2-2.38-2.73 0-1.4 1-2.4 2.38-2.73V7h3.5v1.1c1.2.17 2.13.78 2.7 1.73l-1.4.8c-.3-.54-.8-.93-1.3-.93v3l1.5.38c1.3.33 2.38 1.2 2.38 2.73 0 1.45-1 2.52-2.38 2.87V18zm-3.5-9.3c-.6.12-.9.4-.9.84 0 .4.3.7.9.85v-1.7zm3.5 5.43c.6-.13.9-.45.9-.9 0-.44-.3-.8-.9-.94v1.84z"/></svg>
                     </div>
-                    <div id="chart-container" class="w-full h-[400px]"></div>
+                    <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-1">Total Equity</p>
+                    <h2 class="text-3xl font-black mb-4">$<span id="total-balance">88,000.00</span></h2>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="resetWallet()" class="px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-[9px] font-black uppercase hover:border-blue-500 transition">Sync Node</button>
+                        <button onclick="toggleSettings()" class="px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-[9px] font-black uppercase hover:border-blue-500 transition">Settings</button>
+                    </div>
                 </div>
 
-                <div class="glass-card rounded-[2rem] p-8">
-                    <h2 class="font-black text-xl mb-6">🤖 Smart DCA Algorithmic Bot</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 mb-2 uppercase">Bot Algorithm</label>
-                            <select class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500">
-                                <option>Mean Reversion Pro</option>
-                                <option>Aggressive Momentum</option>
-                                <option>Conservative Growth</option>
+                <div class="trading-panel flex-grow p-6 flex flex-col min-h-[400px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xs font-black uppercase tracking-widest">Active Assets</h3>
+                        <span class="live-dot"></span>
+                    </div>
+                    <div id="asset-list" class="asset-scroll space-y-3 overflow-y-auto pr-2">
+                        </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-6 flex flex-col gap-6">
+                <div class="trading-panel p-6 flex-grow min-h-[500px]">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center gap-4">
+                            <select id="pair-selector" class="trading-input px-3 py-1.5 text-xs font-black uppercase">
+                                <option value="BTCUSDT">BTC / USDT</option>
+                                <option value="ETHUSDT">ETH / USDT</option>
+                                <option value="SOLUSDT">SOL / USDT</option>
+                            </select>
+                            <h4 id="live-price" class="text-2xl font-black text-neon-green">$0.00</h4>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="px-2 py-1 bg-blue-500/10 text-blue-500 rounded text-[10px] font-bold">LIVE FEED</div>
+                        </div>
+                    </div>
+                    <div id="chart" class="w-full h-[400px]"></div>
+                </div>
+
+                <div class="trading-panel p-6">
+                    <div class="flex items-center gap-2 mb-6">
+                        <span class="text-blue-500">🤖</span>
+                        <h3 class="text-xs font-black uppercase tracking-widest">Algorithmic DCA Bot</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-gray-500 uppercase">Strategy</label>
+                            <select class="w-full trading-input p-2.5 text-xs font-bold">
+                                <option>Momentum Scalper</option>
+                                <option>Mean Reversion</option>
+                                <option>Whale Tracker</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 mb-2 uppercase">Leverage</label>
-                            <input type="range" min="1" max="100" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" id="levRange">
-                            <p class="text-right font-black text-blue-600 mt-1" id="levValue">10x</p>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-gray-500 uppercase">Leverage (<span id="lev-display">10</span>x)</label>
+                            <input type="range" id="lev-range" min="1" max="100" value="10" class="w-full accent-blue-600">
                         </div>
                         <div class="flex items-end">
-                            <button class="w-full bg-black text-white py-3 rounded-xl font-black hover:bg-blue-700 transition">DEPLOY BOT</button>
+                            <button class="w-full py-3 bg-blue-600 text-white rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 transition shadow-lg shadow-blue-900/20">Initiate DCA Sequence</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <div class="glass-card rounded-[2rem] p-6">
-                    <div class="flex border-b border-gray-100 mb-6">
-                        <button class="flex-1 pb-4 text-green-500 font-black border-b-2 border-green-500">BUY</button>
-                        <button class="flex-1 pb-4 text-gray-400 font-black">SELL</button>
+            <div class="lg:col-span-3 flex flex-col gap-6">
+                <div class="trading-panel p-6">
+                    <div class="flex gap-1 p-1 bg-[#06090e] rounded-xl mb-6">
+                        <button id="buy-tab" onclick="setSide('buy')" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-green-500 text-black">Long</button>
+                        <button id="sell-tab" onclick="setSide('sell')" class="flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-gray-500 hover:text-white transition">Short</button>
                     </div>
-                    
+
                     <div class="space-y-4">
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase">Pair</label>
-                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-100 mt-1">
-                                <span class="font-black">BTC / USDT</span>
-                                <span class="text-blue-600 font-bold text-xs">Switch</span>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <label class="text-[9px] font-black text-gray-500 uppercase">Order Size</label>
+                                <span class="text-[9px] font-black text-blue-500 cursor-pointer" onclick="setMax()">MAX</span>
+                            </div>
+                            <div class="relative">
+                                <input type="number" id="trade-amount" placeholder="0.00" class="w-full trading-input p-3 text-lg font-black pr-12">
+                                <span class="absolute right-4 top-4 text-xs font-bold text-gray-500">USDT</span>
                             </div>
                         </div>
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase">Amount (USDT)</label>
-                            <input type="number" placeholder="0.00" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold mt-1">
+
+                        <div class="p-4 bg-blue-500/5 border border-blue-500/10 rounded-xl">
+                            <div class="flex justify-between text-[10px] font-bold mb-2">
+                                <span class="text-gray-500">Margin</span>
+                                <span>Isolated</span>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold">
+                                <span class="text-gray-500">Fee (0.01%)</span>
+                                <span id="fee-display">$0.00</span>
+                            </div>
                         </div>
-                        <button class="w-full bg-green-500 text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-200 hover:scale-[1.02] transition">Execute Trade</button>
+
+                        <button id="exec-btn" onclick="executeTrade()" class="w-full py-4 btn-buy rounded-xl text-xs uppercase tracking-[0.2em] shadow-xl hover:brightness-110 transition active:scale-95">Open Position</button>
                     </div>
                 </div>
 
-                <div id="settings-panel" class="glass-card rounded-[2rem] p-6 hidden">
-                    <h3 class="font-black text-lg mb-4">Manage Portfolio</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
-                            <span class="font-bold">Bitcoin</span>
-                            <button class="text-red-500 font-black">Remove</button>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
-                            <span class="font-bold">Ethereum</span>
-                            <button class="text-red-500 font-black">Remove</button>
-                        </div>
-                        <button class="w-full py-2 border-2 border-dashed border-gray-200 rounded-xl font-bold text-gray-400 hover:border-blue-400 hover:text-blue-400 transition">+ Add Currency</button>
+                <div class="trading-panel flex-grow p-6 overflow-hidden">
+                    <h3 class="text-xs font-black uppercase tracking-widest mb-4">Node Logs</h3>
+                    <div id="logs" class="space-y-3 text-[10px] font-bold text-gray-500 overflow-y-auto max-h-[300px]">
+                        <p class="text-blue-500">[SYSTEM] Terminal initialized...</p>
+                        <p>[AUTH] Admin node connected...</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="settings-panel" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="trading-panel p-8 max-w-md w-full">
+            <h2 class="text-xl font-black uppercase mb-6">Wallet Configuration</h2>
+            <div class="space-y-4">
+                <input type="number" id="set-balance" placeholder="Set USDT Balance" class="w-full trading-input p-3 font-black">
+                <div class="flex gap-3">
+                    <button onclick="saveSettings()" class="flex-grow py-3 bg-blue-600 text-white rounded-lg font-black uppercase text-xs">Update Node</button>
+                    <button onclick="toggleSettings()" class="px-6 py-3 border border-gray-800 rounded-lg font-black uppercase text-xs">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- REAL TIME PRICE FEED (Binance WebSocket) ---
-        const btcPrice = document.getElementById('btc-price');
-        const ethPrice = document.getElementById('eth-price');
-        const solPrice = document.getElementById('sol-price');
-
-        const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker/ethusdt@ticker/solusdt@ticker');
-
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            const price = parseFloat(data.c).toLocaleString(undefined, {minimumFractionDigits: 2});
-            
-            if(data.s === 'BTCUSDT') btcPrice.innerText = `$${price}`;
-            if(data.s === 'ETHUSDT') ethPrice.innerText = `$${price}`;
-            if(data.s === 'SOLUSDT') solPrice.innerText = `$${price}`;
+        // --- STATE MANAGEMENT ---
+        let state = JSON.parse(localStorage.getItem('blueCrypto_state')) || {
+            balance: 88000.00,
+            assets: [
+                { id: 'BTC', name: 'Bitcoin', amount: 1.25, color: '#f7931a' },
+                { id: 'ETH', name: 'Ethereum', amount: 15.0, color: '#627eea' },
+                { id: 'SOL', name: 'Solana', amount: 240.5, color: '#14f195' }
+            ],
+            side: 'buy'
         };
 
-        // --- CUSTOM TRADING CHART ---
-        const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
-            layout: { backgroundColor: 'transparent', textColor: '#64748b' },
-            grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
-            crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-            rightPriceScale: { borderColor: '#f1f5f9' },
-            timeScale: { borderColor: '#f1f5f9' },
-        });
-        const lineSeries = chart.addLineSeries({ color: '#2563eb', lineWidth: 3 });
-        
-        // Mock data for chart
-        lineSeries.setData([
-            { time: '2026-04-20', value: 62000 },
-            { time: '2026-04-21', value: 64500 },
-            { time: '2026-04-22', value: 63800 },
-            { time: '2026-04-23', value: 66200 },
-        ]);
-
-        // Interface Logic
-        function toggleSettings() {
-            const panel = document.getElementById('settings-panel');
-            panel.classList.toggle('hidden');
+        function save() {
+            localStorage.setItem('blueCrypto_state', JSON.stringify(state));
+            updateUI();
         }
 
-        const levRange = document.getElementById('levRange');
-        const levValue = document.getElementById('levValue');
-        levRange.oninput = function() { levValue.innerText = this.value + 'x'; }
+        // --- UI UPDATES ---
+        function updateUI() {
+            document.getElementById('total-balance').innerText = state.balance.toLocaleString(undefined, {minimumFractionDigits: 2});
+            const assetContainer = document.getElementById('asset-list');
+            assetContainer.innerHTML = state.assets.map(a => `
+                <div class="p-3 bg-gray-900/50 border border-gray-800 rounded-xl flex justify-between items-center group hover:border-gray-600 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full" style="background: ${a.color}"></div>
+                        <div>
+                            <p class="text-[10px] font-black">${a.id}</p>
+                            <p class="text-[9px] text-gray-500 font-bold">${a.name}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] font-black">${a.amount}</p>
+                        <button onclick="removeAsset('${a.id}')" class="text-[8px] text-red-500 font-bold opacity-0 group-hover:opacity-100 transition">REMOVE</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- TRADING LOGIC ---
+        function setSide(side) {
+            state.side = side;
+            const buyTab = document.getElementById('buy-tab');
+            const sellTab = document.getElementById('sell-tab');
+            const btn = document.getElementById('exec-btn');
+            
+            if(side === 'buy') {
+                buyTab.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-green-500 text-black";
+                sellTab.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-gray-500";
+                btn.innerText = "Open Long Position";
+                btn.className = "w-full py-4 btn-buy rounded-xl text-xs uppercase tracking-[0.2em]";
+            } else {
+                sellTab.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase bg-red-500 text-white";
+                buyTab.className = "flex-1 py-2 rounded-lg text-[10px] font-black uppercase text-gray-500";
+                btn.innerText = "Open Short Position";
+                btn.className = "w-full py-4 btn-short rounded-xl text-xs uppercase tracking-[0.2em]";
+            }
+        }
+
+        function executeTrade() {
+            const amount = parseFloat(document.getElementById('trade-amount').value);
+            if(!amount || amount > state.balance) return log("Invalid liquidity or insufficient funds", "red");
+            
+            state.balance -= amount;
+            log(`Order Executed: ${state.side.toUpperCase()} @ ${currentPrice}`, state.side === 'buy' ? '#00ffaa' : '#ef4444');
+            save();
+            document.getElementById('trade-amount').value = '';
+        }
+
+        function log(msg, color = "gray") {
+            const l = document.getElementById('logs');
+            const p = document.createElement('p');
+            p.style.color = color;
+            p.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            l.prepend(p);
+        }
+
+        // --- LIVE PRICE FEED ---
+        let currentPrice = 0;
+        const pairSelector = document.getElementById('pair-selector');
+        let ws;
+
+        function connectWS() {
+            if(ws) ws.close();
+            const pair = pairSelector.value.toLowerCase();
+            ws = new WebSocket(`wss://stream.binance.com:9443/ws/${pair}@ticker`);
+            ws.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                currentPrice = parseFloat(data.c).toFixed(2);
+                document.getElementById('live-price').innerText = `$${currentPrice}`;
+                if(pair === 'btcusdt') document.getElementById('header-btc').innerText = `$${currentPrice}`;
+                if(pair === 'solusdt') document.getElementById('header-sol').innerText = `$${currentPrice}`;
+            };
+        }
+
+        // --- CHART INITIALIZATION ---
+        const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+            layout: { backgroundColor: 'transparent', textColor: '#64748b' },
+            grid: { vertLines: { color: '#0d131f' }, horzLines: { color: '#0d131f' } },
+            crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+            priceScale: { borderColor: '#1f2937' },
+            timeScale: { borderColor: '#1f2937' },
+        });
+        const candleSeries = chart.addCandlestickSeries();
+        // Generate mock historical data
+        const data = [];
+        for(let i=0; i<100; i++) {
+            data.push({ time: (Date.now()/1000) - (100-i)*3600, open: 60000+i*10, high: 60500+i*10, low: 59800+i*10, close: 60200+i*10 });
+        }
+        candleSeries.setData(data);
+
+        // --- SETTINGS ---
+        function toggleSettings() { document.getElementById('settings-panel').classList.toggle('hidden'); }
+        function saveSettings() {
+            const val = parseFloat(document.getElementById('set-balance').value);
+            if(val) state.balance = val;
+            save();
+            toggleSettings();
+        }
+
+        pairSelector.onchange = connectWS;
+        document.getElementById('lev-range').oninput = function() { document.getElementById('lev-display').innerText = this.value; };
+
+        connectWS();
+        updateUI();
     </script>
 </body>
 </html>
