@@ -6,7 +6,7 @@
     <%- include('partials/head') %>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
-        /* Pro Casino Dark Theme */
+        /* Exact Casino Dark Theme */
         body { background: #06090e; color: #f8fafc; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         .casino-panel { background: #0d131f; border: 1px solid #1f2937; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 1rem; }
         .casino-input { background: #06090e; border: 1px solid #1f2937; color: white; outline: none; transition: 0.2s; }
@@ -17,11 +17,11 @@
         
         /* Dramatic Market Effects */
         @keyframes flashGreen {
-            0% { box-shadow: inset 0 0 80px rgba(0, 255, 170, 0.15), 0 0 20px rgba(0, 255, 170, 0.2); border-color: rgba(0, 255, 170, 0.5); }
+            0% { box-shadow: inset 0 0 80px rgba(0, 255, 170, 0.15); border-color: rgba(0, 255, 170, 0.5); }
             100% { box-shadow: inset 0 0 0 transparent; border-color: #1f2937; }
         }
         @keyframes flashRed {
-            0% { box-shadow: inset 0 0 80px rgba(239, 68, 68, 0.15), 0 0 20px rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); }
+            0% { box-shadow: inset 0 0 80px rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.5); }
             100% { box-shadow: inset 0 0 0 transparent; border-color: #1f2937; }
         }
         .anim-pump { animation: flashGreen 0.6s ease-out; }
@@ -30,17 +30,17 @@
         .text-pump { color: #00ffaa !important; text-shadow: 0 0 20px rgba(0,255,170,0.6); }
         .text-dump { color: #ef4444 !important; text-shadow: 0 0 20px rgba(239,68,68,0.6); }
 
-        /* Custom Scrollbar & Inputs */
+        /* Custom UI */
         .no-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .no-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .no-scrollbar::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-        
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+        
         input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #00ffaa; cursor: pointer; box-shadow: 0 0 10px #00ffaa; margin-top: -7px; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #374151; border-radius: 2px; cursor: pointer; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #00ffaa; cursor: pointer; box-shadow: 0 0 10px #00ffaa; margin-top: -7px; transition: background 0.2s; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #374151; border-radius: 2px; }
 
-        /* Portfolio Modal Transition */
+        /* Off-Canvas Portfolio Overlay */
         #portfolio-modal { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s; }
         .modal-hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
         .modal-active { transform: translateX(0); opacity: 1; pointer-events: auto; }
@@ -56,9 +56,9 @@
         
         <div class="flex items-center gap-2">
             <a href="/admin" class="casino-btn px-3 md:px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition hover:text-[#00ffaa] hidden sm:block">Exit Node</a>
-            <button onclick="togglePortfolio()" class="bg-[#00ffaa] text-[#06090e] px-4 md:px-6 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-[0_0_15px_rgba(0,255,170,0.2)] hover:scale-105 transition flex items-center gap-2">
-                <svg class="w-4 h-4 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                Portfolio <span id="hdr-bal" class="ml-1 opacity-80">$0.00</span>
+            <button onclick="togglePortfolio()" class="bg-[#1f2937] border border-[#374151] hover:border-[#00ffaa] text-white px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition flex items-center gap-2">
+                <svg class="w-4 h-4 text-[#00ffaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                Portfolio
             </button>
         </div>
     </header>
@@ -70,29 +70,29 @@
             <div id="chart-wrap" class="casino-panel flex-grow relative flex flex-col min-h-[40vh] transition-all duration-300 overflow-hidden">
                 <div class="absolute top-4 left-4 z-10 flex flex-col pointer-events-none">
                     <select id="symbol-select" onchange="initFeeds()" class="casino-input px-3 py-1.5 rounded-lg text-lg font-black uppercase cursor-pointer appearance-none pointer-events-auto w-fit shadow-lg bg-[#0d131f]/90 border border-[#1f2937]">
-                        <option value="BTC-USD">BTC / USDT</option>
-                        <option value="ETH-USD">ETH / USDT</option>
-                        <option value="SOL-USD">SOL / USDT</option>
-                        <option value="DOGE-USD">DOGE / USDT</option>
-                        <option value="XRP-USD">XRP / USDT</option>
+                        <option value="bitcoin" data-sym="BTC">BTC / USD</option>
+                        <option value="ethereum" data-sym="ETH">ETH / USD</option>
+                        <option value="solana" data-sym="SOL">SOL / USD</option>
+                        <option value="dogecoin" data-sym="DOGE">DOGE / USD</option>
+                        <option value="xrp" data-sym="XRP">XRP / USD</option>
                     </select>
-                    <h2 id="live-price" class="text-3xl md:text-5xl font-black text-white mt-1 transition-colors duration-200 tracking-tight font-mono">Syncing...</h2>
+                    <h2 id="live-price" class="text-4xl md:text-5xl font-black text-white mt-1 transition-colors duration-200 tracking-tight font-mono">Syncing...</h2>
                 </div>
                 <div id="tvchart" class="w-full h-full mt-24"></div>
             </div>
 
             <div class="casino-panel h-[35vh] flex flex-col shrink-0">
-                <div class="flex justify-between items-center p-3 md:p-4 border-b border-[#1f2937] bg-[#06090e]/50">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-[#00ffaa]">Active Market Positions</h3>
-                    <span class="text-[10px] font-bold text-muted bg-[#1f2937] px-2 py-1 rounded">Live WS Feed</span>
+                <div class="flex justify-between items-center p-3 md:p-4 border-b border-[#1f2937] bg-[#06090e]/50 shrink-0">
+                    <h3 class="text-[10px] font-black uppercase tracking-widest text-[#00ffaa]">Active Positions</h3>
+                    <span class="text-[10px] font-bold text-muted bg-[#1f2937] px-2 py-1 rounded">Live WS Sync</span>
                 </div>
                 <div class="flex-grow overflow-auto no-scrollbar">
-                    <table class="w-full text-left border-collapse min-w-[600px]">
+                    <table class="w-full text-left border-collapse min-w-[650px]">
                         <thead class="sticky top-0 bg-[#0d131f] shadow-sm z-10">
                             <tr class="text-[9px] font-black uppercase tracking-widest text-muted border-b border-[#1f2937]">
                                 <th class="p-3">Asset</th>
                                 <th class="p-3">Side</th>
-                                <th class="p-3">Leverage</th>
+                                <th class="p-3">Lev</th>
                                 <th class="p-3">Margin</th>
                                 <th class="p-3">Entry</th>
                                 <th class="p-3 text-right">Live ROI</th>
@@ -106,8 +106,8 @@
             </div>
         </div>
 
-        <div class="casino-panel lg:w-[350px] xl:w-[400px] shrink-0 p-4 md:p-6 flex flex-col overflow-y-auto no-scrollbar">
-            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-[#1f2937] pb-2">Execution Protocol</h3>
+        <div class="casino-panel lg:w-[320px] xl:w-[360px] shrink-0 p-4 md:p-6 flex flex-col overflow-y-auto no-scrollbar">
+            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-[#1f2937] pb-2">Order Setup</h3>
             
             <div class="flex gap-2 bg-[#06090e] p-1 border border-[#1f2937] rounded-xl mb-6 shrink-0">
                 <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest bg-[#00ffaa] text-[#06090e] shadow-[0_0_10px_rgba(0,255,170,0.3)] transition">Long</button>
@@ -117,7 +117,7 @@
             <div class="space-y-6 flex-grow">
                 <div>
                     <div class="flex justify-between mb-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USDT)</label>
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USD)</label>
                         <span class="text-[10px] font-black text-[#00ffaa] cursor-pointer hover:underline" onclick="setMax()">MAX</span>
                     </div>
                     <input type="number" id="trade-margin" placeholder="0.00" class="w-full casino-input p-4 rounded-xl text-xl font-black font-mono">
@@ -125,23 +125,23 @@
 
                 <div>
                     <div class="flex justify-between mb-3">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Leverage Factor</label>
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Leverage</label>
                         <span class="text-[10px] font-black text-white bg-[#1f2937] px-2 py-0.5 rounded"><span id="lev-val">10</span>x</span>
                     </div>
                     <input type="range" id="trade-lev" min="1" max="100" value="10" class="w-full">
                     <div class="flex justify-between text-[9px] font-black text-muted mt-2">
-                        <span>1x</span><span>25x</span><span>50x</span><span>75x</span><span>100x</span>
+                        <span>1x</span><span>50x</span><span>100x</span>
                     </div>
                 </div>
 
                 <div class="p-4 bg-[#06090e] border border-[#1f2937] rounded-xl space-y-3">
                     <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
                         <span class="text-muted">Available</span>
-                        <span class="text-white font-mono"><span id="ui-avail">88000.00</span> USDT</span>
+                        <span class="text-white font-mono">$<span id="ui-avail">88000.00</span></span>
                     </div>
                     <div class="flex justify-between text-[10px] font-black uppercase tracking-widest border-t border-[#1f2937] pt-2">
-                        <span class="text-muted">Position Size</span>
-                        <span class="text-[#00ffaa] font-mono"><span id="ui-size">0.00</span> USDT</span>
+                        <span class="text-muted">Est. Size</span>
+                        <span class="text-[#00ffaa] font-mono">$<span id="ui-size">0.00</span></span>
                     </div>
                 </div>
             </div>
@@ -156,9 +156,9 @@
         <div class="flex justify-between items-center p-6 border-b border-[#1f2937] bg-[#06090e]">
             <h2 class="text-xl font-black uppercase tracking-widest text-white flex items-center gap-2">
                 <svg class="w-5 h-5 text-[#00ffaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                Portfolio
+                My Portfolio
             </h2>
-            <button onclick="togglePortfolio()" class="text-muted hover:text-white transition">
+            <button onclick="togglePortfolio()" class="text-muted hover:text-[#00ffaa] transition">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
@@ -168,7 +168,7 @@
                 <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-[#00ffaa]/10 rounded-full blur-[50px]"></div>
                 <p class="text-[10px] font-black text-[#00ffaa] uppercase tracking-widest mb-1">Total Net Equity</p>
                 <h2 class="text-4xl font-black tracking-tight text-white mb-2 font-mono" id="wallet-total">$88,000.00</h2>
-                <p class="text-xs font-bold text-muted font-mono" id="wallet-pnl">Unrealized PNL: $0.00</p>
+                <p class="text-xs font-bold text-muted font-mono" id="wallet-pnl">Live ROI: $0.00</p>
             </div>
 
             <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-[#1f2937] pb-2">Spot Assets</h3>
@@ -178,37 +178,29 @@
                     <div class="flex items-center gap-3">
                         <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029" class="w-8 h-8 rounded-full">
                         <div>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-white">Tether</p>
-                            <p class="text-[10px] font-bold text-muted">USDT</p>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-white">Tether (USD)</p>
+                            <p class="text-[10px] font-bold text-[#00ffaa]">Available Margin</p>
                         </div>
                     </div>
                     <h4 class="text-lg font-black text-white font-mono" id="wallet-usdt-display">88,000.00</h4>
-                </div>
-
-                <div class="bg-[#06090e] border border-[#1f2937] p-4 rounded-xl flex justify-between items-center opacity-50">
-                    <div class="flex items-center gap-3">
-                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-8 h-8 rounded-full filter grayscale">
-                        <div>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-white">Bitcoin</p>
-                            <p class="text-[10px] font-bold text-muted">BTC</p>
-                        </div>
-                    </div>
-                    <h4 class="text-lg font-black text-white font-mono">0.0000</h4>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. STATE MANAGEMENT ---
-        let state = JSON.parse(localStorage.getItem('terminal_state')) || {
+        // --- 1. STATE & GLOBAL PRICING ---
+        let state = JSON.parse(localStorage.getItem('terminal_state_v2')) || {
             balance: 88000.00,
             orders: []
         };
-        let ui = { side: 'buy', symbol: 'BTC-USD', price: 0, lastPrice: 0, lev: 10 };
+        // Global object to store the latest live prices of all assets
+        window.livePrices = { bitcoin: 0, ethereum: 0, solana: 0, dogecoin: 0, xrp: 0 };
+        
+        let ui = { side: 'buy', assetId: 'bitcoin', symbol: 'BTC', price: 0, lastPrice: 0, lev: 10 };
 
         function saveState() {
-            localStorage.setItem('terminal_state', JSON.stringify(state));
+            localStorage.setItem('terminal_state_v2', JSON.stringify(state));
             updateWalletUI();
         }
 
@@ -221,7 +213,8 @@
             }
         }
 
-        // --- 2. CHARTING INITIALIZATION ---
+        // --- 2. CHARTING INITIALIZATION (Area Chart) ---
+        // CoinCap provides generic price data (not OHLC), so Area Chart looks much better.
         const chartElement = document.getElementById('tvchart');
         const chart = LightweightCharts.createChart(chartElement, {
             layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#6b7280' },
@@ -231,9 +224,9 @@
             timeScale: { borderColor: '#1f2937', timeVisible: true }
         });
 
-        const candleSeries = chart.addCandlestickSeries({
-            upColor: '#00ffaa', downColor: '#ef4444', borderVisible: false,
-            wickUpColor: '#00ffaa', wickDownColor: '#ef4444'
+        const areaSeries = chart.addAreaSeries({
+            lineColor: '#00ffaa', topColor: 'rgba(0, 255, 170, 0.3)', bottomColor: 'rgba(0, 255, 170, 0.0)',
+            lineWidth: 2, crosshairMarkerBorderColor: '#06090e', crosshairMarkerBackgroundColor: '#00ffaa'
         });
 
         new ResizeObserver(entries => {
@@ -241,49 +234,56 @@
             chart.applyOptions({ width: entries[0].contentRect.width, height: entries[0].contentRect.height });
         }).observe(chartElement);
 
-        // --- 3. COINBASE ADVANCED API (Ultra Stable, No CORS, No Blocks) ---
+        // --- 3. COINCAP API (Ultra Reliable, No CORS) ---
         let ws;
         async function initFeeds() {
-            ui.symbol = document.getElementById('symbol-select').value;
+            const selectEl = document.getElementById('symbol-select');
+            ui.assetId = selectEl.value;
+            ui.symbol = selectEl.options[selectEl.selectedIndex].getAttribute('data-sym');
+            
             const priceEl = document.getElementById('live-price');
             const wrapEl = document.getElementById('chart-wrap');
-            
             priceEl.innerText = "Syncing...";
+            
             if(ws) ws.close();
+            areaSeries.setData([]); // clear old chart
 
             try {
-                // 1. Fetch REST History (Coinbase API)
-                const res = await fetch(`https://api.exchange.coinbase.com/products/${ui.symbol}/candles?granularity=60`);
-                if (!res.ok) throw new Error("REST API Failed");
+                // 1. Fetch REST History (1-minute intervals)
+                const res = await fetch(`https://api.coincap.io/v2/assets/${ui.assetId}/history?interval=m1`);
                 const data = await res.json();
                 
-                // Format: [ timestamp, price_low, price_high, price_open, price_close ]
-                const history = data.map(d => ({
-                    time: d[0], open: d[3], high: d[2], low: d[1], close: d[4]
-                })).reverse(); // Coinbase gives newest first, we need oldest first
+                // Format: { priceUsd, time }
+                const history = data.data.map(d => ({
+                    time: d.time / 1000, 
+                    value: parseFloat(d.priceUsd)
+                }));
                 
-                candleSeries.setData(history);
-                ui.price = history[history.length - 1].close;
+                areaSeries.setData(history);
+                ui.price = history[history.length - 1].value;
+                window.livePrices[ui.assetId] = ui.price;
                 priceEl.innerText = `$${ui.price.toFixed(2)}`;
 
             } catch (err) {
-                console.error("API Error - Network blocked?", err);
+                console.error("API Error fetching history.", err);
                 priceEl.innerText = "API Error";
-                // Simple offline fallback so UI doesn't break
-                candleSeries.setData([{time: Date.now()/1000, open: 100, high: 105, low: 95, close: 100}]);
-                ui.price = 100;
             }
 
-            // 2. Connect Coinbase WebSocket for pure live ticks
-            ws = new WebSocket("wss://ws-feed.exchange.coinbase.com");
-            ws.onopen = () => {
-                ws.send(JSON.stringify({ type: "subscribe", product_ids: [ui.symbol], channels: ["ticker"] }));
-            };
+            // 2. Global WebSocket (Subscribes to ALL assets to update all ROIs continuously)
+            const assetsString = "bitcoin,ethereum,solana,dogecoin,xrp";
+            ws = new WebSocket(`wss://ws.coincap.io/prices?assets=${assetsString}`);
             
             ws.onmessage = (e) => {
                 const data = JSON.parse(e.data);
-                if (data.type === 'ticker' && data.price) {
-                    const newPrice = parseFloat(data.price);
+                
+                // Update global prices
+                for (const [asset, priceStr] of Object.entries(data)) {
+                    window.livePrices[asset] = parseFloat(priceStr);
+                }
+
+                // If the currently viewed chart updated, process dramatic UI and chart drawing
+                if (data[ui.assetId]) {
+                    const newPrice = window.livePrices[ui.assetId];
                     
                     // Dramatic UI Flashes
                     if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
@@ -294,23 +294,25 @@
                         const isUp = newPrice > ui.lastPrice;
                         wrapEl.classList.add(isUp ? 'anim-pump' : 'anim-dump');
                         priceEl.classList.add(isUp ? 'text-pump' : 'text-dump');
+                        
+                        // Change chart line color instantly
+                        areaSeries.applyOptions({ 
+                            lineColor: isUp ? '#00ffaa' : '#ef4444',
+                            topColor: isUp ? 'rgba(0, 255, 170, 0.3)' : 'rgba(239, 68, 68, 0.3)'
+                        });
                     }
                     
                     ui.lastPrice = newPrice;
                     ui.price = newPrice;
-                    const dec = newPrice < 10 ? 4 : 2;
+                    const dec = newPrice < 1 ? 4 : 2;
                     priceEl.innerText = `$${newPrice.toLocaleString(undefined, {minimumFractionDigits: dec})}`;
 
-                    // Update live candle safely
-                    try {
-                        candleSeries.update({
-                            time: new Date(data.time).getTime() / 1000, 
-                            open: newPrice, high: newPrice, low: newPrice, close: newPrice
-                        });
-                    } catch(e) {} // Ignore minor time sorting errors from fast ticks
-
-                    renderOrders(); // Update ROI instantly
+                    // Update live chart tick
+                    areaSeries.update({ time: Date.now() / 1000, value: newPrice });
                 }
+
+                // ALWAYS render orders so the active orders table updates every single tick globally
+                renderOrders(); 
             };
         }
 
@@ -320,6 +322,7 @@
             const bBuy = document.getElementById('btn-buy');
             const bSell = document.getElementById('btn-sell');
             const bExec = document.getElementById('btn-execute');
+            const sliderThumb = document.getElementById('trade-lev');
 
             if(side === 'buy') {
                 bBuy.className = "flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest bg-[#00ffaa] text-[#06090e] shadow-[0_0_10px_rgba(0,255,170,0.3)] transition";
@@ -363,7 +366,8 @@
             
             state.orders.push({
                 id: Math.random().toString(36).substr(2, 9),
-                symbol: ui.symbol,
+                assetId: ui.assetId, // Store specific coincap id
+                symbol: ui.symbol,   // BTC
                 side: ui.side,
                 margin: margin,
                 lev: ui.lev,
@@ -377,14 +381,14 @@
             renderOrders();
         }
 
-        // --- 5. ROI & ORDERS TABLE ---
+        // --- 5. ROI CALCULATIONS & TABLES ---
         function renderOrders() {
             const tbody = document.getElementById('orders-body');
             let totalUnrealized = 0;
             
             if (state.orders.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-muted font-black uppercase tracking-widest text-xs">No Active Positions</td></tr>`;
-                document.getElementById('wallet-pnl').innerText = `Unrealized PNL: $0.00`;
+                document.getElementById('wallet-pnl').innerText = `Live ROI: $0.00`;
                 document.getElementById('wallet-pnl').className = `text-xs font-bold text-muted font-mono`;
                 return;
             }
@@ -392,23 +396,23 @@
             let html = '';
             state.orders.forEach(order => {
                 let pnl = 0;
-                // Update ROI if symbol matches active WS
-                if (order.symbol === ui.symbol) {
-                    const currentVal = order.units * ui.price;
-                    const initialVal = order.margin * order.lev;
-                    pnl = order.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
-                }
+                // Get the live price from our global dict (updates in background automatically!)
+                const currentLivePrice = window.livePrices[order.assetId] || order.entry;
+                
+                const currentVal = order.units * currentLivePrice;
+                const initialVal = order.margin * order.lev;
+                
+                pnl = order.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
                 totalUnrealized += pnl;
 
                 const roiPct = (pnl / order.margin) * 100;
                 const isProf = pnl >= 0;
                 const cColor = isProf ? 'text-[#00ffaa]' : 'text-red-500';
                 const sColor = order.side === 'buy' ? 'text-[#00ffaa] bg-[#00ffaa]/10' : 'text-red-500 bg-red-500/10';
-                const dispSymbol = order.symbol.replace('-USD', ''); // Format nicely for UI
                 
                 html += `
                     <tr class="border-b border-[#1f2937]/50 hover:bg-[#1f2937]/30 transition group">
-                        <td class="p-3 font-black text-white">${dispSymbol}</td>
+                        <td class="p-3 font-black text-white">${order.symbol}</td>
                         <td class="p-3"><span class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${sColor}">${order.side}</span></td>
                         <td class="p-3">${order.lev}x</td>
                         <td class="p-3">$${order.margin.toFixed(2)}</td>
@@ -422,9 +426,9 @@
             });
             tbody.innerHTML = html;
 
-            // Update Portfolio Modal PNL
+            // Update Portfolio Modal PNL dynamically
             const pnlColor = totalUnrealized >= 0 ? 'text-[#00ffaa]' : 'text-red-500';
-            document.getElementById('wallet-pnl').innerText = `Unrealized PNL: ${totalUnrealized >= 0 ? '+' : ''}$${totalUnrealized.toFixed(2)}`;
+            document.getElementById('wallet-pnl').innerText = `Live ROI: ${totalUnrealized >= 0 ? '+' : ''}$${totalUnrealized.toFixed(2)}`;
             document.getElementById('wallet-pnl').className = `text-xs font-bold font-mono mt-1 ${pnlColor}`;
         }
 
@@ -433,12 +437,11 @@
             if (idx === -1) return;
             
             const o = state.orders[idx];
-            let pnl = 0;
-            if (o.symbol === ui.symbol) {
-                const currentVal = o.units * ui.price;
-                const initialVal = o.margin * o.lev;
-                pnl = o.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
-            }
+            const currentLivePrice = window.livePrices[o.assetId] || o.entry;
+            
+            const currentVal = o.units * currentLivePrice;
+            const initialVal = o.margin * o.lev;
+            const pnl = o.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
             
             state.balance += (o.margin + pnl);
             state.orders.splice(idx, 1);
@@ -450,12 +453,11 @@
         function updateWalletUI() {
             const bal = state.balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('ui-avail').innerText = bal;
-            document.getElementById('hdr-bal').innerText = `$${bal}`;
             document.getElementById('wallet-total').innerText = `$${bal}`;
             document.getElementById('wallet-usdt-display').innerText = bal;
         }
 
-        // Boot
+        // Boot Protocol
         initFeeds();
         updateWalletUI();
         renderOrders();
