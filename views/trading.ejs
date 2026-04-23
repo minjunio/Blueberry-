@@ -3,11 +3,10 @@
 <head>
     <title>BlueCrypto Terminal</title>
     <link rel="icon" type="image/png" href="/favicon.png">
-    <%- include('partials/head') %>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         /* Exact Casino Dark Theme */
-        body { background: #06090e; color: #f8fafc; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        body { background: #06090e; color: #f8fafc; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; margin: 0; }
         .casino-panel { background: #0d131f; border: 1px solid #1f2937; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 1rem; }
         .casino-input { background: #06090e; border: 1px solid #1f2937; color: white; outline: none; transition: 0.2s; }
         .casino-input:focus { border-color: #00ffaa; box-shadow: 0 0 10px rgba(0,255,170,0.2); }
@@ -45,6 +44,7 @@
         .modal-hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
         .modal-active { transform: translateX(0); opacity: 1; pointer-events: auto; }
     </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 
@@ -70,11 +70,18 @@
             <div id="chart-wrap" class="casino-panel flex-grow relative flex flex-col min-h-[40vh] transition-all duration-300 overflow-hidden">
                 <div class="absolute top-4 left-4 z-10 flex flex-col pointer-events-none">
                     <select id="symbol-select" onchange="initFeeds()" class="casino-input px-3 py-1.5 rounded-lg text-lg font-black uppercase cursor-pointer appearance-none pointer-events-auto w-fit shadow-lg bg-[#0d131f]/90 border border-[#1f2937]">
-                        <option value="BTCUSDT">BTC / USDT</option>
-                        <option value="ETHUSDT">ETH / USDT</option>
-                        <option value="SOLUSDT">SOL / USDT</option>
-                        <option value="DOGEUSDT">DOGE / USDT</option>
-                        <option value="XRPUSDT">XRP / USDT</option>
+                        <option value="BTC-USD">BTC / USD</option>
+                        <option value="ETH-USD">ETH / USD</option>
+                        <option value="SOL-USD">SOL / USD</option>
+                        <option value="ATOM-USD">ATOM / USD</option>
+                        <option value="XRP-USD">XRP / USD</option>
+                        <option value="DOGE-USD">DOGE / USD</option>
+                        <option value="ADA-USD">ADA / USD</option>
+                        <option value="DOT-USD">DOT / USD</option>
+                        <option value="LINK-USD">LINK / USD</option>
+                        <option value="AVAX-USD">AVAX / USD</option>
+                        <option value="LTC-USD">LTC / USD</option>
+                        <option value="BCH-USD">BCH / USD</option>
                     </select>
                     <h2 id="live-price" class="text-4xl md:text-5xl font-black text-white mt-1 transition-colors duration-200 tracking-tight font-mono">Syncing...</h2>
                 </div>
@@ -117,7 +124,7 @@
             <div class="space-y-6 flex-grow">
                 <div>
                     <div class="flex justify-between mb-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USDT)</label>
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USD)</label>
                         <span class="text-[10px] font-black text-[#00ffaa] cursor-pointer hover:underline" onclick="setMax()">MAX</span>
                     </div>
                     <input type="number" id="trade-margin" placeholder="0.00" class="w-full casino-input p-4 rounded-xl text-xl font-black font-mono">
@@ -171,18 +178,20 @@
                 <p class="text-xs font-bold text-muted font-mono" id="wallet-pnl">Live ROI: $0.00</p>
             </div>
 
-            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-[#1f2937] pb-2">Spot Assets</h3>
+            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-4 border-b border-[#1f2937] pb-2">Fiat Assets</h3>
             
             <div class="space-y-3">
                 <div class="bg-[#06090e] border border-[#1f2937] p-4 rounded-xl flex justify-between items-center hover:border-[#00ffaa]/50 transition cursor-pointer">
                     <div class="flex items-center gap-3">
-                        <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029" class="w-8 h-8 rounded-full">
+                        <div class="w-8 h-8 rounded-full bg-[#1f2937] text-[#00ffaa] flex items-center justify-center font-black text-lg">
+                            $
+                        </div>
                         <div>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-white">Tether (USDT)</p>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-white">US Dollar (USD)</p>
                             <p class="text-[10px] font-bold text-[#00ffaa]">Available Margin</p>
                         </div>
                     </div>
-                    <h4 class="text-lg font-black text-white font-mono" id="wallet-usdt-display">88,000.00</h4>
+                    <h4 class="text-lg font-black text-white font-mono" id="wallet-usd-display">88,000.00</h4>
                 </div>
             </div>
         </div>
@@ -190,18 +199,18 @@
 
     <script>
         // --- 1. STATE & GLOBAL PRICING ---
-        let state = JSON.parse(localStorage.getItem('terminal_state_v4')) || {
+        let state = JSON.parse(localStorage.getItem('terminal_state_v4_usd')) || {
             balance: 88000.00,
             orders: []
         };
         
         window.livePrices = {}; 
-        let ui = { side: 'buy', restSymbol: 'BTCUSDT', wsSymbol: 'btcusdt', price: 0, lastPrice: 0, lev: 10 };
+        let ui = { side: 'buy', symbolId: 'BTC-USD', price: 0, lastPrice: 0, lev: 10 };
         let ws;
         let pollInterval;
 
         function saveState() {
-            localStorage.setItem('terminal_state_v4', JSON.stringify(state));
+            localStorage.setItem('terminal_state_v4_usd', JSON.stringify(state));
             updateWalletUI();
         }
 
@@ -234,11 +243,10 @@
             chart.applyOptions({ width: entries[0].contentRect.width, height: entries[0].contentRect.height });
         }).observe(chartElement);
 
-        // --- 3. BINANCE API (Ultra Reliable, CORS-Friendly) ---
+        // --- 3. COINBASE API (True USD & CORS-Friendly) ---
         async function initFeeds() {
             const selectEl = document.getElementById('symbol-select');
-            ui.restSymbol = selectEl.value;
-            ui.wsSymbol = ui.restSymbol.toLowerCase();
+            ui.symbolId = selectEl.value; // e.g. BTC-USD
             
             const priceEl = document.getElementById('live-price');
             priceEl.innerText = "Syncing...";
@@ -249,18 +257,20 @@
 
             // 1. Fetch Real Historical Data (REST)
             try {
-                let res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${ui.restSymbol}&interval=1m&limit=100`);
+                // Coinbase candles API format: [ [ time, low, high, open, close, volume ], ... ]
+                let res = await fetch(`https://api.exchange.coinbase.com/products/${ui.symbolId}/candles?granularity=60`);
                 let json = await res.json();
                 
-                let history = json.map(d => ({
-                    time: Math.floor(d[0] / 1000), 
-                    value: parseFloat(d[4]) 
+                // Coinbase returns newest data first, TradingView requires oldest first, so we reverse it.
+                let history = json.reverse().map(d => ({
+                    time: d[0], // Already in seconds
+                    value: parseFloat(d[4]) // Close price
                 }));
                 
                 areaSeries.setData(history);
                 ui.price = history[history.length - 1].value;
                 ui.lastPrice = ui.price;
-                window.livePrices[ui.restSymbol] = ui.price;
+                window.livePrices[ui.symbolId] = ui.price;
                 
                 priceEl.innerText = `$${ui.price.toFixed(2)}`;
                 processTick(ui.price); 
@@ -274,17 +284,23 @@
 
         function connectWebSocket() {
             try {
-                ws = new WebSocket(`wss://stream.binance.com:9443/ws/${ui.wsSymbol}@ticker`);
+                ws = new WebSocket('wss://ws-feed.exchange.coinbase.com');
                 
                 ws.onopen = () => {
                     document.getElementById('feed-status').innerText = "Live WS Engine";
                     document.getElementById('feed-status').className = "text-[10px] font-bold text-[#00ffaa] bg-[#1f2937] px-2 py-1 rounded";
+                    
+                    ws.send(JSON.stringify({
+                        type: "subscribe",
+                        product_ids: [ui.symbolId],
+                        channels: ["ticker"]
+                    }));
                 };
 
                 ws.onmessage = (e) => {
                     let data = JSON.parse(e.data);
-                    if(data.c) { 
-                        let newPrice = parseFloat(data.c);
+                    if(data.type === 'ticker' && data.price) { 
+                        let newPrice = parseFloat(data.price);
                         processTick(newPrice);
                     }
                 };
@@ -304,7 +320,7 @@
             
             pollInterval = setInterval(async () => {
                 try {
-                    let res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${ui.restSymbol}`);
+                    let res = await fetch(`https://api.exchange.coinbase.com/products/${ui.symbolId}/ticker`);
                     let json = await res.json();
                     if(json.price) {
                         let newPrice = parseFloat(json.price);
@@ -321,7 +337,7 @@
             const priceEl = document.getElementById('live-price');
             const wrapEl = document.getElementById('chart-wrap');
             
-            window.livePrices[ui.restSymbol] = newPrice; 
+            window.livePrices[ui.symbolId] = newPrice; 
             
             if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
                 wrapEl.classList.remove('anim-pump', 'anim-dump');
@@ -391,7 +407,7 @@
         function executeOrder() {
             const margin = parseFloat(marginInput.value);
             if (isNaN(margin) || margin <= 0) return alert("Enter valid margin.");
-            if (margin > state.balance) return alert("Insufficient USDT.");
+            if (margin > state.balance) return alert("Insufficient USD.");
 
             state.balance -= margin;
             const totalSize = margin * ui.lev;
@@ -400,7 +416,7 @@
 
             state.orders.push({
                 id: Math.random().toString(36).substr(2, 9),
-                restSymbol: ui.restSymbol, 
+                symbolId: ui.symbolId, 
                 displaySymbol: niceSymbol,
                 side: ui.side,
                 margin: margin,
@@ -431,7 +447,7 @@
             state.orders.forEach(order => {
                 let pnl = 0;
                 
-                if(order.restSymbol === ui.restSymbol) {
+                if(order.symbolId === ui.symbolId) {
                      const currentVal = order.units * ui.price;
                      const initialVal = order.margin * order.lev;
                      pnl = order.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
@@ -446,7 +462,7 @@
                 
                 html += `
                     <tr class="border-b border-[#1f2937]/50 hover:bg-[#1f2937]/30 transition group">
-                        <td class="p-3 font-black text-white">${order.displaySymbol}</td>
+                        <td class="p-3 font-black text-white whitespace-nowrap">${order.displaySymbol}</td>
                         <td class="p-3"><span class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${sColor}">${order.side}</span></td>
                         <td class="p-3">${order.lev}x</td>
                         <td class="p-3">$${order.margin.toFixed(2)}</td>
@@ -471,7 +487,7 @@
             
             const o = state.orders[idx];
             let pnl = 0;
-            if(o.restSymbol === ui.restSymbol) {
+            if(o.symbolId === ui.symbolId) {
                  const currentVal = o.units * ui.price;
                  const initialVal = o.margin * o.lev;
                  pnl = o.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
@@ -488,7 +504,7 @@
             const bal = state.balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('ui-avail').innerText = bal;
             document.getElementById('wallet-total').innerText = `$${bal}`;
-            document.getElementById('wallet-usdt-display').innerText = bal;
+            document.getElementById('wallet-usd-display').innerText = bal;
         }
 
         // Boot
