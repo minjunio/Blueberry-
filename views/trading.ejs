@@ -689,7 +689,7 @@ return "NEUTRAL";`;
             </div>`;
         }
 
-        // --- 3. HIGH RES SHARP CANVAS ENGINE (DYNAMIC WIDTH FIX) ---
+        // --- 3. HIGH RES SHARP CANVAS ENGINE (DYNAMIC BOUNDS) ---
         function setupCanvas() {
             const container = document.getElementById('canvas-container');
             const canvas = document.getElementById('custom-chart');
@@ -745,7 +745,8 @@ return "NEUTRAL";`;
             
             chartCtx.clearRect(0, 0, w, h);
             
-            const padYBottom = 20, padXRight = 85; 
+            // SIGNIFICANTLY expanded the right padding so large numbers ($65,000.00) never breach the edge
+            const padYBottom = 20, padXRight = 100; 
             const gW = w - padXRight, gH = h - padYBottom;
             
             const prices = data.map(d => d.price);
@@ -757,15 +758,17 @@ return "NEUTRAL";`;
             chartCtx.lineWidth = 1;
             chartCtx.fillStyle = '#8b839e';
             chartCtx.font = '9px monospace';
-            
-            // Align grid text to the absolute right side so it never overflows
-            chartCtx.textAlign = 'right'; 
+            chartCtx.textAlign = 'left';
             chartCtx.textBaseline = 'middle';
             
             for(let i=0; i<=4; i++) {
                 const yPos = (i / 4) * gH;
                 chartCtx.beginPath(); chartCtx.moveTo(0, yPos); chartCtx.lineTo(gW, yPos); chartCtx.stroke();
-                chartCtx.fillText((maxPrice - (i / 4) * range).toFixed(minPrice<1?6:2), w - 5, yPos);
+                
+                let gridPrice = maxPrice - (i / 4) * range;
+                let gridText = gridPrice >= 1000 ? gridPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : gridPrice.toFixed(minPrice<1?6:2);
+                
+                chartCtx.fillText(gridText, gW + 4, yPos);
             }
             
             chartCtx.beginPath();
@@ -782,21 +785,20 @@ return "NEUTRAL";`;
             chartCtx.lineJoin = 'round';
             chartCtx.stroke();
             
-            // Draw box dynamically anchoring from the right edge `w` extending inward
+            // Dynamic text width calculation to prevent layout bleeding
             function drawPriceTag(yPos, priceVal) {
                 let tagY = Math.max(10, Math.min(gH - 10, yPos));
-                let priceText = priceVal.toFixed(minPrice<1?6:2); 
+                let priceText = priceVal >= 1000 ? priceVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : priceVal.toFixed(minPrice<1?6:2);
 
                 chartCtx.font = 'bold 11px monospace';
                 let textWidth = chartCtx.measureText(priceText).width;
-                let boxWidth = Math.max(padXRight, textWidth + 12); 
-                
+                let boxWidth = Math.max(textWidth + 12, 60); 
+
                 chartCtx.fillStyle = '#a78bfa';
-                chartCtx.fillRect(w - boxWidth, tagY - 11, boxWidth, 22);
+                chartCtx.fillRect(gW, tagY - 11, boxWidth, 22);
                 
                 chartCtx.fillStyle = '#05020a'; 
-                chartCtx.textAlign = 'right';
-                chartCtx.fillText(priceText, w - 6, tagY);
+                chartCtx.fillText(priceText, gW + 6, tagY);
             }
 
             if(canvasHoverPos !== null && canvasHoverPos <= gW) {
