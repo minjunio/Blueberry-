@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Pro Terminal - ExamHub</title>
+    <title>BlueCrypto Terminal</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
@@ -51,14 +51,14 @@
     <header class="flex justify-between items-center p-3 md:p-4 bg-[#0d131f] border-b border-[#1f2937] shrink-0 z-50">
         <div class="flex items-center gap-3">
             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 5 12 2 12 2C12 2 2 5 2 12C2 17.5228 6.47715 22 12 22Z" fill="#00ffaa"/><path d="M12 16C13.6569 16 15 14.6569 15 13C15 11.3431 12 8 12 8C12 8 9 11.3431 9 13C9 14.6569 10.3431 16 12 16Z" fill="#06090e"/></svg>
-            <h2 class="text-lg md:text-xl font-black uppercase tracking-tighter text-white">Pro Terminal</h2>
+            <h2 class="text-lg md:text-xl font-black uppercase tracking-tighter text-white">BlueCrypto</h2>
         </div>
         
         <div class="flex items-center gap-2">
             <a href="/admin" class="casino-btn px-3 md:px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition hover:text-[#00ffaa] hidden sm:block">Exit Node</a>
             <button onclick="togglePortfolio()" class="bg-[#1f2937] border border-[#374151] hover:border-[#00ffaa] text-white px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition flex items-center gap-2">
                 <svg class="w-4 h-4 text-[#00ffaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                Portfolio
+                minjunio
             </button>
         </div>
     </header>
@@ -70,11 +70,11 @@
             <div id="chart-wrap" class="casino-panel flex-grow relative flex flex-col min-h-[40vh] transition-all duration-300 overflow-hidden">
                 <div class="absolute top-4 left-4 z-10 flex flex-col pointer-events-none">
                     <select id="symbol-select" onchange="initFeeds()" class="casino-input px-3 py-1.5 rounded-lg text-lg font-black uppercase cursor-pointer appearance-none pointer-events-auto w-fit shadow-lg bg-[#0d131f]/90 border border-[#1f2937]">
-                        <option value="XBTUSD" data-ws="XBT/USD">BTC / USD</option>
-                        <option value="ETHUSD" data-ws="ETH/USD">ETH / USD</option>
-                        <option value="SOLUSD" data-ws="SOL/USD">SOL / USD</option>
-                        <option value="DOGEUSD" data-ws="DOGE/USD">DOGE / USD</option>
-                        <option value="XRPUSD" data-ws="XRP/USD">XRP / USD</option>
+                        <option value="BTCUSDT">BTC / USDT</option>
+                        <option value="ETHUSDT">ETH / USDT</option>
+                        <option value="SOLUSDT">SOL / USDT</option>
+                        <option value="DOGEUSDT">DOGE / USDT</option>
+                        <option value="XRPUSDT">XRP / USDT</option>
                     </select>
                     <h2 id="live-price" class="text-4xl md:text-5xl font-black text-white mt-1 transition-colors duration-200 tracking-tight font-mono">Syncing...</h2>
                 </div>
@@ -117,7 +117,7 @@
             <div class="space-y-6 flex-grow">
                 <div>
                     <div class="flex justify-between mb-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USD)</label>
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted">Margin (USDT)</label>
                         <span class="text-[10px] font-black text-[#00ffaa] cursor-pointer hover:underline" onclick="setMax()">MAX</span>
                     </div>
                     <input type="number" id="trade-margin" placeholder="0.00" class="w-full casino-input p-4 rounded-xl text-xl font-black font-mono">
@@ -178,7 +178,7 @@
                     <div class="flex items-center gap-3">
                         <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029" class="w-8 h-8 rounded-full">
                         <div>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-white">Tether (USD)</p>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-white">Tether (USDT)</p>
                             <p class="text-[10px] font-bold text-[#00ffaa]">Available Margin</p>
                         </div>
                     </div>
@@ -195,8 +195,8 @@
             orders: []
         };
         
-        window.livePrices = {}; // Tracks current prices for all open assets globally
-        let ui = { side: 'buy', restSymbol: 'XBTUSD', wsSymbol: 'XBT/USD', price: 0, lastPrice: 0, lev: 10 };
+        window.livePrices = {}; 
+        let ui = { side: 'buy', restSymbol: 'BTCUSDT', wsSymbol: 'btcusdt', price: 0, lastPrice: 0, lev: 10 };
         let ws;
         let pollInterval;
 
@@ -234,11 +234,11 @@
             chart.applyOptions({ width: entries[0].contentRect.width, height: entries[0].contentRect.height });
         }).observe(chartElement);
 
-        // --- 3. KRAKEN API (Ultra Reliable, Zero Blocks) ---
+        // --- 3. BINANCE API (Ultra Reliable, CORS-Friendly) ---
         async function initFeeds() {
             const selectEl = document.getElementById('symbol-select');
             ui.restSymbol = selectEl.value;
-            ui.wsSymbol = selectEl.options[selectEl.selectedIndex].getAttribute('data-ws');
+            ui.wsSymbol = ui.restSymbol.toLowerCase();
             
             const priceEl = document.getElementById('live-price');
             priceEl.innerText = "Syncing...";
@@ -249,13 +249,12 @@
 
             // 1. Fetch Real Historical Data (REST)
             try {
-                let res = await fetch(`https://api.kraken.com/0/public/OHLC?pair=${ui.restSymbol}&interval=1`);
+                let res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${ui.restSymbol}&interval=1m&limit=100`);
                 let json = await res.json();
-                let key = Object.keys(json.result)[0]; 
                 
-                let history = json.result[key].map(d => ({
-                    time: parseInt(d[0]),
-                    value: parseFloat(d[4]) // Close price
+                let history = json.map(d => ({
+                    time: Math.floor(d[0] / 1000), 
+                    value: parseFloat(d[4]) 
                 }));
                 
                 areaSeries.setData(history);
@@ -264,9 +263,9 @@
                 window.livePrices[ui.restSymbol] = ui.price;
                 
                 priceEl.innerText = `$${ui.price.toFixed(2)}`;
-                processTick(ui.price); // Trigger initial UI
+                processTick(ui.price); 
             } catch(e) {
-                console.error("History fetch failed, awaiting live tick...");
+                console.error("History fetch failed, awaiting live tick...", e);
             }
 
             // 2. Connect Lightning WebSocket
@@ -275,23 +274,17 @@
 
         function connectWebSocket() {
             try {
-                ws = new WebSocket('wss://ws.kraken.com');
+                ws = new WebSocket(`wss://stream.binance.com:9443/ws/${ui.wsSymbol}@ticker`);
+                
                 ws.onopen = () => {
                     document.getElementById('feed-status').innerText = "Live WS Engine";
                     document.getElementById('feed-status').className = "text-[10px] font-bold text-[#00ffaa] bg-[#1f2937] px-2 py-1 rounded";
-                    
-                    // Subscribe to the active symbol
-                    ws.send(JSON.stringify({
-                        event: "subscribe",
-                        pair: [ui.wsSymbol],
-                        subscription: { name: "ticker" }
-                    }));
                 };
 
                 ws.onmessage = (e) => {
                     let data = JSON.parse(e.data);
-                    if(Array.isArray(data) && data[2] === 'ticker') {
-                        let newPrice = parseFloat(data[1].c[0]);
+                    if(data.c) { 
+                        let newPrice = parseFloat(data.c);
                         processTick(newPrice);
                     }
                 };
@@ -303,21 +296,24 @@
             }
         }
 
-        // 3. Guaranteed Fallback: If WS is blocked, it polls REST automatically
+        // 3. Guaranteed Fallback
         function startRESTFallback() {
-            if(pollInterval) return; // already running
+            if(pollInterval) return; 
             document.getElementById('feed-status').innerText = "REST Fallback";
             document.getElementById('feed-status').className = "text-[10px] font-bold text-yellow-500 bg-[#1f2937] px-2 py-1 rounded";
             
             pollInterval = setInterval(async () => {
                 try {
-                    let res = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${ui.restSymbol}`);
+                    let res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${ui.restSymbol}`);
                     let json = await res.json();
-                    let key = Object.keys(json.result)[0];
-                    let newPrice = parseFloat(json.result[key].c[0]);
-                    processTick(newPrice);
-                } catch(e) {}
-            }, 2000); // Polling every 2 seconds is very safe for Kraken
+                    if(json.price) {
+                        let newPrice = parseFloat(json.price);
+                        processTick(newPrice);
+                    }
+                } catch(e) {
+                    console.error("Fallback failed", e);
+                }
+            }, 2000); 
         }
 
         // Central Tick Processor
@@ -400,7 +396,6 @@
             state.balance -= margin;
             const totalSize = margin * ui.lev;
             
-            // Format symbol nicely for UI (e.g. XBTUSD -> BTC/USD)
             let niceSymbol = document.getElementById('symbol-select').options[document.getElementById('symbol-select').selectedIndex].text;
 
             state.orders.push({
@@ -436,7 +431,6 @@
             state.orders.forEach(order => {
                 let pnl = 0;
                 
-                // If this order matches the currently viewed chart, update ROI based on real-time price
                 if(order.restSymbol === ui.restSymbol) {
                      const currentVal = order.units * ui.price;
                      const initialVal = order.margin * order.lev;
