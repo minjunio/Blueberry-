@@ -3,442 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlueCrypto Pro Terminal</title>
+    <title>Bluebook Terminal - ExamHub</title>
     <link rel="icon" type="image/png" href="/favicon.png">
-    <%- include('partials/head') %>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap');
         
-        /* Bluebook Dark Mode Theme */
-        :root {
-            --bg-base: #040914;
-            --bg-panel: #0a1326;
-            --border: #172645;
-            --cyan-glow: #00f3ff;
-            --red-glow: #ff2a5f;
-        }
-
-        body { background-color: var(--bg-base); color: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        /* Bluebook Aesthetic */
+        body { background-color: #020617; color: #f8fafc; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        .bluebook-panel { background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .bluebook-input { background: #040914; border: 1px solid #172645; color: white; outline: none; transition: 0.3s; }
-        .bluebook-input:focus { border-color: var(--cyan-glow); box-shadow: 0 0 15px rgba(0, 243, 255, 0.15); }
-
-        /* Dramatic Market Flashes */
-        @keyframes flashPump {
-            0% { box-shadow: inset 0 0 120px rgba(0, 243, 255, 0.2); border-color: var(--cyan-glow); }
-            100% { box-shadow: inset 0 0 0 transparent; border-color: var(--border); }
-        }
-        @keyframes flashDump {
-            0% { box-shadow: inset 0 0 120px rgba(255, 42, 95, 0.2); border-color: var(--red-glow); }
-            100% { box-shadow: inset 0 0 0 transparent; border-color: var(--border); }
-        }
-        .animate-pump { animation: flashPump 0.6s ease-out; }
-        .animate-dump { animation: flashDump 0.6s ease-out; }
+        /* Glass/Blueprint Panels */
+        .blue-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(10px); border: 1px solid #1e3a8a; border-radius: 12px; }
+        .input-blue { background: #020617; border: 1px solid #1e3a8a; color: #38bdf8; outline: none; transition: all 0.2s; }
+        .input-blue:focus { border-color: #0ea5e9; box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); }
         
-        .text-pump { color: var(--cyan-glow) !important; text-shadow: 0 0 20px rgba(0, 243, 255, 0.6); }
-        .text-dump { color: var(--red-glow) !important; text-shadow: 0 0 20px rgba(255, 42, 95, 0.6); }
+        /* Dramatic Price Effects */
+        @keyframes pumpGlow {
+            0% { text-shadow: 0 0 40px #0ea5e9, 0 0 20px #0ea5e9; color: #38bdf8; transform: scale(1.02); }
+            100% { text-shadow: 0 0 0 transparent; color: #f8fafc; transform: scale(1); }
+        }
+        @keyframes dumpGlow {
+            0% { text-shadow: 0 0 40px #f43f5e, 0 0 20px #f43f5e; color: #fb7185; transform: scale(0.98); }
+            100% { text-shadow: 0 0 0 transparent; color: #f8fafc; transform: scale(1); }
+        }
+        .effect-pump { animation: pumpGlow 0.5s ease-out; }
+        .effect-dump { animation: dumpGlow 0.5s ease-out; }
 
-        /* Sliders & Scrollbars */
+        @keyframes bgPulsePump { 0% { background: rgba(14, 165, 233, 0.1); } 100% { background: transparent; } }
+        @keyframes bgPulseDump { 0% { background: rgba(244, 63, 94, 0.1); } 100% { background: transparent; } }
+        .bg-pump { animation: bgPulsePump 0.5s ease-out; }
+        .bg-dump { animation: bgPulseDump 0.5s ease-out; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+        
+        /* Range Slider */
         input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: var(--cyan-glow); cursor: pointer; box-shadow: 0 0 10px var(--cyan-glow); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #172645; border-radius: 4px; }
-        
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-base); }
-        ::-webkit-scrollbar-thumb { background: #172645; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #263c6b; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #0ea5e9; cursor: pointer; box-shadow: 0 0 10px #0ea5e9; margin-top: -8px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #1e3a8a; border-radius: 2px; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
-<body class="h-screen flex flex-col">
+<body class="flex flex-col">
 
-    <header class="border-b border-[#172645] bg-[#0a1326] shrink-0 p-4 flex justify-between items-center z-50 shadow-md">
+    <header class="h-16 border-b border-[#1e3a8a] bg-[#020617] shrink-0 px-4 flex items-center justify-between z-50 shadow-[0_4px_30px_rgba(30,58,138,0.2)]">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(0,243,255,0.3)]">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            <div class="w-8 h-8 rounded border border-[#38bdf8] flex items-center justify-center bg-[#0ea5e9]/20 shadow-[0_0_10px_#0ea5e9]">
+                <svg class="w-5 h-5 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
             </div>
-            <h1 class="text-xl font-black uppercase tracking-widest text-white">BlueCrypto</h1>
+            <h1 class="text-lg font-black uppercase tracking-widest text-[#f8fafc] hidden sm:block">Bluebook <span class="text-[#38bdf8]">Pro</span></h1>
+        </div>
+        
+        <div class="flex gap-1 bg-[#0f172a] p-1 rounded-lg border border-[#1e3a8a]">
+            <button onclick="switchTab('trading')" id="tabBtn-trading" class="px-4 md:px-8 py-1.5 rounded text-[10px] font-black uppercase tracking-widest bg-[#1e3a8a] text-white shadow">Terminal</button>
+            <button onclick="switchTab('wallet')" id="tabBtn-wallet" class="px-4 md:px-8 py-1.5 rounded text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition">Portfolio</button>
         </div>
 
-        <div class="bg-[#040914] p-1 rounded-xl flex border border-[#172645]">
-            <button onclick="switchTab('wallet')" id="btn-wallet" class="px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition">Wallet</button>
-            <button onclick="switchTab('trading')" id="btn-trading" class="px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest bg-[#172645] text-white shadow transition">Terminal</button>
-        </div>
-
-        <a href="/admin" class="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition px-4 py-2 border border-[#172645] rounded-xl hover:bg-[#172645]">Exit</a>
+        <a href="/admin" class="text-[10px] font-black uppercase tracking-widest text-[#38bdf8] border border-[#1e3a8a] hover:bg-[#1e3a8a] px-4 py-2 rounded transition">Exit System</a>
     </header>
 
-    <main class="flex-grow relative overflow-hidden bg-[#040914]">
+    <main class="flex-1 flex overflow-hidden relative">
         
-        <div id="tab-wallet" class="absolute inset-0 overflow-y-auto hidden p-4 md:p-8">
-            <div class="max-w-6xl mx-auto space-y-6">
-                <div class="bluebook-panel p-8 md:p-12 relative overflow-hidden">
-                    <div class="absolute top-[-50%] right-[-10%] w-96 h-96 bg-cyan-500/20 rounded-full blur-[100px] pointer-events-none"></div>
-                    <p class="text-xs font-black uppercase tracking-widest text-cyan-500 mb-2">Available Margin (USDT)</p>
-                    <h2 class="text-5xl md:text-7xl font-black font-mono tracking-tight text-white" id="wallet-total">$88,000.00</h2>
-                    <div class="flex gap-4 mt-8">
-                        <button onclick="resetWallet()" class="bg-slate-800 text-white px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest border border-slate-700 hover:bg-slate-700">Reset Balance</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-trading" class="absolute inset-0 flex flex-col lg:flex-row p-2 gap-2 overflow-y-auto lg:overflow-hidden">
+        <div id="view-trading" class="absolute inset-0 flex flex-col lg:flex-row w-full h-full overflow-y-auto lg:overflow-hidden p-2 gap-2 bg-[#020617]">
             
-            <div class="flex-grow flex flex-col gap-2 w-full lg:w-3/4">
+            <div class="flex-1 flex flex-col gap-2 min-h-[70vh] lg:min-h-0 relative">
                 
-                <div id="chart-container" class="bluebook-panel flex-grow relative overflow-hidden transition-all duration-300" style="min-height: 450px;">
-                    
-                    <div class="absolute top-4 left-4 z-10 flex flex-col md:flex-row md:items-end gap-4 pointer-events-none">
-                        <div class="pointer-events-auto relative">
-                            <select id="pair-selector" onchange="changePair()" class="appearance-none bg-[#0a1326]/80 backdrop-blur border border-[#172645] text-white font-black text-2xl px-4 py-2 rounded-xl cursor-pointer hover:border-cyan-500 transition shadow-lg outline-none pr-10">
-                                <option value="BTCUSDT">BTC / USDT</option>
-                                <option value="ETHUSDT">ETH / USDT</option>
-                                <option value="SOLUSDT">SOL / USDT</option>
-                                <option value="XRPUSDT">XRP / USDT</option>
-                            </select>
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-500">▼</div>
-                        </div>
-                        <h2 id="live-price" class="text-4xl md:text-5xl font-black font-mono tracking-tight text-white transition-colors duration-100 drop-shadow-lg">Loading...</h2>
+                <div id="chart-wrap" class="blue-panel flex-1 flex flex-col relative min-h-[40vh] transition-colors duration-300">
+                    <div class="absolute top-4 left-4 z-10 flex flex-col gap-1 pointer-events-none">
+                        <select id="symbol-select" onchange="initBybitAPI()" class="appearance-none bg-[#020617]/80 border border-[#1e3a8a] text-[#38bdf8] font-black text-lg px-3 py-1 rounded shadow-lg pointer-events-auto cursor-pointer outline-none max-w-fit">
+                            <option value="BTCUSDT">BTC / USDT</option>
+                            <option value="ETHUSDT">ETH / USDT</option>
+                            <option value="SOLUSDT">SOL / USDT</option>
+                            <option value="XRPUSDT">XRP / USDT</option>
+                        </select>
+                        <h2 id="price-display" class="text-4xl md:text-5xl font-black font-mono tracking-tight text-white transition-all duration-75">---</h2>
                     </div>
-                    
-                    <div id="tvchart" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0;"></div>
+                    <div id="tvchart" class="flex-1 w-full h-full mt-20"></div>
                 </div>
 
-                <div class="bluebook-panel h-[35vh] flex flex-col shrink-0 overflow-hidden">
-                    <div class="p-4 border-b border-[#172645] bg-[#0a1326] flex justify-between items-center">
-                        <h3 class="text-xs font-black uppercase tracking-widest text-white">Active Positions</h3>
-                        <span class="text-[10px] font-bold text-cyan-500 bg-cyan-500/10 px-2 py-1 rounded">LIVE ROI TRACKING</span>
+                <div class="blue-panel h-64 shrink-0 flex flex-col">
+                    <div class="p-3 border-b border-[#1e3a8a] flex justify-between items-center bg-[#020617]/50 shrink-0">
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-[#38bdf8]">Active Positions Database</h3>
+                        <span class="text-[10px] font-bold text-slate-500 font-mono" id="live-pnl-total">ROI: $0.00</span>
                     </div>
-                    <div class="flex-grow overflow-auto">
-                        <table class="w-full text-left min-w-[700px]">
-                            <thead class="sticky top-0 bg-[#0a1326] shadow-sm z-10">
-                                <tr class="text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-[#172645]">
+                    <div class="flex-1 overflow-auto">
+                        <table class="w-full text-left min-w-[600px] border-collapse">
+                            <thead class="sticky top-0 bg-[#0f172a] shadow">
+                                <tr class="text-[9px] font-black uppercase tracking-widest text-slate-400 border-b border-[#1e3a8a]">
                                     <th class="p-3">Symbol</th>
-                                    <th class="p-3">Side</th>
+                                    <th class="p-3">Type</th>
+                                    <th class="p-3">Margin</th>
                                     <th class="p-3">Leverage</th>
-                                    <th class="p-3">Margin (USDT)</th>
-                                    <th class="p-3">Entry Price</th>
-                                    <th class="p-3 text-right">Live PNL / ROI</th>
-                                    <th class="p-3 text-right">Action</th>
+                                    <th class="p-3">Entry</th>
+                                    <th class="p-3 text-right">Live PNL</th>
+                                    <th class="p-3 text-center">Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="active-orders-body" class="text-xs font-mono text-slate-300">
+                            <tbody id="positions-body" class="text-xs font-mono text-slate-200">
                                 </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <div class="bluebook-panel w-full lg:w-1/4 p-5 flex flex-col shrink-0 min-h-[500px]">
+            <div class="blue-panel w-full lg:w-80 xl:w-96 p-4 flex flex-col shrink-0">
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-[#38bdf8] mb-4">Execution Panel</h3>
                 
-                <div class="flex gap-2 p-1 bg-[#040914] rounded-xl border border-[#172645] mb-6">
-                    <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-3 rounded-lg font-black uppercase tracking-widest text-xs bg-cyan-500 text-black shadow-[0_0_15px_rgba(0,243,255,0.4)] transition">Long</button>
-                    <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-3 rounded-lg font-black uppercase tracking-widest text-xs text-slate-500 hover:text-white transition">Short</button>
+                <div class="flex gap-2 mb-6">
+                    <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-3 rounded text-xs font-black uppercase tracking-widest bg-[#0ea5e9] text-[#020617] shadow-[0_0_15px_rgba(14,165,233,0.4)] transition">Long</button>
+                    <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-3 rounded text-xs font-black uppercase tracking-widest bg-[#020617] border border-[#1e3a8a] text-slate-500 hover:text-[#f43f5e] transition">Short</button>
                 </div>
 
-                <div class="space-y-6 flex-grow">
+                <div class="space-y-6 flex-1">
                     <div>
                         <div class="flex justify-between mb-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Leverage</label>
-                            <span class="text-xs font-black font-mono text-cyan-500"><span id="lev-val">10</span>x</span>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Margin (USDT)</label>
+                            <span class="text-[10px] font-bold text-[#38bdf8] cursor-pointer hover:underline" onclick="setMax()">Max</span>
                         </div>
-                        <input type="range" id="leverage" min="1" max="100" value="10" class="w-full" oninput="document.getElementById('lev-val').innerText = this.value; updateEst();">
+                        <input type="number" id="trade-margin" placeholder="0.00" class="input-blue w-full p-4 rounded font-mono text-xl font-black">
                     </div>
 
                     <div>
                         <div class="flex justify-between mb-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Margin (USDT)</label>
-                            <span class="text-[10px] font-black text-cyan-500 cursor-pointer" onclick="setMax()">100%</span>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Leverage</label>
+                            <span class="text-[10px] font-black text-[#0ea5e9] font-mono"><span id="lev-val">10</span>x</span>
                         </div>
-                        <input type="number" id="trade-amount" placeholder="0.00" class="bluebook-input w-full p-4 rounded-xl text-xl font-black font-mono" oninput="updateEst()">
+                        <input type="range" id="trade-leverage" min="1" max="100" value="10" class="w-full">
+                        <div class="flex justify-between text-[8px] font-black text-slate-500 mt-1">
+                            <span>1x</span><span>25x</span><span>50x</span><span>75x</span><span>100x</span>
+                        </div>
                     </div>
 
-                    <div class="p-4 bg-[#040914] rounded-xl border border-[#172645] space-y-3">
-                        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
-                            <span>Available</span>
-                            <span class="font-mono text-white"><span id="trade-avail">88000.00</span></span>
+                    <div class="p-3 bg-[#020617] border border-[#1e3a8a] rounded space-y-2">
+                        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                            <span class="text-slate-500">Available</span>
+                            <span class="text-[#f8fafc] font-mono"><span id="ui-avail">88000.00</span> USDT</span>
                         </div>
-                        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
-                            <span>Position Size</span>
-                            <span class="font-mono text-cyan-500" id="trade-pos">0.00 USDT</span>
+                        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                            <span class="text-slate-500">Position Size</span>
+                            <span class="text-[#38bdf8] font-mono" id="ui-size">0.00 USDT</span>
                         </div>
                     </div>
                 </div>
 
-                <button onclick="executeTrade()" id="btn-execute" class="mt-6 w-full py-5 rounded-xl font-black uppercase tracking-widest text-sm bg-cyan-500 text-black hover:bg-cyan-400 transition-all shadow-[0_0_20px_rgba(0,243,255,0.3)] active:scale-95">
+                <button onclick="executeTrade()" id="btn-execute" class="mt-6 w-full py-4 rounded font-black uppercase tracking-[0.2em] text-sm bg-[#0ea5e9] text-[#020617] shadow-[0_0_20px_rgba(14,165,233,0.4)] hover:bg-[#38bdf8] transition active:scale-95 shrink-0">
                     Open Long
                 </button>
             </div>
         </div>
+
+        <div id="view-wallet" class="absolute inset-0 w-full h-full overflow-y-auto bg-[#020617] hidden p-4 md:p-8">
+            <div class="max-w-5xl mx-auto">
+                <div class="blue-panel p-8 md:p-12 mb-8 relative overflow-hidden">
+                    <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-[#0ea5e9]/20 rounded-full blur-[100px]"></div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-[#38bdf8] mb-2">Total Net Equity</p>
+                    <h2 class="text-5xl md:text-7xl font-black font-mono text-white tracking-tighter" id="wallet-total">$88,000.00</h2>
+                    <p class="text-xs font-bold text-slate-400 mt-2 font-mono" id="wallet-pnl">Unrealized PNL: $0.00</p>
+                </div>
+
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4 px-2">Spot Assets</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="blue-panel p-5 hover:border-[#38bdf8] transition">
+                        <div class="flex items-center gap-3 mb-4">
+                            <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029" class="w-8 h-8 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+                            <span class="text-[10px] font-black uppercase tracking-widest bg-[#020617] px-2 py-1 rounded border border-[#1e3a8a] text-slate-300">Tether</span>
+                        </div>
+                        <h4 class="text-2xl font-black font-mono" id="wallet-usdt">88,000.00</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script>
-        // --- 1. STATE MANAGEMENT (localStorage) ---
-        let state = JSON.parse(localStorage.getItem('bluebookState')) || {
+        // --- 1. CORE DATA & STORAGE ---
+        let state = JSON.parse(localStorage.getItem('bluebook_state')) || {
             balance: 88000.00,
-            orders: []
+            positions: []
         };
-        state.side = 'buy';
-        state.symbol = 'BTCUSDT';
-        state.price = 0;
-        state.lastPrice = 0;
+        let ui = { side: 'buy', symbol: 'BTCUSDT', price: 0, lastPrice: 0, leverage: 10 };
 
         function saveState() {
-            localStorage.setItem('bluebookState', JSON.stringify({ balance: state.balance, orders: state.orders }));
+            localStorage.setItem('bluebook_state', JSON.stringify(state));
+            updateWalletUI();
         }
 
-        // --- 2. TABS ---
+        // --- 2. TAB MANAGEMENT ---
         function switchTab(tab) {
-            document.getElementById('btn-wallet').className = "px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition";
-            document.getElementById('btn-trading').className = "px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition";
-            document.getElementById(`btn-${tab}`).classList.add('bg-[#172645]', 'text-white', 'shadow');
-            document.getElementById(`btn-${tab}`).classList.remove('text-slate-500');
+            document.getElementById('tabBtn-trading').className = "px-4 md:px-8 py-1.5 rounded text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition";
+            document.getElementById('tabBtn-wallet').className = "px-4 md:px-8 py-1.5 rounded text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition";
+            
+            document.getElementById(`tabBtn-${tab}`).classList.add('bg-[#1e3a8a]', 'text-white', 'shadow');
+            document.getElementById(`tabBtn-${tab}`).classList.remove('text-slate-500');
 
-            if(tab === 'wallet') {
-                document.getElementById('tab-trading').style.display = 'none';
-                document.getElementById('tab-wallet').style.display = 'block';
-            } else {
-                document.getElementById('tab-wallet').style.display = 'none';
-                document.getElementById('tab-trading').style.display = 'flex';
-                // Force chart resize
-                setTimeout(() => chart.timeScale().fitContent(), 10);
-            }
+            document.getElementById('view-trading').style.display = tab === 'trading' ? 'flex' : 'none';
+            document.getElementById('view-wallet').style.display = tab === 'wallet' ? 'block' : 'none';
+            
+            if(tab === 'trading') setTimeout(() => chart.timeScale().fitContent(), 10);
+            updateWalletUI();
         }
 
-        // --- 3. BLUEBOOK CHART ---
+        // --- 3. CHARTING (Lightweight Charts - Bluebook Theme) ---
         const chartElement = document.getElementById('tvchart');
         const chart = LightweightCharts.createChart(chartElement, {
             layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#64748b' },
-            grid: { vertLines: { color: 'rgba(23, 38, 69, 0.5)' }, horzLines: { color: 'rgba(23, 38, 69, 0.5)' } },
+            grid: { vertLines: { color: 'rgba(30, 58, 138, 0.3)' }, horzLines: { color: 'rgba(30, 58, 138, 0.3)' } },
             crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-            rightPriceScale: { borderColor: '#172645' },
-            timeScale: { borderColor: '#172645', timeVisible: true },
+            rightPriceScale: { borderColor: '#1e3a8a' },
+            timeScale: { borderColor: '#1e3a8a', timeVisible: true }
         });
 
-        const candleSeries = chart.addCandlestickSeries({
-            upColor: '#00f3ff', downColor: '#ff2a5f', borderVisible: false,
-            wickUpColor: '#00f3ff', wickDownColor: '#ff2a5f'
+        const areaSeries = chart.addAreaSeries({
+            lineColor: '#0ea5e9', topColor: 'rgba(14, 165, 233, 0.4)', bottomColor: 'rgba(14, 165, 233, 0.0)',
+            lineWidth: 2, crosshairMarkerBorderColor: '#020617', crosshairMarkerBackgroundColor: '#38bdf8'
         });
 
-        // Resize observer to ensure graph fills container
+        // Resize observer
         new ResizeObserver(entries => {
             if (entries.length === 0 || entries[0].target !== chartElement) return;
-            const newRect = entries[0].contentRect;
-            chart.applyOptions({ height: newRect.height, width: newRect.width });
+            chart.applyOptions({ width: entries[0].contentRect.width, height: entries[0].contentRect.height });
         }).observe(chartElement);
 
-        // --- 4. BINANCE API (REST + WS) ---
+        // --- 4. BYBIT API INTEGRATION (Historical + Live) ---
         let ws;
-
-        // Fetch history first so chart isn't empty
-        async function fetchHistoryAndConnect(symbol) {
-            try {
-                const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1m&limit=100`);
-                const data = await res.json();
-                const klines = data.map(d => ({
-                    time: d[0] / 1000, open: parseFloat(d[1]), high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4])
-                }));
-                candleSeries.setData(klines);
-                state.lastPrice = klines[klines.length - 1].close;
-                connectWS(symbol);
-            } catch(e) { console.error("History fetch failed", e); connectWS(symbol); }
-        }
-
-        function connectWS(symbol) {
+        async function initBybitAPI() {
+            ui.symbol = document.getElementById('symbol-select').value;
+            const priceText = document.getElementById('price-display');
+            priceText.innerText = "Syncing...";
             if(ws) ws.close();
-            const priceText = document.getElementById('live-price');
-            const container = document.getElementById('chart-container');
-            
-            ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_1m`);
-            
-            ws.onmessage = (event) => {
-                const k = JSON.parse(event.data).k;
-                const closePrice = parseFloat(k.c);
-                state.price = closePrice;
+
+            try {
+                // 1. Fetch REST History to populate graph instantly
+                const res = await fetch(`https://api.bybit.com/v5/market/kline?category=spot&symbol=${ui.symbol}&interval=1&limit=100`);
+                const json = await res.json();
                 
-                const dec = closePrice < 1 ? 4 : 2;
-                priceText.innerText = `$${closePrice.toLocaleString(undefined, {minimumFractionDigits: dec})}`;
-
-                // Dramatic Flashes
-                if (state.lastPrice !== 0 && closePrice !== state.lastPrice) {
-                    container.classList.remove('animate-pump', 'animate-dump');
-                    priceText.classList.remove('text-pump', 'text-dump');
-                    void container.offsetWidth; // Trigger reflow
-                    
-                    if (closePrice > state.lastPrice) {
-                        container.classList.add('animate-pump');
-                        priceText.classList.add('text-pump');
-                    } else {
-                        container.classList.add('animate-dump');
-                        priceText.classList.add('text-dump');
+                // Bybit returns newest first, LightweightCharts needs oldest first
+                const history = json.result.list.reverse().map(d => ({
+                    time: parseInt(d[0]) / 1000,
+                    value: parseFloat(d[4]) // Close price for Area chart
+                }));
+                areaSeries.setData(history);
+                ui.price = history[history.length - 1].value;
+                priceText.innerText = `$${ui.price}`;
+                
+                // 2. Connect WebSocket for live ticks
+                ws = new WebSocket('wss://stream.bybit.com/v5/public/spot');
+                ws.onopen = () => {
+                    ws.send(JSON.stringify({ "op": "subscribe", "args": [`kline.1.${ui.symbol}`] }));
+                };
+                ws.onmessage = (e) => {
+                    const data = JSON.parse(e.data);
+                    if (data.topic && data.data && data.data.length > 0) {
+                        const tick = data.data[0];
+                        const newPrice = parseFloat(tick.c);
+                        
+                        // Update Chart
+                        areaSeries.update({ time: parseInt(tick.t) / 1000, value: newPrice });
+                        
+                        // Dramatic Effects if price changed
+                        if(ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
+                            priceText.classList.remove('effect-pump', 'effect-dump');
+                            document.getElementById('chart-wrap').classList.remove('bg-pump', 'bg-dump');
+                            void priceText.offsetWidth; // Reflow
+                            
+                            const isUp = newPrice > ui.lastPrice;
+                            priceText.classList.add(isUp ? 'effect-pump' : 'effect-dump');
+                            document.getElementById('chart-wrap').classList.add(isUp ? 'bg-pump' : 'bg-dump');
+                            
+                            // Adjust line color based on direction
+                            areaSeries.applyOptions({ lineColor: isUp ? '#0ea5e9' : '#f43f5e' });
+                        }
+                        
+                        ui.lastPrice = newPrice;
+                        ui.price = newPrice;
+                        const dec = newPrice < 10 ? 4 : 2;
+                        priceText.innerText = `$${newPrice.toLocaleString(undefined, {minimumFractionDigits: dec})}`;
+                        
+                        renderPositions(); // Update live PNL
                     }
-                }
-                state.lastPrice = closePrice;
-
-                candleSeries.update({
-                    time: k.t / 1000, open: parseFloat(k.o), high: parseFloat(k.h), low: parseFloat(k.l), close: parseFloat(k.c)
-                });
-
-                updateActiveOrdersUI();
-            };
-        }
-
-        function changePair() {
-            state.symbol = document.getElementById('pair-selector').value;
-            fetchHistoryAndConnect(state.symbol);
-        }
-
-        // --- 5. ORDER ENTRY & LEVERAGE ---
-        function setSide(side) {
-            state.side = side;
-            const buyBtn = document.getElementById('btn-buy');
-            const sellBtn = document.getElementById('btn-sell');
-            const execBtn = document.getElementById('btn-execute');
-
-            if(side === 'buy') {
-                buyBtn.className = "flex-1 py-3 rounded-lg font-black uppercase tracking-widest text-xs bg-cyan-500 text-black shadow-[0_0_15px_rgba(0,243,255,0.4)] transition";
-                sellBtn.className = "flex-1 py-3 rounded-lg font-black uppercase tracking-widest text-xs text-slate-500 hover:text-white transition";
-                execBtn.className = "mt-6 w-full py-5 rounded-xl font-black uppercase tracking-widest text-sm bg-cyan-500 text-black hover:bg-cyan-400 transition-all shadow-[0_0_20px_rgba(0,243,255,0.3)] active:scale-95";
-                execBtn.innerText = "Open Long";
-            } else {
-                sellBtn.className = "flex-1 py-3 rounded-lg font-black uppercase tracking-widest text-xs bg-[#ff2a5f] text-white shadow-[0_0_15px_rgba(255,42,95,0.4)] transition";
-                buyBtn.className = "flex-1 py-3 rounded-lg font-black uppercase tracking-widest text-xs text-slate-500 hover:text-white transition";
-                execBtn.className = "mt-6 w-full py-5 rounded-xl font-black uppercase tracking-widest text-sm bg-[#ff2a5f] text-white hover:bg-pink-600 transition-all shadow-[0_0_20px_rgba(255,42,95,0.3)] active:scale-95";
-                execBtn.innerText = "Open Short";
+                };
+            } catch (err) {
+                console.error("API Error", err);
+                priceText.innerText = "API Error";
             }
         }
 
-        function setMax() {
-            document.getElementById('trade-amount').value = Math.floor(state.balance * 100)/100;
-            updateEst();
+        // --- 5. EXECUTION & LOGIC ---
+        function setSide(side) {
+            ui.side = side;
+            const bBuy = document.getElementById('btn-buy');
+            const bSell = document.getElementById('btn-sell');
+            const bExec = document.getElementById('btn-execute');
+
+            if(side === 'buy') {
+                bBuy.className = "flex-1 py-3 rounded text-xs font-black uppercase tracking-widest bg-[#0ea5e9] text-[#020617] shadow-[0_0_15px_rgba(14,165,233,0.4)] transition";
+                bSell.className = "flex-1 py-3 rounded text-xs font-black uppercase tracking-widest bg-[#020617] border border-[#1e3a8a] text-slate-500 hover:text-[#f43f5e] transition";
+                bExec.className = "mt-6 w-full py-4 rounded font-black uppercase tracking-[0.2em] text-sm bg-[#0ea5e9] text-[#020617] shadow-[0_0_20px_rgba(14,165,233,0.4)] hover:bg-[#38bdf8] transition active:scale-95 shrink-0";
+                bExec.innerText = "Open Long Position";
+            } else {
+                bSell.className = "flex-1 py-3 rounded text-xs font-black uppercase tracking-widest bg-[#f43f5e] text-white shadow-[0_0_15px_rgba(244,63,94,0.4)] transition";
+                bBuy.className = "flex-1 py-3 rounded text-xs font-black uppercase tracking-widest bg-[#020617] border border-[#1e3a8a] text-slate-500 hover:text-[#0ea5e9] transition";
+                bExec.className = "mt-6 w-full py-4 rounded font-black uppercase tracking-[0.2em] text-sm bg-[#f43f5e] text-white shadow-[0_0_20px_rgba(244,63,94,0.4)] hover:bg-[#fb7185] transition active:scale-95 shrink-0";
+                bExec.innerText = "Open Short Position";
+            }
         }
 
-        function updateEst() {
-            const margin = parseFloat(document.getElementById('trade-amount').value) || 0;
-            const lev = parseInt(document.getElementById('leverage').value);
-            document.getElementById('trade-pos').innerText = (margin * lev).toLocaleString() + ' USDT';
+        document.getElementById('trade-leverage').addEventListener('input', (e) => {
+            ui.leverage = parseInt(e.target.value);
+            document.getElementById('lev-val').innerText = ui.leverage;
+            calcSize();
+        });
+
+        const marginInput = document.getElementById('trade-margin');
+        marginInput.addEventListener('input', calcSize);
+
+        function calcSize() {
+            const margin = parseFloat(marginInput.value) || 0;
+            const size = margin * ui.leverage;
+            document.getElementById('ui-size').innerText = size.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT';
+        }
+
+        function setMax() {
+            marginInput.value = Math.floor(state.balance * 100) / 100;
+            calcSize();
         }
 
         function executeTrade() {
-            const margin = parseFloat(document.getElementById('trade-amount').value);
-            const lev = parseInt(document.getElementById('leverage').value);
-            
-            if (isNaN(margin) || margin <= 0) return alert("Enter valid margin.");
-            if (margin > state.balance) return alert("Insufficient USDT margin.");
+            const margin = parseFloat(marginInput.value);
+            if (isNaN(margin) || margin <= 0) return alert("Invalid margin.");
+            if (margin > state.balance) return alert("Insufficient funds.");
 
+            // Deduct
             state.balance -= margin;
             
-            // Calculate units based on total leveraged position size
-            const positionSize = margin * lev;
-            const units = positionSize / state.price;
-            
-            const newOrder = {
+            // Leveraged units
+            const positionSizeUsdt = margin * ui.leverage;
+            const units = positionSizeUsdt / ui.price;
+
+            state.positions.push({
                 id: Math.random().toString(36).substr(2, 9),
-                symbol: state.symbol,
-                side: state.side,
+                symbol: ui.symbol,
+                side: ui.side,
                 margin: margin,
-                leverage: lev,
-                entryPrice: state.price,
+                leverage: ui.leverage,
+                entryPrice: ui.price,
                 units: units
-            };
-            
-            state.orders.push(newOrder);
+            });
+
+            marginInput.value = '';
+            calcSize();
             saveState();
-            
-            document.getElementById('trade-amount').value = '';
-            updateEst();
-            updateUI();
+            renderPositions();
         }
 
-        // --- 6. ROI & ACTIVE ORDERS ---
-        function updateActiveOrdersUI() {
-            const tbody = document.getElementById('active-orders-body');
-            if(state.orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-[#172645] font-black uppercase">No active positions</td></tr>`;
+        function renderPositions() {
+            const tbody = document.getElementById('positions-body');
+            let totalPnl = 0;
+
+            if (state.positions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-[#1e3a8a] font-black uppercase tracking-widest text-xs">Database Empty</td></tr>`;
+                document.getElementById('live-pnl-total').innerText = "ROI: $0.00";
                 return;
             }
 
             let html = '';
-            state.orders.forEach(order => {
+            state.positions.forEach(pos => {
                 let pnl = 0;
-                
-                // Calculate ROI based on actual units held
-                if (order.symbol === state.symbol) {
-                    const currentVal = order.units * state.price;
-                    const entryVal = order.units * order.entryPrice;
-                    pnl = order.side === 'buy' ? (currentVal - entryVal) : (entryVal - currentVal);
+                // Calculate live PNL if symbol matches current graph
+                if (pos.symbol === ui.symbol) {
+                    const currentVal = pos.units * ui.price;
+                    const initialVal = pos.margin * pos.leverage;
+                    pnl = pos.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
                 }
+                totalPnl += pnl;
 
-                const roiPercent = (pnl / order.margin) * 100;
-                const isProfit = pnl >= 0;
-                const color = isProfit ? 'text-cyan-500' : 'text-[#ff2a5f]';
-                const sign = isProfit ? '+' : '';
-                const sideColor = order.side === 'buy' ? 'text-cyan-500 bg-cyan-500/10' : 'text-[#ff2a5f] bg-[#ff2a5f]/10';
-
+                const roiPct = (pnl / pos.margin) * 100;
+                const isProf = pnl >= 0;
+                const cColor = isProf ? 'text-[#38bdf8]' : 'text-[#f43f5e]';
+                const sColor = pos.side === 'buy' ? 'text-[#0ea5e9] bg-[#0ea5e9]/10' : 'text-[#f43f5e] bg-[#f43f5e]/10';
+                
                 html += `
-                    <tr class="border-b border-[#172645]/50 hover:bg-[#172645]/30 transition group">
-                        <td class="p-3 font-black text-white">${order.symbol}</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-[10px] font-black uppercase ${sideColor}">${order.side}</span></td>
-                        <td class="p-3">${order.leverage}x</td>
-                        <td class="p-3">${order.margin.toFixed(2)}</td>
-                        <td class="p-3">${order.entryPrice.toFixed(4)}</td>
-                        <td class="p-3 text-right ${color} font-black drop-shadow-md">
-                            ${sign}${pnl.toFixed(2)} (${sign}${roiPercent.toFixed(2)}%)
-                        </td>
-                        <td class="p-3 text-right">
-                            <button onclick="closeOrder('${order.id}')" class="px-3 py-1.5 bg-[#172645] hover:bg-slate-700 text-white rounded text-[10px] uppercase font-black tracking-widest transition lg:opacity-0 group-hover:opacity-100">Close</button>
+                    <tr class="border-b border-[#1e3a8a]/50 hover:bg-[#1e3a8a]/20 transition">
+                        <td class="p-3 font-bold text-white">${pos.symbol}</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${sColor}">${pos.side}</span></td>
+                        <td class="p-3">$${pos.margin.toFixed(2)}</td>
+                        <td class="p-3">${pos.leverage}x</td>
+                        <td class="p-3">$${pos.entryPrice.toFixed(4)}</td>
+                        <td class="p-3 text-right ${cColor} font-black">${isProf?'+':''}$${pnl.toFixed(2)} (${isProf?'+':''}${roiPct.toFixed(2)}%)</td>
+                        <td class="p-3 text-center">
+                            <button onclick="closeTrade('${pos.id}')" class="px-3 py-1 bg-[#1e3a8a] hover:bg-[#0ea5e9] hover:text-[#020617] text-white rounded text-[9px] uppercase font-black transition shadow">Close</button>
                         </td>
                     </tr>
                 `;
             });
             tbody.innerHTML = html;
+            
+            const pnlColor = totalPnl >= 0 ? 'text-[#38bdf8]' : 'text-[#f43f5e]';
+            document.getElementById('live-pnl-total').className = `text-[10px] font-black font-mono ${pnlColor}`;
+            document.getElementById('live-pnl-total').innerText = `LIVE PNL: ${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}`;
+            
+            // Update wallet unrealized
+            document.getElementById('wallet-pnl').innerText = `Unrealized PNL: ${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}`;
+            document.getElementById('wallet-pnl').className = `text-xs font-bold mt-2 font-mono ${pnlColor}`;
         }
 
-        function closeOrder(id) {
-            const index = state.orders.findIndex(o => o.id === id);
-            if (index === -1) return;
+        function closeTrade(id) {
+            const idx = state.positions.findIndex(p => p.id === id);
+            if (idx === -1) return;
             
-            const order = state.orders[index];
+            const pos = state.positions[idx];
             let pnl = 0;
-            
-            if (order.symbol === state.symbol) {
-                const currentVal = order.units * state.price;
-                const entryVal = order.units * order.entryPrice;
-                pnl = order.side === 'buy' ? (currentVal - entryVal) : (entryVal - currentVal);
+            if (pos.symbol === ui.symbol) {
+                const currentVal = pos.units * ui.price;
+                const initialVal = pos.margin * pos.leverage;
+                pnl = pos.side === 'buy' ? (currentVal - initialVal) : (initialVal - currentVal);
             }
             
-            // Return original margin + profits (or minus losses)
-            state.balance += (order.margin + pnl);
-            state.orders.splice(index, 1);
+            state.balance += (pos.margin + pnl);
+            state.positions.splice(idx, 1);
             
             saveState();
-            updateUI();
+            renderPositions();
         }
 
-        function updateUI() {
+        function updateWalletUI() {
             const bal = state.balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('ui-avail').innerText = bal;
             document.getElementById('wallet-total').innerText = `$${bal}`;
-            document.getElementById('trade-avail').innerText = bal;
-            updateActiveOrdersUI();
-        }
-
-        function resetWallet() {
-            if(confirm("Reset entire wallet to $88,000 and close all orders?")) {
-                state.balance = 88000.00;
-                state.orders = [];
-                saveState();
-                updateUI();
-            }
+            document.getElementById('wallet-usdt').innerText = bal;
         }
 
         // Init
-        updateUI();
         switchTab('trading');
-        fetchHistoryAndConnect(state.symbol);
+        initBybitAPI();
+        updateWalletUI();
+        renderPositions();
     </script>
 </body>
 </html>
