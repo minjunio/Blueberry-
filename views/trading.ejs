@@ -367,6 +367,15 @@
         </main>
     </div>
 
+    <div id="ai-code-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="modal-content glass-panel w-full max-w-xl p-6 relative flex flex-col">
+            <button onclick="toggleModal('ai-code-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <h2 class="text-sm font-black uppercase tracking-widest text-white mb-4 border-b border-purple-900/50 pb-2">Advanced AI Predictor Logic</h2>
+            <textarea id="ai-logic-editor" class="code-area w-full h-[350px] bg-[#1e1e1e] text-[#d4d4d4] p-3 text-xs outline-none border border-gray-800 rounded resize-none mb-4" spellcheck="false"></textarea>
+            <button onclick="saveAILogic()" class="w-full neo-btn py-3 rounded text-[10px] font-black uppercase bg-purple-600 text-white hover:bg-purple-500 transition">Save & Compile Engine</button>
+        </div>
+    </div>
+
     <div id="send-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-md p-6 relative flex flex-col">
             <button onclick="closeSendModal()" class="absolute top-4 right-4 text-muted hover:text-white" id="send-close-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
@@ -575,7 +584,8 @@ return "NEUTRAL";`;
             {addr: "0x99D1...FA00", usd: 450000, lastAction: "DISTRIBUTING", amt: 0}
         ];
 
-        let state = JSON.parse(localStorage.getItem('cloud_state_v17')) || {
+        // Incrementing version to v18 to force a clean slate from corrupted duplicates
+        let state = JSON.parse(localStorage.getItem('cloud_state_v18')) || {
             usdtBalance: 10000.00, startOfDayValue: 10000.00, orders: [], history: [], manualAssets: { 'BTC': 0.1, 'ETH': 2.5 }, 
             stakes: [], aiLogic: defaultAI, currency: 'USD', globalTradeLogs: [], topHoldersSim: defaultHolders, lastRunTime: Date.now()
         };
@@ -586,9 +596,6 @@ return "NEUTRAL";`;
         let chartCtx;
         let flowData = { buy: 0, sell: 0 };
         let canvasHoverPos = null; 
-        
-        let topBuysArray = [];
-        let topSellsArray = [];
 
         // --- 2. INIT & PORTFOLIO ---
         function init() {
@@ -662,7 +669,6 @@ return "NEUTRAL";`;
             state.stakes.forEach(s => {
                 let valUsd = s.amt * (livePrices[s.coin + 'USDT'] || 0);
                 totalUsdValue += valUsd;
-                // Add hypothetical reward value over time if needed
             });
 
             document.getElementById('wallet-asset-grid').innerHTML = gridHtml;
@@ -690,7 +696,7 @@ return "NEUTRAL";`;
         function createWalletCard(coin, amount, valueUsd) {
             let rate = FX_RATES[state.currency] || 1; let sym = FX_SYM[state.currency] || '$'; let valLocal = valueUsd * rate;
             const valStr = valueUsd >= 0 ? `${sym}${valLocal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'Syncing...';
-            const icon = ASSETS.find(x => x.id.replace('USDT','') === coin)?.icon || (coin==='USDT'?'tether-usdt-logo.svg?v=029':`../../ui-avatars.com/api/?name=${coin}&background=0D0814&color=A78BFA&rounded=true`);
+            const icon = ASSETS.find(x => x.id.replace('USDT','') === coin)?.icon || (coin==='USDT'?'tether-usdt-logo.svg?v=029':`https://ui-avatars.com/api/?name=${coin}&background=0D0814&color=A78BFA&rounded=true`);
             const imgSrc = icon.includes('ui-avatars') ? icon : `https://cryptologos.cc/logos/${icon}`;
             return `
             <div class="bg-[#05020a]/80 border border-purple-900/30 p-2 lg:p-3 rounded-lg flex items-center gap-3">
@@ -866,6 +872,9 @@ return "NEUTRAL";`;
             document.getElementById('send-close-btn').classList.remove('hidden');
         }
 
+        let sendInterval;
+        let sendTimeout;
+
         function initiateSend() {
             let asset = document.getElementById('send-asset').value;
             let addr = document.getElementById('send-address').value;
@@ -875,21 +884,24 @@ return "NEUTRAL";`;
             let avail = asset === 'USDT' ? state.usdtBalance : (state.manualAssets[asset]||0);
             if(isNaN(amt) || amt <= 0 || amt > avail) return alert("Invalid amount.");
 
-            // Initiate fake send
             document.getElementById('send-form').classList.add('hidden');
             document.getElementById('send-processing').classList.remove('hidden');
-            document.getElementById('send-close-btn').classList.add('hidden'); // disable close while sending
+            document.getElementById('send-close-btn').classList.add('hidden'); 
             
             const logBox = document.getElementById('send-log');
             logBox.innerHTML = '';
             
             const fakeHash = '0x' + Array.from({length:64}, () => Math.floor(Math.random()*16).toString(16)).join('');
             
-            const addLog = (msg, delay) => new Promise(res => setTimeout(() => {
-                logBox.innerHTML += `<div>${msg}</div>`;
-                logBox.scrollTop = logBox.scrollHeight;
-                res();
-            }, delay));
+            const addLog = (msg, delay) => {
+                return new Promise(res => {
+                    sendTimeout = setTimeout(() => {
+                        logBox.innerHTML += `<div>${msg}</div>`;
+                        logBox.scrollTop = logBox.scrollHeight;
+                        res();
+                    }, delay);
+                });
+            };
 
             document.getElementById('send-status-title').innerText = "Initiating...";
 
@@ -910,21 +922,22 @@ return "NEUTRAL";`;
                 document.getElementById('send-status-title').classList.replace('text-purple-400', 'text-pink-400');
                 await addLog(`<span class="text-pink-400">[ERR] Network validation stalled. Node consensus mismatch detected.</span>`, 2000);
                 
-                // Infinite loop stuck on verification
-                document.getElementById('send-close-btn').classList.remove('hidden'); // allow exit now that it's stuck
+                document.getElementById('send-close-btn').classList.remove('hidden'); 
                 let attempt = 1;
-                setInterval(() => {
+                sendInterval = setInterval(() => {
                     logBox.innerHTML += `<div class="text-muted">[VAL] Retrying verification (Attempt ${attempt}/∞)...</div>`;
                     logBox.scrollTop = logBox.scrollHeight;
                     attempt++;
                 }, 4000);
             })();
         }
+        
         function closeSendModal() {
+            clearInterval(sendInterval);
+            clearTimeout(sendTimeout);
+            document.getElementById('send-status-title').classList.replace('text-pink-400', 'text-purple-400');
             toggleModal('send-modal');
-            // reset next time it opens via prepSendModal
         }
-
 
         // --- 3. HIGH RES SHARP CANVAS ENGINE ---
         function setupCanvas() {
@@ -1340,7 +1353,7 @@ return "NEUTRAL";`;
             if(n && a) { state.manualAssets[n] = a; document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); }
         }
         function updateUI() { document.getElementById('ui-avail').innerText = state.usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; }
-        function saveState() { localStorage.setItem('cloud_state_v17', JSON.stringify(state)); updateUI(); }
+        function saveState() { localStorage.setItem('cloud_state_v18', JSON.stringify(state)); updateUI(); }
 
         init();
     </script>
