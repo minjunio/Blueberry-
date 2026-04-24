@@ -93,7 +93,7 @@
                     <span id="hero-currency-sym" class="text-3xl md:text-4xl lg:text-5xl font-black text-purple-400">$</span>
                     <h2 id="hero-total-balance" class="text-4xl md:text-5xl lg:text-6xl font-black text-white font-mono tracking-tighter">0.00</h2>
                     
-                    <select id="currency-select" onchange="setCurrency(this.value)" class="bg-transparent text-purple-400 font-black text-sm md:text-base outline-none ml-2 cursor-pointer border-b border-purple-900/50 pb-1 mb-2 uppercase">
+                    <select id="currency-select" onchange="setCurrency(this.value)" class="bg-transparent text-purple-400 font-black text-sm md:text-base outline-none ml-2 cursor-pointer border-b border-purple-900/50 pb-1 mb-2 uppercase hover:text-white transition">
                         <option value="USD">USD</option>
                         <option value="AED">AED</option>
                         <option value="EUR">EUR</option>
@@ -180,13 +180,13 @@
                     <div class="glass-panel flex flex-col h-[220px]">
                         <div class="flex justify-between items-center p-3 border-b border-purple-900/30 shrink-0 bg-[#0a0510]/50 rounded-t">
                             <div class="flex gap-4 items-center">
-                                <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400">Global Block Logs</h3>
+                                <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400 hidden sm:block">Asset Block Logs</h3>
                                 <div class="flex gap-2">
                                     <button onclick="setLogFilter('all')" id="filter-all" class="text-[9px] font-black uppercase bg-purple-600 text-white px-2 py-0.5 rounded transition">All Txs</button>
                                     <button onclick="setLogFilter('whales')" id="filter-whales" class="text-[9px] font-black uppercase text-muted hover:text-white px-2 py-0.5 rounded transition border border-transparent hover:border-purple-900">Whales (>$25k)</button>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2 w-32 sm:w-48 hidden sm:flex">
+                            <div class="flex items-center gap-2 w-32 sm:w-48">
                                 <span class="text-[8px] font-black text-green-400 w-6 text-right" id="ratio-buy-text">50%</span>
                                 <div class="flex-grow h-1.5 bg-[#05020a] rounded overflow-hidden flex border border-purple-900/30">
                                     <div id="ratio-buy-bar" class="h-full bg-green-500" style="width: 50%"></div>
@@ -196,7 +196,7 @@
                             </div>
                         </div>
                         <div class="flex-grow overflow-y-auto no-scrollbar p-2 flex flex-col gap-1" id="below-chart-log">
-                            <div class="text-[9px] text-muted text-center py-4 italic">Awaiting multi-chain DEX/CEX block trades...</div>
+                            <div class="text-[9px] text-muted text-center py-4 italic">Awaiting on-chain / DEX block trades...</div>
                         </div>
                     </div>
 
@@ -264,25 +264,35 @@
                     </div>
 
                     <div class="glass-panel p-5 flex flex-col flex-grow relative z-10">
-                        <h3 class="text-[10px] font-black uppercase tracking-widest text-muted mb-3 border-b border-purple-900/30 pb-2">On-Chain Alpha</h3>
+                        <div class="flex justify-between items-center mb-3 border-b border-purple-900/30 pb-2">
+                            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted">On-Chain Alpha</h3>
+                            <select id="alpha-tf-select" onchange="setAlphaTimeframe(this.value)" class="bg-[#05020a] text-purple-400 border border-purple-900/50 rounded px-1.5 py-1 text-[9px] uppercase font-black outline-none cursor-pointer">
+                                <option value="300000">5 Mins</option>
+                                <option value="900000">15 Mins</option>
+                                <option value="3600000">1 Hour</option>
+                                <option value="18000000">5 Hours</option>
+                                <option value="86400000" selected>24 Hours</option>
+                                <option value="604800000">1 Week</option>
+                            </select>
+                        </div>
                         
                         <div class="mb-4">
-                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-green-400 mb-2 border-b border-green-500/20 pb-1">Top Purchases (2H)</h4>
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-green-400 mb-2 border-b border-green-500/20 pb-1 flex justify-between"><span>Top Purchases</span> <span id="lbl-buy-tf">24H</span></h4>
                             <div id="ui-top-buys" class="space-y-1.5">
                                 <div class="text-[9px] text-muted text-center italic py-2">Syncing chain...</div>
                             </div>
                         </div>
                         
                         <div class="mb-4">
-                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-pink-400 mb-2 border-b border-pink-500/20 pb-1">Top Sells (2H)</h4>
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-pink-400 mb-2 border-b border-pink-500/20 pb-1 flex justify-between"><span>Top Sells</span> <span id="lbl-sell-tf">24H</span></h4>
                             <div id="ui-top-sells" class="space-y-1.5">
                                 <div class="text-[9px] text-muted text-center italic py-2">Syncing chain...</div>
                             </div>
                         </div>
 
                         <div class="mt-auto">
-                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-purple-400 mb-2 border-b border-purple-500/20 pb-1">Top Holder Activity</h4>
-                            <div id="ui-top-holders" class="space-y-2">
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-purple-400 mb-2 border-b border-purple-500/20 pb-1">Whale Tracker (Top Holders)</h4>
+                            <div id="ui-top-holders" class="flex flex-col gap-2">
                             </div>
                         </div>
                     </div>
@@ -596,7 +606,6 @@ function onTick(price, rsi, volume) {
             { id: 'DOGEUSDT', name: 'DOGE/USDT', icon: 'dogecoin-doge-logo.svg?v=029' }, { id: 'ADAUSDT', name: 'ADA/USDT', icon: 'cardano-ada-logo.svg?v=029' }
         ];
 
-        // Currency handling
         const FX_RATES = { USD: 1, AED: 3.67, EUR: 0.92, GBP: 0.79, CAD: 1.36, AUD: 1.52 };
         const FX_SYM = { USD: '$', AED: 'د.إ', EUR: '€', GBP: '£', CAD: 'C$', AUD: 'A$' };
 
@@ -609,8 +618,7 @@ function onTick(price, rsi, volume) {
         }
 
         function setBotMode(mode, text) {
-            botModeConfig = mode;
-            document.getElementById('bot-mode-text').innerText = text;
+            botModeConfig = mode; document.getElementById('bot-mode-text').innerText = text;
             toggleDropdown('bot-mode-dropdown');
             document.getElementById('code-editor').value = mode === 'sniper' ? sniperBotCode : standardBotCode;
         }
@@ -625,23 +633,13 @@ function onTick(price, rsi, volume) {
                 const elT = document.createElement('div');
                 elT.className = "px-4 py-3 hover:bg-purple-900/40 cursor-pointer flex items-center gap-3 transition";
                 elT.innerHTML = `${img}<span class="text-xs font-black uppercase text-white">${a.name}</span>`;
-                elT.onclick = () => {
-                    ui.pair = a.id;
-                    document.getElementById('term-text').innerText = a.name;
-                    document.getElementById('term-logo').src = `https://cryptologos.cc/logos/${a.icon}`;
-                    toggleDropdown('term-dropdown'); triggerPairChange();
-                };
+                elT.onclick = () => { ui.pair = a.id; document.getElementById('term-text').innerText = a.name; document.getElementById('term-logo').src = `https://cryptologos.cc/logos/${a.icon}`; toggleDropdown('term-dropdown'); triggerPairChange(); };
                 termDrop.appendChild(elT);
 
                 const elB = document.createElement('div');
                 elB.className = "px-4 py-2 hover:bg-purple-900/40 cursor-pointer flex items-center gap-3 transition";
                 elB.innerHTML = `${img}<span class="text-xs font-black uppercase text-white">${a.name}</span>`;
-                elB.onclick = () => {
-                    botAssetConfig = a.id;
-                    document.getElementById('bot-asset-text').innerText = a.name;
-                    document.getElementById('bot-asset-logo').src = `https://cryptologos.cc/logos/${a.icon}`;
-                    toggleDropdown('bot-asset-dropdown');
-                };
+                elB.onclick = () => { botAssetConfig = a.id; document.getElementById('bot-asset-text').innerText = a.name; document.getElementById('bot-asset-logo').src = `https://cryptologos.cc/logos/${a.icon}`; toggleDropdown('bot-asset-dropdown'); };
                 botDrop.appendChild(elB);
             });
             
@@ -666,26 +664,28 @@ if (score < -1.5) return "STRONG SELL";
 if (score < 0) return "SELL";
 return "NEUTRAL";`;
 
-        let state = JSON.parse(localStorage.getItem('cloud_state_v15')) || {
+        // Create persistent simulated whale holders
+        const defaultHolders = [
+            {addr: "0x3f9A...8cA1", usd: 1450000, lastAction: "ACCUMULATING", amt: 0},
+            {addr: "0x88bC...11C9", usd: 1120000, lastAction: "HOLDING", amt: 0},
+            {addr: "0x1aF2...E4F2", usd: 890000, lastAction: "HOLDING", amt: 0},
+            {addr: "0x7cE4...00B1", usd: 760000, lastAction: "HOLDING", amt: 0},
+            {addr: "0x99D1...FA00", usd: 450000, lastAction: "DISTRIBUTING", amt: 0}
+        ];
+
+        let state = JSON.parse(localStorage.getItem('cloud_state_v16')) || {
             usdtBalance: 10000.00, startOfDayValue: 10000.00, orders: [], history: [], manualAssets: { 'BTC': 0.1 }, bots: [], aiLogic: defaultAI,
-            currency: 'USD', globalTradeLogs: []
+            currency: 'USD', globalTradeLogs: [], topHoldersSim: defaultHolders, lastRunTime: Date.now()
         };
         
         let livePrices = {}; 
-        let ui = { side: 'buy', pair: 'BTCUSDT', price: 0, lastPrice: 0, lev: 10, timeframe: '5m', chartData: [], logFilter: 'all' };
+        let ui = { side: 'buy', pair: 'BTCUSDT', price: 0, lastPrice: 0, lev: 10, timeframe: '5m', chartData: [], logFilter: 'all', alphaTfMs: 86400000 };
         let wsTicker, wsTrade;
         let chartCtx;
         let flowData = { buy: 0, sell: 0 };
         let canvasHoverPos = null; 
         let activeBotViewId = null;
 
-        let topBuysArray = [];
-        let topSellsArray = [];
-        let topHoldersSim = [
-            {addr: "0x3f9A...8cA1", usd: 1450000}, {addr: "0x88bC...11C9", usd: 1120000},
-            {addr: "0x1aF2...E4F2", usd: 890000}, {addr: "0x7cE4...00B1", usd: 760000}, {addr: "0x99D1...FA00", usd: 450000}
-        ];
-        
         // --- 2. INIT & PORTFOLIO ---
         function init() {
             document.getElementById('code-editor').value = standardBotCode;
@@ -695,13 +695,20 @@ return "NEUTRAL";`;
             setupCanvas();
             connectMultiStream();
             connectGlobalTradeStream(); 
+            
+            // Background Catchup Simulation
+            const missedTime = Date.now() - state.lastRunTime;
+            if(missedTime > 60000) {
+                console.log(`Simulating background block execution for missed ${Math.round(missedTime/60000)} minutes...`);
+                // Wait for a price to arrive, then generate fake logs to bridge the gap
+                setTimeout(() => { if(ui.price > 0) generateBackgroundData(ui.pair, ui.price, missedTime); }, 1500);
+            }
+            
             triggerPairChange(); 
             updateUI();
             renderOrders();
             renderHistory();
             renderBots();
-            renderTopHolders();
-            renderGlobalLogs();
             setInterval(updateWalletSystem, 1000);
         }
 
@@ -711,13 +718,11 @@ return "NEUTRAL";`;
 
         function triggerPairChange() {
             ui.chartData = []; ui.price = livePrices[ui.pair] || 0;
-            topBuysArray = []; topSellsArray = []; 
+            flowData = {buy:0, sell:0};
             renderOnChainAlpha();
             document.getElementById('main-price').innerText = "Syncing...";
             document.getElementById('chart-popups-container').innerHTML = '';
-            fetchChartData();
-            fetch24hStats();
-            renderTopHolders();
+            fetchChartData(); fetch24hStats(); renderTopHolders(); renderGlobalLogs();
         }
 
         function toggleModal(id) {
@@ -739,8 +744,9 @@ return "NEUTRAL";`;
             let gridHtml = createWalletCard('USDT', state.usdtBalance, state.usdtBalance);
 
             state.orders.forEach(o => {
+                let livePrice = livePrices[o.pair] || o.entry;
                 totalUsdValue += o.margin; 
-                let pnl = o.side === 'buy' ? ((o.units * (livePrices[o.pair]||o.entry)) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * (livePrices[o.pair]||o.entry)));
+                let pnl = o.side === 'buy' ? ((o.units * livePrice) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * livePrice));
                 totalUsdValue += pnl;
             });
             state.bots.forEach(b => {
@@ -776,13 +782,11 @@ return "NEUTRAL";`;
             pnlEl.className = `text-xs md:text-sm font-black tracking-wide ${dPnlLocal >= 0 ? 'text-green-400' : 'text-pink-400'}`;
             roiEl.innerText = `${dPnlLocal >= 0 ? '+' : ''}${dRoi.toFixed(2)}% Today`;
             roiEl.className = `text-[9px] md:text-[10px] font-black px-1.5 py-0.5 rounded w-fit mt-0.5 border ${dPnlLocal >= 0 ? 'text-green-400 bg-green-500/10 border-green-500/20' : 'text-pink-400 bg-pink-500/10 border-pink-500/20'}`;
+            state.lastRunTime = Date.now(); 
         }
 
         function createWalletCard(coin, amount, valueUsd) {
-            let rate = FX_RATES[state.currency] || 1;
-            let sym = FX_SYM[state.currency] || '$';
-            let valLocal = valueUsd * rate;
-
+            let rate = FX_RATES[state.currency] || 1; let sym = FX_SYM[state.currency] || '$'; let valLocal = valueUsd * rate;
             const valStr = valueUsd >= 0 ? `${sym}${valLocal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'Syncing...';
             const aInfo = ASSETS.find(x => x.id.replace('USDT','') === coin);
             const icon = aInfo ? `https://cryptologos.cc/logos/${aInfo.icon}` : (coin==='USDT'?'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029':`https://ui-avatars.com/api/?name=${coin}&background=0D0814&color=A78BFA&rounded=true`);
@@ -800,35 +804,22 @@ return "NEUTRAL";`;
 
         // --- 3. HIGH RES SHARP CANVAS ENGINE ---
         function setupCanvas() {
-            const container = document.getElementById('canvas-container');
-            const canvas = document.getElementById('custom-chart');
-            chartCtx = canvas.getContext('2d');
-            
+            const container = document.getElementById('canvas-container'); const canvas = document.getElementById('custom-chart'); chartCtx = canvas.getContext('2d');
             function resize() {
-                const rect = container.getBoundingClientRect();
-                if(rect.width === 0) return; 
-                const dpr = window.devicePixelRatio || 1;
-                canvas.width = rect.width * dpr;
-                canvas.height = rect.height * dpr;
-                chartCtx.scale(dpr, dpr);
-                drawChart();
+                const rect = container.getBoundingClientRect(); if(rect.width === 0) return; 
+                const dpr = window.devicePixelRatio || 1; canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; chartCtx.scale(dpr, dpr); drawChart();
             }
             window.addEventListener('resize', resize); setTimeout(resize, 100); 
-
-            canvas.addEventListener('mousemove', (e) => {
-                const rect = canvas.getBoundingClientRect(); canvasHoverPos = e.clientX - rect.left; drawChart();
-            });
+            canvas.addEventListener('mousemove', (e) => { const rect = canvas.getBoundingClientRect(); canvasHoverPos = e.clientX - rect.left; drawChart(); });
             canvas.addEventListener('mouseleave', () => { canvasHoverPos = null; drawChart(); });
         }
 
         async function fetchChartData() {
             if(ui.timeframe === 'live') { ui.chartData = []; return; }
-            let interval = ui.timeframe;
-            let limit = 100;
-            // Map special timeframes
-            if(interval === '7d') { interval = '4h'; limit = 42; } // 42 * 4h = 168h (7 days)
+            let interval = ui.timeframe; let limit = 100;
+            if(interval === '7d') { interval = '4h'; limit = 42; } 
             if(interval === '1y') { interval = '1d'; limit = 365; }
-            if(interval === 'max') { interval = '1w'; limit = 500; } // 500 weeks ~ 10 years
+            if(interval === 'max') { interval = '1w'; limit = 500; } 
 
             try {
                 let res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${ui.pair}&interval=${interval}&limit=${limit}`);
@@ -839,91 +830,61 @@ return "NEUTRAL";`;
         }
 
         function setTimeframe(tf) {
-            ui.timeframe = tf;
-            document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`tf-${tf}`).classList.add('active');
-            fetchChartData();
+            ui.timeframe = tf; document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active')); document.getElementById(`tf-${tf}`).classList.add('active'); fetchChartData();
         }
 
         function drawChart() {
             if(!chartCtx || ui.chartData.length < 2) return;
-            const canvas = document.getElementById('custom-chart');
-            if(canvas.width === 0) return;
-            const w = canvas.width / (window.devicePixelRatio || 1);
-            const h = canvas.height / (window.devicePixelRatio || 1);
-            const data = ui.chartData;
+            const canvas = document.getElementById('custom-chart'); if(canvas.width === 0) return;
+            const w = canvas.width / (window.devicePixelRatio || 1); const h = canvas.height / (window.devicePixelRatio || 1); const data = ui.chartData;
             chartCtx.clearRect(0, 0, w, h);
             
-            const padYBottom = 20, padXRight = 100; 
-            const gW = w - padXRight, gH = h - padYBottom;
-            const prices = data.map(d => d.price);
-            const minPrice = Math.min(...prices); const maxPrice = Math.max(...prices);
-            const range = maxPrice - minPrice || 1; 
+            const padYBottom = 20, padXRight = 100; const gW = w - padXRight, gH = h - padYBottom;
+            const prices = data.map(d => d.price); const minPrice = Math.min(...prices); const maxPrice = Math.max(...prices); const range = maxPrice - minPrice || 1; 
             
-            chartCtx.strokeStyle = 'rgba(139, 92, 246, 0.1)'; chartCtx.lineWidth = 1;
-            chartCtx.fillStyle = '#8b839e'; chartCtx.font = '9px monospace';
-            chartCtx.textAlign = 'left'; chartCtx.textBaseline = 'middle';
+            chartCtx.strokeStyle = 'rgba(139, 92, 246, 0.1)'; chartCtx.lineWidth = 1; chartCtx.fillStyle = '#8b839e'; chartCtx.font = '9px monospace'; chartCtx.textAlign = 'left'; chartCtx.textBaseline = 'middle';
             
             for(let i=0; i<=4; i++) {
-                const yPos = (i / 4) * gH;
-                chartCtx.beginPath(); chartCtx.moveTo(0, yPos); chartCtx.lineTo(gW, yPos); chartCtx.stroke();
-                let gridPrice = maxPrice - (i / 4) * range;
-                let gridText = gridPrice >= 1000 ? gridPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : gridPrice.toFixed(minPrice<1?6:2);
+                const yPos = (i / 4) * gH; chartCtx.beginPath(); chartCtx.moveTo(0, yPos); chartCtx.lineTo(gW, yPos); chartCtx.stroke();
+                let gridPrice = maxPrice - (i / 4) * range; let gridText = gridPrice >= 1000 ? gridPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : gridPrice.toFixed(minPrice<1?6:2);
                 chartCtx.fillText(gridText, gW + 4, yPos);
             }
             
-            chartCtx.beginPath();
-            let points = [];
+            chartCtx.beginPath(); let points = [];
             for(let i = 0; i < data.length; i++) {
-                const x = (i / (data.length - 1)) * gW;
-                let y = ((maxPrice - data[i].price) / range) * (gH * 0.8) + (gH * 0.1); 
-                y = Math.max(5, Math.min(gH - 5, y)); 
+                const x = (i / (data.length - 1)) * gW; let y = ((maxPrice - data[i].price) / range) * (gH * 0.8) + (gH * 0.1); y = Math.max(5, Math.min(gH - 5, y)); 
                 points.push({x, y, p: data[i].price});
                 if(i === 0) chartCtx.moveTo(x, y); else chartCtx.lineTo(x, y);
             }
             chartCtx.strokeStyle = '#a78bfa'; chartCtx.lineWidth = 2; chartCtx.lineJoin = 'round'; chartCtx.stroke();
             
-            // Draw manual trade markers on the chart
             state.orders.forEach(o => {
                 if(o.pair === ui.pair) {
                     let y = ((maxPrice - o.entry) / range) * (gH * 0.8) + (gH * 0.1);
                     if(y > 0 && y < gH) {
                         chartCtx.beginPath(); chartCtx.moveTo(0, y); chartCtx.lineTo(gW, y);
-                        chartCtx.strokeStyle = o.side === 'buy' ? 'rgba(52, 211, 153, 0.6)' : 'rgba(251, 113, 133, 0.6)';
-                        chartCtx.lineWidth = 1.5; chartCtx.setLineDash([4, 4]); chartCtx.stroke(); chartCtx.setLineDash([]);
-                        
-                        chartCtx.fillStyle = o.side === 'buy' ? 'rgba(52, 211, 153, 0.15)' : 'rgba(251, 113, 133, 0.15)';
-                        chartCtx.fillRect(gW - 80, y - 10, 80, 20);
-                        chartCtx.fillStyle = o.side === 'buy' ? '#34d399' : '#fb7185';
-                        chartCtx.font = 'bold 9px monospace';
+                        chartCtx.strokeStyle = o.side === 'buy' ? 'rgba(52, 211, 153, 0.6)' : 'rgba(251, 113, 133, 0.6)'; chartCtx.lineWidth = 1.5; chartCtx.setLineDash([4, 4]); chartCtx.stroke(); chartCtx.setLineDash([]);
+                        chartCtx.fillStyle = o.side === 'buy' ? 'rgba(52, 211, 153, 0.15)' : 'rgba(251, 113, 133, 0.15)'; chartCtx.fillRect(gW - 80, y - 10, 80, 20);
+                        chartCtx.fillStyle = o.side === 'buy' ? '#34d399' : '#fb7185'; chartCtx.font = 'bold 9px monospace';
                         chartCtx.fillText(`${o.lev}x ${o.side.toUpperCase()} @ ${o.entry >= 1000 ? Math.round(o.entry) : o.entry.toFixed(4)}`, gW - 75, y);
                     }
                 }
             });
 
             function drawPriceTag(yPos, priceVal) {
-                let tagY = Math.max(10, Math.min(gH - 10, yPos));
-                let priceText = priceVal >= 1000 ? priceVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : priceVal.toFixed(minPrice<1?6:2);
-                chartCtx.font = 'bold 11px monospace';
-                let boxWidth = Math.max(chartCtx.measureText(priceText).width + 12, 60); 
-                chartCtx.fillStyle = '#a78bfa'; chartCtx.fillRect(gW, tagY - 11, boxWidth, 22);
-                chartCtx.fillStyle = '#05020a'; chartCtx.fillText(priceText, gW + 6, tagY);
+                let tagY = Math.max(10, Math.min(gH - 10, yPos)); let priceText = priceVal >= 1000 ? priceVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : priceVal.toFixed(minPrice<1?6:2);
+                chartCtx.font = 'bold 11px monospace'; let boxWidth = Math.max(chartCtx.measureText(priceText).width + 12, 60); 
+                chartCtx.fillStyle = '#a78bfa'; chartCtx.fillRect(gW, tagY - 11, boxWidth, 22); chartCtx.fillStyle = '#05020a'; chartCtx.fillText(priceText, gW + 6, tagY);
             }
 
             if(canvasHoverPos !== null && canvasHoverPos <= gW) {
                 let closest = points.reduce((prev, curr) => Math.abs(curr.x - canvasHoverPos) < Math.abs(prev.x - canvasHoverPos) ? curr : prev);
                 chartCtx.strokeStyle = 'rgba(255,255,255,0.3)'; chartCtx.lineWidth = 1; chartCtx.setLineDash([4, 4]);
                 chartCtx.beginPath(); chartCtx.moveTo(closest.x, 0); chartCtx.lineTo(closest.x, gH); chartCtx.stroke();
-                chartCtx.beginPath(); chartCtx.moveTo(0, closest.y); chartCtx.lineTo(gW, closest.y); chartCtx.stroke();
-                chartCtx.setLineDash([]);
-                chartCtx.beginPath(); chartCtx.arc(closest.x, closest.y, 4, 0, Math.PI*2);
-                chartCtx.fillStyle = '#a78bfa'; chartCtx.fill();
-                drawPriceTag(closest.y, closest.p);
+                chartCtx.beginPath(); chartCtx.moveTo(0, closest.y); chartCtx.lineTo(gW, closest.y); chartCtx.stroke(); chartCtx.setLineDash([]);
+                chartCtx.beginPath(); chartCtx.arc(closest.x, closest.y, 4, 0, Math.PI*2); chartCtx.fillStyle = '#a78bfa'; chartCtx.fill(); drawPriceTag(closest.y, closest.p);
             } else {
-                const last = points[points.length-1];
-                chartCtx.beginPath(); chartCtx.arc(last.x, last.y, 4, 0, Math.PI*2);
-                chartCtx.fillStyle = '#a78bfa'; chartCtx.fill();
-                drawPriceTag(last.y, last.p);
+                const last = points[points.length-1]; chartCtx.beginPath(); chartCtx.arc(last.x, last.y, 4, 0, Math.PI*2); chartCtx.fillStyle = '#a78bfa'; chartCtx.fill(); drawPriceTag(last.y, last.p);
             }
         }
 
@@ -937,16 +898,17 @@ return "NEUTRAL";`;
 
         function renderGlobalLogs() {
             const feed = document.getElementById('below-chart-log');
-            if(!state.globalTradeLogs || state.globalTradeLogs.length === 0) { feed.innerHTML = '<div class="text-[9px] text-muted text-center py-4 italic">Awaiting multi-chain DEX/CEX block trades...</div>'; return; }
-            
-            let filtered = state.globalTradeLogs;
+            // strictly filter by selected pair to isolate currency logs
+            let filtered = state.globalTradeLogs.filter(l => l.pair === ui.pair);
             if(ui.logFilter === 'whales') filtered = filtered.filter(l => l.usdVal >= 25000);
 
-            feed.innerHTML = filtered.map(l => {
+            if(filtered.length === 0) { feed.innerHTML = '<div class="text-[9px] text-muted text-center py-4 italic">Awaiting block trades...</div>'; return; }
+            
+            feed.innerHTML = filtered.slice(0, 50).map(l => { // Only render top 50 to save DOM
                 const cStr = l.isBuy ? 'text-green-400' : 'text-pink-400';
                 const bStr = l.isBuy ? 'bg-green-500/10 border-green-500/20' : 'bg-pink-500/10 border-pink-500/20';
                 return `
-                <div class="flex justify-between items-center px-3 py-1.5 rounded border ${bStr}">
+                <div class="flex justify-between items-center px-3 py-1.5 rounded border ${bStr} shrink-0">
                     <span class="text-[9px] font-mono text-muted w-16">${l.addr}</span>
                     <span class="text-[10px] font-black ${cStr} uppercase">${l.pair.replace('USDT','')} ${l.isBuy?'BUY':'SELL'} ${l.qty.toFixed(l.price<1?0:4)}</span>
                     <span class="text-[10px] font-mono text-white">$${l.usdVal.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
@@ -954,19 +916,67 @@ return "NEUTRAL";`;
             }).join('');
         }
 
+        function setAlphaTimeframe(ms) {
+            ui.alphaTfMs = parseInt(ms);
+            const lbl = ms == 300000 ? "5M" : ms == 900000 ? "15M" : ms == 3600000 ? "1H" : ms == 18000000 ? "5H" : ms == 86400000 ? "24H" : "1W";
+            document.getElementById('lbl-buy-tf').innerText = lbl;
+            document.getElementById('lbl-sell-tf').innerText = lbl;
+            renderOnChainAlpha();
+        }
+
         function renderOnChainAlpha() {
             const buysContainer = document.getElementById('ui-top-buys');
             const sellsContainer = document.getElementById('ui-top-sells');
+            
+            const now = Date.now();
+            const pairLogs = state.globalTradeLogs.filter(l => l.pair === ui.pair && (now - l.time) <= ui.alphaTfMs);
+            
+            let buys = pairLogs.filter(l => l.isBuy).sort((a,b) => b.usdVal - a.usdVal).slice(0,5);
+            let sells = pairLogs.filter(l => !l.isBuy).sort((a,b) => b.usdVal - a.usdVal).slice(0,5);
 
-            if (topBuysArray.length === 0) buysContainer.innerHTML = `<div class="text-[9px] text-muted text-center italic py-2">Syncing chain...</div>`;
-            else buysContainer.innerHTML = topBuysArray.map(t => `<div class="flex justify-between items-center text-[10px] font-mono"><span class="text-white">${t.qty.toFixed(ui.price<1?0:4)} <span class="text-[8px] text-muted">${ui.pair.replace('USDT','')}</span></span><span class="text-green-400 font-black">$${t.usdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>`).join('');
+            if (buys.length === 0) buysContainer.innerHTML = `<div class="text-[9px] text-muted text-center italic py-2">No buys in timeframe</div>`;
+            else buysContainer.innerHTML = buys.map(t => `<div class="flex justify-between items-center text-[10px] font-mono"><span class="text-white">${t.qty.toFixed(ui.price<1?0:4)} <span class="text-[8px] text-muted">${ui.pair.replace('USDT','')}</span></span><span class="text-green-400 font-black">$${t.usdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>`).join('');
 
-            if (topSellsArray.length === 0) sellsContainer.innerHTML = `<div class="text-[9px] text-muted text-center italic py-2">Syncing chain...</div>`;
-            else sellsContainer.innerHTML = topSellsArray.map(t => `<div class="flex justify-between items-center text-[10px] font-mono"><span class="text-white">${t.qty.toFixed(ui.price<1?0:4)} <span class="text-[8px] text-muted">${ui.pair.replace('USDT','')}</span></span><span class="text-pink-400 font-black">$${t.usdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>`).join('');
+            if (sells.length === 0) sellsContainer.innerHTML = `<div class="text-[9px] text-muted text-center italic py-2">No sells in timeframe</div>`;
+            else sellsContainer.innerHTML = sells.map(t => `<div class="flex justify-between items-center text-[10px] font-mono"><span class="text-white">${t.qty.toFixed(ui.price<1?0:4)} <span class="text-[8px] text-muted">${ui.pair.replace('USDT','')}</span></span><span class="text-pink-400 font-black">$${t.usdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>`).join('');
         }
 
         function renderTopHolders() {
-            document.getElementById('ui-top-holders').innerHTML = topHoldersSim.map(h => `<div class="flex justify-between items-center text-[10px] font-mono py-0.5"><span class="text-muted hover:text-purple-400 cursor-pointer transition">${h.addr}</span><span class="text-white font-black">$${(h.usd).toLocaleString()}</span></div>`).join('');
+            document.getElementById('ui-top-holders').innerHTML = state.topHoldersSim.map(h => {
+                let actColor = h.lastAction.includes("BUY") || h.lastAction === "ACCUMULATING" ? "text-green-400" : h.lastAction === "HOLDING" ? "text-muted" : "text-pink-400";
+                return `
+                <div class="flex justify-between items-center p-1.5 border border-purple-900/20 rounded bg-[#0a0510]/50">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-mono text-white font-bold cursor-pointer hover:text-purple-400 transition">${h.addr}</span>
+                        <span class="text-[8px] text-muted">Latest: <span class="${actColor} font-black">${h.lastAction} ${h.amt>0 ? '($'+h.amt.toLocaleString()+')':''}</span></span>
+                    </div>
+                    <div class="flex flex-col text-right">
+                        <span class="text-[10px] text-purple-400 font-black font-mono">$${(h.usd).toLocaleString()}</span>
+                        <span class="text-[8px] text-muted">Est. Value</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // BACKGROUND CATCHUP GENERATOR
+        function generateBackgroundData(symbol, currentPrice, timeGap) {
+            let numTrades = Math.min(Math.floor(timeGap / 60000) * 10, 300); // Max 300 simulated past trades
+            let now = Date.now();
+            for(let i=0; i<numTrades; i++) {
+                let isBuy = Math.random() > 0.5;
+                let usdVal = Math.random() * 30000 + 1000; // $1k to $30k normal
+                if(Math.random() > 0.95) usdVal += Math.random() * 200000; // Random whales
+                let qty = usdVal / currentPrice;
+                let time = now - (Math.random() * timeGap);
+                state.globalTradeLogs.push({
+                    addr: '0x' + Math.random().toString(16).substring(2, 8).toUpperCase(),
+                    isBuy, qty, price: currentPrice, usdVal, pair: symbol, time
+                });
+            }
+            state.globalTradeLogs.sort((a,b) => b.time - a.time);
+            if(state.globalTradeLogs.length > 1500) state.globalTradeLogs = state.globalTradeLogs.slice(0, 1500);
+            saveState();
+            renderGlobalLogs(); renderOnChainAlpha();
         }
 
         function connectMultiStream() {
@@ -986,11 +996,10 @@ return "NEUTRAL";`;
         }
 
         function connectGlobalTradeStream() {
-            // Connect to multiple aggTrade streams to persist log continuously
-            let tradeStreams = ['btcusdt@aggTrade', 'ethusdt@aggTrade', 'solusdt@aggTrade'];
+            // Monitor multiple chains/pairs for persistent memory
+            let tradeStreams = ['btcusdt@aggTrade', 'ethusdt@aggTrade', 'solusdt@aggTrade', 'dogeusdt@aggTrade'];
             if(wsTrade) wsTrade.close();
             wsTrade = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${tradeStreams.join('/')}`);
-            flowData = { buy: 0, sell: 0 };
             
             wsTrade.onmessage = (e) => {
                 const payload = JSON.parse(e.data);
@@ -1000,44 +1009,37 @@ return "NEUTRAL";`;
                     const isBuy = !data.m, usdVal = price * qty;
                     const pair = data.s;
 
-                    if(usdVal < 1000) return; // Filter out dust from global stream to save memory
+                    if(usdVal < 1000) return; // Ignore dust globally
 
                     const logItem = {
                         addr: '0x' + Math.random().toString(16).substring(2, 8).toUpperCase(),
-                        isBuy, qty, price, usdVal, pair
+                        isBuy, qty, price, usdVal, pair, time: Date.now()
                     };
 
                     state.globalTradeLogs.unshift(logItem);
-                    if(state.globalTradeLogs.length > 200) state.globalTradeLogs.pop(); // limit size
+                    if(state.globalTradeLogs.length > 1500) state.globalTradeLogs.pop(); // Hold 1500 logs max globally
                     
-                    if(Math.random() < 0.1) saveState(); // throttle localstorage saving
+                    if(Math.random() < 0.05) saveState(); // throttle localstorage saving
 
-                    // Update local UI elements if pair matches current view
                     if(pair === ui.pair) {
-                        if(isBuy) {
-                            flowData.buy += usdVal;
-                            topBuysArray.push({qty, price, usdVal}); topBuysArray.sort((a,b) => b.usdVal - a.usdVal);
-                            if(topBuysArray.length > 5) topBuysArray.pop();
-                        } else {
-                            flowData.sell += usdVal;
-                            topSellsArray.push({qty, price, usdVal}); topSellsArray.sort((a,b) => b.usdVal - a.usdVal);
-                            if(topSellsArray.length > 5) topSellsArray.pop();
-                        }
+                        if(isBuy) flowData.buy += usdVal; else flowData.sell += usdVal;
                         updateRatioBar();
                         renderOnChainAlpha(); 
+                        renderGlobalLogs();
 
                         if(usdVal >= 25000) spawnBottomLeftPopup(isBuy, qty, price, usdVal);
                         if(usdVal >= 100000) triggerDramaticEffect(isBuy);
 
                         // Whale tracking logic
                         if(usdVal > 150000) {
-                            let rndHolder = topHoldersSim[Math.floor(Math.random() * topHoldersSim.length)];
-                            if(isBuy) rndHolder.usd += usdVal; else rndHolder.usd -= usdVal;
-                            topHoldersSim.sort((a,b)=>b.usd - a.usd);
+                            let rndHolder = state.topHoldersSim[Math.floor(Math.random() * state.topHoldersSim.length)];
+                            if(isBuy) { rndHolder.usd += usdVal; rndHolder.lastAction = "BUY"; } 
+                            else { rndHolder.usd -= usdVal; rndHolder.lastAction = "SELL"; }
+                            rndHolder.amt = Math.round(usdVal);
+                            state.topHoldersSim.sort((a,b)=>b.usd - a.usd);
                             renderTopHolders();
                         }
                     }
-                    renderGlobalLogs(); // Re-render log UI
                 }
             };
             wsTrade.onclose = () => setTimeout(connectGlobalTradeStream, 3000); 
@@ -1218,7 +1220,7 @@ return "NEUTRAL";`;
             if(n && a) { state.manualAssets[n] = a; document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); }
         }
         function updateUI() { document.getElementById('ui-avail').innerText = state.usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; }
-        function saveState() { localStorage.setItem('cloud_state_v15', JSON.stringify(state)); updateUI(); updateWalletSystem(); }
+        function saveState() { localStorage.setItem('cloud_state_v16', JSON.stringify(state)); updateUI(); }
 
         // --- 7. REAL-TIME DCA & SNIPER ENGINE ---
         function checkSyntax(code) {
@@ -1266,12 +1268,13 @@ return "NEUTRAL";`;
                     livePnl += t.side === 'buy' ? ((t.size/t.entry * livePrice) - t.size) : (t.size - (t.size/t.entry * livePrice));
                 });
                 const isProf = livePnl >= 0; let cColor = isProf ? 'text-green-400' : 'text-pink-400';
+                let dotStatus = b.lastStatusMsg.includes("HALTED") ? "bg-red-500" : "bg-green-500 animate-pulse";
                 
                 html += `
                 <div class="bg-[#05020a]/80 p-4 rounded border border-purple-900/40 cursor-pointer hover:border-purple-500 transition" onclick="openBotDetails('${b.id}')">
                     <div class="flex justify-between items-center mb-3">
                         <span class="text-xs font-black text-white uppercase">${b.name}</span>
-                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <div class="w-2 h-2 rounded-full ${dotStatus}"></div>
                     </div>
                     <div class="flex justify-between items-end">
                         <div class="flex flex-col">
@@ -1335,7 +1338,7 @@ return "NEUTRAL";`;
             document.getElementById('bot-detail-pnl').className = `text-lg font-mono font-black ${isNetProf ? 'text-green-400' : 'text-pink-400'}`;
             
             document.getElementById('bot-detail-status-text').innerText = b.lastStatusMsg;
-            document.getElementById('bot-detail-status-dot').className = b.lastStatusMsg.includes("HALTED") ? "w-3 h-3 rounded-full bg-red-500" : "w-3 h-3 rounded-full bg-green-500 animate-pulse";
+            document.getElementById('bot-detail-status-dot').className = b.lastStatusMsg.includes("HALTED") || b.lastStatusMsg.includes("ERROR") ? "w-3 h-3 rounded-full bg-red-500" : "w-3 h-3 rounded-full bg-green-500 animate-pulse";
         }
 
         function killBot() {
