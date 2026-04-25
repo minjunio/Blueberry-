@@ -1,3 +1,4 @@
+// npm install express express-session sqlite3 bcryptjs multer nodemailer ws
 const express = require('express');
 const session = require('express-session');
 const sqlite3 = require('sqlite3').verbose();
@@ -6,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
+const WebSocket = require('ws'); // Added for backend Binance streams
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,11 +28,12 @@ const db = new sqlite3.Database('./data/database.sqlite', (err) => {
 });
 
 db.serialize(() => {
-    // Core Tables (Added usdt_balance for the Trading Terminal)
+    // Core Tables
     db.run(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, sol_balance REAL DEFAULT 5.0, rig_percentage INTEGER DEFAULT -1, usdt_balance REAL DEFAULT 88000.0)`);
     db.run(`CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, seo_title TEXT, seo_desc TEXT, seo_keywords TEXT, og_image TEXT, canonical_url TEXT)`);
     db.run(`CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, description TEXT, price REAL, tier TEXT DEFAULT 'Standard', image_url TEXT, platform TEXT, tags TEXT, vendor_id INTEGER, FOREIGN KEY(vendor_id) REFERENCES users(id))`);
-    db.run(`CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id TEXT UNIQUE, product_id INTEGER, tier TEXT, payment_method TEXT, email TEXT, discord_username TEXT, status TEXT DEFAULT 'Pending Payment', giftcard_code TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
+    // Includes strict requirement for discord_username
+    db.run(`CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id TEXT UNIQUE, product_id INTEGER, tier TEXT, payment_method TEXT, email TEXT, discord_username TEXT NOT NULL, status TEXT DEFAULT 'Pending Payment', giftcard_code TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
     db.run(`CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, category TEXT, image1 TEXT, image2 TEXT, content TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
     db.run(`CREATE TABLE IF NOT EXISTS otps (email TEXT PRIMARY KEY, code TEXT, expires DATETIME)`);
     
@@ -40,7 +43,7 @@ db.serialize(() => {
     // Casino Tracking Table
     db.run(`CREATE TABLE IF NOT EXISTS casino_ledger (id INTEGER PRIMARY KEY AUTOINCREMENT, action TEXT, amount REAL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
 
-    // Safe Alterations for older DB versions (Including new Trading features)
+    // Safe Alterations for older DB versions
     db.run("ALTER TABLE categories ADD COLUMN seo_title TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_desc TEXT", () => {});
     db.run("ALTER TABLE categories ADD COLUMN seo_keywords TEXT", () => {});
@@ -109,7 +112,7 @@ app.post('/api/send-otp', (req, res) => {
 
         try {
             await transporter.sendMail({
-                from: '"ExamHub Support" <Kfdhs954@gmail.com>',
+                from: '"Khalifa Al Dhaheri - ExamHub Support" <Kfdhs954@gmail.com>',
                 to: email,
                 subject: 'Your ExamHub Verification Code',
                 text: `Your verification code is: ${code}. It expires in 15 minutes.`,
@@ -342,11 +345,10 @@ app.post('/admin/casino/sync', (req, res) => {
     });
 });
 
-// --- TRADING API ENDPOINTS (NEW) ---
+// --- TRADING API ENDPOINTS (NOW SYNCED WITH BACKGROUND ENGINE) ---
 app.get('/admin/trading', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     
-    // Fetch fresh user data so the terminal loads the exact database balance
     db.get("SELECT * FROM users WHERE id = ?", [req.session.user.id], (err, user) => {
         renderSafe(res, 'trading', { user: user });
     });
@@ -355,8 +357,6 @@ app.get('/admin/trading', (req, res) => {
 app.post('/admin/trading/sync', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.status(403).json({error: 'Unauthorized'});
     const { balance } = req.body;
-
-    // Save the new USDT balance directly into the SQLite database
     db.run("UPDATE users SET usdt_balance = ? WHERE id = ?", [balance, req.session.user.id], (err) => {
         res.json({ success: true });
     });
@@ -421,4 +421,83 @@ app.post('/admin/delete-post', (req, res) => {
     db.run("DELETE FROM posts WHERE id = ?", [req.body.id], () => res.redirect('/admin'));
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// =========================================================
+// BACKGROUND SERVER-SIDE QUANT ENGINE
+// =========================================================
+let liveBtcPrice = 0;
+let whaleBuys = 0;
+let whaleSells = 0;
+
+function startBackgroundEngine() {
+    const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@aggTrade');
+
+    ws.on('message', (data) => {
+        const trade = JSON.parse(data);
+        const price = parseFloat(trade.p);
+        const qty = parseFloat(trade.q);
+        const usdVal = price * qty;
+        const isBuy = !trade.m;
+
+        liveBtcPrice = price;
+
+        // Advanced filter: Only track volumes representing "Whales" (>$25,000)
+        if (usdVal > 25000) {
+            if (isBuy) whaleBuys += usdVal;
+            else whaleSells += usdVal;
+        }
+    });
+
+    ws.on('close', () => {
+        console.log("Binance WS closed. Reconnecting...");
+        setTimeout(startBackgroundEngine, 3000);
+    });
+
+    ws.on('error', (err) => console.error('WS Error:', err));
+}
+
+// Background Evaluation Loop (Runs continuously every 5 minutes)
+setInterval(() => {
+    if (liveBtcPrice === 0) return; // Waiting for data
+
+    console.log(`[Quant Engine] Running analysis... BTC: $${liveBtcPrice}`);
+    
+    // Example algorithmic logic based on aggregated whale volume
+    const totalWhaleVol = whaleBuys + whaleSells;
+    let whaleSentiment = totalWhaleVol > 0 ? (whaleBuys / totalWhaleVol) : 0.5;
+
+    db.get("SELECT * FROM users WHERE role = 'admin'", (err, admin) => {
+        if (!admin || err) return;
+
+        let currentUsdt = admin.usdt_balance;
+        let positionSize = currentUsdt * 0.05; // Risk 5% per trade
+
+        // Syntax checking and autonomous execution logic
+        if (whaleSentiment > 0.65 && currentUsdt > positionSize) {
+            console.log(`[Quant Engine] Whale Buy Pressure detected (${(whaleSentiment*100).toFixed(0)}%). Simulating LONG.`);
+            let simulatedProfit = positionSize * 0.02; // Assuming a 2% win
+            currentUsdt += simulatedProfit;
+            
+            db.run("UPDATE users SET usdt_balance = ? WHERE role = 'admin'", [currentUsdt]);
+        } 
+        else if (whaleSentiment < 0.35 && currentUsdt > positionSize) {
+            console.log(`[Quant Engine] Whale Sell Pressure detected (${((1-whaleSentiment)*100).toFixed(0)}%). Simulating SHORT.`);
+            let simulatedProfit = positionSize * 0.02; // Assuming a 2% win
+            currentUsdt += simulatedProfit;
+
+            db.run("UPDATE users SET usdt_balance = ? WHERE role = 'admin'", [currentUsdt]);
+        }
+
+        // Reset tracking window for the next interval
+        whaleBuys = 0;
+        whaleSells = 0;
+    });
+
+}, 300000); // 300000 ms = 5 minutes
+
+// Boot the background loop
+startBackgroundEngine();
+
+// =========================================================
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT} with Background Engine Active`));
