@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Binance Pro Terminal - Gemini API Enhanced</title>
+    <title>Binance Pro Terminal - Professional Quant</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link rel="icon" type="image/png" href="https://cryptologos.cc/logos/bnb-bnb-logo.png?v=029">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brain.js"></script>
     
     <style>
-        /* High-Performance Sharp Theme */
+        /* Sleek, Professional Theme */
         body { background: #0b0e11; color: #EAECEF; font-family: 'Inter', -apple-system, sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
         
-        .panel { background: #181a20; border: 1px solid #2b3139; border-radius: 4px; }
-        .overlay { background: #1e2329; border: 1px solid #2b3139; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .panel { background: #181a20; border: 1px solid #2b3139; border-radius: 6px; }
+        .overlay { background: #1e2329; border: 1px solid #2b3139; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
         
         .neo-input { background: #0b0e11; border: 1px solid #363c4e; color: white; outline: none; transition: border-color 0.1s; border-radius: 4px; }
         .neo-input:focus, .neo-input:hover { border-color: #F3BA2F; }
@@ -59,36 +60,33 @@
         select option { background: #1e2329; color: white; }
         
         .spinner { border: 2px solid #2b3139; border-top-color: #F3BA2F; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        
-        /* Advanced Aesthetic Box Upgrades */
-        .dramatic-box { 
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            position: relative; 
-            background: linear-gradient(145deg, #1e2329, #15181c);
-            box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -2px -2px 8px rgba(255,255,255,0.02);
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Clean, Professional Asset Boxes */
+        .asset-card { 
+            background: #181a20;
             border: 1px solid #2b3139;
+            border-radius: 6px;
+            transition: all 0.15s ease-in-out;
+            position: relative;
         }
-        .dramatic-box:hover { 
-            transform: scale(1.05) translateY(-4px); 
-            border-color: #F3BA2F; 
-            z-index: 10; 
-            box-shadow: 0 15px 30px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(243,186,47,0.5), 0 0 15px rgba(243,186,47,0.2); 
+        .asset-card:hover { 
+            background: #1e2329;
+            border-color: #F3BA2F;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        .dramatic-box:active { transform: scale(0.98); }
+        .asset-card:active { transform: translateY(0); }
 
         .card-row { background: #0b0e11; border: 1px solid #2b3139; border-radius: 4px; transition: all 0.1s; }
         .card-row:hover { border-color: #363c4e; transform: translateX(2px); }
 
-        /* Specific Asset Animations */
-        .eth-pulse { animation: subtlePulse 2s ease-in-out infinite; }
-        .dot-pulse { animation: sharpPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes subtlePulse { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.1); filter: brightness(1.3); } }
-        @keyframes sharpPulse { 
-            0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 2px #E6007A); } 
-            50% { opacity: 0.8; transform: scale(1.15); filter: drop-shadow(0 0 12px #E6007A); } 
-        }
+        /* Log Terminal Styling */
+        #sys-log-output div { border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; margin-bottom: 4px; }
+        .log-info { color: #848E9C; }
+        .log-success { color: #34d399; }
+        .log-error { color: #fb7185; font-weight: bold; }
+        .log-api { color: #F3BA2F; }
     </style>
 </head>
 <body>
@@ -112,6 +110,10 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 md:gap-3">
+                <button onclick="toggleModal('sys-log-modal')" class="px-3 py-1.5 rounded text-[9px] font-black uppercase tracking-widest bg-[#1e2329] border border-[#2b3139] text-[#F3BA2F] hover:bg-[#2b3139] transition flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 6h16M4 18h16"></path></svg>
+                    Logs
+                </button>
                 <button onclick="toggleModal('history-modal')" class="neo-btn px-4 py-1.5 rounded font-black text-[10px] uppercase tracking-widest hidden sm:flex">History</button>
                 <button onclick="toggleModal('settings-modal')" class="icon-btn w-8 h-8" title="Settings">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -153,11 +155,11 @@
                     <div class="panel p-3 md:p-4 flex flex-col gap-3 border-l-4 border-l-[#F3BA2F]">
                         <div class="flex justify-between items-center border-b border-[#2b3139] pb-2">
                             <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 bg-[#F3BA2F] animate-pulse"></div>
-                                <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F]">Gemini API Quant Engine</h3>
+                                <div class="w-2 h-2 bg-[#F3BA2F]"></div>
+                                <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F]">Dual Intelligence Engine</h3>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="toggleModal('ai-code-modal')" class="text-[9px] font-black uppercase bg-[#F3BA2F] text-black hover:bg-yellow-400 px-2 py-0.5 rounded transition shadow-md">View ML Logic</button>
+                                <button onclick="triggerGeminiAnalysis()" class="text-[9px] font-black uppercase bg-[#1e2329] border border-[#F3BA2F] text-[#F3BA2F] hover:bg-[#F3BA2F] hover:text-black px-2 py-0.5 rounded transition">Force API Ping</button>
                             </div>
                         </div>
 
@@ -175,20 +177,23 @@
                             <div class="flex-1 grid grid-cols-2 gap-3">
                                 <div class="bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-between group">
                                     <div class="flex justify-between items-center mb-1">
-                                        <span class="text-[9px] text-muted font-black uppercase tracking-widest">Short-Term (Gemini)</span>
+                                        <span class="text-[9px] text-muted font-black uppercase tracking-widest">Local Quant ML</span>
                                         <span id="ai-short-conf" class="text-[8px] font-mono text-[#F3BA2F]">0% Conf</span>
                                     </div>
                                     <div class="flex justify-between items-end mt-1">
                                         <div class="flex flex-col">
-                                            <span id="ai-short-signal" class="text-xs font-black uppercase text-white">AWAITING API...</span>
+                                            <span id="ai-short-signal" class="text-xs font-black uppercase text-white">LEARNING...</span>
                                             <span id="ai-short-targets" class="text-[8px] text-muted font-mono mt-1 hidden">SL: -- | TP: --</span>
                                         </div>
                                         <button id="ai-short-btn" onclick="executeAISuggestion('short')" class="px-2 py-1 bg-[#1e2329] border border-[#2b3139] group-hover:border-[#F3BA2F] text-[#F3BA2F] rounded text-[8px] font-black uppercase transition hidden">Trade</button>
                                     </div>
                                 </div>
-                                <div class="bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-between group">
+                                <div class="bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-between group relative">
                                     <div class="flex justify-between items-center mb-1">
-                                        <span class="text-[9px] text-muted font-black uppercase tracking-widest">Macro Trend (Gemini)</span>
+                                        <span class="text-[9px] text-muted font-black uppercase tracking-widest flex items-center gap-1">
+                                            Gemini API (Trend) 
+                                            <div id="gemini-status" class="w-1.5 h-1.5 rounded-full bg-pink-500" title="API Not Configured"></div>
+                                        </span>
                                         <span id="ai-long-conf" class="text-[8px] font-mono text-[#F3BA2F]">0% Conf</span>
                                     </div>
                                     <div class="flex justify-between items-end mt-1">
@@ -202,7 +207,7 @@
                             </div>
 
                             <div class="w-full md:w-64 bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-center">
-                                <span class="text-[8px] uppercase font-black text-[#F3BA2F] mb-1">Hedge Paper Trading (ML Status)</span>
+                                <span class="text-[8px] uppercase font-black text-[#F3BA2F] mb-1">Hedge Paper Trading</span>
                                 <div class="flex justify-between items-center font-mono text-xs font-black">
                                     <span id="ai-paper-pnl" class="text-white">$0.00</span>
                                     <span id="ai-paper-winrate" class="text-muted">Win: 0% (0/0)</span>
@@ -421,32 +426,36 @@
         </main>
     </div>
 
-    <div id="ai-code-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
-        <div class="modal-content panel w-full max-w-2xl p-5 relative flex flex-col">
-            <button onclick="toggleModal('ai-code-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-2 border-b border-[#2b3139] pb-2">Gemini API Configuration</h2>
-            <p class="text-[9px] text-green-400 mb-4 font-mono border border-green-500/30 bg-[#1e2329] p-2 rounded">
-                STATUS: API MODE. System sends live rolling input vectors [RSI, Price, Volatility, Flow, Whale Sentiment] to Google's Gemini 1.5 Flash Model to generate Long/Short Signals and calculate precise TP/SL metrics.
-            </p>
-            
-            <div class="mb-4">
-                <label class="text-[9px] font-black uppercase tracking-widest text-[#F3BA2F] mb-1.5 block">Gemini API Key (Free from Google AI Studio)</label>
-                <input type="password" id="gemini-api-key" placeholder="AIzaSy..." class="w-full neo-input p-2.5 rounded text-xs font-mono" onchange="saveApiKey(this.value)">
-                <p class="text-[8px] text-muted mt-1">Key is stored locally in your browser. API is requested max once per minute to avoid rate limits.</p>
+    <div id="sys-log-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
+        <div class="modal-content panel w-full max-w-2xl p-0 relative flex flex-col max-h-[80vh] overflow-hidden">
+            <div class="p-4 border-b border-[#2b3139] flex justify-between items-center bg-[#1e2329]">
+                <h2 class="text-xs font-black uppercase tracking-widest text-[#F3BA2F] flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 6h16M4 18h16"></path></svg>
+                    System Terminal Logs
+                </h2>
+                <button onclick="toggleModal('sys-log-modal')" class="text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
-
-            <button onclick="toggleModal('ai-code-modal')" class="w-full neo-btn py-3 rounded text-[10px] font-black uppercase bg-[#F3BA2F] text-black hover:bg-yellow-400">Save & Close</button>
+            <div class="flex-grow bg-[#0b0e11] p-4 font-mono text-[10px] overflow-y-auto" id="sys-log-output">
+                <div class="log-info">[SYSTEM] Engine Boot Sequence Initiated...</div>
+            </div>
         </div>
     </div>
 
     <div id="settings-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
         <div class="modal-content panel w-full max-w-sm p-5 relative border-t-2 border-t-[#F3BA2F]">
             <button onclick="toggleModal('settings-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-5 border-b border-[#2b3139] pb-2">Portfolio Management</h2>
+            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-5 border-b border-[#2b3139] pb-2">Settings & Management</h2>
             <div class="space-y-5">
                 <div>
-                    <label class="text-[9px] font-black uppercase tracking-widest text-[#F3BA2F] mb-1.5 block">Override USDT Balance</label>
-                    <div class="flex gap-2"><input type="number" id="add-usdt-input" placeholder="Set Exact Amount" class="flex-grow neo-input p-2 rounded text-sm font-mono"><button onclick="setUsdt()" class="bg-[#F3BA2F] px-4 rounded text-[9px] font-black uppercase hover:bg-yellow-400 transition text-black">Set</button></div>
+                    <label class="text-[9px] font-black uppercase tracking-widest text-[#F3BA2F] mb-1.5 block">Gemini API Key (Free Tier)</label>
+                    <div class="flex gap-2">
+                        <input type="password" id="gemini-api-input" placeholder="AIzaSy..." class="flex-grow neo-input p-2 rounded text-xs font-mono">
+                        <button onclick="saveApiKey()" class="bg-[#F3BA2F] px-4 rounded text-[9px] font-black uppercase hover:bg-yellow-400 transition text-black">Save</button>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-[#2b3139]">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-muted mb-1.5 block">Override USDT Balance</label>
+                    <div class="flex gap-2"><input type="number" id="add-usdt-input" placeholder="Set Exact Amount" class="flex-grow neo-input p-2 rounded text-sm font-mono"><button onclick="setUsdt()" class="neo-btn px-4 rounded text-[9px] font-black uppercase">Set</button></div>
                 </div>
                 <div class="pt-4 border-t border-[#2b3139]">
                     <label class="text-[9px] font-black uppercase tracking-widest text-muted mb-1.5 block">Modify Specific Assets</label>
@@ -526,13 +535,31 @@
     </div>
 
     <script>
+        // --- LOG TERMINAL ---
+        function systemLog(message, type = 'info') {
+            const out = document.getElementById('sys-log-output');
+            const time = new Date().toLocaleTimeString([], { hour12: false });
+            let classStr = 'log-info';
+            if(type === 'success') classStr = 'log-success';
+            if(type === 'error') classStr = 'log-error';
+            if(type === 'api') classStr = 'log-api';
+            out.innerHTML += `<div class="${classStr}">[${time}] ${message}</div>`;
+            out.scrollTop = out.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
         // --- CORE DATA & ML STATE ---
         const ASSETS = [
-            { id: 'BTCUSDT', name: 'BTC/USDT', icon: 'bitcoin-btc-logo.svg?v=029', coin: 'BTC' }, { id: 'ETHUSDT', name: 'ETH/USDT', icon: 'ethereum-eth-logo.svg?v=029', coin: 'ETH' },
-            { id: 'SOLUSDT', name: 'SOL/USDT', icon: 'solana-sol-logo.svg?v=029', coin: 'SOL' }, { id: 'BNBUSDT', name: 'BNB/USDT', icon: 'bnb-bnb-logo.svg?v=029', coin: 'BNB' },
-            { id: 'XRPUSDT', name: 'XRP/USDT', icon: 'xrp-xrp-logo.svg?v=029', coin: 'XRP' }, { id: 'DOGEUSDT', name: 'DOGE/USDT', icon: 'dogecoin-doge-logo.svg?v=029', coin: 'DOGE' }, 
-            { id: 'ADAUSDT', name: 'ADA/USDT', icon: 'cardano-ada-logo.svg?v=029', coin: 'ADA' }, { id: 'DOTUSDT', name: 'DOT/USDT', icon: 'polkadot-new-dot-logo.svg?v=029', coin: 'DOT' }, 
-            { id: 'MATICUSDT', name: 'MATIC/USDT', icon: 'polygon-matic-logo.svg?v=029', coin: 'MATIC' }, { id: 'AVAXUSDT', name: 'AVAX/USDT', icon: 'avalanche-avax-logo.svg?v=029', coin: 'AVAX' },
+            { id: 'BTCUSDT', name: 'BTC/USDT', icon: 'bitcoin-btc-logo.svg?v=029', coin: 'BTC' }, 
+            { id: 'ETHUSDT', name: 'ETH/USDT', icon: 'ethereum-eth-logo.svg?v=029', coin: 'ETH' },
+            { id: 'SOLUSDT', name: 'SOL/USDT', icon: 'solana-sol-logo.svg?v=029', coin: 'SOL', gif: 'https://media.giphy.com/media/VzXGpbN3pG012/giphy.gif' }, 
+            { id: 'BNBUSDT', name: 'BNB/USDT', icon: 'bnb-bnb-logo.svg?v=029', coin: 'BNB' },
+            { id: 'XRPUSDT', name: 'XRP/USDT', icon: 'xrp-xrp-logo.svg?v=029', coin: 'XRP' }, 
+            { id: 'DOGEUSDT', name: 'DOGE/USDT', icon: 'dogecoin-doge-logo.svg?v=029', coin: 'DOGE' }, 
+            { id: 'ADAUSDT', name: 'ADA/USDT', icon: 'cardano-ada-logo.svg?v=029', coin: 'ADA' }, 
+            { id: 'DOTUSDT', name: 'DOT/USDT', icon: 'polkadot-new-dot-logo.svg?v=029', coin: 'DOT', gif: 'https://media.giphy.com/media/cLr7RupHkXj9zS0Y41/giphy.gif' }, 
+            { id: 'MATICUSDT', name: 'MATIC/USDT', icon: 'polygon-matic-logo.svg?v=029', coin: 'MATIC' }, 
+            { id: 'AVAXUSDT', name: 'AVAX/USDT', icon: 'avalanche-avax-logo.svg?v=029', coin: 'AVAX' },
             { id: 'ATOMUSDT', name: 'ATOM/USDT', icon: 'cosmos-atom-logo.svg?v=029', coin: 'ATOM' }
         ];
 
@@ -552,83 +579,22 @@
 
         let appState = JSON.parse(localStorage.getItem('cloudquant_v9_hedge')) || {
             activeWalletIdx: 0, currency: 'USD', globalTradeLogs: [], topHoldersSim: defaultHolders, lastRunTime: Date.now(),
-            aiStats: { wins: 0, losses: 0, pnl: 0, activePaper: [] }, 
-            wallets: [{ id: 1, name: "Main API", usdtBalance: <%= user ? user.usdt_balance : 15000.00 %>, startOfDayValue: <%= user ? user.usdt_balance : 15000.00 %>, orders: [], history: [], manualAssets: { 'BTC': 0.15, 'ETH': 3.0, 'DOT': 150, 'ATOM': 500 }, stakes: [] }]
+            aiStats: { wins: 0, losses: 0, pnl: 0, activePaper: [] }, geminiApiKey: '',
+            wallets: [{ id: 1, name: "Main API", usdtBalance: 15000.00, startOfDayValue: 15000.00, orders: [], history: [], manualAssets: { 'BTC': 0.15, 'ETH': 3.0, 'DOT': 150, 'ATOM': 500 }, stakes: [] }]
         };
         
-        // EJS Injected Balance Syncing (In case local storage is outdated compared to backend)
-        if(appState.wallets[0]) { appState.wallets[0].usdtBalance = <%= user ? user.usdt_balance : 15000.00 %>; }
-
         if(!appState.aiStats) appState.aiStats = { wins: 0, losses: 0, pnl: 0, activePaper: [] };
+        if(!appState.currency) appState.currency = 'USD'; // Ensuring USD default per user context
         const w = () => appState.wallets[appState.activeWalletIdx];
 
         let livePrices = {}; let ui = { side: 'buy', pair: 'BTCUSDT', price: 0, lastPrice: 0, lev: 10, timeframe: '5m', chartData: [], logFilter: 'all', alphaTfMs: 86400000 };
         let wsTicker, wsTrade, chartCtx; let flowData = { buy: 0, sell: 0 }; let canvasHoverPos = null; let isShowingAllAssets = false;
-        
-        // --- GEMINI API INTEGRATION ---
-        let geminiApiKey = localStorage.getItem('gemini_api_key') || '';
-        document.getElementById('gemini-api-key').value = geminiApiKey;
-        let lastAiUpdate = 0;
         let currentAISuggestion = null;
-
-        function saveApiKey(val) {
-            geminiApiKey = val;
-            localStorage.setItem('gemini_api_key', val);
-        }
-
-        async function askGeminiForSignal(marketData) {
-            if (!geminiApiKey) return;
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
-
-            const prompt = `
-                You are a quantitative trading algorithm. Analyze this live market data for ${ui.pair}:
-                Current Price: $${marketData.price.toFixed(4)}
-                RSI (14): ${marketData.rsi.toFixed(1)}
-                20 SMA: $${marketData.sma.toFixed(4)}
-                Volatility (Price Range): $${marketData.vol.toFixed(2)}
-                Buy Volume (15m Ratio): ${(marketData.flow15 * 100).toFixed(1)}%
-                Whale Sentiment: ${(marketData.whaleSent * 100).toFixed(1)}%
-                
-                Rules for Short-Term (Scalp):
-                - If RSI < 35 and Whale Sentiment > 50%, side = "buy", calculate TP (+2%) and SL (-1%).
-                - If RSI > 65 and Whale Sentiment < 50%, side = "sell", calculate TP (-2%) and SL (+1%).
-                - Otherwise side = "WAIT".
-                
-                Rules for Macro Trend (Swing):
-                - If Price > SMA and Whale Sentiment > 60%, side = "buy", calculate TP (+10%) and SL (-4%).
-                - If Price < SMA and Whale Sentiment < 40%, side = "sell", calculate TP (-10%) and SL (+4%).
-                - Otherwise side = "WAIT".
-                
-                Output ONLY a valid JSON object in this exact format, with no markdown or text:
-                {
-                    "short": {"side": "buy|sell|WAIT", "conf": 0-100, "lev": 20, "tp": number, "sl": number},
-                    "long": {"side": "buy|sell|WAIT", "conf": 0-100, "lev": 5, "tp": number, "sl": number}
-                }
-            `;
-
-            try {
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { responseMimeType: "application/json" }
-                    })
-                });
-
-                const result = await response.json();
-                if (result.candidates && result.candidates.length > 0) {
-                    const aiText = result.candidates[0].content.parts[0].text;
-                    const aiDecision = JSON.parse(aiText);
-                    return aiDecision;
-                }
-            } catch (error) {
-                console.error("Gemini API Error:", error);
-            }
-            return null;
-        }
-
-        // --- END GEMINI INIT ---
+        let geminiFetching = false;
+        
+        // --- MACHINE LEARNING INIT ---
+        window.quantNet = new brain.NeuralNetwork({ hiddenLayers: [8, 8] });
+        let modelTrained = false;
 
         function switchApp(appName) {
             document.getElementById('app-terminal').style.display = appName === 'terminal' ? 'block' : 'none'; document.getElementById('app-wallet').style.display = appName === 'wallet' ? 'block' : 'none';
@@ -638,10 +604,13 @@
         }
 
         function init() {
+            systemLog("Initializing Dashboard...", "info");
             document.getElementById('currency-select').value = appState.currency || 'USD'; document.getElementById('wallet-currency').value = appState.currency || 'USD';
+            if(appState.geminiApiKey) { document.getElementById('gemini-api-input').value = appState.geminiApiKey; document.getElementById('gemini-status').className = "w-1.5 h-1.5 rounded-full bg-green-400"; }
             buildTerminalDropdown(); refreshWorkspace(); setupCanvas();
             connectMultiStream(); connectGlobalTradeStream(); triggerPairChange(); buildStakingGrid(); setInterval(updateWalletSystem, 1000);
             const missedTime = Date.now() - appState.lastRunTime; if(missedTime > 60000) setTimeout(() => { if(ui.price > 0) generateBackgroundData(ui.pair, ui.price, missedTime); }, 1500);
+            systemLog("System Ready.", "success");
         }
 
         // --- WALLET TABS ---
@@ -658,8 +627,9 @@
         // --- HELPERS ---
         function getIconPath(coin) { if (coin === 'USDT') return 'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029'; const a = ASSETS.find(x => x.id.replace('USDT','') === coin || x.coin === coin); if (a) return `https://cryptologos.cc/logos/${a.icon}`; return `https://ui-avatars.com/api/?name=${coin}&background=1e2329&color=F3BA2F&rounded=true`; }
         function getIconImg(coin, cls) { 
-            let ex = coin === 'DOT' ? 'dot-pulse' : (coin === 'ETH' ? 'eth-pulse' : '');
-            return `<img src="${getIconPath(coin)}" class="${cls} ${ex} rounded bg-[#1e2329] p-0.5 border border-[#2b3139]">`; 
+            const a = ASSETS.find(x => x.coin === coin);
+            if (a && a.gif) return `<img src="${a.gif}" class="${cls} rounded bg-[#1e2329] p-0.5 border border-[#2b3139]" style="object-fit: cover;">`;
+            return `<img src="${getIconPath(coin)}" class="${cls} rounded bg-[#1e2329] p-0.5 border border-[#2b3139]">`; 
         }
 
         function setCurrency(c) { appState.currency = c; document.getElementById('currency-select').value = c; document.getElementById('wallet-currency').value = c; saveState(); updateWalletSystem(); updateWalletApp(); }
@@ -676,6 +646,15 @@
             document.getElementById('send-asset').innerHTML = availOpts; document.getElementById('swap-asset-from').innerHTML = availOpts; document.getElementById('swap-asset-to').innerHTML = allOpts; document.getElementById('new-asset-name').innerHTML = allOpts;
         }
 
+        function saveApiKey() {
+            appState.geminiApiKey = document.getElementById('gemini-api-input').value.trim();
+            saveState();
+            systemLog("Gemini API Key saved.", "success");
+            if(appState.geminiApiKey) document.getElementById('gemini-status').className = "w-1.5 h-1.5 rounded-full bg-green-400";
+            else document.getElementById('gemini-status').className = "w-1.5 h-1.5 rounded-full bg-pink-500";
+            toggleModal('settings-modal');
+        }
+
         // --- STREAMS ---
         function connectMultiStream() {
             let streamSet = new Set(['btcusdt@ticker', 'ethusdt@ticker', 'solusdt@ticker', 'xrpusdt@ticker', 'dogeusdt@ticker', 'adausdt@ticker', 'bnbusdt@ticker', 'dotusdt@ticker', 'atomusdt@ticker']);
@@ -684,7 +663,7 @@
             
             if(wsTicker) wsTicker.close(); wsTicker = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${Array.from(streamSet).join('/')}`);
             wsTicker.onmessage = (e) => { const payload = JSON.parse(e.data); if(payload.data && payload.data.c) { livePrices[payload.data.s] = parseFloat(payload.data.c); if(payload.data.s === ui.pair) processMainTick(parseFloat(payload.data.c)); } };
-            wsTicker.onclose = () => setTimeout(connectMultiStream, 3000); 
+            wsTicker.onclose = () => { systemLog("Binance ticker disconnected. Retrying...", "error"); setTimeout(connectMultiStream, 3000); };
         }
 
         function connectGlobalTradeStream() {
@@ -720,4 +699,482 @@
 
         async function fetch24hStats() {
             try { let res = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${ui.pair}`); let data = await res.json();
-                document.getElementById('stat-high').innerText = parseFloat(data.highPrice).toLocaleString(); document.getElementById('stat-low').innerText = parseFloat(data
+                document.getElementById('stat-high').innerText = parseFloat(data.highPrice).toLocaleString(); document.getElementById('stat-low').innerText = parseFloat(data.lowPrice).toLocaleString();
+            } catch(e){}
+        }
+
+        function updateWalletSystem() {
+            let totalUsdValue = w().usdtBalance; let termHtml = createTerminalSimpleCard('USDT', w().usdtBalance, w().usdtBalance);
+            w().orders.forEach(o => { let livePrice = livePrices[o.pair] || o.entry; totalUsdValue += o.margin; let pnl = o.side === 'buy' ? ((o.units * livePrice) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * livePrice)); totalUsdValue += pnl; });
+            for (const [coin, amt] of Object.entries(w().manualAssets)) { let valUsd = amt * (livePrices[coin + 'USDT'] || 0); totalUsdValue += valUsd; termHtml += createTerminalSimpleCard(coin, amt, valUsd); }
+            w().stakes.forEach(s => { let valUsd = s.amt * (livePrices[s.coin + 'USDT'] || 0); totalUsdValue += valUsd; });
+            document.getElementById('terminal-asset-list').innerHTML = termHtml;
+            
+            let rate = FX_RATES[appState.currency] || 1; let sym = FX_SYM[appState.currency] || '$'; let localTotal = totalUsdValue * rate;
+            document.getElementById('hero-currency-sym').innerText = sym; document.getElementById('hero-total-balance').innerText = localTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('wallet-currency-sym').innerText = sym; document.getElementById('wallet-total-value').innerText = localTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            let dPnlUsd = totalUsdValue - (w().startOfDayValue || 1); let dPnlLocal = dPnlUsd * rate; let dRoi = (dPnlUsd / (w().startOfDayValue || 1)) * 100;
+            const pnlEl = document.getElementById('hero-daily-pnl'); const roiEl = document.getElementById('hero-daily-roi');
+            pnlEl.innerText = `${dPnlLocal >= 0 ? '+' : ''}${sym}${dPnlLocal.toFixed(2)}`; pnlEl.className = `text-xs md:text-sm font-black tracking-wide ${dPnlLocal >= 0 ? 'text-green-400' : 'text-pink-400'}`;
+            roiEl.innerText = `${dPnlLocal >= 0 ? '+' : ''}${dRoi.toFixed(2)}% Today`; roiEl.className = `text-[9px] md:text-[10px] font-black px-1.5 py-0.5 rounded border mt-1 bg-[#0b0e11] ${dPnlLocal >= 0 ? 'text-green-400 border-green-500/30' : 'text-pink-400 border-pink-500/30'}`;
+            
+            const wPnlEl = document.getElementById('wallet-daily-pnl'); const wRoiEl = document.getElementById('wallet-daily-roi');
+            wPnlEl.innerText = `${dPnlLocal >= 0 ? '+' : ''}${sym}${dPnlLocal.toFixed(2)}`; wPnlEl.className = `text-xs font-black tracking-wide ${dPnlLocal >= 0 ? 'text-green-400' : 'text-pink-400'}`;
+            wRoiEl.innerText = `${dPnlLocal >= 0 ? '+' : ''}${dRoi.toFixed(2)}% Today`; wRoiEl.className = `text-[9px] font-black px-1.5 py-0.5 rounded border bg-[#0b0e11] ${dPnlLocal >= 0 ? 'text-green-400 border-green-500/30' : 'text-pink-400 border-pink-500/30'}`;
+            appState.lastRunTime = Date.now(); 
+        }
+
+        function createTerminalSimpleCard(coin, amount, valueUsd) {
+            let rate = FX_RATES[appState.currency] || 1; let sym = FX_SYM[appState.currency] || '$'; let valLocal = valueUsd * rate;
+            const valStr = valueUsd >= 0 ? `${sym}${valLocal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '...';
+            return `<div class="asset-card bg-[#1e2329] px-2 py-1.5 rounded flex items-center gap-2 cursor-pointer"><div class="w-4 h-4">${getIconImg(coin, 'w-full h-full')}</div><span class="text-[9px] font-black text-white uppercase">${coin}</span><span class="text-[9px] font-mono font-bold text-[#F3BA2F] ml-1">${valStr}</span></div>`;
+        }
+
+        // --- CHARTING ---
+        function setupCanvas() {
+            const container = document.getElementById('canvas-container'); const canvas = document.getElementById('custom-chart'); chartCtx = canvas.getContext('2d');
+            function resize() { const rect = container.getBoundingClientRect(); if(rect.width === 0) return; const dpr = window.devicePixelRatio || 1; canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; chartCtx.scale(dpr, dpr); drawChart(); }
+            window.addEventListener('resize', resize); setTimeout(resize, 100); 
+            canvas.addEventListener('mousemove', (e) => { const rect = canvas.getBoundingClientRect(); canvasHoverPos = e.clientX - rect.left; drawChart(); }); canvas.addEventListener('mouseleave', () => { canvasHoverPos = null; drawChart(); });
+        }
+
+        async function fetchChartData() {
+            if(ui.timeframe === 'live') { ui.chartData = []; return; }
+            let interval = ui.timeframe; let limit = 100; if(interval === '7d') { interval = '4h'; limit = 42; } if(interval === '1y') { interval = '1d'; limit = 365; } if(interval === 'max') { interval = '1w'; limit = 500; } 
+            try { let res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${ui.pair}&interval=${interval}&limit=${limit}`); let json = await res.json(); ui.chartData = json.map(d => ({ time: parseInt(d[0]), price: parseFloat(d[4]) })); drawChart(); calcAIEngine(); } catch(e) {}
+        }
+
+        function setTimeframe(tf) { ui.timeframe = tf; document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active')); document.getElementById(`tf-${tf}`).classList.add('active'); fetchChartData(); }
+
+        function drawChart() {
+            if(!chartCtx || ui.chartData.length < 2) return;
+            const canvas = document.getElementById('custom-chart'); if(canvas.width === 0) return;
+            const width = canvas.width / (window.devicePixelRatio || 1); const h = canvas.height / (window.devicePixelRatio || 1); const data = ui.chartData;
+            chartCtx.clearRect(0, 0, width, h);
+            const padYBottom = 20, padXRight = 70; const gW = width - padXRight, gH = h - padYBottom;
+            const prices = data.map(d => d.price); const minPrice = Math.min(...prices); const maxPrice = Math.max(...prices); const range = maxPrice - minPrice || 1; 
+            
+            chartCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)'; chartCtx.lineWidth = 1; chartCtx.fillStyle = '#848E9C'; chartCtx.font = '9px monospace'; chartCtx.textAlign = 'left'; chartCtx.textBaseline = 'middle';
+            for(let i=0; i<=4; i++) { const yPos = (i / 4) * gH; chartCtx.beginPath(); chartCtx.moveTo(0, yPos); chartCtx.lineTo(gW, yPos); chartCtx.stroke(); let gridPrice = maxPrice - (i / 4) * range; let gridText = gridPrice >= 1000 ? Math.round(gridPrice).toLocaleString() : gridPrice.toFixed(minPrice<1?4:2); chartCtx.fillText(gridText, gW + 6, yPos); }
+            
+            chartCtx.beginPath(); let points = [];
+            for(let i = 0; i < data.length; i++) { const x = (i / (data.length - 1)) * gW; let y = ((maxPrice - data[i].price) / range) * (gH * 0.8) + (gH * 0.1); y = Math.max(5, Math.min(gH - 5, y)); points.push({x, y, p: data[i].price}); if(i === 0) chartCtx.moveTo(x, y); else chartCtx.lineTo(x, y); }
+            chartCtx.lineTo(points[points.length-1].x, gH); chartCtx.lineTo(points[0].x, gH); chartCtx.closePath();
+            let gradient = chartCtx.createLinearGradient(0, 0, 0, gH); gradient.addColorStop(0, 'rgba(243, 186, 47, 0.3)'); gradient.addColorStop(1, 'rgba(243, 186, 47, 0.0)'); chartCtx.fillStyle = gradient; chartCtx.fill();
+            chartCtx.beginPath(); for(let i = 0; i < points.length; i++) { if(i === 0) chartCtx.moveTo(points[i].x, points[i].y); else chartCtx.lineTo(points[i].x, points[i].y); } chartCtx.strokeStyle = '#F3BA2F'; chartCtx.lineWidth = 2; chartCtx.lineJoin = 'round'; chartCtx.stroke();
+            
+            w().orders.forEach(o => {
+                if(o.pair === ui.pair) {
+                    let y = ((maxPrice - o.entry) / range) * (gH * 0.8) + (gH * 0.1);
+                    if(y > 0 && y < gH) {
+                        chartCtx.beginPath(); chartCtx.moveTo(0, y); chartCtx.lineTo(gW, y); chartCtx.strokeStyle = o.side === 'buy' ? '#34d399' : '#fb7185'; chartCtx.lineWidth = 1.5; chartCtx.setLineDash([4, 4]); chartCtx.stroke(); chartCtx.setLineDash([]);
+                        chartCtx.fillStyle = o.side === 'buy' ? 'rgba(52, 211, 153, 0.15)' : 'rgba(251, 113, 133, 0.15)'; chartCtx.fillRect(gW - 60, y - 10, 60, 20); chartCtx.fillStyle = o.side === 'buy' ? '#34d399' : '#fb7185'; chartCtx.font = 'bold 9px monospace'; chartCtx.fillText(`${o.lev}x ${o.side.toUpperCase()}`, gW - 55, y);
+                    }
+                }
+            });
+
+            function drawPriceTag(yPos, priceVal) {
+                let tagY = Math.max(10, Math.min(gH - 10, yPos)); let priceText = priceVal >= 1000 ? Math.round(priceVal).toLocaleString() : priceVal.toFixed(minPrice<1?4:2);
+                chartCtx.font = 'bold 11px monospace'; let boxWidth = chartCtx.measureText(priceText).width + 12; 
+                chartCtx.fillStyle = '#F3BA2F'; chartCtx.fillRect(gW, tagY - 11, boxWidth, 22); chartCtx.fillStyle = '#0b0e11'; chartCtx.fillText(priceText, gW + 6, tagY);
+            }
+
+            if(canvasHoverPos !== null && canvasHoverPos <= gW) {
+                let closest = points.reduce((prev, curr) => Math.abs(curr.x - canvasHoverPos) < Math.abs(prev.x - canvasHoverPos) ? curr : prev);
+                chartCtx.strokeStyle = 'rgba(255,255,255,0.3)'; chartCtx.lineWidth = 1; chartCtx.setLineDash([4, 4]); chartCtx.beginPath(); chartCtx.moveTo(closest.x, 0); chartCtx.lineTo(closest.x, gH); chartCtx.stroke();
+                chartCtx.beginPath(); chartCtx.moveTo(0, closest.y); chartCtx.lineTo(gW, closest.y); chartCtx.stroke(); chartCtx.setLineDash([]); chartCtx.beginPath(); chartCtx.arc(closest.x, closest.y, 4, 0, Math.PI*2); chartCtx.fillStyle = '#F3BA2F'; chartCtx.fill(); drawPriceTag(closest.y, closest.p);
+            } else { const last = points[points.length-1]; chartCtx.beginPath(); chartCtx.arc(last.x, last.y, 4, 0, Math.PI*2); chartCtx.fillStyle = '#F3BA2F'; chartCtx.fill(); drawPriceTag(last.y, last.p); }
+        }
+
+        // --- ENHANCED AI ENGINE & API INTEGRATION ---
+        function processMainTick(newPrice) {
+            const el = document.getElementById('main-price');
+            if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
+                const isUp = newPrice > ui.lastPrice; el.style.color = isUp ? '#34d399' : '#fb7185';
+                const wrap = document.getElementById('main-chart-wrapper'); wrap.classList.remove('flash-up', 'flash-down'); void wrap.offsetWidth; wrap.classList.add(isUp ? 'flash-up' : 'flash-down');
+                setTimeout(()=>el.style.color='white', 300);
+            }
+            ui.lastPrice = newPrice; ui.price = newPrice;
+            if(ui.timeframe === 'live') { ui.chartData.push({time: Date.now(), price: newPrice}); if(ui.chartData.length > 50) ui.chartData.shift(); } else if (ui.chartData.length > 0) { ui.chartData[ui.chartData.length - 1].price = newPrice; }
+            
+            processAIPaperTrades(newPrice);
+            if(Math.random() < 0.1) calcAIEngine(); 
+            if(!canvasHoverPos) drawChart(); 
+            
+            el.innerText = newPrice.toLocaleString(undefined, {minimumFractionDigits: newPrice<1?4:2, maximumFractionDigits: newPrice<1?4:2});
+            renderOrders(); 
+        }
+
+        function processAIPaperTrades(livePrice) {
+            let active = appState.aiStats.activePaper;
+            let updated = false;
+
+            for(let t of active) {
+                if(t.pair !== ui.pair) continue;
+                t.currentRoi = t.side === 'buy' ? ((livePrice - t.entry) / t.entry) * t.lev * 100 : ((t.entry - livePrice) / t.entry) * t.lev * 100;
+            }
+
+            for (let i = 0; i < active.length; i++) {
+                let trade = active[i];
+                if (trade.hedgeId && trade.currentRoi > 3) { 
+                    let oppIdx = active.findIndex(t => t.hedgeId === trade.hedgeId && t.side !== trade.side);
+                    if (oppIdx !== -1) {
+                        let oppTrade = active[oppIdx];
+                        appState.aiStats.losses++;
+                        appState.aiStats.pnl += (oppTrade.margin * (oppTrade.currentRoi/100)); 
+                        active.splice(oppIdx, 1);
+                        updated = true;
+                        if(oppIdx < i) i--; 
+                        delete trade.hedgeId; 
+                    }
+                }
+            }
+
+            for (let i = active.length - 1; i >= 0; i--) {
+                let trade = active[i];
+                if (trade.pair !== ui.pair) continue;
+                
+                if (trade.currentRoi > 15 || trade.currentRoi < -10) {
+                    if(trade.currentRoi > 0) appState.aiStats.wins++; else appState.aiStats.losses++;
+                    appState.aiStats.pnl += (trade.margin * (trade.currentRoi/100));
+                    active.splice(i, 1);
+                    updated = true;
+                }
+            }
+            if(updated) { saveState(); renderAIStats(); }
+        }
+
+        // Dedicated secure function to ask Gemini API safely
+        async function fetchGeminiTrend(dataPayload) {
+            if(!appState.geminiApiKey) return null;
+            if(geminiFetching) return null;
+            geminiFetching = true;
+
+            systemLog(`[API] Dispatching market metrics to Gemini via ${dataPayload.pair}...`, 'api');
+
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${appState.geminiApiKey}`;
+            const prompt = `
+                You are a quantitative trading algorithm analyzing ${dataPayload.pair}.
+                Current Price: $${dataPayload.price}
+                RSI (14): ${dataPayload.rsi}
+                SMA (20): ${dataPayload.sma}
+                Whale Sentiment: ${dataPayload.whaleSentiment}%
+                15m Flow Buy Ratio: ${dataPayload.flow15m}%
+                
+                Rules: 
+                - If RSI < 35 and Whale Sentiment > 60, favor 'buy'.
+                - If RSI > 65 and Whale Sentiment < 40, favor 'sell'.
+                - Otherwise 'WAIT'.
+                
+                Output ONLY valid JSON in exact format: {"side": "buy|sell|WAIT", "confidence": 0-100, "lev": 5}
+            `;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" } 
+                    })
+                });
+
+                if(!response.ok) {
+                    const errBody = await response.text();
+                    systemLog(`[API HTTP Error] ${response.status}: ${errBody}`, 'error');
+                    geminiFetching = false;
+                    return null;
+                }
+
+                const result = await response.json();
+                const aiText = result.candidates[0].content.parts[0].text;
+                const aiDecision = JSON.parse(aiText);
+                
+                systemLog(`[API Success] Gemini trend returned: ${aiDecision.side} (${aiDecision.confidence}%)`, 'success');
+                geminiFetching = false;
+                return aiDecision;
+
+            } catch (error) {
+                systemLog(`[API Exception] Failure executing request: ${error.message}`, 'error');
+                geminiFetching = false;
+                return null;
+            }
+        }
+
+        function triggerGeminiAnalysis() {
+            if(!appState.geminiApiKey) return alert("Please configure Gemini API Key in Settings first.");
+            // Data will be sent next cycle
+            calcAIEngine(true); 
+        }
+
+        function calcAIEngine(forceAPI = false) {
+            if(ui.chartData.length < 21) return; 
+            
+            // 1. Technical Indicators
+            let gains = 0, losses = 0; const rsiData = ui.chartData.slice(-15);
+            for(let i=1; i<rsiData.length; i++) { let diff = rsiData[i].price - rsiData[i-1].price; if(diff >= 0) gains += diff; else losses -= diff; }
+            let rs = (gains/14) / ((losses/14) || 1); let rsi = 100 - (100 / (1 + rs));
+            const smaData = ui.chartData.slice(-20); let sma = smaData.reduce((acc, val) => acc + val.price, 0) / 20;
+            const prices = smaData.map(d => d.price); let vol = Math.max(...prices) - Math.min(...prices);
+            let atr = vol / 14; if(atr === 0) atr = ui.price * 0.005;
+
+            // 2. Order Flow & Whales
+            let now = Date.now();
+            let logs = appState.globalTradeLogs.filter(l => l.pair === ui.pair);
+            let logs15 = logs.filter(l => now - l.time < 900000); let logs1h = logs.filter(l => now - l.time < 3600000);
+            let b15 = logs15.filter(l=>l.isBuy).reduce((a,b)=>a+b.usdVal,0); let s15 = logs15.filter(l=>!l.isBuy).reduce((a,b)=>a+b.usdVal,0); let ratio15 = b15 / (b15+s15+1);
+            let b1h = logs1h.filter(l=>l.isBuy).reduce((a,b)=>a+b.usdVal,0); let s1h = logs1h.filter(l=>!l.isBuy).reduce((a,b)=>a+b.usdVal,0); let ratio1h = b1h / (b1h+s1h+1);
+
+            let whaleB = appState.topHoldersSim.filter(h=>h.lastAction.includes('BUY') || h.lastAction==='ACCUMULATING').length;
+            let whaleS = appState.topHoldersSim.filter(h=>h.lastAction.includes('SELL') || h.lastAction==='DISTRIBUTING').length;
+            let whaleSent = whaleB / (whaleB + whaleS + 1);
+
+            document.getElementById('ai-rsi').innerText = rsi.toFixed(1); document.getElementById('ai-sma').innerText = sma.toFixed(2); document.getElementById('ai-vol').innerText = vol.toFixed(2);
+            document.getElementById('ai-b15').innerText = (ratio15*100).toFixed(0) + '%'; document.getElementById('ai-b1h').innerText = (ratio1h*100).toFixed(0) + '%'; document.getElementById('ai-whale').innerText = (whaleSent*100).toFixed(0) + '%';
+            
+            // Local Quant ML
+            let inputFeatures = { rsi: rsi/100, priceVsSma: ui.price/sma, volatility: vol/ui.price, flow15: ratio15, whaleSent: whaleSent };
+            if (!modelTrained && ui.chartData.length > 25) {
+                let trainingData = [];
+                for(let i=15; i<ui.chartData.length - 2; i++) {
+                    let pastVol = Math.abs(ui.chartData[i].price - ui.chartData[i-5].price);
+                    let targetIsUp = ui.chartData[i+2].price > ui.chartData[i].price ? 1 : 0;
+                    trainingData.push({ input: { rsi: 0.5, priceVsSma: 1, volatility: pastVol/ui.chartData[i].price, flow15: 0.5, whaleSent: 0.5 }, output: { up: targetIsUp } });
+                }
+                quantNet.train(trainingData, { iterations: 100 });
+                modelTrained = true;
+            }
+            if (modelTrained && Math.random() < 0.2 && ui.chartData.length > 5) {
+                let targetIsUp = ui.price > ui.chartData[ui.chartData.length-3].price ? 1 : 0;
+                quantNet.train([{ input: inputFeatures, output: { up: targetIsUp } }], { iterations: 10 });
+            }
+
+            let prediction = quantNet.run(inputFeatures);
+            let upProb = prediction.up || 0.5;
+
+            let shortSide = 'WAIT'; let shortConf = 0; let shortLev = 50; let shortTP = 0; let shortSL = 0;
+            let flowImbalance = (ratio15 - 0.5) * 2; let whaleImbalance = (whaleSent - 0.5) * 2;
+            
+            if (upProb > 0.65 && flowImbalance > 0.2) {
+                shortSide = 'buy'; shortConf = Math.round(upProb * 100); shortTP = ui.price + (atr * 2); shortSL = ui.price - (atr * 1);
+            } else if (upProb < 0.35 && flowImbalance < -0.2) {
+                shortSide = 'sell'; shortConf = Math.round((1 - upProb) * 100); shortTP = ui.price - (atr * 2); shortSL = ui.price + (atr * 1);
+            } else if (Math.abs(whaleImbalance) > 0.6) {
+                shortSide = whaleImbalance > 0 ? 'buy' : 'sell'; shortConf = 75;
+                shortTP = whaleImbalance > 0 ? ui.price + (atr * 1.5) : ui.price - (atr * 1.5); shortSL = whaleImbalance > 0 ? ui.price - atr : ui.price + atr;
+            }
+
+            // Sync with currentAISuggestion object structure
+            if(!currentAISuggestion) currentAISuggestion = { short: {}, long: { side: 'WAIT', conf: 0, lev: 5, tp: 0, sl: 0 } };
+            currentAISuggestion.short = { side: shortSide, conf: shortConf, lev: shortLev, tp: shortTP, sl: shortSL };
+
+            // Update Short Term UI
+            const sEl = document.getElementById('ai-short-signal'); const sConf = document.getElementById('ai-short-conf'); const sBtn = document.getElementById('ai-short-btn'); const sTgt = document.getElementById('ai-short-targets');
+            if (shortSide === 'WAIT') {
+                sEl.innerText = 'LEARNING...'; sEl.className = 'text-xs font-black uppercase text-muted';
+                sConf.innerText = '--'; sBtn.classList.add('hidden'); sTgt.classList.add('hidden');
+            } else {
+                sConf.innerText = shortConf + '% Conf'; sEl.innerText = `${shortLev}x ${shortSide}`;
+                sEl.className = shortSide === 'buy' ? 'text-xs font-black uppercase text-green-400' : 'text-xs font-black uppercase text-pink-400';
+                sTgt.innerText = `SL: $${shortSL.toFixed(ui.price<1?4:2)} | TP: $${shortTP.toFixed(ui.price<1?4:2)}`;
+                sTgt.classList.remove('hidden'); sBtn.classList.remove('hidden');
+            }
+
+            // --- Trigger Gemini Logic periodically or manually ---
+            if(forceAPI || (appState.geminiApiKey && Math.random() < 0.05 && !geminiFetching)) {
+                let payload = { pair: ui.pair, price: ui.price.toFixed(4), rsi: rsi.toFixed(1), sma: sma.toFixed(2), whaleSentiment: (whaleSent*100).toFixed(0), flow15m: (ratio15*100).toFixed(0) };
+                
+                document.getElementById('ai-long-signal').innerText = "FETCHING API...";
+                document.getElementById('ai-long-signal').className = "text-xs font-black uppercase text-[#F3BA2F] animate-pulse";
+                
+                fetchGeminiTrend(payload).then(res => {
+                    if(res && res.side && res.side !== 'WAIT') {
+                        currentAISuggestion.long = { side: res.side, conf: res.confidence, lev: res.lev || 5, tp: res.side==='buy'? ui.price+(atr*5) : ui.price-(atr*5), sl: res.side==='buy'? ui.price-(atr*2) : ui.price+(atr*2) };
+                        document.getElementById('ai-long-conf').innerText = res.confidence + '% Conf';
+                        document.getElementById('ai-long-signal').innerText = `${res.lev||5}x ${res.side}`;
+                        document.getElementById('ai-long-signal').className = res.side === 'buy' ? 'text-xs font-black uppercase text-green-400' : 'text-xs font-black uppercase text-pink-400';
+                        document.getElementById('ai-long-targets').innerText = `SL: $${currentAISuggestion.long.sl.toFixed(ui.price<1?4:2)} | TP: $${currentAISuggestion.long.tp.toFixed(ui.price<1?4:2)}`;
+                        document.getElementById('ai-long-targets').classList.remove('hidden');
+                        document.getElementById('ai-long-btn').classList.remove('hidden');
+                    } else {
+                        document.getElementById('ai-long-signal').innerText = 'AWAITING DATA...';
+                        document.getElementById('ai-long-signal').className = 'text-xs font-black uppercase text-muted';
+                        document.getElementById('ai-long-targets').classList.add('hidden');
+                        document.getElementById('ai-long-btn').classList.add('hidden');
+                    }
+                });
+            }
+
+            // Hedge Execution
+            if(Math.random() > 0.8 && appState.aiStats.activePaper.length < 6 && shortSide !== 'WAIT') {
+                let hId = Date.now();
+                appState.aiStats.activePaper.push({ hedgeId: hId, pair: ui.pair, side: 'buy', lev: shortLev, entry: ui.price, margin: 500, currentRoi: 0 });
+                appState.aiStats.activePaper.push({ hedgeId: hId, pair: ui.pair, side: 'sell', lev: shortLev, entry: ui.price, margin: 500, currentRoi: 0 });
+                saveState(); renderAIStats();
+            }
+        }
+
+        function renderAIStats() {
+            let total = appState.aiStats.wins + appState.aiStats.losses; let wr = total > 0 ? (appState.aiStats.wins / total) * 100 : 0;
+            const pnlEl = document.getElementById('ai-paper-pnl');
+            pnlEl.innerText = (appState.aiStats.pnl >= 0 ? '+$' : '-$') + Math.abs(appState.aiStats.pnl).toFixed(2);
+            pnlEl.className = appState.aiStats.pnl >= 0 ? "text-green-400 drop-shadow" : "text-pink-400";
+            document.getElementById('ai-paper-winrate').innerText = `Win: ${wr.toFixed(0)}% (${appState.aiStats.wins}/${total})`;
+            document.getElementById('ai-active-papers').innerText = `${appState.aiStats.activePaper.length} active virtual trades testing...`;
+        }
+
+        function executeAISuggestion(type) {
+            if(!currentAISuggestion || currentAISuggestion[type].side === 'WAIT') return alert("AI is learning, waiting for setup.");
+            let suggestion = currentAISuggestion[type];
+            let pStr = suggestion.tp > 0 ? `\nTarget TP: $${suggestion.tp.toFixed(ui.price<1?4:2)}\nTarget SL: $${suggestion.sl.toFixed(ui.price<1?4:2)}\n` : '';
+            let amt = prompt(`[QUANT ${type.toUpperCase()}] Execute ${suggestion.lev}x ${suggestion.side.toUpperCase()}.\n${pStr}\nEnter USDT Margin Amount:`);
+            let margin = parseFloat(amt);
+            if(!margin || margin <= 0 || margin > w().usdtBalance) return alert("Invalid margin or insufficient balance.");
+            w().usdtBalance -= margin; w().orders.push({ id: Math.random().toString(36).substr(2, 9), pair: ui.pair, side: suggestion.side, margin: margin, lev: suggestion.lev, entry: ui.price, units: (margin * suggestion.lev) / ui.price, time: Date.now() });
+            saveState(); renderOrders(); drawChart(); updateWalletSystem();
+            systemLog(`Executed AI ${type} Order: ${suggestion.side.toUpperCase()} ${ui.pair}`, "success");
+        }
+
+        // --- GENERAL LOGIC & VISUALS ---
+        function updateRatioBar() {
+            const t = flowData.buy + flowData.sell; let bPct = 50, sPct = 50; if(t > 0) { bPct = (flowData.buy/t)*100; sPct = (flowData.sell/t)*100; }
+            document.querySelectorAll('#ratio-buy-bar').forEach(el => el.style.width = `${bPct}%`); document.querySelectorAll('#ratio-sell-bar').forEach(el => el.style.width = `${sPct}%`);
+            document.querySelectorAll('#ratio-buy-text').forEach(el => el.innerText = `${bPct.toFixed(0)}%`); document.querySelectorAll('#ratio-sell-text').forEach(el => el.innerText = `${sPct.toFixed(0)}%`);
+        }
+
+        function setLogFilter(f) {
+            ui.logFilter = f;
+            document.getElementById('filter-all').className = f==='all' ? "text-[9px] font-black uppercase bg-[#F3BA2F] text-black px-2 py-0.5 rounded" : "text-[9px] font-black uppercase text-muted hover:text-white px-2 py-0.5 rounded border border-transparent hover:border-[#F3BA2F]";
+            document.getElementById('filter-whales').className = f==='whales' ? "text-[9px] font-black uppercase bg-[#F3BA2F] text-black px-2 py-0.5 rounded" : "text-[9px] font-black uppercase text-muted hover:text-white px-2 py-0.5 rounded border border-transparent hover:border-[#F3BA2F]";
+            renderGlobalLogs();
+        }
+
+        function renderGlobalLogs() {
+            const feed = document.getElementById('below-chart-log'); let filtered = appState.globalTradeLogs.filter(l => l.pair === ui.pair); if(ui.logFilter === 'whales') filtered = filtered.filter(l => l.usdVal >= 25000);
+            if(filtered.length === 0) { feed.innerHTML = '<div class="text-[9px] text-muted text-center py-4 italic">Awaiting block trades...</div>'; return; }
+            feed.innerHTML = filtered.slice(0, 50).map(l => { 
+                const cStr = l.isBuy ? 'text-green-400' : 'text-pink-400'; const bStr = l.isBuy ? 'border-green-500/30' : 'border-pink-500/30';
+                return `<div class="flex justify-between items-center px-3 py-1.5 rounded bg-[#1e2329] border ${bStr} shrink-0"><span class="text-[9px] font-mono text-muted w-16">${l.addr}</span><span class="text-[9px] font-black ${cStr} uppercase">${l.pair.replace('USDT','')} ${l.isBuy?'BUY':'SELL'} ${l.qty.toFixed(l.price<1?0:4)}</span><span class="text-[9px] font-mono text-white">$${l.usdVal.toLocaleString(undefined, {maximumFractionDigits:0})}</span></div>`;
+            }).join('');
+        }
+
+        function setAlphaTimeframe(ms) { ui.alphaTfMs = parseInt(ms); const lbl = ms == 300000 ? "5M" : ms == 900000 ? "15M" : ms == 3600000 ? "1H" : ms == 18000000 ? "5H" : ms == 86400000 ? "24H" : "1W"; document.getElementById('lbl-buy-tf').innerText = lbl; document.getElementById('lbl-sell-tf').innerText = lbl; renderOnChainAlpha(); }
+
+        function renderOnChainAlpha() {
+            const buysContainer = document.getElementById('ui-top-buys'); const sellsContainer = document.getElementById('ui-top-sells');
+            const now = Date.now(); const pairLogs = appState.globalTradeLogs.filter(l => l.pair === ui.pair && (now - l.time) <= ui.alphaTfMs);
+            let buys = pairLogs.filter(l => l.isBuy).sort((a,b) => b.usdVal - a.usdVal).slice(0,5); let sells = pairLogs.filter(l => !l.isBuy).sort((a,b) => b.usdVal - a.usdVal).slice(0,5);
+
+            if (buys.length === 0) buysContainer.innerHTML = `<div class="text-[9px] text-muted text-center italic py-2">No buys in timeframe</div>`; else buysContainer.innerHTML = buys.map(t => `<div class="flex justify-between items-center text-[10px] font-mono"><span class="text-white">${t.qty.toFixed(ui.price<1?0:4)} <span class="text-[8px] text-muted">${ui.pair.replace('USDT','')}</span></span><span class="text-green-400 font-black">$${t.usdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>`).join('');
+            if (sells.length === 0) sellsContainer.innerHTML = `<div class="text-[9px] text-muted text-center italic py-2">No sells in timeframe</div>`; else sellsContainer.innerHTML = sells.map(t => `<div class="flex justify-between items-center text-[10px] font-mono"><span class="text-white">${t.qty.toFixed(ui.price<1?0:4)} <span class="text-[8px] text-muted">${ui.pair.replace('USDT','')}</span></span><span class="text-pink-400 font-black">$${t.usdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>`).join('');
+        }
+
+        function renderTopHolders() {
+            document.getElementById('ui-top-holders').innerHTML = appState.topHoldersSim.map(h => {
+                let actColor = h.lastAction.includes("BUY") || h.lastAction === "ACCUMULATING" ? "text-green-400" : h.lastAction === "HOLDING" ? "text-muted" : "text-pink-400";
+                return `<div class="flex justify-between items-center p-1.5 border border-[#2b3139] rounded bg-[#1e2329]"><div class="flex flex-col"><span class="text-[9px] font-mono text-white font-bold cursor-pointer hover:text-[#F3BA2F] transition">${h.addr}</span><span class="text-[8px] text-muted">Latest: <span class="${actColor} font-black">${h.lastAction} ${h.amt>0 ? '($'+h.amt.toLocaleString()+')':''}</span></span></div><div class="flex flex-col text-right"><span class="text-[9px] text-[#F3BA2F] font-black font-mono">$${(h.usd).toLocaleString()}</span></div></div>`;
+            }).join('');
+        }
+
+        function generateBackgroundData(symbol, currentPrice, timeGap) {
+            let numTrades = Math.min(Math.floor(timeGap / 60000) * 10, 300); let now = Date.now();
+            for(let i=0; i<numTrades; i++) {
+                let isBuy = Math.random() > 0.5; let usdVal = Math.random() * 30000 + 1000; if(Math.random() > 0.95) usdVal += Math.random() * 200000; 
+                let qty = usdVal / currentPrice; let time = now - (Math.random() * timeGap); appState.globalTradeLogs.push({ addr: '0x' + Math.random().toString(16).substring(2, 8).toUpperCase(), isBuy, qty, price: currentPrice, usdVal, pair: symbol, time });
+            }
+            appState.globalTradeLogs.sort((a,b) => b.time - a.time); if(appState.globalTradeLogs.length > 1500) appState.globalTradeLogs = appState.globalTradeLogs.slice(0, 1500);
+            saveState(); renderGlobalLogs(); renderOnChainAlpha();
+        }
+
+        // --- EXECUTION LOGIC ---
+        function setSide(side) {
+            ui.side = side; document.getElementById('btn-buy').className = side==='buy' ? "flex-1 py-2.5 rounded text-[10px] font-black uppercase tracking-widest bg-[#1e2329] text-green-400 border border-green-500/50" : "flex-1 py-2.5 rounded text-[10px] font-black uppercase tracking-widest text-muted hover:text-green-400 border border-transparent";
+            document.getElementById('btn-sell').className = side==='sell' ? "flex-1 py-2.5 rounded text-[10px] font-black uppercase tracking-widest bg-[#1e2329] text-pink-400 border border-pink-500/50" : "flex-1 py-2.5 rounded text-[10px] font-black uppercase tracking-widest text-muted hover:text-pink-400 border border-transparent";
+            const exec = document.getElementById('btn-execute'); exec.innerText = side==='buy'?"Execute Long":"Execute Short"; exec.className = side==='buy'?"mt-4 w-full py-3 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-green-500 text-black hover:bg-green-400 transition" : "mt-4 w-full py-3 rounded font-black uppercase tracking-[0.2em] text-[11px] bg-pink-500 text-black hover:bg-pink-400 transition";
+        }
+
+        document.getElementById('trade-lev').addEventListener('input', (e) => { ui.lev = parseInt(e.target.value); document.getElementById('lev-val').innerText = ui.lev; calcSize(); }); document.getElementById('trade-margin').addEventListener('input', calcSize);
+        function calcSize() { const m = parseFloat(document.getElementById('trade-margin').value) || 0; document.getElementById('ui-size').innerText = (m * ui.lev).toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; }
+        function setMax() { document.getElementById('trade-margin').value = Math.floor(w().usdtBalance * 100) / 100; calcSize(); }
+
+        function executeOrder() {
+            const m = parseFloat(document.getElementById('trade-margin').value); if (isNaN(m) || m <= 0) return; if (m > w().usdtBalance) return alert("Insufficient USDT in active wallet");
+            w().usdtBalance -= m; w().orders.push({ id: Math.random().toString(36).substr(2, 9), pair: ui.pair, side: ui.side, margin: m, lev: ui.lev, entry: ui.price, units: (m * ui.lev) / ui.price, time: Date.now() });
+            document.getElementById('trade-margin').value = ''; calcSize(); saveState(); renderOrders(); drawChart(); updateWalletSystem();
+            systemLog(`Manual execution: ${ui.side.toUpperCase()} ${ui.pair} at $${ui.price}`, 'info');
+        }
+
+        function renderOrders() {
+            const container = document.getElementById('orders-body');
+            if (w().orders.length === 0) { container.innerHTML = `<div class="p-4 text-center text-muted font-black uppercase text-[9px] border border-[#2b3139] border-dashed rounded">No Active Trades in ${w().name}</div>`; return; }
+            let html = '';
+            w().orders.forEach(o => {
+                let livePrice = livePrices[o.pair] || o.entry; let pnl = o.side === 'buy' ? ((o.units * livePrice) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * livePrice));
+                let roi = (pnl / o.margin) * 100; const isProf = pnl >= 0; const coin = o.pair.replace('USDT', '');
+                html += `<div class="card-row p-3 flex flex-col md:flex-row gap-3 items-center justify-between group"><div class="flex items-center justify-between w-full md:w-auto min-w-[120px] gap-2"><div class="flex items-center gap-2">${getIconImg(coin, 'w-5 h-5')}<span class="text-white font-black uppercase text-[10px]">${o.pair}</span></div><span class="px-2 py-0.5 rounded ${o.side==='buy'?'bg-[#1e2329] text-green-400 border border-green-500/20':'bg-[#1e2329] text-pink-400 border border-pink-500/20'} uppercase text-[8px] font-black">${o.lev}x ${o.side}</span></div><div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full text-[9px] md:flex-1 md:justify-around"><div class="flex flex-col"><span class="text-muted">Entry</span><span class="text-[#F3BA2F] font-mono">$${o.entry.toFixed(4)}</span></div><div class="flex flex-col"><span class="text-muted">Mark Price</span><span class="text-white font-mono">$${livePrice.toFixed(4)}</span></div><div class="flex flex-col"><span class="text-muted">Margin</span><span class="text-white font-mono">$${o.margin.toFixed(2)}</span></div><div class="flex flex-col"><span class="text-muted">Total Size</span><span class="text-white font-mono">$${(o.margin * o.lev).toFixed(2)}</span></div></div><div class="flex items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 border-[#2b3139] pt-2 md:pt-0"><div class="flex flex-col text-right"><span class="text-muted text-[8px] uppercase">PnL / ROI</span><span class="${isProf?'text-green-400':'text-pink-400'} font-black font-mono text-[10px]">${isProf?'+':''}${roi.toFixed(2)}% | ${isProf?'+':''}$${pnl.toFixed(2)}</span></div><button onclick="closeOrder('${o.id}')" class="px-3 py-1.5 bg-[#1e2329] text-white rounded text-[8px] uppercase font-black transition border border-[#2b3139] hover:border-pink-500 hover:text-pink-400">Close</button></div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function closeOrder(id) {
+            const idx = w().orders.findIndex(p => p.id === id); if(idx===-1) return; const o = w().orders[idx];
+            let pnl = o.side === 'buy' ? ((o.units * (livePrices[o.pair]||o.entry)) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * (livePrices[o.pair]||o.entry)));
+            w().usdtBalance += (o.margin + pnl); w().history.unshift({ pair: o.pair, pnl: pnl }); if(w().history.length > 50) w().history.pop();
+            w().orders.splice(idx, 1); saveState(); renderOrders(); renderHistory(); drawChart(); updateWalletSystem();
+            systemLog(`Position closed. PnL: $${pnl.toFixed(2)}`, 'info');
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history-body'); let html = '';
+            w().history.forEach(h => { const coin = h.pair.replace('USDT', ''); html += `<div class="card-row p-2 flex justify-between items-center bg-[#1e2329]"><div class="flex items-center gap-2">${getIconImg(coin, 'w-4 h-4')}<span class="text-white font-black text-[9px] uppercase">${h.pair}</span></div><span class="font-black font-mono text-[10px] ${h.pnl>=0?'text-green-400':'text-pink-400'}">${h.pnl>=0?'+':''}$${h.pnl.toFixed(2)}</span></div>`; });
+            container.innerHTML = html || `<div class="p-3 text-center text-muted text-[9px] uppercase font-black border border-[#2b3139] border-dashed rounded">No History</div>`;
+        }
+
+        // --- WALLET APP ---
+        function toggleShowMoreAssets() { isShowingAllAssets = !isShowingAllAssets; updateWalletApp(); }
+
+        function updateWalletApp() {
+            let totalUsdValue = w().usdtBalance; let rows = []; let rate = FX_RATES[appState.currency] || 1; let sym = FX_SYM[appState.currency] || '$';
+            const addRow = (coin, amt, isStake) => { let valUsd = coin === 'USDT' ? amt : amt * (livePrices[coin + 'USDT'] || 0); totalUsdValue += valUsd; rows.push({ coin, amt, valUsd, isStake }); };
+            addRow('USDT', w().usdtBalance, false); for (const [coin, amt] of Object.entries(w().manualAssets)) addRow(coin, amt, false); w().stakes.forEach(s => addRow(s.coin, s.amt, true)); rows.sort((a,b) => b.valUsd - a.valUsd);
+            
+            let gridHtml = ''; let renderCount = isShowingAllAssets ? rows.length : Math.min(6, rows.length);
+            for(let i=0; i<renderCount; i++) {
+                let r = rows[i]; let valLocal = r.valUsd * rate;
+                gridHtml += `<div class="asset-card p-4 flex flex-col items-center justify-center text-center gap-1.5 aspect-square cursor-pointer">${r.isStake ? '<span class="absolute top-1 right-1 px-1 py-0.5 rounded bg-[#1e2329] text-green-400 border border-green-500/30 text-[7px] uppercase font-black">Staked</span>' : ''}<div class="w-8 h-8 md:w-10 md:h-10 mb-1">${getIconImg(r.coin, 'w-full h-full')}</div><span class="font-black text-white text-xs md:text-sm uppercase tracking-widest">${r.coin}</span><span class="font-mono text-muted text-[9px] md:text-[10px]">${r.amt.toLocaleString(undefined, {maximumFractionDigits: 4})}</span><span class="font-mono text-white font-bold mt-auto bg-[#0b0e11] w-full py-1 rounded border border-[#2b3139] text-[10px] md:text-xs">${sym}${valLocal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>`;
+            }
+            document.getElementById('wallet-square-grid').innerHTML = gridHtml;
+            const btn = document.getElementById('show-more-btn'); if(rows.length > 6) { btn.classList.remove('hidden'); btn.innerText = isShowingAllAssets ? "Show Less" : "Show More Assets"; } else { btn.classList.add('hidden'); }
+
+            let sBody = document.getElementById('active-stakes-body');
+            if(w().stakes.length === 0) sBody.innerHTML = `<div class="col-span-full p-4 text-center text-muted text-[9px] uppercase font-black border border-[#2b3139] rounded border-dashed">No active stakes</div>`;
+            else { sBody.innerHTML = w().stakes.map(s => { let d = (Date.now() - s.time) / 86400000; let earned = s.amt * (s.apr / 100) * (d / 365); return `<div class="card-row p-3 flex justify-between items-center group bg-[#1e2329]"><div class="flex items-center gap-2">${getIconImg(s.coin, 'w-6 h-6')}<div class="flex flex-col"><span class="text-white font-black text-[10px] uppercase">${s.coin}</span><span class="text-muted font-mono text-[8px]">${s.amt.toFixed(4)} Stkd</span></div></div><div class="flex flex-col text-right"><span class="text-green-400 font-black text-[10px]">${s.apr}% APR</span><span class="text-[#F3BA2F] font-mono text-[9px]">+${earned.toFixed(6)}</span></div></div>`; }).join(''); }
+        }
+
+        // --- ACTIONS ---
+        function buildStakingGrid() { document.getElementById('staking-grid').innerHTML = STAKING_OPTS.map(opt => `<div class="asset-card p-3 flex flex-col items-center"><span class="text-[7px] bg-[#1e2329] text-green-400 px-1.5 py-0.5 rounded mb-2 font-black uppercase border border-green-500/30">${opt.tag}</span><div class="w-7 h-7 mb-1.5">${getIconImg(opt.id, 'w-full h-full')}</div><h3 class="text-xs font-black text-white mb-0.5 tracking-widest">${opt.id}</h3><span class="text-sm font-mono font-black text-green-400">${opt.apr}%</span><button class="w-full mt-2 py-1 rounded bg-[#0b0e11] border border-[#2b3139] text-[#F3BA2F] text-[8px] font-black uppercase hover:border-[#F3BA2F] transition" onclick="openStakeModal('${opt.id}', ${opt.apr})">Stake</button></div>`).join(''); }
+        function openStakeModal(coin, apr) { document.getElementById('stake-modal-asset').innerText = coin; document.getElementById('stake-modal-apr').innerText = apr + '%'; let avail = coin === 'USDT' ? w().usdtBalance : (w().manualAssets[coin] || 0); document.getElementById('stake-modal-avail').innerText = avail.toFixed(4); document.getElementById('stake-modal-avail').dataset.val = avail; document.getElementById('stake-amount').value = ''; document.getElementById('stake-amount').dataset.coin = coin; document.getElementById('stake-amount').dataset.apr = apr; toggleModal('stake-modal'); }
+        function confirmStake() { const el = document.getElementById('stake-amount'); const amt = parseFloat(el.value); const coin = el.dataset.coin; if(isNaN(amt) || amt <= 0 || amt > parseFloat(document.getElementById('stake-modal-avail').dataset.val)) return alert("Invalid amount."); if(coin === 'USDT') w().usdtBalance -= amt; else w().manualAssets[coin] -= amt; w().stakes.push({ coin, amt, apr: parseFloat(el.dataset.apr), time: Date.now() }); saveState(); toggleModal('stake-modal'); updateWalletApp(); updateWalletSystem(); }
+
+        function prepSwapModal() { buildNativeSelects(); document.getElementById('swap-asset-from').value = 'USDT'; document.getElementById('swap-asset-to').value = 'BTC'; document.getElementById('swap-form-content').classList.remove('hidden'); document.getElementById('swap-animation').classList.add('hidden'); document.getElementById('swap-close-btn').classList.remove('hidden'); updateSwapBals(); calcSwap(); }
+        function updateSwapBals() { let from = document.getElementById('swap-asset-from').value; let to = document.getElementById('swap-asset-to').value; document.getElementById('swap-bal-from').innerText = `Bal: ${(from === 'USDT' ? w().usdtBalance : (w().manualAssets[from]||0)).toFixed(4)}`; document.getElementById('swap-bal-to').innerText = `Bal: ${(to === 'USDT' ? w().usdtBalance : (w().manualAssets[to]||0)).toFixed(4)}`; }
+        function calcSwap() { let from = document.getElementById('swap-asset-from').value; let to = document.getElementById('swap-asset-to').value; let amt = parseFloat(document.getElementById('swap-amt-from').value) || 0; if(from === to) { document.getElementById('swap-amt-to').value = amt; document.getElementById('swap-rate-text').innerText = `1 ${from} = 1 ${to}`; return; } let priceFromUsd = from === 'USDT' ? 1 : (livePrices[from+'USDT'] || 1); let priceToUsd = to === 'USDT' ? 1 : (livePrices[to+'USDT'] || 1); let toAmt = (amt * priceFromUsd) / priceToUsd; document.getElementById('swap-amt-to').value = toAmt.toFixed(6); document.getElementById('swap-rate-text').innerText = `1 ${from} ≈ ${(priceFromUsd/priceToUsd).toFixed(6)} ${to}`; }
+        function executeSwap() { let from = document.getElementById('swap-asset-from').value; let to = document.getElementById('swap-asset-to').value; let amt = parseFloat(document.getElementById('swap-amt-from').value) || 0; let toAmt = parseFloat(document.getElementById('swap-amt-to').value) || 0; if(amt <= 0) return; let avail = from === 'USDT' ? w().usdtBalance : (w().manualAssets[from]||0); if(amt > avail) return alert("Insufficient balance in active wallet."); document.getElementById('swap-form-content').classList.add('hidden'); document.getElementById('swap-close-btn').classList.add('hidden'); const anim = document.getElementById('swap-animation'); anim.classList.remove('hidden'); anim.classList.add('flex'); anim.innerHTML = `<div class="spinner w-8 h-8 mb-4"></div><p class="text-[#F3BA2F] font-black uppercase text-[10px]">Swapping on-chain...</p>`; setTimeout(() => { anim.innerHTML = `<svg class="w-10 h-10 text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><p class="text-green-400 font-black uppercase text-[10px]">Swap Successful</p>`; if(from === 'USDT') w().usdtBalance -= amt; else w().manualAssets[from] -= amt; if(to === 'USDT') w().usdtBalance += toAmt; else { if(!w().manualAssets[to]) w().manualAssets[to] = 0; w().manualAssets[to] += toAmt; } connectMultiStream(); saveState(); setTimeout(() => { toggleModal('swap-modal'); updateWalletApp(); updateWalletSystem(); }, 1200); }, 1000); }
+
+        function prepSendModal() { buildNativeSelects(); document.getElementById('send-asset').value = 'USDT'; updateSendMax(); document.getElementById('send-form').classList.remove('hidden'); document.getElementById('send-processing').classList.add('hidden'); document.getElementById('send-close-btn').classList.remove('hidden'); }
+        function updateSendMax() { let coin = document.getElementById('send-asset').value; let avail = coin === 'USDT' ? w().usdtBalance : (w().manualAssets[coin]||0); document.getElementById('send-avail-txt').innerText = avail.toFixed(4); }
+        function setMaxSend() { document.getElementById('send-amount').value = document.getElementById('send-avail-txt').innerText; }
+        let sendInterval, sendTimeout; function initiateSend() { let asset = document.getElementById('send-asset').value; let addr = document.getElementById('send-address').value; let amt = parseFloat(document.getElementById('send-amount').value); if(!addr || addr.length < 10) return alert("Invalid address."); if(isNaN(amt) || amt <= 0 || amt > parseFloat(document.getElementById('send-avail-txt').innerText)) return alert("Invalid amount."); document.getElementById('send-form').classList.add('hidden'); document.getElementById('send-processing').classList.remove('hidden'); document.getElementById('send-processing').classList.add('flex'); document.getElementById('send-close-btn').classList.add('hidden'); const logBox = document.getElementById('send-log'); logBox.innerHTML = ''; const addLog = (msg, delay) => new Promise(res => { sendTimeout = setTimeout(() => { logBox.innerHTML += `<div>${msg}</div>`; logBox.scrollTop = logBox.scrollHeight; res(); }, delay); }); document.getElementById('send-status-title').innerText = "Initiating..."; (async function runFakeTx() { await addLog(`[SYS] Contract call ${amt} ${asset}...`, 300); await addLog(`[NET] Secure API RPC...`, 600); document.getElementById('send-status-title').innerText = "Awaiting Inclusion"; await addLog(`[MEM] TX accepted. Broadcasting...`, 1200); await addLog(`[VAL] Checking consensus...`, 1800); document.getElementById('send-status-title').innerText = "Verification Pending"; document.getElementById('send-status-title').classList.replace('text-[#F3BA2F]', 'text-pink-400'); await addLog(`<span class="text-pink-400 font-bold">[ERR] Validation stalled. Node mismatch.</span>`, 1800); document.getElementById('send-close-btn').classList.remove('hidden'); sendInterval = setInterval(() => { logBox.innerHTML += `<div class="text-muted">[VAL] Retrying...</div>`; logBox.scrollTop = logBox.scrollHeight; }, 3000); })(); }
+        function closeSendModal() { clearInterval(sendInterval); clearTimeout(sendTimeout); document.getElementById('send-status-title').classList.replace('text-pink-400', 'text-[#F3BA2F]'); toggleModal('send-modal'); }
+
+        function setUsdt() { const amt = parseFloat(document.getElementById('add-usdt-input').value); if(amt >= 0) { w().usdtBalance = amt; w().startOfDayValue = amt; document.getElementById('add-usdt-input').value = ''; saveState(); toggleModal('settings-modal'); updateWalletSystem(); } }
+        function addManualAsset() { const n = document.getElementById('new-asset-name').value.toUpperCase(); const a = parseFloat(document.getElementById('new-asset-amt').value); if(n) { if (a <= 0 || isNaN(a)) { delete w().manualAssets[n]; } else { w().manualAssets[n] = a; } document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); connectMultiStream(); toggleModal('settings-modal'); updateWalletSystem(); updateWalletApp(); } }
+
+        function updateUI() { document.getElementById('ui-avail').innerText = w().usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; renderAIStats(); }
+        function saveState() { localStorage.setItem('cloudquant_v9_hedge', JSON.stringify(appState)); updateUI(); }
+
+        init();
+    </script>
+</body>
+</html>
