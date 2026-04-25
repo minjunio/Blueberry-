@@ -57,20 +57,26 @@
         select option { background: #1e2329; color: white; }
         
         .spinner { border: 2px solid #2b3139; border-top-color: #F3BA2F; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Dramatic Asset Box Animations */
-        .dramatic-box { transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; }
-        .dramatic-box:hover { transform: scale(1.05) translateY(-4px); border-color: #F3BA2F; z-index: 10; box-shadow: 0 15px 30px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(243,186,47,0.5); }
+        /* ENHANCED DRAMATIC ASSET BOXES */
+        .dramatic-box { 
+            background: linear-gradient(145deg, #1e2329 0%, #15181e 100%);
+            border: 1px solid #2b3139; 
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.05);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            position: relative; 
+        }
+        .dramatic-box:hover { 
+            transform: scale(1.05) translateY(-5px); 
+            border-color: #F3BA2F; 
+            z-index: 10; 
+            box-shadow: 0 20px 30px rgba(0,0,0,0.9), 0 0 15px rgba(243,186,47,0.2), inset 0 1px 2px rgba(255,255,255,0.1); 
+        }
         .dramatic-box:active { transform: scale(0.98); }
 
         .card-row { background: #0b0e11; border: 1px solid #2b3139; border-radius: 4px; transition: all 0.1s; }
         .card-row:hover { border-color: #363c4e; transform: translateX(2px); }
-
-        /* Specific Asset Animations */
-        .dot-spin { animation: spin 4s linear infinite; }
-        .eth-pulse { animation: subtlePulse 2s ease-in-out infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes subtlePulse { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.1); filter: brightness(1.3); } }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -137,7 +143,7 @@
                         <div class="flex justify-between items-center border-b border-[#2b3139] pb-2">
                             <div class="flex items-center gap-2">
                                 <div class="w-2 h-2 bg-[#F3BA2F]"></div>
-                                <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F]">Auto-Quant Engine (v7.0 Advanced Signals)</h3>
+                                <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F]">Auto-Quant Engine (v8.0 Advanced Signals)</h3>
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="exportModel()" class="text-[9px] font-black uppercase text-muted hover:text-white px-2 py-0.5 border border-[#2b3139] rounded hover:border-white transition">Export Algo</button>
@@ -181,13 +187,15 @@
                                 </div>
                             </div>
 
-                            <div class="w-full md:w-64 bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-center">
-                                <span class="text-[8px] uppercase font-black text-[#F3BA2F] mb-1">Hedge Paper Trading (Algo Status)</span>
-                                <div class="flex justify-between items-center font-mono text-xs font-black">
+                            <div class="w-full md:w-72 bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-start">
+                                <span class="text-[8px] uppercase font-black text-[#F3BA2F] mb-1">Hedge Paper Trading (Live Algo)</span>
+                                <div class="flex justify-between items-center font-mono text-xs font-black border-b border-[#2b3139] pb-1 mb-1">
                                     <span id="ai-paper-pnl" class="text-white">$0.00</span>
                                     <span id="ai-paper-winrate" class="text-muted">Win: 0% (0/0)</span>
                                 </div>
-                                <span id="ai-active-papers" class="text-[8px] text-muted mt-1 font-mono">0 active virtual trades hedging...</span>
+                                <div id="ai-active-papers-list" class="flex flex-col gap-1 overflow-y-auto no-scrollbar max-h-[100px] mt-1">
+                                    <div class="text-[8px] text-muted text-center py-2 italic border border-dashed border-[#2b3139] rounded">Awaiting signals...</div>
+                                </div>
                             </div>
 
                         </div>
@@ -197,7 +205,9 @@
                         <div class="flex justify-between items-start z-20">
                             <div class="relative w-fit">
                                 <button onclick="toggleDropdown('term-dropdown')" class="neo-input px-3 py-2 rounded flex items-center gap-3 w-[150px] md:w-48 bg-[#0b0e11]">
-                                    <img id="term-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-5 h-5 rounded-full bg-[#1e2329] p-0.5">
+                                    <div class="w-5 h-5 flex items-center justify-center" id="term-logo-container">
+                                        <img id="term-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-5 h-5 rounded-full bg-[#1e2329] p-0.5 object-contain">
+                                    </div>
                                     <span id="term-text" class="font-black text-sm uppercase text-white tracking-wide">BTC/USDT</span>
                                     <svg class="w-4 h-4 ml-auto text-[#F3BA2F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
@@ -381,11 +391,11 @@
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-white border-l-2 border-[#F3BA2F] pl-2">My Assets</h3>
                     <button onclick="toggleModal('settings-modal')" class="text-[9px] text-[#F3BA2F] hover:text-white uppercase font-black transition">Manage Portfolio</button>
                 </div>
-                <div id="wallet-square-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"></div>
+                <div id="wallet-square-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pt-2 pb-4"></div>
                 <button id="show-more-btn" onclick="toggleShowMoreAssets()" class="w-full mt-3 py-2 bg-[#1e2329] border border-[#2b3139] text-white rounded font-black uppercase text-[9px] tracking-widest hover:bg-[#2b3139] transition hidden">Show More</button>
             </div>
 
-            <div class="panel p-5">
+            <div class="panel p-5 mt-4">
                 <div class="flex items-center gap-3 mb-4 pb-3 border-b border-[#2b3139]">
                     <div class="w-8 h-8 rounded bg-[#0b0e11] flex items-center justify-center border border-[#2b3139]">
                         <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -498,13 +508,19 @@
     </div>
 
     <script>
-        // --- CORE DATA & ALGO STATE ---
+        // --- CORE DATA & ALGO STATE (GIF INTEGRATION) ---
+        // Added actual animated GIF URLs for major coins, backed up by reliable SVGs via robust error handling
         const ASSETS = [
-            { id: 'BTCUSDT', name: 'BTC/USDT', icon: 'bitcoin-btc-logo.svg?v=029', coin: 'BTC' }, { id: 'ETHUSDT', name: 'ETH/USDT', icon: 'ethereum-eth-logo.svg?v=029', coin: 'ETH' },
-            { id: 'SOLUSDT', name: 'SOL/USDT', icon: 'solana-sol-logo.svg?v=029', coin: 'SOL' }, { id: 'BNBUSDT', name: 'BNB/USDT', icon: 'bnb-bnb-logo.svg?v=029', coin: 'BNB' },
-            { id: 'XRPUSDT', name: 'XRP/USDT', icon: 'xrp-xrp-logo.svg?v=029', coin: 'XRP' }, { id: 'DOGEUSDT', name: 'DOGE/USDT', icon: 'dogecoin-doge-logo.svg?v=029', coin: 'DOGE' }, 
-            { id: 'ADAUSDT', name: 'ADA/USDT', icon: 'cardano-ada-logo.svg?v=029', coin: 'ADA' }, { id: 'DOTUSDT', name: 'DOT/USDT', icon: 'polkadot-new-dot-logo.svg?v=029', coin: 'DOT' }, 
-            { id: 'MATICUSDT', name: 'MATIC/USDT', icon: 'polygon-matic-logo.svg?v=029', coin: 'MATIC' }, { id: 'AVAXUSDT', name: 'AVAX/USDT', icon: 'avalanche-avax-logo.svg?v=029', coin: 'AVAX' },
+            { id: 'BTCUSDT', name: 'BTC/USDT', icon: 'bitcoin-btc-logo.svg?v=029', gif: 'https://media.giphy.com/media/7FBY7h5Psqd20/giphy.gif', coin: 'BTC' }, 
+            { id: 'ETHUSDT', name: 'ETH/USDT', icon: 'ethereum-eth-logo.svg?v=029', gif: 'https://media.giphy.com/media/USyYfvAGnuPpm/giphy.gif', coin: 'ETH' },
+            { id: 'SOLUSDT', name: 'SOL/USDT', icon: 'solana-sol-logo.svg?v=029', coin: 'SOL' }, 
+            { id: 'BNBUSDT', name: 'BNB/USDT', icon: 'bnb-bnb-logo.svg?v=029', coin: 'BNB' },
+            { id: 'XRPUSDT', name: 'XRP/USDT', icon: 'xrp-xrp-logo.svg?v=029', coin: 'XRP' }, 
+            { id: 'DOGEUSDT', name: 'DOGE/USDT', icon: 'dogecoin-doge-logo.svg?v=029', coin: 'DOGE' }, 
+            { id: 'ADAUSDT', name: 'ADA/USDT', icon: 'cardano-ada-logo.svg?v=029', coin: 'ADA' }, 
+            { id: 'DOTUSDT', name: 'DOT/USDT', icon: 'polkadot-new-dot-logo.svg?v=029', gif: 'https://media.tenor.com/Eemw48a6r58AAAAi/polkadot-crypto.gif', coin: 'DOT' }, 
+            { id: 'MATICUSDT', name: 'MATIC/USDT', icon: 'polygon-matic-logo.svg?v=029', coin: 'MATIC' }, 
+            { id: 'AVAXUSDT', name: 'AVAX/USDT', icon: 'avalanche-avax-logo.svg?v=029', coin: 'AVAX' },
             { id: 'ATOMUSDT', name: 'ATOM/USDT', icon: 'cosmos-atom-logo.svg?v=029', coin: 'ATOM' }
         ];
 
@@ -516,60 +532,77 @@
         const FX_RATES = { USD: 1, AED: 3.67, EUR: 0.92, GBP: 0.79, CAD: 1.36, AUD: 1.52 };
         const FX_SYM = { USD: '$', AED: 'د.إ', EUR: '€', GBP: '£', CAD: 'C$', AUD: 'A$' };
 
-        const defaultAlgoScript = `// Advanced Algorithmic Engine (Pure Quantitative Signals)
+        const defaultAlgoScript = `// Advanced Algorithmic Engine v8.0 (Deep Quant & Micro-Dip Catching)
 let shortSide = 'WAIT', shortConf = 0, longSide = 'WAIT', longConf = 0;
 
 if (prices.length < 26) return JSON.stringify({short:{side:'WAIT',lev:50,conf:0}, long:{side:'WAIT',lev:5,conf:0}});
 
-// Calculate MACD (12, 26)
+// 1. Core Technical Indicators
 function calcEMA(data, period) {
     let k = 2 / (period + 1); let emaData = [data[0]];
     for(let i=1; i<data.length; i++) emaData.push(data[i] * k + emaData[i-1] * (1 - k));
     return emaData;
 }
-let ema12 = calcEMA(prices, 12); let ema26 = calcEMA(prices, 26);
+let ema9 = calcEMA(prices, 9);  
+let ema12 = calcEMA(prices, 12); 
+let ema26 = calcEMA(prices, 26);
+
+// MACD Components & Acceleration
 let macdLine = ema12[ema12.length-1] - ema26[ema26.length-1];
 let macdPrev = ema12[ema12.length-2] - ema26[ema26.length-2];
-let macdHist = macdLine - macdPrev; // Momentum
+let macdHist = macdLine - macdPrev; 
+let macdHistPrev = macdPrev - (ema12[ema12.length-3] - ema26[ema26.length-3]);
+let macdAccel = macdHist - macdHistPrev; 
 
-// Calculate Bollinger Bands (20, 2)
+// Bollinger Bands (20, 2)
 let mean = sma;
 let sumSq = prices.slice(-20).reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
-let stdDev = Math.sqrt(sumSq / 20);
-let upperBB = mean + (2 * stdDev); let lowerBB = mean - (2 * stdDev);
+let stdDev = Math.sqrt(sumSq / 20) || 1; 
+let upperBB = mean + (2 * stdDev); 
+let lowerBB = mean - (2 * stdDev);
+
+// Price Action & Imbalances
 let currentPrice = prices[prices.length-1];
+let drop3Candles = (prices[prices.length-4] - currentPrice) / prices[prices.length-4]; 
 
-let flowImbalance = (buyRatio15m - 0.5) * 2; 
-let whaleImbalance = (whaleSentiment - 0.5) * 2;
+let flowImbalance15m = (buyRatio15m - 0.5) * 2; 
+let flowImbalance1h  = (buyRatio1h - 0.5) * 2;
+let whaleImbalance   = (whaleSentiment - 0.5) * 2;
 
-// 1. Short-Term Scalp Signals (RSI, MACD Momentum, Bollinger Bands, Flow)
-let isShortBuy = rsi < 40 && macdHist > 0 && currentPrice < lowerBB * 1.01 && buyRatio15m > 0.55;
-let isShortSell = rsi > 60 && macdHist < 0 && currentPrice > upperBB * 0.99 && buyRatio15m < 0.45;
+// 2. SHORT-TERM SCALP SIGNALS
+let isFlashDip = drop3Candles > 0.003 && rsi < 40 && flowImbalance15m > 0.3 && topBuysAmount > topSellsAmount;
+let isShortBuy = rsi < 45 && macdAccel > 0 && currentPrice < lowerBB * 1.02 && buyRatio15m > 0.55;
+let isShortSell = rsi > 65 && macdAccel < 0 && currentPrice > upperBB * 0.98 && buyRatio15m < 0.45;
 
-if (isShortBuy && topBuysAmount > topSellsAmount) { 
-    shortSide = 'buy'; shortConf = 82 + Math.round(flowImbalance*10); 
-} else if (isShortSell && topSellsAmount > topBuysAmount) { 
-    shortSide = 'sell'; shortConf = 80 - Math.round(flowImbalance*10); 
-} else if (volatility > stdDev * 3 && Math.abs(flowImbalance) > 0.6) { 
-    shortSide = flowImbalance > 0 ? 'buy' : 'sell'; shortConf = 75; 
+if (isFlashDip) {
+    shortSide = 'buy'; shortConf = 88 + Math.round(flowImbalance15m * 10);
+} else if (isShortBuy && topBuysAmount > topSellsAmount * 1.1) { 
+    shortSide = 'buy'; shortConf = 80 + Math.round(macdAccel * 100) + Math.round(flowImbalance15m * 10); 
+} else if (isShortSell && topSellsAmount > topBuysAmount * 1.1) { 
+    shortSide = 'sell'; shortConf = 82 - Math.round(macdAccel * 100) - Math.round(flowImbalance15m * 10); 
+} else if (volatility > stdDev * 3.5 && Math.abs(flowImbalance15m) > 0.7) { 
+    shortSide = flowImbalance15m > 0 ? 'buy' : 'sell'; shortConf = 75; 
 }
 
-// 2. Long-Term Swing Signals (Whales, MACD Trend, SMA Breakouts)
-let isLongBuy = whaleSentiment > 0.6 && currentPrice > sma && macdLine > 0;
-let isLongSell = whaleSentiment < 0.4 && currentPrice < sma && macdLine < 0;
+// 3. LONG-TERM SWING SIGNALS
+let trendBullish = currentPrice > ema9[ema9.length-1] && ema9[ema9.length-1] > sma && macdLine > 0;
+let trendBearish = currentPrice < ema9[ema9.length-1] && ema9[ema9.length-1] < sma && macdLine < 0;
+
+let isLongBuy = whaleSentiment > 0.65 && trendBullish && buyRatio1h > 0.55;
+let isLongSell = whaleSentiment < 0.35 && trendBearish && buyRatio1h < 0.45;
 
 if (isLongBuy) { 
-    longSide = 'buy'; longConf = 88; 
+    longSide = 'buy'; longConf = 85 + Math.round(whaleImbalance * 10); 
 } else if (isLongSell) { 
-    longSide = 'sell'; longConf = 86; 
-} else if (Math.abs(whaleImbalance) > 0.5) { 
-    longSide = whaleImbalance > 0 ? 'buy' : 'sell'; longConf = 65; 
+    longSide = 'sell'; longConf = 85 + Math.round(Math.abs(whaleImbalance) * 10); 
+} else if (Math.abs(whaleImbalance) > 0.7 && Math.abs(flowImbalance1h) > 0.5) { 
+    longSide = whaleImbalance > 0 ? 'buy' : 'sell'; longConf = 70; 
 }
 
-return JSON.stringify({ 
-    short: { side: shortSide, lev: 50, conf: shortConf }, 
-    long: { side: longSide, lev: 5, conf: longConf } 
-});`;
+shortConf = Math.max(0, Math.min(99, shortConf));
+longConf = Math.max(0, Math.min(99, longConf));
+
+return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, long: { side: longSide, lev: 5, conf: longConf } });`;
 
         const defaultHolders = [
             {addr: "0x3f9A...8cA1", usd: 1450000, lastAction: "ACCUMULATING", amt: 0}, {addr: "0x88bC...11C9", usd: 1120000, lastAction: "HOLDING", amt: 0},
@@ -577,7 +610,7 @@ return JSON.stringify({
             {addr: "0x99D1...FA00", usd: 450000, lastAction: "DISTRIBUTING", amt: 0}
         ];
 
-        let appState = JSON.parse(localStorage.getItem('cloudquant_v10_algo')) || {
+        let appState = JSON.parse(localStorage.getItem('cloudquant_v11_algo')) || {
             activeWalletIdx: 0, currency: 'USD', aiLogic: defaultAlgoScript, globalTradeLogs: [], topHoldersSim: defaultHolders, lastRunTime: Date.now(),
             aiStats: { wins: 0, losses: 0, pnl: 0, activePaper: [] }, 
             wallets: [{ id: 1, name: "Main API", usdtBalance: 15000.00, startOfDayValue: 15000.00, orders: [], history: [], manualAssets: { 'BTC': 0.15, 'ETH': 3.0, 'DOT': 150, 'ATOM': 500 }, stakes: [] }]
@@ -615,11 +648,20 @@ return JSON.stringify({
         function switchWallet(idx) { appState.activeWalletIdx = parseInt(idx); saveState(); refreshWorkspace(); connectMultiStream(); drawChart(); }
         function refreshWorkspace() { renderWalletTabs(); buildNativeSelects(); renderOrders(); renderHistory(); updateWalletApp(); updateUI(); }
 
-        // --- HELPERS ---
-        function getIconPath(coin) { if (coin === 'USDT') return 'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029'; const a = ASSETS.find(x => x.id.replace('USDT','') === coin || x.coin === coin); if (a) return `https://cryptologos.cc/logos/${a.icon}`; return `https://ui-avatars.com/api/?name=${coin}&background=1e2329&color=F3BA2F&rounded=true`; }
+        // --- HELPERS (GIF LOGIC) ---
+        function getIconPath(coin) { 
+            if (coin === 'USDT') return 'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029'; 
+            const a = ASSETS.find(x => x.id.replace('USDT','') === coin || x.coin === coin); 
+            if (a && a.gif) return a.gif; // Favor GIF if exists
+            if (a) return `https://cryptologos.cc/logos/${a.icon}`; 
+            return `https://ui-avatars.com/api/?name=${coin}&background=1e2329&color=F3BA2F&rounded=true`; 
+        }
+        
         function getIconImg(coin, cls) { 
-            let ex = coin === 'DOT' ? 'dot-spin' : (coin === 'ETH' ? 'eth-pulse' : '');
-            return `<img src="${getIconPath(coin)}" class="${cls} ${ex} rounded bg-[#1e2329] p-0.5 border border-[#2b3139]">`; 
+            const a = ASSETS.find(x => x.id.replace('USDT','') === coin || x.coin === coin);
+            let src = getIconPath(coin);
+            let fallback = a ? `https://cryptologos.cc/logos/${a.icon}` : 'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029';
+            return `<img src="${src}" class="${cls} rounded bg-[#1e2329] p-0.5 border border-[#2b3139] object-contain" onerror="this.onerror=null;this.src='${fallback}';">`; 
         }
 
         function setCurrency(c) { appState.currency = c; document.getElementById('currency-select').value = c; document.getElementById('wallet-currency').value = c; saveState(); updateWalletSystem(); updateWalletApp(); }
@@ -627,8 +669,8 @@ return JSON.stringify({
         document.addEventListener('click', (e) => { const drop = document.getElementById('term-dropdown'); if(drop && !e.target.closest('#term-dropdown') && !e.target.closest(`[onclick="toggleDropdown('term-dropdown')"]`)) { drop.classList.add('dropdown-hidden'); drop.classList.remove('dropdown-active'); } });
         function toggleModal(id) { const el = document.getElementById(id); el.classList.toggle('modal-hidden'); el.classList.toggle('modal-active'); if(id === 'swap-modal' && el.classList.contains('modal-active')) prepSwapModal(); if(id === 'send-modal' && el.classList.contains('modal-active')) prepSendModal(); if(id === 'settings-modal' && el.classList.contains('modal-active')) buildNativeSelects(); }
 
-        function buildTerminalDropdown() { document.getElementById('term-dropdown').innerHTML = ASSETS.map(a => `<div onclick="selectPair('${a.id}', '${a.name}', '${a.coin}')" class="px-3 py-2 hover:bg-[#2b3139] cursor-pointer flex items-center gap-2 transition border-b border-[#2b3139]"><img src="${getIconPath(a.coin)}" class="w-5 h-5 rounded bg-[#1e2329] p-0.5"><span class="text-[10px] font-black uppercase text-white tracking-widest">${a.name}</span></div>`).join(''); }
-        function selectPair(id, name, coin) { ui.pair = id; document.getElementById('term-text').innerText = name; document.getElementById('term-logo').src = getIconPath(coin); toggleDropdown('term-dropdown'); triggerPairChange(); }
+        function buildTerminalDropdown() { document.getElementById('term-dropdown').innerHTML = ASSETS.map(a => `<div onclick="selectPair('${a.id}', '${a.name}', '${a.coin}')" class="px-3 py-2 hover:bg-[#2b3139] cursor-pointer flex items-center gap-2 transition border-b border-[#2b3139]"><img src="${getIconPath(a.coin)}" onerror="this.onerror=null;this.src='https://cryptologos.cc/logos/${a.icon}';" class="w-5 h-5 rounded bg-[#1e2329] p-0.5 object-contain"><span class="text-[10px] font-black uppercase text-white tracking-widest">${a.name}</span></div>`).join(''); }
+        function selectPair(id, name, coin) { ui.pair = id; document.getElementById('term-text').innerText = name; document.getElementById('term-logo-container').innerHTML = getIconImg(coin, 'w-5 h-5 w-full h-full'); toggleDropdown('term-dropdown'); triggerPairChange(); }
         function buildNativeSelects() {
             const sels = ['send-asset', 'swap-asset-from', 'swap-asset-to', 'new-asset-name']; let availOpts = `<option value="USDT">USDT</option>`;
             for(const c in w().manualAssets) { if(w().manualAssets[c] > 0) availOpts += `<option value="${c}">${c}</option>`; }
@@ -826,7 +868,8 @@ return JSON.stringify({
                     updated = true;
                 }
             }
-            if(updated) { saveState(); renderAIStats(); }
+            if(updated) saveState(); 
+            renderAIStats(); // Always render on tick to show live shifting PnL
         }
 
         function calcAIEngine() {
@@ -889,7 +932,6 @@ return JSON.stringify({
                 }
 
                 // Autonomous HEDGING Trigger
-                // If it isn't waiting, and hasn't maxed out active pairs, open a hedged position
                 if(Math.random() > 0.8 && appState.aiStats.activePaper.length < 6 && res.short.side !== 'WAIT') {
                     let hId = Date.now();
                     appState.aiStats.activePaper.push({ hedgeId: hId, pair: ui.pair, side: 'buy', lev: res.short.lev, entry: ui.price, margin: 500, currentRoi: 0 });
@@ -900,13 +942,32 @@ return JSON.stringify({
             } catch(e) { console.error("Algo Logic Error", e); }
         }
 
+        // --- NEW: Dynamic rendering of Live Paper Trade PnL ---
         function renderAIStats() {
             let total = appState.aiStats.wins + appState.aiStats.losses; let wr = total > 0 ? (appState.aiStats.wins / total) * 100 : 0;
             const pnlEl = document.getElementById('ai-paper-pnl');
             pnlEl.innerText = (appState.aiStats.pnl >= 0 ? '+$' : '-$') + Math.abs(appState.aiStats.pnl).toFixed(2);
             pnlEl.className = appState.aiStats.pnl >= 0 ? "text-green-400 drop-shadow" : "text-pink-400";
             document.getElementById('ai-paper-winrate').innerText = `Win: ${wr.toFixed(0)}% (${appState.aiStats.wins}/${total})`;
-            document.getElementById('ai-active-papers').innerText = `${appState.aiStats.activePaper.length} active virtual trades hedging...`;
+            
+            const listContainer = document.getElementById('ai-active-papers-list');
+            if (appState.aiStats.activePaper.length === 0) {
+                listContainer.innerHTML = '<div class="text-[8px] text-muted text-center py-2 italic border border-dashed border-[#2b3139] rounded">Awaiting signals...</div>';
+            } else {
+                listContainer.innerHTML = appState.aiStats.activePaper.map(t => {
+                    let isProf = t.currentRoi >= 0; let pnlVal = t.margin * (t.currentRoi / 100);
+                    return `<div class="flex justify-between items-center bg-[#1e2329] px-2 py-1.5 rounded border ${isProf ? 'border-green-500/30' : 'border-pink-500/30'} shrink-0">
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-black uppercase text-white">${t.pair.replace('USDT','')} <span class="${t.side==='buy'?'text-green-400':'text-pink-400'}">${t.lev}x ${t.side}</span></span>
+                            <span class="text-[7px] text-muted font-mono">Margin: $${t.margin.toFixed(0)}</span>
+                        </div>
+                        <div class="flex flex-col text-right">
+                            <span class="text-[10px] font-black font-mono ${isProf ? 'text-green-400' : 'text-pink-400'}">${isProf?'+':''}${t.currentRoi.toFixed(2)}%</span>
+                            <span class="text-[8px] font-black font-mono ${isProf ? 'text-green-400' : 'text-pink-400'}">${isProf?'+':''}$${pnlVal.toFixed(2)}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
         }
 
         function executeAISuggestion(type) {
@@ -920,7 +981,7 @@ return JSON.stringify({
         }
 
         function saveAILogic() { appState.aiLogic = document.getElementById('ai-logic-editor').value; saveState(); toggleModal('ai-code-modal'); calcAIEngine(); }
-        function exportModel() { const blob = new Blob([appState.aiLogic], { type: 'text/javascript' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'AutoQuant_Algo_v7.js'; a.click(); URL.revokeObjectURL(url); }
+        function exportModel() { const blob = new Blob([appState.aiLogic], { type: 'text/javascript' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'AutoQuant_Algo_v8.js'; a.click(); URL.revokeObjectURL(url); }
         function importModel(e) { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e) { appState.aiLogic = e.target.result; document.getElementById('ai-logic-editor').value = appState.aiLogic; saveState(); calcAIEngine(); alert("Algo Loaded Successfully"); }; reader.readAsText(file); }
 
         // --- GENERAL LOGIC & VISUALS ---
@@ -1057,7 +1118,7 @@ return JSON.stringify({
         function addManualAsset() { const n = document.getElementById('new-asset-name').value.toUpperCase(); const a = parseFloat(document.getElementById('new-asset-amt').value); if(n) { if (a <= 0 || isNaN(a)) { delete w().manualAssets[n]; } else { w().manualAssets[n] = a; } document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); connectMultiStream(); toggleModal('settings-modal'); updateWalletSystem(); updateWalletApp(); } }
 
         function updateUI() { document.getElementById('ui-avail').innerText = w().usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; renderAIStats(); }
-        function saveState() { localStorage.setItem('cloudquant_v10_algo', JSON.stringify(appState)); updateUI(); }
+        function saveState() { localStorage.setItem('cloudquant_v11_algo', JSON.stringify(appState)); updateUI(); }
 
         init();
     </script>
