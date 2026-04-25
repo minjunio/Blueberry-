@@ -430,7 +430,7 @@ let whaleBuys = 0;
 let whaleSells = 0;
 
 function startBackgroundEngine() {
-    const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@aggTrade');
+    const ws = new WebSocket('wss://stream.binance.us:9443/ws/btcusdt@aggTrade');
 
     ws.on('message', (data) => {
         const trade = JSON.parse(data);
