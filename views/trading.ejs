@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Binance Pro Terminal - Gemini API Integration</title>
+    <title>Binance Pro Terminal - Gemini API Enhanced</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link rel="icon" type="image/png" href="https://cryptologos.cc/logos/bnb-bnb-logo.png?v=029">
@@ -9,20 +9,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* Fast, Bold, No-Glow Brutalist Theme */
+        /* High-Performance Sharp Theme */
         body { background: #0b0e11; color: #EAECEF; font-family: 'Inter', -apple-system, sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
         
-        .panel { background: #181a20; border: 2px solid #2b3139; border-radius: 0px; }
-        .overlay { background: #1e2329; border: 2px solid #2b3139; }
+        .panel { background: #181a20; border: 1px solid #2b3139; border-radius: 4px; }
+        .overlay { background: #1e2329; border: 1px solid #2b3139; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         
-        .neo-input { background: #0b0e11; border: 2px solid #363c4e; color: white; outline: none; transition: border-color 0.1s; border-radius: 0px; }
+        .neo-input { background: #0b0e11; border: 1px solid #363c4e; color: white; outline: none; transition: border-color 0.1s; border-radius: 4px; }
         .neo-input:focus, .neo-input:hover { border-color: #F3BA2F; }
         
-        .neo-btn { background: #2b3139; border: 2px solid #2b3139; color: #EAECEF; transition: all 0.1s; border-radius: 0px; text-transform: uppercase; font-weight: 900; }
-        .neo-btn:hover { background: #F3BA2F; color: #000; border-color: #F3BA2F; transform: translate(-2px, -2px); box-shadow: 4px 4px 0px #0b0e11; }
+        .neo-btn { background: #2b3139; border: 1px solid #2b3139; color: #EAECEF; transition: background 0.1s; border-radius: 4px; }
+        .neo-btn:hover { background: #F3BA2F; color: #0b0e11; border-color: #F3BA2F; }
         
-        .icon-btn { display: flex; align-items: center; justify-content: center; background: transparent; border: 2px solid transparent; color: #848E9C; transition: 0.1s; }
-        .icon-btn:hover { background: #EAECEF; color: #000; border-color: #EAECEF; }
+        .icon-btn { display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid transparent; border-radius: 4px; color: #848E9C; transition: 0.1s; }
+        .icon-btn:hover { background: #2b3139; color: #F3BA2F; }
 
         .text-muted { color: #848E9C; }
         
@@ -32,87 +32,89 @@
         
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer; }
         input[type=range]:focus { outline: none; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #363c4e; }
-        input[type=range]::-webkit-slider-thumb { height: 18px; width: 18px; background: #F3BA2F; -webkit-appearance: none; margin-top: -6px; border: 2px solid #000; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #363c4e; border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { height: 16px; width: 16px; border-radius: 2px; background: #F3BA2F; -webkit-appearance: none; margin-top: -6px; border: 2px solid #0b0e11; }
 
-        .modal-overlay { transition: opacity 0.1s; z-index: 9999; background: rgba(0,0,0,0.9); }
-        .modal-content { transition: transform 0.1s; border: 4px solid #F3BA2F; box-shadow: 8px 8px 0px #000; }
+        .modal-overlay { transition: opacity 0.1s; z-index: 9999; background: rgba(0,0,0,0.8); }
+        .modal-content { transition: transform 0.1s; }
         .modal-hidden { opacity: 0; pointer-events: none; }
         .modal-hidden .modal-content { transform: scale(0.98) translateY(5px); }
         .modal-active { opacity: 1; pointer-events: auto; }
         .modal-active .modal-content { transform: scale(1) translateY(0); }
 
-        .tf-btn { padding: 4px 10px; border: 2px solid transparent; font-size: 10px; font-weight: 900; color: #848E9C; cursor: pointer; transition: 0.1s; }
-        .tf-btn.active { background: #F3BA2F; color: #000; border-color: #F3BA2F; }
-        .tf-btn:hover:not(.active) { color: #EAECEF; background: #2b3139; border-color: #EAECEF; }
+        .tf-btn { padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; color: #848E9C; cursor: pointer; transition: 0.1s; }
+        .tf-btn.active { background: #2b3139; color: #F3BA2F; }
+        .tf-btn:hover:not(.active) { color: #EAECEF; background: #1e2329; }
 
-        .dropdown-menu { transform-origin: top; transition: transform 0.1s, opacity 0.1s; z-index: 100; border: 2px solid #F3BA2F; }
+        .dropdown-menu { transform-origin: top; transition: transform 0.1s, opacity 0.1s; z-index: 100; }
         .dropdown-hidden { transform: scaleY(0); opacity: 0; pointer-events: none; }
         .dropdown-active { transform: scaleY(1); opacity: 1; pointer-events: auto; }
 
-        .flash-up { animation: flashUp 0.2s; }
-        .flash-down { animation: flashDown 0.2s; }
-        @keyframes flashUp { 0% { background-color: #34d399; } 100% { background-color: transparent; } }
-        @keyframes flashDown { 0% { background-color: #fb7185; } 100% { background-color: transparent; } }
+        .flash-up { animation: flashUp 0.3s; }
+        .flash-down { animation: flashDown 0.3s; }
+        @keyframes flashUp { 0% { background-color: rgba(52,211,153,0.2); } 100% { background-color: transparent; } }
+        @keyframes flashDown { 0% { background-color: rgba(251,113,133,0.2); } 100% { background-color: transparent; } }
 
-        .spinner { border: 4px solid #2b3139; border-top-color: #F3BA2F; border-radius: 50%; animation: spin 0.6s linear infinite; }
+        .code-area { font-family: 'Fira Code', monospace; line-height: 1.5; tab-size: 4; }
+        select option { background: #1e2329; color: white; }
         
-        /* BOLD BRUTALIST BOXES */
-        .bold-box { 
-            background: #1e2329;
-            border: 2px solid #363c4e;
-            box-shadow: 4px 4px 0px #0b0e11;
-            transition: all 0.1s ease-in-out;
-            position: relative;
+        .spinner { border: 2px solid #2b3139; border-top-color: #F3BA2F; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        
+        /* Advanced Aesthetic Box Upgrades */
+        .dramatic-box { 
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            position: relative; 
+            background: linear-gradient(145deg, #1e2329, #15181c);
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -2px -2px 8px rgba(255,255,255,0.02);
+            border: 1px solid #2b3139;
         }
-        .bold-box:hover { 
-            transform: translate(-4px, -4px); 
+        .dramatic-box:hover { 
+            transform: scale(1.05) translateY(-4px); 
             border-color: #F3BA2F; 
-            box-shadow: 8px 8px 0px #F3BA2F; 
             z-index: 10; 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(243,186,47,0.5), 0 0 15px rgba(243,186,47,0.2); 
         }
-        .bold-box:active { transform: translate(0px, 0px); box-shadow: 0px 0px 0px #0b0e11; }
+        .dramatic-box:active { transform: scale(0.98); }
 
-        .card-row { background: #0b0e11; border: 2px solid #2b3139; transition: all 0.1s; }
-        .card-row:hover { border-color: #EAECEF; transform: translateX(4px); box-shadow: -4px 4px 0px #F3BA2F; }
+        .card-row { background: #0b0e11; border: 1px solid #2b3139; border-radius: 4px; transition: all 0.1s; }
+        .card-row:hover { border-color: #363c4e; transform: translateX(2px); }
 
-        /* Fast, Sharp Mechanical Animations (No Glow) */
-        .sol-flip { animation: coinFlip 2.5s infinite linear; transform-style: preserve-3d; }
-        .dot-hard-pulse { animation: hardPulse 1s steps(2, end) infinite; }
-        .eth-bounce { animation: mechanicalBounce 0.5s infinite alternate steps(4, end); }
-        .btc-rock { animation: rockSide 2s infinite ease-in-out; }
-
+        /* Specific Asset Animations */
+        .eth-pulse { animation: subtlePulse 2s ease-in-out infinite; }
+        .dot-pulse { animation: sharpPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes coinFlip { 0% { transform: perspective(400px) rotateY(0deg); } 100% { transform: perspective(400px) rotateY(360deg); } }
-        @keyframes hardPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
-        @keyframes mechanicalBounce { 0% { transform: translateY(0px); } 100% { transform: translateY(-6px); } }
-        @keyframes rockSide { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
+        @keyframes subtlePulse { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.1); filter: brightness(1.3); } }
+        @keyframes sharpPulse { 
+            0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 2px #E6007A); } 
+            50% { opacity: 0.8; transform: scale(1.15); filter: drop-shadow(0 0 12px #E6007A); } 
+        }
     </style>
 </head>
 <body>
 
-    <div class="w-full bg-[#0b0e11] border-b-2 border-[#2b3139] px-4 py-1.5 flex items-center gap-3 overflow-x-auto no-scrollbar shrink-0">
-        <span class="text-[10px] uppercase font-black text-white tracking-widest flex-shrink-0 bg-[#2b3139] px-2 py-1">Wallets</span>
+    <div class="w-full bg-[#0b0e11] border-b border-[#2b3139] px-4 py-1.5 flex items-center gap-3 overflow-x-auto no-scrollbar shrink-0">
+        <span class="text-[9px] uppercase font-black text-muted tracking-widest flex-shrink-0">Connected Wallets:</span>
         <div id="wallet-tabs" class="flex gap-2 items-center flex-shrink-0"></div>
-        <button onclick="addWallet()" class="text-[10px] uppercase font-black text-[#0b0e11] bg-[#F3BA2F] hover:bg-white transition flex-shrink-0 px-3 py-1 border-2 border-[#F3BA2F] hover:border-white">+ NEW</button>
+        <button onclick="addWallet()" class="text-[9px] uppercase font-black text-[#F3BA2F] hover:bg-[#F3BA2F] hover:text-black transition flex-shrink-0 px-2 py-0.5 border border-[#F3BA2F] rounded ml-2">+ Create New</button>
     </div>
 
-    <header class="flex flex-col shrink-0 z-50 sticky top-0 bg-[#181a20] border-b-2 border-[#2b3139]">
+    <header class="flex flex-col shrink-0 z-50 sticky top-0 bg-[#181a20] border-b border-[#2b3139]">
         <div class="flex justify-between items-center p-3 md:p-4 max-w-[1600px] w-full mx-auto">
             <div class="flex items-center gap-4 md:gap-6">
                 <div class="flex items-center gap-2">
                     <img src="https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=029" class="w-6 h-6">
-                    <h2 class="text-lg font-black uppercase tracking-tight text-white hidden sm:block">BINANCE <span class="text-[#0b0e11] bg-[#F3BA2F] px-1">PRO</span></h2>
+                    <h2 class="text-base font-black uppercase tracking-tight text-white hidden sm:block">Binance <span class="text-[#F3BA2F]">Pro</span></h2>
                 </div>
-                <div class="flex gap-1 bg-[#0b0e11] border-2 border-[#2b3139] p-0.5">
-                    <button onclick="switchApp('terminal')" id="nav-terminal" class="px-4 py-1.5 text-[11px] font-black uppercase tracking-widest bg-[#F3BA2F] text-black">Terminal</button>
-                    <button onclick="switchApp('wallet')" id="nav-wallet" class="px-4 py-1.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition">Wallet</button>
+                <div class="flex gap-1 bg-[#0b0e11] border border-[#2b3139] p-0.5 rounded">
+                    <button onclick="switchApp('terminal')" id="nav-terminal" class="px-4 py-1.5 rounded text-[11px] font-black uppercase tracking-widest bg-[#F3BA2F] text-black">Terminal</button>
+                    <button onclick="switchApp('wallet')" id="nav-wallet" class="px-4 py-1.5 rounded text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition">Wallet</button>
                 </div>
             </div>
             <div class="flex items-center gap-2 md:gap-3">
-                <button onclick="toggleModal('history-modal')" class="neo-btn px-4 py-1.5 font-black text-[10px] uppercase tracking-widest hidden sm:flex">History</button>
+                <button onclick="toggleModal('history-modal')" class="neo-btn px-4 py-1.5 rounded font-black text-[10px] uppercase tracking-widest hidden sm:flex">History</button>
                 <button onclick="toggleModal('settings-modal')" class="icon-btn w-8 h-8" title="Settings">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 </button>
             </div>
         </div>
@@ -123,215 +125,236 @@
             
             <section class="panel p-4 md:p-6 flex flex-col relative overflow-hidden">
                 <div class="flex items-center gap-2 mb-2 z-10">
-                    <h1 class="text-[11px] font-black uppercase tracking-widest text-white bg-[#2b3139] px-2 py-1">Active Wallet Value</h1>
+                    <h1 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F]">Active Wallet Net Value</h1>
                 </div>
                 
                 <div class="flex items-end gap-2 z-10 flex-wrap">
                     <span id="hero-currency-sym" class="text-3xl md:text-4xl lg:text-5xl font-black text-[#F3BA2F]">$</span>
                     <h2 id="hero-total-balance" class="text-4xl md:text-5xl lg:text-6xl font-black text-white font-mono tracking-tighter">0.00</h2>
-                    <select id="currency-select" onchange="setCurrency(this.value)" class="bg-transparent text-[#F3BA2F] font-black text-sm md:text-base outline-none ml-2 cursor-pointer border-b-2 border-[#F3BA2F] pb-1 mb-2 uppercase hover:text-white transition"><option value="USD">USD</option><option value="AED">AED</option><option value="EUR">EUR</option><option value="GBP">GBP</option></select>
+                    <select id="currency-select" onchange="setCurrency(this.value)" class="bg-transparent text-[#F3BA2F] font-black text-sm md:text-base outline-none ml-2 cursor-pointer border-b border-[#F3BA2F] pb-1 mb-2 uppercase hover:text-white transition"><option value="USD">USD</option><option value="AED">AED</option><option value="EUR">EUR</option><option value="GBP">GBP</option></select>
 
                     <div class="flex flex-col mb-1 md:mb-2 ml-4">
-                        <span id="hero-daily-pnl" class="text-xs md:text-sm font-black text-green-400 tracking-wide bg-[#0b0e11] px-2 py-1 border-2 border-green-500">+ 0.00</span>
+                        <span id="hero-daily-pnl" class="text-xs md:text-sm font-black text-green-400 tracking-wide">+ 0.00</span>
+                        <span id="hero-daily-roi" class="text-[9px] md:text-[10px] font-black text-green-500 bg-[#0b0e11] px-2 py-0.5 rounded border border-[#2b3139] mt-1">+0.00% Today</span>
                     </div>
                 </div>
                 
-                <div class="border-t-2 border-[#2b3139] pt-4 mt-4 z-10">
-                    <div id="terminal-asset-list" class="flex flex-wrap gap-3"></div>
+                <div class="border-t border-[#2b3139] pt-4 mt-4 z-10">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-muted">Quick Asset View</h3>
+                    </div>
+                    <div id="terminal-asset-list" class="flex flex-wrap gap-2"></div>
                 </div>
             </section>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
                 <div class="lg:col-span-9 flex flex-col gap-4">
                     
-                    <div class="panel p-3 md:p-4 flex flex-col gap-3 border-l-8 border-l-[#F3BA2F]">
-                        <div class="flex justify-between items-center border-b-2 border-[#2b3139] pb-2">
+                    <div class="panel p-3 md:p-4 flex flex-col gap-3 border-l-4 border-l-[#F3BA2F]">
+                        <div class="flex justify-between items-center border-b border-[#2b3139] pb-2">
                             <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 bg-white animate-ping"></div>
-                                <h3 class="text-[12px] font-black uppercase tracking-widest text-white">Gemini 1.5 Live API</h3>
+                                <div class="w-2 h-2 bg-[#F3BA2F] animate-pulse"></div>
+                                <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F]">Gemini API Quant Engine</h3>
                             </div>
                             <div class="flex gap-2">
-                                <span id="api-status-text" class="text-[9px] font-black uppercase text-green-400 border-2 border-green-500 px-2 py-1">API CONNECTED</span>
+                                <button onclick="toggleModal('ai-code-modal')" class="text-[9px] font-black uppercase bg-[#F3BA2F] text-black hover:bg-yellow-400 px-2 py-0.5 rounded transition shadow-md">View ML Logic</button>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-[10px] font-mono border-b-2 border-[#2b3139] pb-2">
-                            <div class="flex flex-col"><span class="text-muted uppercase font-black">RSI (14)</span><span id="ai-rsi" class="text-white font-bold">--</span></div>
-                            <div class="flex flex-col"><span class="text-muted uppercase font-black">SMA (20)</span><span id="ai-sma" class="text-white font-bold">--</span></div>
-                            <div class="flex flex-col"><span class="text-muted uppercase font-black">Volatility</span><span id="ai-vol" class="text-white font-bold">--</span></div>
-                            <div class="flex flex-col"><span class="text-muted uppercase font-black">Buy Vol 15m</span><span id="ai-b15" class="text-white font-bold">--</span></div>
-                            <div class="flex flex-col"><span class="text-muted uppercase font-black">Buy Vol 1h</span><span id="ai-b1h" class="text-white font-bold">--</span></div>
-                            <div class="flex flex-col"><span class="text-muted uppercase font-black">Whale Sent.</span><span id="ai-whale" class="text-white font-bold">--</span></div>
+                        <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-[9px] font-mono border-b border-[#2b3139] pb-2">
+                            <div class="flex flex-col"><span class="text-muted uppercase font-sans">RSI (14)</span><span id="ai-rsi" class="text-white">--</span></div>
+                            <div class="flex flex-col"><span class="text-muted uppercase font-sans">SMA (20)</span><span id="ai-sma" class="text-white">--</span></div>
+                            <div class="flex flex-col"><span class="text-muted uppercase font-sans">Volatility</span><span id="ai-vol" class="text-white">--</span></div>
+                            <div class="flex flex-col"><span class="text-muted uppercase font-sans">Buy Vol 15m</span><span id="ai-b15" class="text-white">--</span></div>
+                            <div class="flex flex-col"><span class="text-muted uppercase font-sans">Buy Vol 1h</span><span id="ai-b1h" class="text-white">--</span></div>
+                            <div class="flex flex-col"><span class="text-muted uppercase font-sans">Whale Sent.</span><span id="ai-whale" class="text-white">--</span></div>
                         </div>
 
                         <div class="flex flex-col md:flex-row gap-3">
                             
                             <div class="flex-1 grid grid-cols-2 gap-3">
-                                <div class="bold-box p-3 flex flex-col justify-between">
-                                    <div class="flex justify-between items-center mb-2 border-b-2 border-[#363c4e] pb-1">
-                                        <span class="text-[10px] text-white font-black uppercase tracking-widest">Short-Term AI</span>
-                                        <span id="ai-short-conf" class="text-[9px] font-mono font-black text-[#F3BA2F] bg-[#0b0e11] px-1">0% CONF</span>
+                                <div class="bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-between group">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-[9px] text-muted font-black uppercase tracking-widest">Short-Term (Gemini)</span>
+                                        <span id="ai-short-conf" class="text-[8px] font-mono text-[#F3BA2F]">0% Conf</span>
                                     </div>
                                     <div class="flex justify-between items-end mt-1">
                                         <div class="flex flex-col">
-                                            <span id="ai-short-signal" class="text-sm font-black uppercase text-white">SYNCING...</span>
-                                            <span id="ai-short-targets" class="text-[9px] text-[#848E9C] font-mono font-bold mt-1">SL: -- | TP: --</span>
+                                            <span id="ai-short-signal" class="text-xs font-black uppercase text-white">AWAITING API...</span>
+                                            <span id="ai-short-targets" class="text-[8px] text-muted font-mono mt-1 hidden">SL: -- | TP: --</span>
                                         </div>
+                                        <button id="ai-short-btn" onclick="executeAISuggestion('short')" class="px-2 py-1 bg-[#1e2329] border border-[#2b3139] group-hover:border-[#F3BA2F] text-[#F3BA2F] rounded text-[8px] font-black uppercase transition hidden">Trade</button>
                                     </div>
                                 </div>
-                                <div class="bold-box p-3 flex flex-col justify-between">
-                                    <div class="flex justify-between items-center mb-2 border-b-2 border-[#363c4e] pb-1">
-                                        <span class="text-[10px] text-white font-black uppercase tracking-widest">Macro Trend AI</span>
-                                        <span id="ai-long-conf" class="text-[9px] font-mono font-black text-[#F3BA2F] bg-[#0b0e11] px-1">0% CONF</span>
+                                <div class="bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-between group">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-[9px] text-muted font-black uppercase tracking-widest">Macro Trend (Gemini)</span>
+                                        <span id="ai-long-conf" class="text-[8px] font-mono text-[#F3BA2F]">0% Conf</span>
                                     </div>
                                     <div class="flex justify-between items-end mt-1">
                                         <div class="flex flex-col">
-                                            <span id="ai-long-signal" class="text-sm font-black uppercase text-white">SYNCING...</span>
-                                            <span id="ai-long-targets" class="text-[9px] text-[#848E9C] font-mono font-bold mt-1">SL: -- | TP: --</span>
+                                            <span id="ai-long-signal" class="text-xs font-black uppercase text-white">AWAITING API...</span>
+                                            <span id="ai-long-targets" class="text-[8px] text-muted font-mono mt-1 hidden">SL: -- | TP: --</span>
                                         </div>
+                                        <button id="ai-long-btn" onclick="executeAISuggestion('long')" class="px-2 py-1 bg-[#1e2329] border border-[#2b3139] group-hover:border-[#F3BA2F] text-[#F3BA2F] rounded text-[8px] font-black uppercase transition hidden">Trade</button>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="w-full md:w-64 bold-box p-3 flex flex-col justify-center">
-                                <span class="text-[10px] uppercase font-black text-black bg-[#F3BA2F] px-1 mb-2 border-2 border-transparent w-max">AI Paper Trading</span>
-                                <div class="flex justify-between items-center font-mono text-sm font-black">
+                            <div class="w-full md:w-64 bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-center">
+                                <span class="text-[8px] uppercase font-black text-[#F3BA2F] mb-1">Hedge Paper Trading (ML Status)</span>
+                                <div class="flex justify-between items-center font-mono text-xs font-black">
                                     <span id="ai-paper-pnl" class="text-white">$0.00</span>
-                                    <span id="ai-paper-winrate" class="text-[#848E9C]">W: 0%</span>
+                                    <span id="ai-paper-winrate" class="text-muted">Win: 0% (0/0)</span>
                                 </div>
-                                <span id="ai-active-papers" class="text-[9px] text-white mt-1 font-mono font-bold">0 ACTIVE TRADES</span>
+                                <span id="ai-active-papers" class="text-[8px] text-muted mt-1 font-mono">0 active virtual trades hedging...</span>
                             </div>
 
                         </div>
                     </div>
 
-                    <div class="panel p-4 md:p-6 flex flex-col relative min-h-[55vh]" id="main-chart-wrapper">
-                        <div class="flex justify-between items-start z-20 border-b-2 border-[#2b3139] pb-3 mb-2">
+                    <div class="panel p-4 md:p-6 flex flex-col relative min-h-[55vh] transition-colors duration-100" id="main-chart-wrapper">
+                        <div class="flex justify-between items-start z-20">
                             <div class="relative w-fit">
-                                <button onclick="toggleDropdown('term-dropdown')" class="neo-input px-3 py-2 flex items-center gap-3 w-[150px] md:w-48 bg-[#0b0e11] border-2 border-[#F3BA2F]">
-                                    <img id="term-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-6 h-6 bg-white border-2 border-black">
-                                    <span id="term-text" class="font-black text-base uppercase text-white tracking-wide">BTC/USDT</span>
-                                    <svg class="w-4 h-4 ml-auto text-[#F3BA2F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                                <button onclick="toggleDropdown('term-dropdown')" class="neo-input px-3 py-2 rounded flex items-center gap-3 w-[150px] md:w-48 bg-[#0b0e11]">
+                                    <img id="term-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-5 h-5 rounded-full bg-[#1e2329] p-0.5">
+                                    <span id="term-text" class="font-black text-sm uppercase text-white tracking-wide">BTC/USDT</span>
+                                    <svg class="w-4 h-4 ml-auto text-[#F3BA2F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
-                                <div id="term-dropdown" class="absolute top-full left-0 mt-1 w-48 bg-[#1e2329] border-2 border-[#F3BA2F] py-1 dropdown-menu dropdown-hidden z-50 overflow-y-auto max-h-[300px] no-scrollbar"></div>
+                                <div id="term-dropdown" class="absolute top-full left-0 mt-1 w-48 overlay py-1 dropdown-menu dropdown-hidden z-50 overflow-y-auto max-h-[300px] no-scrollbar"></div>
                             </div>
 
-                            <div class="flex flex-wrap bg-[#0b0e11] p-1 border-2 border-[#2b3139] justify-end max-w-[50%] sm:max-w-full">
+                            <div class="flex flex-wrap bg-[#0b0e11] p-1 rounded border border-[#2b3139] justify-end max-w-[50%] sm:max-w-full">
                                 <div class="tf-btn" onclick="setTimeframe('live')" id="tf-live">LIVE</div>
                                 <div class="tf-btn active" onclick="setTimeframe('5m')" id="tf-5m">5m</div>
                                 <div class="tf-btn" onclick="setTimeframe('1h')" id="tf-1h">1H</div>
                                 <div class="tf-btn" onclick="setTimeframe('7d')" id="tf-7d">7D</div>
                                 <div class="tf-btn" onclick="setTimeframe('1y')" id="tf-1y">1Y</div>
+                                <div class="tf-btn" onclick="setTimeframe('max')" id="tf-max">MAX</div>
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap justify-between gap-4 sm:gap-6 mt-2 z-10 items-end">
+                        <div class="flex flex-wrap justify-between gap-4 sm:gap-6 mt-4 z-10 border-b border-[#2b3139] pb-3 items-end">
+                            <div class="flex gap-4 sm:gap-6 shrink-0">
+                                <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">High</span><p class="text-xs font-mono text-green-400 font-black" id="stat-high">--</p></div>
+                                <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">Low</span><p class="text-xs font-mono text-pink-400 font-black" id="stat-low">--</p></div>
+                            </div>
                             <div class="flex-grow flex justify-end items-end pointer-events-none min-w-0">
-                                <h2 id="main-price" class="text-4xl sm:text-6xl md:text-7xl font-black text-white font-mono tracking-tighter leading-none truncate text-right max-w-full transition-colors duration-100">--</h2>
+                                <h2 id="main-price" class="text-4xl sm:text-5xl md:text-6xl font-black text-white font-mono tracking-tighter leading-none truncate text-right max-w-full transition-colors duration-100">--</h2>
                             </div>
                         </div>
 
-                        <div class="flex-grow mt-4 relative w-full h-full min-h-[300px] cursor-crosshair overflow-hidden border-2 border-[#2b3139] bg-[#0b0e11]" id="canvas-container">
+                        <div class="flex-grow mt-2 relative w-full h-full min-h-[300px] cursor-crosshair overflow-hidden rounded" id="canvas-container">
                             <canvas id="custom-chart" class="absolute inset-0 w-full h-full"></canvas>
+                            <div id="chart-popups-container" class="absolute bottom-2 left-2 flex flex-col-reverse gap-1.5 z-30 pointer-events-none overflow-hidden max-h-[250px]"></div>
                         </div>
                     </div>
 
                     <div class="panel flex flex-col h-[260px]">
-                        <div class="flex flex-col p-3 border-b-2 border-[#2b3139] shrink-0 bg-[#1e2329] gap-3">
+                        <div class="flex flex-col p-3 border-b border-[#2b3139] shrink-0 bg-[#1e2329] gap-3">
                             <div class="flex justify-between items-center">
                                 <div class="flex gap-4 items-center">
-                                    <h3 class="text-[11px] font-black uppercase tracking-widest text-black bg-[#F3BA2F] px-2 py-1">Order Flow Logs</h3>
+                                    <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F] hidden sm:block">Asset Block Logs</h3>
+                                    <div class="flex gap-2">
+                                        <button onclick="setLogFilter('all')" id="filter-all" class="text-[9px] font-black uppercase bg-[#F3BA2F] text-black px-2 py-0.5 rounded">All Txs</button>
+                                        <button onclick="setLogFilter('whales')" id="filter-whales" class="text-[9px] font-black uppercase text-muted hover:text-[#EAECEF] px-2 py-0.5 rounded border border-transparent">Whales (>$25k)</button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="w-full flex items-center gap-2">
-                                <span class="text-[11px] font-black text-green-400 w-8" id="ratio-buy-text">50%</span>
-                                <div class="flex-grow h-4 bg-[#0b0e11] border-2 border-[#2b3139] flex overflow-hidden">
-                                    <div id="ratio-buy-bar" class="h-full bg-green-500 transition-all duration-300" style="width: 50%"></div>
-                                    <div id="ratio-sell-bar" class="h-full bg-pink-500 transition-all duration-300" style="width: 50%"></div>
+                                <span class="text-[10px] font-black text-green-400 w-8" id="ratio-buy-text">50%</span>
+                                <div class="flex-grow h-2.5 bg-[#0b0e11] rounded border border-[#2b3139] flex overflow-hidden">
+                                    <div id="ratio-buy-bar" class="h-full bg-green-500 transition-all duration-300 shadow-[0_0_10px_rgba(34,197,94,0.5)]" style="width: 50%"></div>
+                                    <div id="ratio-sell-bar" class="h-full bg-pink-500 transition-all duration-300 shadow-[0_0_10px_rgba(244,63,94,0.5)]" style="width: 50%"></div>
                                 </div>
-                                <span class="text-[11px] font-black text-pink-400 w-8 text-right" id="ratio-sell-text">50%</span>
+                                <span class="text-[10px] font-black text-pink-400 w-8 text-right" id="ratio-sell-text">50%</span>
                             </div>
                         </div>
                         <div class="flex-grow overflow-y-auto no-scrollbar p-2 flex flex-col gap-1" id="below-chart-log">
-                            <div class="text-[10px] font-bold text-muted text-center py-4 uppercase">Awaiting on-chain blocks...</div>
+                            <div class="text-[9px] text-muted text-center py-4 italic">Awaiting on-chain / DEX block trades...</div>
                         </div>
                     </div>
 
-                    <div class="panel flex flex-col min-h-[30vh]">
-                        <div class="flex justify-between items-center p-3 border-b-2 border-[#2b3139] shrink-0 bg-[#1e2329]">
-                            <h3 class="text-[11px] font-black uppercase tracking-widest text-black bg-white px-2 py-1">Manual & AI Trades History</h3>
+                    <div class="panel flex flex-col min-h-[25vh]">
+                        <div class="flex justify-between items-center p-3 border-b border-[#2b3139] shrink-0 bg-[#1e2329]">
+                            <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F]">Active Trades</h3>
                         </div>
-                        <div class="flex-grow overflow-y-auto no-scrollbar p-3 space-y-3 bg-[#0b0e11]" id="orders-body"></div>
+                        <div class="flex-grow overflow-y-auto no-scrollbar p-3 space-y-2" id="orders-body"></div>
                     </div>
                 </div>
 
                 <div class="lg:col-span-3 flex flex-col gap-4">
                     <div class="panel p-4 flex flex-col relative z-10">
-                        <div class="flex justify-between items-center mb-4 border-b-2 border-[#2b3139] pb-2">
-                            <h3 class="text-[12px] font-black uppercase tracking-widest text-white">Execution</h3>
-                            <select id="trade-wallet-select" onchange="switchWallet(this.value)" class="bg-[#2b3139] text-white border-none rounded-none px-2 py-1 text-[10px] uppercase font-black outline-none cursor-pointer"></select>
+                        <div class="flex justify-between items-center mb-4 border-b border-[#2b3139] pb-2">
+                            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted">Manual Execution</h3>
+                            <select id="trade-wallet-select" onchange="switchWallet(this.value)" class="bg-[#0b0e11] text-[#F3BA2F] border border-[#2b3139] rounded px-1.5 py-1 text-[9px] uppercase font-black outline-none cursor-pointer"></select>
                         </div>
                         
-                        <div class="flex gap-2 mb-5">
-                            <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-3 text-[11px] font-black uppercase tracking-widest bg-green-500 text-black border-2 border-black">LONG / BUY</button>
-                            <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-3 text-[11px] font-black uppercase tracking-widest bg-[#1e2329] text-white border-2 border-[#2b3139]">SHORT / SELL</button>
+                        <div class="flex gap-2 bg-[#0b0e11] p-1 border border-[#2b3139] rounded mb-5">
+                            <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-3 rounded text-[10px] font-black uppercase tracking-widest bg-[#181a20] text-green-400 border border-[#2b3139]">Long / Buy</button>
+                            <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-3 rounded text-[10px] font-black uppercase tracking-widest text-muted border border-transparent">Short / Sell</button>
                         </div>
 
                         <div class="space-y-5">
                             <div>
                                 <div class="flex justify-between mb-1">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-white">Margin (USDT)</label>
-                                    <span class="text-[10px] font-black text-black bg-[#F3BA2F] px-1 cursor-pointer border border-black" onclick="setMax()">MAX</span>
+                                    <label class="text-[9px] font-black uppercase tracking-widest text-muted">Margin (USDT)</label>
+                                    <span class="text-[9px] font-black text-[#F3BA2F] cursor-pointer" onclick="setMax()">MAX</span>
                                 </div>
-                                <input type="number" id="trade-margin" placeholder="0.00" class="w-full neo-input p-3 text-lg font-black font-mono text-center">
+                                <input type="number" id="trade-margin" placeholder="0.00" class="w-full neo-input p-2 rounded text-base font-black font-mono text-center">
                             </div>
 
                             <div>
                                 <div class="flex justify-between mb-2">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-white">Leverage</label>
-                                    <span class="text-[10px] font-black text-white bg-[#2b3139] px-2 py-0.5 border-2 border-[#363c4e]"><span id="lev-val">10</span>x</span>
+                                    <label class="text-[9px] font-black uppercase tracking-widest text-muted">Leverage</label>
+                                    <span class="text-[9px] font-black text-black bg-[#F3BA2F] px-1.5 py-0.5 rounded"><span id="lev-val">10</span>x</span>
                                 </div>
                                 <input type="range" id="trade-lev" min="1" max="100" value="10" class="w-full">
                             </div>
 
-                            <div class="p-3 bg-[#1e2329] border-2 border-[#363c4e] space-y-2">
-                                <div class="flex justify-between text-[10px] font-black uppercase">
-                                    <span class="text-white">Available</span>
+                            <div class="p-3 bg-[#0b0e11] border border-[#2b3139] rounded space-y-2">
+                                <div class="flex justify-between text-[9px] font-black uppercase">
+                                    <span class="text-muted">Available</span>
                                     <span class="text-white font-mono" id="ui-avail">0.00</span>
                                 </div>
-                                <div class="flex justify-between text-[10px] font-black uppercase border-t-2 border-[#2b3139] pt-2">
-                                    <span class="text-white">Position Size</span>
+                                <div class="flex justify-between text-[9px] font-black uppercase border-t border-[#2b3139] pt-2">
+                                    <span class="text-muted">Position Size</span>
                                     <span class="text-[#F3BA2F] font-mono" id="ui-size">0.00</span>
                                 </div>
                             </div>
                         </div>
 
-                        <button onclick="executeOrder()" id="btn-execute" class="mt-4 w-full py-4 font-black uppercase tracking-[0.1em] text-[13px] bg-green-500 text-black border-2 border-black hover:bg-green-400 transition">
-                            EXECUTE LONG
+                        <button onclick="executeOrder()" id="btn-execute" class="mt-4 w-full py-3 rounded font-black uppercase tracking-[0.1em] text-[11px] bg-green-500 text-black hover:bg-green-400 transition">
+                            Execute Long
                         </button>
                     </div>
 
                     <div class="panel p-4 flex flex-col flex-grow relative z-10">
-                        <div class="flex justify-between items-center mb-4 border-b-2 border-[#2b3139] pb-2">
-                            <h3 class="text-[11px] font-black uppercase tracking-widest text-white">On-Chain Alpha</h3>
-                            <select id="alpha-tf-select" onchange="setAlphaTimeframe(this.value)" class="bg-[#1e2329] text-white border-2 border-[#363c4e] px-2 py-1 text-[9px] uppercase font-black outline-none cursor-pointer">
+                        <div class="flex justify-between items-center mb-4 border-b border-[#2b3139] pb-2">
+                            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted">On-Chain Alpha</h3>
+                            <select id="alpha-tf-select" onchange="setAlphaTimeframe(this.value)" class="bg-[#0b0e11] text-[#F3BA2F] border border-[#2b3139] rounded px-1.5 py-1 text-[9px] uppercase font-black outline-none cursor-pointer">
+                                <option value="300000">5 Mins</option>
+                                <option value="900000">15 Mins</option>
+                                <option value="3600000">1 Hour</option>
+                                <option value="18000000">5 Hours</option>
                                 <option value="86400000" selected>24 Hours</option>
+                                <option value="604800000">1 Week</option>
                             </select>
                         </div>
                         
-                        <div class="mb-4 bg-[#1e2329] p-2 border-2 border-[#2b3139]">
-                            <h4 class="text-[10px] font-black uppercase tracking-widest text-green-400 mb-2 border-b-2 border-[#2b3139] pb-1">Top Purchases</h4>
+                        <div class="mb-4">
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-green-400 mb-2 border-b border-[#2b3139] pb-1 flex justify-between"><span>Top Purchases</span> <span id="lbl-buy-tf">24H</span></h4>
                             <div id="ui-top-buys" class="space-y-1"></div>
                         </div>
                         
-                        <div class="mb-4 bg-[#1e2329] p-2 border-2 border-[#2b3139]">
-                            <h4 class="text-[10px] font-black uppercase tracking-widest text-pink-400 mb-2 border-b-2 border-[#2b3139] pb-1">Top Sells</h4>
+                        <div class="mb-4">
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-pink-400 mb-2 border-b border-[#2b3139] pb-1 flex justify-between"><span>Top Sells</span> <span id="lbl-sell-tf">24H</span></h4>
                             <div id="ui-top-sells" class="space-y-1"></div>
                         </div>
 
                         <div class="mt-auto">
-                            <h4 class="text-[11px] font-black uppercase tracking-widest text-black bg-white px-2 py-1 mb-2 inline-block">Whale Tracker</h4>
-                            <div id="ui-top-holders" class="flex flex-col gap-2"></div>
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-[#F3BA2F] mb-2 border-b border-[#2b3139] pb-1">Whale Tracker</h4>
+                            <div id="ui-top-holders" class="flex flex-col gap-1.5"></div>
                         </div>
                     </div>
                 </div>
@@ -342,296 +365,330 @@
     <div id="app-wallet" class="w-full hidden">
         <main class="flex flex-col p-2 md:p-6 gap-6 w-full max-w-[1400px] mx-auto">
             
-            <div class="panel p-6 flex flex-col md:flex-row justify-between items-center md:items-start gap-6 border-t-8 border-t-[#F3BA2F]">
+            <div class="panel p-6 flex flex-col md:flex-row justify-between items-center md:items-start gap-6 border-t-2 border-t-[#F3BA2F]">
                 <div class="flex flex-col w-full">
-                    <div class="flex items-center justify-between border-b-2 border-[#2b3139] pb-3 mb-4">
+                    <div class="flex items-center justify-between border-b border-[#2b3139] pb-3 mb-4">
                         <div class="flex items-center gap-3">
-                            <img src="https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=029" class="w-6 h-6 border-2 border-white rounded-full bg-white">
-                            <span class="text-white text-base font-black uppercase tracking-widest">Binance Wallet <span class="bg-[#F3BA2F] text-black text-[10px] px-2 py-1 ml-2 border-2 border-black">API Connected</span></span>
+                            <img src="https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=029" class="w-5 h-5">
+                            <span class="text-white text-sm font-black uppercase tracking-widest">Binance Wallet <span class="bg-[#2b3139] text-[#F3BA2F] text-[9px] px-2 py-0.5 rounded ml-2">API Connected</span></span>
                         </div>
-                        <select id="wallet-currency" onchange="setCurrency(this.value)" class="bg-[#1e2329] border-2 border-[#363c4e] text-white font-black text-xs px-3 py-2 outline-none cursor-pointer"><option value="USD">USD</option><option value="AED">AED</option><option value="EUR">EUR</option><option value="GBP">GBP</option></select>
+                        <select id="wallet-currency" onchange="setCurrency(this.value)" class="bg-[#0b0e11] border border-[#2b3139] text-[#F3BA2F] font-black text-xs rounded px-2 py-1 outline-none cursor-pointer"><option value="USD">USD</option><option value="AED">AED</option><option value="EUR">EUR</option><option value="GBP">GBP</option></select>
                     </div>
                     
                     <div class="flex flex-col md:flex-row justify-between items-center md:items-end w-full">
                         <div class="flex flex-col items-center md:items-start">
-                            <span class="text-[11px] uppercase font-black text-[#848E9C] tracking-widest mb-1">Total Net Worth (<span id="wallet-name-label">Main</span>)</span>
+                            <span class="text-[10px] uppercase font-black text-muted tracking-widest mb-1">Total Net Worth (<span id="wallet-name-label">Main</span>)</span>
                             <div class="flex items-baseline gap-2">
-                                <span id="wallet-currency-sym" class="text-4xl font-black text-[#F3BA2F]">$</span>
-                                <h2 id="wallet-total-value" class="text-6xl font-black text-white font-mono tracking-tighter">0.00</h2>
+                                <span id="wallet-currency-sym" class="text-3xl font-black text-[#F3BA2F]">$</span>
+                                <h2 id="wallet-total-value" class="text-5xl font-black text-white font-mono tracking-tighter">0.00</h2>
+                            </div>
+                            <div class="flex items-center gap-3 mt-2">
+                                <span id="wallet-daily-pnl" class="text-xs font-black text-green-400 tracking-wide">+ 0.00</span>
+                                <span id="wallet-daily-roi" class="text-[9px] font-black text-green-500 bg-[#0b0e11] px-1.5 py-0.5 rounded border border-[#2b3139]">+0.00% Today</span>
                             </div>
                         </div>
 
                         <div class="flex gap-3 mt-6 md:mt-0 w-full md:w-auto">
-                            <button class="flex-1 md:flex-none px-6 py-3 text-[11px] font-black uppercase tracking-widest bg-white text-black border-2 border-black hover:bg-gray-200 transition">Send</button>
-                            <button class="flex-1 md:flex-none px-6 py-3 text-[11px] font-black uppercase tracking-widest bg-[#F3BA2F] text-black border-2 border-black hover:bg-yellow-500 transition">Swap</button>
+                            <button onclick="toggleModal('send-modal')" class="flex-1 md:flex-none px-6 py-2.5 rounded text-[10px] font-black uppercase tracking-widest bg-[#F3BA2F] text-black hover:bg-yellow-400 transition">Send / Withdraw</button>
+                            <button onclick="toggleModal('swap-modal')" class="flex-1 md:flex-none px-6 py-2.5 rounded text-[10px] font-black uppercase tracking-widest bg-[#0b0e11] text-[#F3BA2F] border border-[#2b3139] hover:border-[#F3BA2F] transition">Swap Assets</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div>
-                <div class="flex justify-between items-end mb-4 border-b-2 border-[#2b3139] pb-2">
-                    <h3 class="text-[14px] font-black uppercase tracking-widest text-black bg-white px-3 py-1">My Portfolio</h3>
+                <div class="flex justify-between items-end mb-4 border-b border-[#2b3139] pb-2">
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-white border-l-2 border-[#F3BA2F] pl-2">My Assets</h3>
+                    <button onclick="toggleModal('settings-modal')" class="text-[9px] text-[#F3BA2F] hover:text-white uppercase font-black transition">Manage Portfolio</button>
                 </div>
-                <div id="wallet-square-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+                <div id="wallet-square-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"></div>
+                <button id="show-more-btn" onclick="toggleShowMoreAssets()" class="w-full mt-3 py-2 bg-[#1e2329] border border-[#2b3139] text-white rounded font-black uppercase text-[9px] tracking-widest hover:bg-[#2b3139] transition hidden">Show More</button>
             </div>
 
-            <div class="panel p-5 mt-6 border-t-8 border-t-green-500">
-                <div class="flex items-center gap-3 mb-4 pb-3 border-b-2 border-[#2b3139]">
-                    <h2 class="text-base font-black uppercase text-white tracking-widest">Binance Earn Stakes</h2>
+            <div class="panel p-5">
+                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-[#2b3139]">
+                    <div class="w-8 h-8 rounded bg-[#0b0e11] flex items-center justify-center border border-[#2b3139]">
+                        <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h2 class="text-sm font-black uppercase text-white tracking-widest">Binance Earn</h2>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="active-stakes-body"></div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3" id="staking-grid"></div>
+                <div class="mt-6">
+                    <h3 class="text-[9px] font-black uppercase text-muted mb-3 tracking-widest border-b border-[#2b3139] pb-1">Active Stakes</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="active-stakes-body"></div>
+                </div>
             </div>
         </main>
     </div>
 
-    <div id="history-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
-        <div class="modal-content bg-[#0b0e11] w-full max-w-lg p-0 relative max-h-[80vh] flex flex-col overflow-hidden">
-            <div class="p-4 border-b-4 border-[#F3BA2F] flex justify-between items-center bg-[#1e2329]">
-                <h2 class="text-sm font-black uppercase tracking-widest text-white">Full Trade History</h2>
-                <button onclick="toggleModal('history-modal')" class="text-white font-black uppercase text-xs bg-red-500 px-2 py-1 border-2 border-black">Close X</button>
+    <div id="ai-code-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
+        <div class="modal-content panel w-full max-w-2xl p-5 relative flex flex-col">
+            <button onclick="toggleModal('ai-code-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-2 border-b border-[#2b3139] pb-2">Gemini API Configuration</h2>
+            <p class="text-[9px] text-green-400 mb-4 font-mono border border-green-500/30 bg-[#1e2329] p-2 rounded">
+                STATUS: API MODE. System sends live rolling input vectors [RSI, Price, Volatility, Flow, Whale Sentiment] to Google's Gemini 1.5 Flash Model to generate Long/Short Signals and calculate precise TP/SL metrics.
+            </p>
+            
+            <div class="mb-4">
+                <label class="text-[9px] font-black uppercase tracking-widest text-[#F3BA2F] mb-1.5 block">Gemini API Key (Free from Google AI Studio)</label>
+                <input type="password" id="gemini-api-key" placeholder="AIzaSy..." class="w-full neo-input p-2.5 rounded text-xs font-mono" onchange="saveApiKey(this.value)">
+                <p class="text-[8px] text-muted mt-1">Key is stored locally in your browser. API is requested max once per minute to avoid rate limits.</p>
             </div>
-            <div class="flex-grow overflow-y-auto no-scrollbar p-4 space-y-3" id="history-body"></div>
+
+            <button onclick="toggleModal('ai-code-modal')" class="w-full neo-btn py-3 rounded text-[10px] font-black uppercase bg-[#F3BA2F] text-black hover:bg-yellow-400">Save & Close</button>
         </div>
     </div>
-    
+
     <div id="settings-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
-        <div class="modal-content bg-[#0b0e11] w-full max-w-sm p-6 relative">
-            <button onclick="toggleModal('settings-modal')" class="absolute top-4 right-4 text-white font-black uppercase text-xs bg-red-500 px-2 py-1 border-2 border-black">X</button>
-            <h2 class="text-sm font-black uppercase tracking-widest text-white mb-6 border-b-2 border-[#2b3139] pb-2">Settings</h2>
-            <div class="space-y-6">
+        <div class="modal-content panel w-full max-w-sm p-5 relative border-t-2 border-t-[#F3BA2F]">
+            <button onclick="toggleModal('settings-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-5 border-b border-[#2b3139] pb-2">Portfolio Management</h2>
+            <div class="space-y-5">
                 <div>
-                    <label class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F] mb-2 block">Set USDT Balance</label>
-                    <div class="flex gap-2"><input type="number" id="add-usdt-input" class="flex-grow neo-input p-3 text-lg font-mono font-bold"><button onclick="setUsdt()" class="bg-[#F3BA2F] px-4 text-[11px] font-black uppercase text-black border-2 border-black">Set</button></div>
+                    <label class="text-[9px] font-black uppercase tracking-widest text-[#F3BA2F] mb-1.5 block">Override USDT Balance</label>
+                    <div class="flex gap-2"><input type="number" id="add-usdt-input" placeholder="Set Exact Amount" class="flex-grow neo-input p-2 rounded text-sm font-mono"><button onclick="setUsdt()" class="bg-[#F3BA2F] px-4 rounded text-[9px] font-black uppercase hover:bg-yellow-400 transition text-black">Set</button></div>
+                </div>
+                <div class="pt-4 border-t border-[#2b3139]">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-muted mb-1.5 block">Modify Specific Assets</label>
+                    <div class="flex gap-2"><select id="new-asset-name" class="w-1/2 neo-input p-2 rounded text-xs font-black uppercase border border-[#2b3139]"></select><input type="number" id="new-asset-amt" placeholder="Qty (0 to Del)" class="w-1/2 neo-input p-2 rounded text-xs font-mono"></div>
+                    <button onclick="addManualAsset()" class="w-full mt-3 neo-btn py-2.5 rounded text-[9px] font-black uppercase bg-[#2b3139] hover:bg-[#F3BA2F] hover:text-black text-white">Save Changes</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="history-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
+        <div class="modal-content panel w-full max-w-lg p-0 relative max-h-[80vh] flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-[#2b3139] flex justify-between items-center bg-[#1e2329]">
+                <h2 class="text-xs font-black uppercase tracking-widest text-white">Trade History</h2>
+                <button onclick="toggleModal('history-modal')" class="text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            <div class="flex-grow overflow-y-auto no-scrollbar p-3 space-y-2 bg-[#0b0e11]" id="history-body"></div>
+        </div>
+    </div>
+
+    <div id="send-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
+        <div class="modal-content panel w-full max-w-md p-5 relative flex flex-col border-t-2 border-t-[#F3BA2F]">
+            <button onclick="closeSendModal()" class="absolute top-4 right-4 text-muted hover:text-white" id="send-close-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-5 border-b border-[#2b3139] pb-2">Send Crypto via API</h2>
+            
+            <div id="send-form" class="space-y-4">
+                <div><label class="text-[9px] font-black uppercase tracking-widest text-muted block mb-1">Asset</label><select id="send-asset" class="w-full neo-input p-2.5 rounded text-xs font-black uppercase" onchange="updateSendMax()"></select></div>
+                <div><label class="text-[9px] font-black uppercase tracking-widest text-muted block mb-1">Destination Address</label><input type="text" id="send-address" placeholder="0x..." class="w-full neo-input p-2.5 rounded text-xs font-mono"></div>
+                <div>
+                    <div class="flex justify-between text-xs mb-1"><label class="text-[9px] font-black uppercase tracking-widest text-muted">Amount</label><span class="text-[9px] font-black text-[#F3BA2F] cursor-pointer" onclick="setMaxSend()">MAX (<span id="send-avail-txt">0.00</span>)</span></div>
+                    <input type="number" id="send-amount" placeholder="0.00" class="w-full neo-input p-2.5 rounded text-xs font-mono">
+                </div>
+                <button onclick="initiateSend()" class="mt-2 w-full py-3 rounded font-black uppercase tracking-[0.1em] text-[10px] bg-[#F3BA2F] text-black hover:bg-yellow-400">Broadcast TX</button>
+            </div>
+
+            <div id="send-processing" class="hidden flex-col items-center justify-center py-6">
+                <div class="spinner w-8 h-8 mb-4"></div>
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F] mb-3" id="send-status-title">Broadcasting...</h3>
+                <div class="w-full bg-[#0b0e11] p-3 rounded border border-[#2b3139] text-[9px] font-mono text-muted h-32 overflow-y-auto no-scrollbar" id="send-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="swap-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
+        <div class="modal-content panel w-full max-w-sm p-5 relative flex flex-col">
+            <button onclick="toggleModal('swap-modal')" class="absolute top-4 right-4 text-muted hover:text-white" id="swap-close-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-5 border-b border-[#2b3139] pb-2">Swap Assets</h2>
+            
+            <div id="swap-form-content" class="space-y-3">
+                <div class="bg-[#0b0e11] p-3 rounded border border-[#2b3139]">
+                    <div class="flex justify-between text-[9px] font-black uppercase text-muted mb-2"><span>From</span><span id="swap-bal-from" class="text-white">Bal: 0.00</span></div>
+                    <div class="flex gap-2"><input type="number" id="swap-amt-from" placeholder="0.00" class="flex-grow bg-transparent text-white text-lg font-mono outline-none w-full" oninput="calcSwap()"><select id="swap-asset-from" class="w-24 neo-input p-1.5 rounded text-xs font-black uppercase bg-[#1e2329]" onchange="updateSwapBals(); calcSwap()"></select></div>
+                </div>
+                <div class="flex justify-center -my-3 relative z-10"><div class="bg-[#2b3139] p-1.5 rounded border border-[#0b0e11]"><svg class="w-4 h-4 text-[#F3BA2F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg></div></div>
+                <div class="bg-[#0b0e11] p-3 rounded border border-[#2b3139]">
+                    <div class="flex justify-between text-[9px] font-black uppercase text-muted mb-2"><span>To (Est.)</span><span id="swap-bal-to" class="text-[#F3BA2F]">Bal: 0.00</span></div>
+                    <div class="flex gap-2"><input type="text" id="swap-amt-to" placeholder="0.00" class="flex-grow bg-transparent text-muted text-lg font-mono outline-none w-full" readonly><select id="swap-asset-to" class="w-24 neo-input p-1.5 rounded text-xs font-black uppercase bg-[#1e2329]" onchange="updateSwapBals(); calcSwap()"></select></div>
+                </div>
+                <div class="text-[9px] font-mono text-muted text-center py-1.5 rounded border border-[#2b3139] bg-[#0b0e11]" id="swap-rate-text">1 -- = -- --</div>
+                <button onclick="executeSwap()" class="w-full py-3 mt-2 rounded font-black uppercase tracking-[0.1em] text-[10px] bg-[#F3BA2F] text-black hover:bg-yellow-400 transition">Confirm Swap</button>
+            </div>
+            <div id="swap-animation" class="hidden flex-col items-center justify-center py-10"></div>
+        </div>
+    </div>
+
+    <div id="stake-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
+        <div class="modal-content panel w-full max-w-sm p-5 relative flex flex-col">
+            <button onclick="toggleModal('stake-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-2 border-b border-[#2b3139] pb-2">Stake <span id="stake-modal-asset" class="text-[#F3BA2F]">--</span></h2>
+            <p class="text-[10px] text-green-400 font-mono mb-4">Est. APR: <span id="stake-modal-apr" class="font-black">--%</span></p>
+            <div class="mb-4">
+                <div class="flex justify-between text-[9px] font-black uppercase tracking-widest text-muted mb-1.5"><label>Amount to Stake</label><span class="text-[#F3BA2F] cursor-pointer" onclick="document.getElementById('stake-amount').value = document.getElementById('stake-modal-avail').dataset.val">MAX (<span id="stake-modal-avail" data-val="0">0.00</span>)</span></div>
+                <input type="number" id="stake-amount" placeholder="0.00" class="w-full neo-input p-2.5 rounded text-sm font-mono">
+            </div>
+            <button onclick="confirmStake()" class="w-full py-3 rounded font-black uppercase tracking-[0.1em] text-[10px] bg-green-500 text-black hover:bg-green-400 transition">Lock & Stake</button>
+        </div>
+    </div>
+
     <script>
-        // --- GEMINI API INTEGRATION ---
-        const GEMINI_API_KEY = "AIzaSyCRmxzSXZl45YjR0QLIfhEdzysnZOoHsng"; 
-        
-        // --- CORE DATA & STATE ---
+        // --- CORE DATA & ML STATE ---
         const ASSETS = [
-            { id: 'BTCUSDT', name: 'BTC/USDT', icon: 'bitcoin-btc-logo.svg?v=029', coin: 'BTC', anim: 'btc-rock' }, 
-            { id: 'ETHUSDT', name: 'ETH/USDT', icon: 'ethereum-eth-logo.svg?v=029', coin: 'ETH', anim: 'eth-bounce' },
-            { id: 'SOLUSDT', name: 'SOL/USDT', icon: 'solana-sol-logo.svg?v=029', coin: 'SOL', anim: 'sol-flip' }, 
-            { id: 'BNBUSDT', name: 'BNB/USDT', icon: 'bnb-bnb-logo.svg?v=029', coin: 'BNB', anim: '' },
-            { id: 'XRPUSDT', name: 'XRP/USDT', icon: 'xrp-xrp-logo.svg?v=029', coin: 'XRP', anim: '' }, 
-            { id: 'DOGEUSDT', name: 'DOGE/USDT', icon: 'dogecoin-doge-logo.svg?v=029', coin: 'DOGE', anim: 'btc-rock' }, 
-            { id: 'ADAUSDT', name: 'ADA/USDT', icon: 'cardano-ada-logo.svg?v=029', coin: 'ADA', anim: '' }, 
-            { id: 'DOTUSDT', name: 'DOT/USDT', icon: 'polkadot-new-dot-logo.svg?v=029', coin: 'DOT', anim: 'dot-hard-pulse' }
+            { id: 'BTCUSDT', name: 'BTC/USDT', icon: 'bitcoin-btc-logo.svg?v=029', coin: 'BTC' }, { id: 'ETHUSDT', name: 'ETH/USDT', icon: 'ethereum-eth-logo.svg?v=029', coin: 'ETH' },
+            { id: 'SOLUSDT', name: 'SOL/USDT', icon: 'solana-sol-logo.svg?v=029', coin: 'SOL' }, { id: 'BNBUSDT', name: 'BNB/USDT', icon: 'bnb-bnb-logo.svg?v=029', coin: 'BNB' },
+            { id: 'XRPUSDT', name: 'XRP/USDT', icon: 'xrp-xrp-logo.svg?v=029', coin: 'XRP' }, { id: 'DOGEUSDT', name: 'DOGE/USDT', icon: 'dogecoin-doge-logo.svg?v=029', coin: 'DOGE' }, 
+            { id: 'ADAUSDT', name: 'ADA/USDT', icon: 'cardano-ada-logo.svg?v=029', coin: 'ADA' }, { id: 'DOTUSDT', name: 'DOT/USDT', icon: 'polkadot-new-dot-logo.svg?v=029', coin: 'DOT' }, 
+            { id: 'MATICUSDT', name: 'MATIC/USDT', icon: 'polygon-matic-logo.svg?v=029', coin: 'MATIC' }, { id: 'AVAXUSDT', name: 'AVAX/USDT', icon: 'avalanche-avax-logo.svg?v=029', coin: 'AVAX' },
+            { id: 'ATOMUSDT', name: 'ATOM/USDT', icon: 'cosmos-atom-logo.svg?v=029', coin: 'ATOM' }
         ];
 
-        const FX_RATES = { USD: 1, AED: 3.67, EUR: 0.92, GBP: 0.79 };
-        const FX_SYM = { USD: '$', AED: 'د.إ', EUR: '€', GBP: '£' };
+        const STAKING_OPTS = [
+            { id: 'ATOM', apr: 14.5, tag: 'High Yield' }, { id: 'DOT', apr: 11.8, tag: 'Hot' }, { id: 'SOL', apr: 8.5, tag: 'Popular' }, 
+            { id: 'AVAX', apr: 6.5, tag: 'Stable' }, { id: 'ETH', apr: 4.2, tag: 'Secure' }, { id: 'ADA', apr: 3.5, tag: 'Safe' }
+        ];
+
+        const FX_RATES = { USD: 1, AED: 3.67, EUR: 0.92, GBP: 0.79, CAD: 1.36, AUD: 1.52 };
+        const FX_SYM = { USD: '$', AED: 'د.إ', EUR: '€', GBP: '£', CAD: 'C$', AUD: 'A$' };
 
         const defaultHolders = [
             {addr: "0x3f9A...8cA1", usd: 1450000, lastAction: "ACCUMULATING", amt: 0}, {addr: "0x88bC...11C9", usd: 1120000, lastAction: "HOLDING", amt: 0},
-            {addr: "0x1aF2...E4F2", usd: 890000, lastAction: "HOLDING", amt: 0}, {addr: "0x7cE4...00B1", usd: 760000, lastAction: "HOLDING", amt: 0}
+            {addr: "0x1aF2...E4F2", usd: 890000, lastAction: "HOLDING", amt: 0}, {addr: "0x7cE4...00B1", usd: 760000, lastAction: "HOLDING", amt: 0},
+            {addr: "0x99D1...FA00", usd: 450000, lastAction: "DISTRIBUTING", amt: 0}
         ];
 
-        let appState = JSON.parse(localStorage.getItem('gemini_api_quant')) || {
+        let appState = JSON.parse(localStorage.getItem('cloudquant_v9_hedge')) || {
             activeWalletIdx: 0, currency: 'USD', globalTradeLogs: [], topHoldersSim: defaultHolders, lastRunTime: Date.now(),
             aiStats: { wins: 0, losses: 0, pnl: 0, activePaper: [] }, 
-            wallets: [{ id: 1, name: "Main API", usdtBalance: 25000.00, startOfDayValue: 25000.00, orders: [], history: [], manualAssets: { 'BTC': 0.25, 'SOL': 45.0, 'DOT': 300 }, stakes: [] }]
+            wallets: [{ id: 1, name: "Main API", usdtBalance: <%= user ? user.usdt_balance : 15000.00 %>, startOfDayValue: <%= user ? user.usdt_balance : 15000.00 %>, orders: [], history: [], manualAssets: { 'BTC': 0.15, 'ETH': 3.0, 'DOT': 150, 'ATOM': 500 }, stakes: [] }]
         };
         
+        // EJS Injected Balance Syncing (In case local storage is outdated compared to backend)
+        if(appState.wallets[0]) { appState.wallets[0].usdtBalance = <%= user ? user.usdt_balance : 15000.00 %>; }
+
         if(!appState.aiStats) appState.aiStats = { wins: 0, losses: 0, pnl: 0, activePaper: [] };
         const w = () => appState.wallets[appState.activeWalletIdx];
 
-        let livePrices = {}; let ui = { side: 'buy', pair: 'BTCUSDT', price: 0, lastPrice: 0, lev: 10, timeframe: '5m', chartData: [], alphaTfMs: 86400000 };
-        let wsTicker, wsTrade, chartCtx; let flowData = { buy: 0, sell: 0 }; let canvasHoverPos = null;
+        let livePrices = {}; let ui = { side: 'buy', pair: 'BTCUSDT', price: 0, lastPrice: 0, lev: 10, timeframe: '5m', chartData: [], logFilter: 'all', alphaTfMs: 86400000 };
+        let wsTicker, wsTrade, chartCtx; let flowData = { buy: 0, sell: 0 }; let canvasHoverPos = null; let isShowingAllAssets = false;
+        
+        // --- GEMINI API INTEGRATION ---
+        let geminiApiKey = localStorage.getItem('gemini_api_key') || '';
+        document.getElementById('gemini-api-key').value = geminiApiKey;
+        let lastAiUpdate = 0;
+        let currentAISuggestion = null;
+
+        function saveApiKey(val) {
+            geminiApiKey = val;
+            localStorage.setItem('gemini_api_key', val);
+        }
+
+        async function askGeminiForSignal(marketData) {
+            if (!geminiApiKey) return;
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+
+            const prompt = `
+                You are a quantitative trading algorithm. Analyze this live market data for ${ui.pair}:
+                Current Price: $${marketData.price.toFixed(4)}
+                RSI (14): ${marketData.rsi.toFixed(1)}
+                20 SMA: $${marketData.sma.toFixed(4)}
+                Volatility (Price Range): $${marketData.vol.toFixed(2)}
+                Buy Volume (15m Ratio): ${(marketData.flow15 * 100).toFixed(1)}%
+                Whale Sentiment: ${(marketData.whaleSent * 100).toFixed(1)}%
+                
+                Rules for Short-Term (Scalp):
+                - If RSI < 35 and Whale Sentiment > 50%, side = "buy", calculate TP (+2%) and SL (-1%).
+                - If RSI > 65 and Whale Sentiment < 50%, side = "sell", calculate TP (-2%) and SL (+1%).
+                - Otherwise side = "WAIT".
+                
+                Rules for Macro Trend (Swing):
+                - If Price > SMA and Whale Sentiment > 60%, side = "buy", calculate TP (+10%) and SL (-4%).
+                - If Price < SMA and Whale Sentiment < 40%, side = "sell", calculate TP (-10%) and SL (+4%).
+                - Otherwise side = "WAIT".
+                
+                Output ONLY a valid JSON object in this exact format, with no markdown or text:
+                {
+                    "short": {"side": "buy|sell|WAIT", "conf": 0-100, "lev": 20, "tp": number, "sl": number},
+                    "long": {"side": "buy|sell|WAIT", "conf": 0-100, "lev": 5, "tp": number, "sl": number}
+                }
+            `;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0) {
+                    const aiText = result.candidates[0].content.parts[0].text;
+                    const aiDecision = JSON.parse(aiText);
+                    return aiDecision;
+                }
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+            }
+            return null;
+        }
+
+        // --- END GEMINI INIT ---
 
         function switchApp(appName) {
             document.getElementById('app-terminal').style.display = appName === 'terminal' ? 'block' : 'none'; document.getElementById('app-wallet').style.display = appName === 'wallet' ? 'block' : 'none';
-            document.getElementById('nav-terminal').className = appName === 'terminal' ? "px-4 py-1.5 text-[11px] font-black uppercase tracking-widest bg-[#F3BA2F] text-black" : "px-4 py-1.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition";
-            document.getElementById('nav-wallet').className = appName === 'wallet' ? "px-4 py-1.5 text-[11px] font-black uppercase tracking-widest bg-[#F3BA2F] text-black" : "px-4 py-1.5 text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition";
+            document.getElementById('nav-terminal').className = appName === 'terminal' ? "px-4 py-1.5 rounded text-[11px] font-black uppercase tracking-widest bg-[#F3BA2F] text-black" : "px-4 py-1.5 rounded text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition";
+            document.getElementById('nav-wallet').className = appName === 'wallet' ? "px-4 py-1.5 rounded text-[11px] font-black uppercase tracking-widest bg-[#F3BA2F] text-black" : "px-4 py-1.5 rounded text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition";
             if(appName === 'terminal') { setTimeout(setupCanvas, 50); drawChart(); } if(appName === 'wallet') updateWalletApp();
         }
 
         function init() {
             document.getElementById('currency-select').value = appState.currency || 'USD'; document.getElementById('wallet-currency').value = appState.currency || 'USD';
             buildTerminalDropdown(); refreshWorkspace(); setupCanvas();
-            connectMultiStream(); connectGlobalTradeStream(); triggerPairChange(); setInterval(updateWalletSystem, 1000);
-            
-            // GEMINI API LOOP - Every 60 Seconds
-            setInterval(requestGeminiSignal, 60000);
-            setTimeout(requestGeminiSignal, 3000); // Initial call
+            connectMultiStream(); connectGlobalTradeStream(); triggerPairChange(); buildStakingGrid(); setInterval(updateWalletSystem, 1000);
+            const missedTime = Date.now() - appState.lastRunTime; if(missedTime > 60000) setTimeout(() => { if(ui.price > 0) generateBackgroundData(ui.pair, ui.price, missedTime); }, 1500);
         }
 
-        // --- GEMINI API LOGIC ---
-        async function requestGeminiSignal() {
-            if (ui.chartData.length < 20 || ui.price === 0) return;
-
-            document.getElementById('api-status-text').innerText = "FETCHING API...";
-            document.getElementById('api-status-text').className = "text-[9px] font-black uppercase text-[#F3BA2F] border-2 border-[#F3BA2F] px-2 py-1";
-
-            let marketData = {
-                price: ui.price,
-                rsi: document.getElementById('ai-rsi').innerText,
-                sma: document.getElementById('ai-sma').innerText,
-                vol: document.getElementById('ai-vol').innerText,
-                buyVol15m: document.getElementById('ai-b15').innerText,
-                buyVol1h: document.getElementById('ai-b1h').innerText,
-                whaleSentiment: document.getElementById('ai-whale').innerText
-            };
-
-            const promptText = `
-            You are a quantitative crypto trading API. Analyze this live market data for ${ui.pair}:
-            Current Price: ${marketData.price}
-            RSI (14): ${marketData.rsi}
-            SMA (20): ${marketData.sma}
-            Volatility: ${marketData.vol}
-            Buy Volume (15m): ${marketData.buyVol15m}
-            Buy Volume (1h): ${marketData.buyVol1h}
-            Whale Sentiment (Buy Pressure): ${marketData.whaleSentiment}
-
-            Task: Make a decision for a 'short' timeframe trade and a 'long' timeframe trade.
-            Output ONLY valid JSON in this exact structure without markdown:
-            {
-                "short": {"side": "buy" | "sell" | "WAIT", "confidence": number (0-100), "lev": number, "tp": number, "sl": number},
-                "long": {"side": "buy" | "sell" | "WAIT", "confidence": number (0-100), "lev": number, "tp": number, "sl": number}
-            }
-            Rules: Set "side" to "WAIT" if the data does not show a clear, strong setup. Provide exact price numbers for 'tp' (Take Profit) and 'sl' (Stop Loss) based on the current price.`;
-
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: promptText }] }],
-                        generationConfig: { responseMimeType: "application/json", temperature: 0.2 }
-                    })
-                });
-                
-                const data = await response.json();
-                if(data.candidates && data.candidates[0]) {
-                    const resultText = data.candidates[0].content.parts[0].text;
-                    const aiDecision = JSON.parse(resultText);
-                    
-                    document.getElementById('api-status-text').innerText = "API CONNECTED";
-                    document.getElementById('api-status-text').className = "text-[9px] font-black uppercase text-green-400 border-2 border-green-500 px-2 py-1";
-                    
-                    processGeminiDecision(aiDecision);
-                }
-            } catch (error) {
-                console.error("Gemini API Error:", error);
-                document.getElementById('api-status-text').innerText = "API ERROR";
-                document.getElementById('api-status-text').className = "text-[9px] font-black uppercase text-pink-500 border-2 border-pink-500 px-2 py-1";
-            }
-        }
-
-        function processGeminiDecision(res) {
-            // Update UI Short
-            const sEl = document.getElementById('ai-short-signal'); const sConf = document.getElementById('ai-short-conf'); const sTgt = document.getElementById('ai-short-targets');
-            if (res.short.side === 'WAIT') {
-                sEl.innerText = 'WAITING SETUP'; sEl.className = 'text-sm font-black uppercase text-muted';
-                sConf.innerText = '--'; sTgt.innerText = '';
-            } else {
-                sConf.innerText = res.short.confidence + '% CONF'; sEl.innerText = `${res.short.lev}x ${res.short.side}`;
-                sEl.className = res.short.side === 'buy' ? 'text-sm font-black uppercase text-green-400' : 'text-sm font-black uppercase text-pink-500';
-                sTgt.innerText = `SL: $${res.short.sl.toFixed(ui.price<1?4:2)} | TP: $${res.short.tp.toFixed(ui.price<1?4:2)}`;
-            }
-
-            // Update UI Long
-            const lEl = document.getElementById('ai-long-signal'); const lConf = document.getElementById('ai-long-conf'); const lTgt = document.getElementById('ai-long-targets');
-            if (res.long.side === 'WAIT') {
-                lEl.innerText = 'WAITING SETUP'; lEl.className = 'text-sm font-black uppercase text-muted';
-                lConf.innerText = '--'; lTgt.innerText = '';
-            } else {
-                lConf.innerText = res.long.confidence + '% CONF'; lEl.innerText = `${res.long.lev}x ${res.long.side}`;
-                lEl.className = res.long.side === 'buy' ? 'text-sm font-black uppercase text-green-400' : 'text-sm font-black uppercase text-pink-500';
-                lTgt.innerText = `SL: $${res.long.sl.toFixed(ui.price<1?4:2)} | TP: $${res.long.tp.toFixed(ui.price<1?4:2)}`;
-            }
-
-            // Execute Paper Trades automatically if confidence > 70
-            if (res.short.side !== 'WAIT' && res.short.confidence > 70) {
-                appState.aiStats.activePaper.push({ id: Date.now(), pair: ui.pair, side: res.short.side, lev: res.short.lev, entry: ui.price, margin: 1000, tp: res.short.tp, sl: res.short.sl, currentRoi: 0, type: 'API Short-Term' });
-            }
-            if (res.long.side !== 'WAIT' && res.long.confidence > 75) {
-                appState.aiStats.activePaper.push({ id: Date.now()+1, pair: ui.pair, side: res.long.side, lev: res.long.lev, entry: ui.price, margin: 2500, tp: res.long.tp, sl: res.long.sl, currentRoi: 0, type: 'API Macro' });
-            }
-            
-            saveState(); renderAIStats(); renderOrders();
-        }
-
-        function processAIPaperTrades(livePrice) {
-            let active = appState.aiStats.activePaper;
-            let updated = false;
-
-            for(let i = active.length - 1; i >= 0; i--) {
-                let t = active[i];
-                if(t.pair !== ui.pair) continue;
-                
-                t.currentRoi = t.side === 'buy' ? ((livePrice - t.entry) / t.entry) * t.lev * 100 : ((t.entry - livePrice) / t.entry) * t.lev * 100;
-                
-                let hitTP = t.side === 'buy' ? livePrice >= t.tp : livePrice <= t.tp;
-                let hitSL = t.side === 'buy' ? livePrice <= t.sl : livePrice >= t.sl;
-
-                if (hitTP || hitSL || t.currentRoi > 25 || t.currentRoi < -20) {
-                    if(t.currentRoi > 0) appState.aiStats.wins++; else appState.aiStats.losses++;
-                    let pnlVal = (t.margin * (t.currentRoi/100));
-                    appState.aiStats.pnl += pnlVal;
-                    
-                    // Log to overall history
-                    w().history.unshift({ pair: `[AI] ${t.pair}`, pnl: pnlVal, isAI: true });
-                    if(w().history.length > 50) w().history.pop();
-                    
-                    active.splice(i, 1);
-                    updated = true;
-                }
-            }
-            if(updated) { saveState(); renderAIStats(); renderOrders(); renderHistory(); }
-        }
-
-        function renderAIStats() {
-            let total = appState.aiStats.wins + appState.aiStats.losses; let wr = total > 0 ? (appState.aiStats.wins / total) * 100 : 0;
-            const pnlEl = document.getElementById('ai-paper-pnl');
-            pnlEl.innerText = (appState.aiStats.pnl >= 0 ? '+$' : '-$') + Math.abs(appState.aiStats.pnl).toFixed(2);
-            pnlEl.className = appState.aiStats.pnl >= 0 ? "text-green-400 font-black" : "text-pink-500 font-black";
-            document.getElementById('ai-paper-winrate').innerText = `W: ${wr.toFixed(0)}%`;
-            document.getElementById('ai-active-papers').innerText = `${appState.aiStats.activePaper.length} API TRADES LIVE`;
-        }
-
-        // --- WALLET TABS & HELPERS ---
+        // --- WALLET TABS ---
         function renderWalletTabs() {
-            document.getElementById('wallet-tabs').innerHTML = appState.wallets.map((wallet, idx) => `<button onclick="switchWallet(${idx})" class="px-3 py-1 text-[10px] font-black uppercase tracking-widest transition border-2 ${idx === appState.activeWalletIdx ? 'bg-[#F3BA2F] text-black border-white' : 'bg-[#1e2329] text-muted border-[#2b3139] hover:border-white hover:text-white'}">${wallet.name}</button>`).join('');
+            document.getElementById('wallet-tabs').innerHTML = appState.wallets.map((wallet, idx) => `<button onclick="switchWallet(${idx})" class="px-3 py-1 rounded text-[9px] font-black uppercase tracking-widest transition border ${idx === appState.activeWalletIdx ? 'bg-[#F3BA2F] text-black border-[#F3BA2F]' : 'bg-[#1e2329] text-muted border-[#2b3139] hover:border-[#F3BA2F] hover:text-white'}">${wallet.name}</button>`).join('');
             document.getElementById('trade-wallet-select').innerHTML = appState.wallets.map((wl, idx) => `<option value="${idx}" ${idx === appState.activeWalletIdx ? 'selected' : ''}>${wl.name}</option>`).join('');
             document.getElementById('wallet-name-label').innerText = w().name;
         }
 
         function addWallet() { let n = prompt("Enter new wallet name:"); if(!n) return; appState.wallets.push({ id: Date.now(), name: n, usdtBalance: 0, startOfDayValue: 0, orders: [], history: [], manualAssets: {}, stakes: [] }); appState.activeWalletIdx = appState.wallets.length - 1; saveState(); refreshWorkspace(); connectMultiStream(); }
         function switchWallet(idx) { appState.activeWalletIdx = parseInt(idx); saveState(); refreshWorkspace(); connectMultiStream(); drawChart(); }
-        function refreshWorkspace() { renderWalletTabs(); renderOrders(); renderHistory(); updateWalletApp(); updateUI(); }
+        function refreshWorkspace() { renderWalletTabs(); buildNativeSelects(); renderOrders(); renderHistory(); updateWalletApp(); updateUI(); }
 
-        function getIconPath(coin) { if (coin === 'USDT') return 'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029'; const a = ASSETS.find(x => x.id.replace('USDT','') === coin || x.coin === coin); if (a) return `https://cryptologos.cc/logos/${a.icon}`; return `https://ui-avatars.com/api/?name=${coin}&background=fff&color=000&rounded=false&bold=true`; }
+        // --- HELPERS ---
+        function getIconPath(coin) { if (coin === 'USDT') return 'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029'; const a = ASSETS.find(x => x.id.replace('USDT','') === coin || x.coin === coin); if (a) return `https://cryptologos.cc/logos/${a.icon}`; return `https://ui-avatars.com/api/?name=${coin}&background=1e2329&color=F3BA2F&rounded=true`; }
         function getIconImg(coin, cls) { 
-            const a = ASSETS.find(x => x.coin === coin);
-            let ex = a ? a.anim : '';
-            return `<img src="${getIconPath(coin)}" class="${cls} ${ex} bg-white border-2 border-black">`; 
+            let ex = coin === 'DOT' ? 'dot-pulse' : (coin === 'ETH' ? 'eth-pulse' : '');
+            return `<img src="${getIconPath(coin)}" class="${cls} ${ex} rounded bg-[#1e2329] p-0.5 border border-[#2b3139]">`; 
         }
 
         function setCurrency(c) { appState.currency = c; document.getElementById('currency-select').value = c; document.getElementById('wallet-currency').value = c; saveState(); updateWalletSystem(); updateWalletApp(); }
         function toggleDropdown(id) { const el = document.getElementById(id); if(el) { el.classList.toggle('dropdown-hidden'); el.classList.toggle('dropdown-active'); } }
         document.addEventListener('click', (e) => { const drop = document.getElementById('term-dropdown'); if(drop && !e.target.closest('#term-dropdown') && !e.target.closest(`[onclick="toggleDropdown('term-dropdown')"]`)) { drop.classList.add('dropdown-hidden'); drop.classList.remove('dropdown-active'); } });
-        function toggleModal(id) { const el = document.getElementById(id); el.classList.toggle('modal-hidden'); el.classList.toggle('modal-active'); }
+        function toggleModal(id) { const el = document.getElementById(id); el.classList.toggle('modal-hidden'); el.classList.toggle('modal-active'); if(id === 'swap-modal' && el.classList.contains('modal-active')) prepSwapModal(); if(id === 'send-modal' && el.classList.contains('modal-active')) prepSendModal(); if(id === 'settings-modal' && el.classList.contains('modal-active')) buildNativeSelects(); }
 
-        function buildTerminalDropdown() { document.getElementById('term-dropdown').innerHTML = ASSETS.map(a => `<div onclick="selectPair('${a.id}', '${a.name}', '${a.coin}')" class="px-3 py-2 hover:bg-[#2b3139] cursor-pointer flex items-center gap-3 border-b-2 border-[#2b3139]"><img src="${getIconPath(a.coin)}" class="w-6 h-6 bg-white border-2 border-black"><span class="text-[12px] font-black uppercase text-white tracking-widest">${a.name}</span></div>`).join(''); }
+        function buildTerminalDropdown() { document.getElementById('term-dropdown').innerHTML = ASSETS.map(a => `<div onclick="selectPair('${a.id}', '${a.name}', '${a.coin}')" class="px-3 py-2 hover:bg-[#2b3139] cursor-pointer flex items-center gap-2 transition border-b border-[#2b3139]"><img src="${getIconPath(a.coin)}" class="w-5 h-5 rounded bg-[#1e2329] p-0.5"><span class="text-[10px] font-black uppercase text-white tracking-widest">${a.name}</span></div>`).join(''); }
         function selectPair(id, name, coin) { ui.pair = id; document.getElementById('term-text').innerText = name; document.getElementById('term-logo').src = getIconPath(coin); toggleDropdown('term-dropdown'); triggerPairChange(); }
+        function buildNativeSelects() {
+            const sels = ['send-asset', 'swap-asset-from', 'swap-asset-to', 'new-asset-name']; let availOpts = `<option value="USDT">USDT</option>`;
+            for(const c in w().manualAssets) { if(w().manualAssets[c] > 0) availOpts += `<option value="${c}">${c}</option>`; }
+            let allOpts = `<option value="USDT">USDT</option>`; ASSETS.forEach(a => { if(a.coin !== 'USDT') allOpts += `<option value="${a.coin}">${a.coin}</option>`; });
+            document.getElementById('send-asset').innerHTML = availOpts; document.getElementById('swap-asset-from').innerHTML = availOpts; document.getElementById('swap-asset-to').innerHTML = allOpts; document.getElementById('new-asset-name').innerHTML = allOpts;
+        }
 
         // --- STREAMS ---
         function connectMultiStream() {
             let streamSet = new Set(['btcusdt@ticker', 'ethusdt@ticker', 'solusdt@ticker', 'xrpusdt@ticker', 'dogeusdt@ticker', 'adausdt@ticker', 'bnbusdt@ticker', 'dotusdt@ticker', 'atomusdt@ticker']);
             for(const coin of Object.keys(w().manualAssets)) { if (coin !== 'USDT') streamSet.add((coin+'USDT').toLowerCase() + '@ticker'); }
+            w().stakes.forEach(s => { if (s.coin !== 'USDT') streamSet.add((s.coin+'USDT').toLowerCase() + '@ticker'); });
+            
             if(wsTicker) wsTicker.close(); wsTicker = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${Array.from(streamSet).join('/')}`);
             wsTicker.onmessage = (e) => { const payload = JSON.parse(e.data); if(payload.data && payload.data.c) { livePrices[payload.data.s] = parseFloat(payload.data.c); if(payload.data.s === ui.pair) processMainTick(parseFloat(payload.data.c)); } };
             wsTicker.onclose = () => setTimeout(connectMultiStream, 3000); 
         }
 
         function connectGlobalTradeStream() {
-            let tradeStreams = ['btcusdt@aggTrade', 'ethusdt@aggTrade', 'solusdt@aggTrade', 'dogeusdt@aggTrade'];
+            let tradeStreams = ['btcusdt@aggTrade', 'ethusdt@aggTrade', 'solusdt@aggTrade', 'dogeusdt@aggTrade', 'atomusdt@aggTrade'];
             if(wsTrade) wsTrade.close(); wsTrade = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${tradeStreams.join('/')}`);
             wsTrade.onmessage = (e) => {
                 const payload = JSON.parse(e.data);
@@ -640,10 +697,11 @@
                     if(usdVal < 1000) return; 
                     appState.globalTradeLogs.unshift({ addr: '0x' + Math.random().toString(16).substring(2, 8).toUpperCase(), isBuy, qty, price, usdVal, pair, time: Date.now() });
                     if(appState.globalTradeLogs.length > 1500) appState.globalTradeLogs.pop(); 
+                    if(Math.random() < 0.05) saveState(); 
 
                     if(pair === ui.pair) {
                         if(isBuy) flowData.buy += usdVal; else flowData.sell += usdVal;
-                        updateRatioBar(); renderGlobalLogs();
+                        updateRatioBar(); renderOnChainAlpha(); renderGlobalLogs();
                         if(usdVal > 150000) {
                             let rndHolder = appState.topHoldersSim[Math.floor(Math.random() * appState.topHoldersSim.length)];
                             if(isBuy) { rndHolder.usd += usdVal; rndHolder.lastAction = "BUY"; } else { rndHolder.usd -= usdVal; rndHolder.lastAction = "SELL"; }
@@ -656,240 +714,10 @@
         }
 
         function triggerPairChange() {
-            ui.chartData = []; ui.price = livePrices[ui.pair] || 0; flowData = {buy:0, sell:0}; renderTopHolders();
-            document.getElementById('main-price').innerText = "Syncing..."; fetchChartData(); fetch24hStats(); renderGlobalLogs(); requestGeminiSignal();
+            ui.chartData = []; ui.price = livePrices[ui.pair] || 0; flowData = {buy:0, sell:0}; renderOnChainAlpha();
+            document.getElementById('main-price').innerText = "Syncing..."; fetchChartData(); fetch24hStats(); renderTopHolders(); renderGlobalLogs();
         }
 
         async function fetch24hStats() {
             try { let res = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${ui.pair}`); let data = await res.json();
-                document.getElementById('stat-high').innerText = parseFloat(data.highPrice).toLocaleString(); document.getElementById('stat-low').innerText = parseFloat(data.lowPrice).toLocaleString();
-            } catch(e){}
-        }
-
-        function updateWalletSystem() {
-            let totalUsdValue = w().usdtBalance; let termHtml = createTerminalSimpleCard('USDT', w().usdtBalance, w().usdtBalance);
-            w().orders.forEach(o => { let livePrice = livePrices[o.pair] || o.entry; totalUsdValue += o.margin; let pnl = o.side === 'buy' ? ((o.units * livePrice) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * livePrice)); totalUsdValue += pnl; });
-            for (const [coin, amt] of Object.entries(w().manualAssets)) { let valUsd = amt * (livePrices[coin + 'USDT'] || 0); totalUsdValue += valUsd; termHtml += createTerminalSimpleCard(coin, amt, valUsd); }
-            document.getElementById('terminal-asset-list').innerHTML = termHtml;
-            
-            let rate = FX_RATES[appState.currency] || 1; let sym = FX_SYM[appState.currency] || '$'; let localTotal = totalUsdValue * rate;
-            document.getElementById('hero-currency-sym').innerText = sym; document.getElementById('hero-total-balance').innerText = localTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('wallet-currency-sym').innerText = sym; document.getElementById('wallet-total-value').innerText = localTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            
-            let dPnlUsd = totalUsdValue - (w().startOfDayValue || 1); let dPnlLocal = dPnlUsd * rate; 
-            const pnlEl = document.getElementById('hero-daily-pnl'); 
-            pnlEl.innerText = `${dPnlLocal >= 0 ? '+' : ''}${sym}${dPnlLocal.toFixed(2)} Today`; 
-            pnlEl.className = `text-xs md:text-sm font-black tracking-wide bg-[#0b0e11] px-2 py-1 border-2 ${dPnlLocal >= 0 ? 'text-green-400 border-green-500' : 'text-pink-500 border-pink-500'}`;
-            appState.lastRunTime = Date.now(); 
-        }
-
-        function createTerminalSimpleCard(coin, amount, valueUsd) {
-            let rate = FX_RATES[appState.currency] || 1; let sym = FX_SYM[appState.currency] || '$'; let valLocal = valueUsd * rate;
-            const valStr = valueUsd >= 0 ? `${sym}${valLocal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '...';
-            return `<div class="bold-box px-3 py-2 flex items-center gap-2 cursor-pointer bg-white"><div class="w-5 h-5">${getIconImg(coin, 'w-full h-full')}</div><span class="text-[11px] font-black text-black uppercase">${coin}</span><span class="text-[11px] font-mono font-black text-black ml-1 bg-gray-200 px-1 border border-black">${valStr}</span></div>`;
-        }
-
-        // --- CHARTING ---
-        function setupCanvas() {
-            const container = document.getElementById('canvas-container'); const canvas = document.getElementById('custom-chart'); chartCtx = canvas.getContext('2d');
-            function resize() { const rect = container.getBoundingClientRect(); if(rect.width === 0) return; const dpr = window.devicePixelRatio || 1; canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; chartCtx.scale(dpr, dpr); drawChart(); }
-            window.addEventListener('resize', resize); setTimeout(resize, 100); 
-            canvas.addEventListener('mousemove', (e) => { const rect = canvas.getBoundingClientRect(); canvasHoverPos = e.clientX - rect.left; drawChart(); }); canvas.addEventListener('mouseleave', () => { canvasHoverPos = null; drawChart(); });
-        }
-
-        async function fetchChartData() {
-            if(ui.timeframe === 'live') { ui.chartData = []; return; }
-            let interval = ui.timeframe; let limit = 100; if(interval === '7d') { interval = '4h'; limit = 42; } if(interval === '1y') { interval = '1d'; limit = 365; }
-            try { let res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${ui.pair}&interval=${interval}&limit=${limit}`); let json = await res.json(); ui.chartData = json.map(d => ({ time: parseInt(d[0]), price: parseFloat(d[4]) })); drawChart(); calculateIndicators(); } catch(e) {}
-        }
-
-        function setTimeframe(tf) { ui.timeframe = tf; document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active')); document.getElementById(`tf-${tf}`).classList.add('active'); fetchChartData(); }
-
-        function drawChart() {
-            if(!chartCtx || ui.chartData.length < 2) return;
-            const canvas = document.getElementById('custom-chart'); if(canvas.width === 0) return;
-            const width = canvas.width / (window.devicePixelRatio || 1); const h = canvas.height / (window.devicePixelRatio || 1); const data = ui.chartData;
-            chartCtx.clearRect(0, 0, width, h);
-            const padYBottom = 20, padXRight = 70; const gW = width - padXRight, gH = h - padYBottom;
-            const prices = data.map(d => d.price); const minPrice = Math.min(...prices); const maxPrice = Math.max(...prices); const range = maxPrice - minPrice || 1; 
-            
-            chartCtx.strokeStyle = '#2b3139'; chartCtx.lineWidth = 2; chartCtx.fillStyle = '#848E9C'; chartCtx.font = '10px monospace'; chartCtx.textAlign = 'left'; chartCtx.textBaseline = 'middle';
-            for(let i=0; i<=4; i++) { const yPos = (i / 4) * gH; chartCtx.beginPath(); chartCtx.moveTo(0, yPos); chartCtx.lineTo(gW, yPos); chartCtx.stroke(); let gridPrice = maxPrice - (i / 4) * range; let gridText = gridPrice >= 1000 ? Math.round(gridPrice).toLocaleString() : gridPrice.toFixed(minPrice<1?4:2); chartCtx.fillText(gridText, gW + 6, yPos); }
-            
-            chartCtx.beginPath(); let points = [];
-            for(let i = 0; i < data.length; i++) { const x = (i / (data.length - 1)) * gW; let y = ((maxPrice - data[i].price) / range) * (gH * 0.8) + (gH * 0.1); y = Math.max(5, Math.min(gH - 5, y)); points.push({x, y, p: data[i].price}); if(i === 0) chartCtx.moveTo(x, y); else chartCtx.lineTo(x, y); }
-            chartCtx.strokeStyle = '#F3BA2F'; chartCtx.lineWidth = 3; chartCtx.lineJoin = 'miter'; chartCtx.stroke();
-            
-            w().orders.forEach(o => {
-                if(o.pair === ui.pair) {
-                    let y = ((maxPrice - o.entry) / range) * (gH * 0.8) + (gH * 0.1);
-                    if(y > 0 && y < gH) {
-                        chartCtx.beginPath(); chartCtx.moveTo(0, y); chartCtx.lineTo(gW, y); chartCtx.strokeStyle = o.side === 'buy' ? '#34d399' : '#fb7185'; chartCtx.lineWidth = 2; chartCtx.setLineDash([6, 6]); chartCtx.stroke(); chartCtx.setLineDash([]);
-                    }
-                }
-            });
-
-            if(canvasHoverPos !== null && canvasHoverPos <= gW) {
-                let closest = points.reduce((prev, curr) => Math.abs(curr.x - canvasHoverPos) < Math.abs(prev.x - canvasHoverPos) ? curr : prev);
-                chartCtx.strokeStyle = '#EAECEF'; chartCtx.lineWidth = 2; chartCtx.beginPath(); chartCtx.moveTo(closest.x, 0); chartCtx.lineTo(closest.x, gH); chartCtx.stroke();
-                chartCtx.beginPath(); chartCtx.moveTo(0, closest.y); chartCtx.lineTo(gW, closest.y); chartCtx.stroke(); chartCtx.fillStyle = '#EAECEF'; chartCtx.fillRect(closest.x - 4, closest.y - 4, 8, 8);
-            }
-        }
-
-        // --- MARKET LOGIC (Data Compilation for API) ---
-        function processMainTick(newPrice) {
-            const el = document.getElementById('main-price');
-            if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
-                const isUp = newPrice > ui.lastPrice; el.style.color = isUp ? '#34d399' : '#fb7185';
-                const wrap = document.getElementById('main-chart-wrapper'); wrap.classList.remove('flash-up', 'flash-down'); void wrap.offsetWidth; wrap.classList.add(isUp ? 'flash-up' : 'flash-down');
-                setTimeout(()=>el.style.color='white', 200);
-            }
-            ui.lastPrice = newPrice; ui.price = newPrice;
-            if(ui.timeframe === 'live') { ui.chartData.push({time: Date.now(), price: newPrice}); if(ui.chartData.length > 50) ui.chartData.shift(); } else if (ui.chartData.length > 0) { ui.chartData[ui.chartData.length - 1].price = newPrice; }
-            
-            processAIPaperTrades(newPrice);
-            if(Math.random() < 0.1) calculateIndicators(); 
-            if(!canvasHoverPos) drawChart(); 
-            
-            el.innerText = newPrice.toLocaleString(undefined, {minimumFractionDigits: newPrice<1?4:2, maximumFractionDigits: newPrice<1?4:2});
-            renderOrders(); 
-        }
-
-        function calculateIndicators() {
-            if(ui.chartData.length < 21) return; 
-            
-            let gains = 0, losses = 0; const rsiData = ui.chartData.slice(-15);
-            for(let i=1; i<rsiData.length; i++) { let diff = rsiData[i].price - rsiData[i-1].price; if(diff >= 0) gains += diff; else losses -= diff; }
-            let rs = (gains/14) / ((losses/14) || 1); let rsi = 100 - (100 / (1 + rs));
-            const smaData = ui.chartData.slice(-20); let sma = smaData.reduce((acc, val) => acc + val.price, 0) / 20;
-            const prices = smaData.map(d => d.price); let vol = Math.max(...prices) - Math.min(...prices);
-
-            let now = Date.now();
-            let logs = appState.globalTradeLogs.filter(l => l.pair === ui.pair);
-            let logs15 = logs.filter(l => now - l.time < 900000); let logs1h = logs.filter(l => now - l.time < 3600000);
-            let b15 = logs15.filter(l=>l.isBuy).reduce((a,b)=>a+b.usdVal,0); let s15 = logs15.filter(l=>!l.isBuy).reduce((a,b)=>a+b.usdVal,0); let ratio15 = b15 / (b15+s15+1);
-            let b1h = logs1h.filter(l=>l.isBuy).reduce((a,b)=>a+b.usdVal,0); let s1h = logs1h.filter(l=>!l.isBuy).reduce((a,b)=>a+b.usdVal,0); let ratio1h = b1h / (b1h+s1h+1);
-
-            let whaleB = appState.topHoldersSim.filter(h=>h.lastAction.includes('BUY') || h.lastAction==='ACCUMULATING').length;
-            let whaleS = appState.topHoldersSim.filter(h=>h.lastAction.includes('SELL') || h.lastAction==='DISTRIBUTING').length;
-            let whaleSent = whaleB / (whaleB + whaleS + 1);
-
-            document.getElementById('ai-rsi').innerText = rsi.toFixed(1); 
-            document.getElementById('ai-sma').innerText = sma.toFixed(2); 
-            document.getElementById('ai-vol').innerText = vol.toFixed(2);
-            document.getElementById('ai-b15').innerText = (ratio15*100).toFixed(0) + '%'; 
-            document.getElementById('ai-b1h').innerText = (ratio1h*100).toFixed(0) + '%'; 
-            document.getElementById('ai-whale').innerText = (whaleSent*100).toFixed(0) + '%';
-        }
-
-        // --- LOGS & LISTS ---
-        function updateRatioBar() {
-            const t = flowData.buy + flowData.sell; let bPct = 50, sPct = 50; if(t > 0) { bPct = (flowData.buy/t)*100; sPct = (flowData.sell/t)*100; }
-            document.querySelectorAll('#ratio-buy-bar').forEach(el => el.style.width = `${bPct}%`); document.querySelectorAll('#ratio-sell-bar').forEach(el => el.style.width = `${sPct}%`);
-            document.querySelectorAll('#ratio-buy-text').forEach(el => el.innerText = `${bPct.toFixed(0)}%`); document.querySelectorAll('#ratio-sell-text').forEach(el => el.innerText = `${sPct.toFixed(0)}%`);
-        }
-
-        function renderGlobalLogs() {
-            const feed = document.getElementById('below-chart-log'); let filtered = appState.globalTradeLogs.filter(l => l.pair === ui.pair); 
-            if(filtered.length === 0) { feed.innerHTML = '<div class="text-[10px] font-bold text-muted text-center py-4 uppercase">Awaiting blocks...</div>'; return; }
-            feed.innerHTML = filtered.slice(0, 50).map(l => { 
-                const cStr = l.isBuy ? 'text-green-400' : 'text-pink-500'; const bStr = l.isBuy ? 'border-green-500' : 'border-pink-500';
-                return `<div class="flex justify-between items-center px-3 py-1.5 bg-[#1e2329] border-l-4 ${bStr} shrink-0"><span class="text-[10px] font-mono text-muted w-16">${l.addr}</span><span class="text-[10px] font-black ${cStr} uppercase">${l.pair.replace('USDT','')} ${l.isBuy?'BUY':'SELL'} ${l.qty.toFixed(l.price<1?0:4)}</span><span class="text-[10px] font-mono text-white">$${l.usdVal.toLocaleString(undefined, {maximumFractionDigits:0})}</span></div>`;
-            }).join('');
-        }
-
-        function renderOnChainAlpha() {
-            const buysContainer = document.getElementById('ui-top-buys'); const sellsContainer = document.getElementById('ui-top-sells');
-            const now = Date.now(); const pairLogs = appState.globalTradeLogs.filter(l => l.pair === ui.pair && (now - l.time) <= ui.alphaTfMs);
-            let buys = pairLogs.filter(l => l.isBuy).sort((a,b) => b.usdVal - a.usdVal).slice(0,5); let sells = pairLogs.filter(l => !l.isBuy).sort((a,b) => b.usdVal - a.usdVal).slice(0,5);
-
-            if (buys.length === 0) buysContainer.innerHTML = `<div class="text-[9px] text-muted text-center italic py-2">No buys</div>`; else buysContainer.innerHTML = buys.map(t => `<div class="flex justify-between items-center text-[10px] font-mono"><span class="text-white">${t.qty.toFixed(ui.price<1?0:4)} <span class="text-[8px] text-muted">${ui.pair.replace('USDT','')}</span></span><span class="text-green-400 font-black">$${t.usdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>`).join('');
-            if (sells.length === 0) sellsContainer.innerHTML = `<div class="text-[9px] text-muted text-center italic py-2">No sells</div>`; else sellsContainer.innerHTML = sells.map(t => `<div class="flex justify-between items-center text-[10px] font-mono"><span class="text-white">${t.qty.toFixed(ui.price<1?0:4)} <span class="text-[8px] text-muted">${ui.pair.replace('USDT','')}</span></span><span class="text-pink-500 font-black">$${t.usdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div>`).join('');
-        }
-
-        function renderTopHolders() {
-            document.getElementById('ui-top-holders').innerHTML = appState.topHoldersSim.map(h => {
-                let actColor = h.lastAction.includes("BUY") || h.lastAction === "ACCUMULATING" ? "text-green-400" : h.lastAction === "HOLDING" ? "text-white" : "text-pink-500";
-                return `<div class="flex justify-between items-center p-2 border-2 border-[#2b3139] bg-[#1e2329]"><div class="flex flex-col"><span class="text-[10px] font-mono text-white font-bold">${h.addr}</span><span class="text-[9px] text-muted uppercase font-black mt-1">Status: <span class="${actColor}">${h.lastAction}</span></span></div><div class="flex flex-col text-right"><span class="text-[10px] text-black bg-[#F3BA2F] px-1 font-black font-mono border border-black">$${(h.usd).toLocaleString()}</span></div></div>`;
-            }).join('');
-        }
-
-        // --- EXECUTION LOGIC ---
-        function setSide(side) {
-            ui.side = side; 
-            document.getElementById('btn-buy').className = side==='buy' ? "flex-1 py-3 text-[11px] font-black uppercase tracking-widest bg-green-500 text-black border-2 border-black transform translate-y-1" : "flex-1 py-3 text-[11px] font-black uppercase tracking-widest bg-[#1e2329] text-white border-2 border-[#2b3139]";
-            document.getElementById('btn-sell').className = side==='sell' ? "flex-1 py-3 text-[11px] font-black uppercase tracking-widest bg-pink-500 text-black border-2 border-black transform translate-y-1" : "flex-1 py-3 text-[11px] font-black uppercase tracking-widest bg-[#1e2329] text-white border-2 border-[#2b3139]";
-            const exec = document.getElementById('btn-execute'); exec.innerText = side==='buy'?"EXECUTE LONG":"EXECUTE SHORT"; exec.className = side==='buy'?"mt-4 w-full py-4 font-black uppercase tracking-[0.1em] text-[13px] bg-green-500 text-black border-2 border-black hover:bg-green-400 transition" : "mt-4 w-full py-4 font-black uppercase tracking-[0.1em] text-[13px] bg-pink-500 text-black border-2 border-black hover:bg-pink-400 transition";
-        }
-
-        document.getElementById('trade-lev').addEventListener('input', (e) => { ui.lev = parseInt(e.target.value); document.getElementById('lev-val').innerText = ui.lev; calcSize(); }); document.getElementById('trade-margin').addEventListener('input', calcSize);
-        function calcSize() { const m = parseFloat(document.getElementById('trade-margin').value) || 0; document.getElementById('ui-size').innerText = (m * ui.lev).toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; }
-        function setMax() { document.getElementById('trade-margin').value = Math.floor(w().usdtBalance * 100) / 100; calcSize(); }
-
-        function executeOrder() {
-            const m = parseFloat(document.getElementById('trade-margin').value); if (isNaN(m) || m <= 0) return; if (m > w().usdtBalance) return alert("Insufficient USDT in active wallet");
-            w().usdtBalance -= m; w().orders.push({ id: Math.random().toString(36).substr(2, 9), pair: ui.pair, side: ui.side, margin: m, lev: ui.lev, entry: ui.price, units: (m * ui.lev) / ui.price, time: Date.now() });
-            document.getElementById('trade-margin').value = ''; calcSize(); saveState(); renderOrders(); drawChart(); updateWalletSystem();
-        }
-
-        function renderOrders() {
-            const container = document.getElementById('orders-body');
-            
-            // Combine manual trades and API paper trades for display
-            let combinedTrades = [...w().orders];
-            appState.aiStats.activePaper.forEach(pt => combinedTrades.push({...pt, isAPI: true}));
-
-            if (combinedTrades.length === 0) { container.innerHTML = `<div class="p-6 text-center text-white font-black uppercase text-xs border-4 border-[#2b3139] border-dashed">NO LIVE TRADES</div>`; return; }
-            
-            let html = '';
-            combinedTrades.forEach(o => {
-                let livePrice = livePrices[o.pair] || o.entry; let pnl = o.side === 'buy' ? ((o.units || ((o.margin*o.lev)/o.entry)) * livePrice) - (o.margin * o.lev) : ((o.margin * o.lev) - ((o.units || ((o.margin*o.lev)/o.entry)) * livePrice));
-                let roi = (pnl / o.margin) * 100; const isProf = pnl >= 0; const coin = o.pair.replace('USDT', '');
-                
-                let badge = o.isAPI ? `<span class="bg-[#F3BA2F] text-black px-1 text-[8px] border border-black">${o.type}</span>` : `<span class="bg-white text-black px-1 text-[8px] border border-black">MANUAL</span>`;
-                let closeBtn = o.isAPI ? `` : `<button onclick="closeOrder('${o.id}')" class="px-3 py-2 bg-red-500 text-black border-2 border-black text-[9px] uppercase font-black hover:bg-red-400">CLOSE</button>`;
-
-                html += `<div class="bold-box p-3 flex flex-col md:flex-row gap-3 items-center justify-between"><div class="flex items-center justify-between w-full md:w-auto min-w-[150px] gap-3"><div class="flex flex-col gap-1">${badge}<div class="flex items-center gap-2">${getIconImg(coin, 'w-6 h-6')}<span class="text-white font-black uppercase text-xs">${o.pair}</span></div></div><span class="px-2 py-1 ${o.side==='buy'?'bg-green-500':'bg-pink-500'} text-black border-2 border-black uppercase text-[10px] font-black">${o.lev}x ${o.side}</span></div><div class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full text-[10px] md:flex-1 md:justify-around"><div class="flex flex-col"><span class="text-[#848E9C] font-black uppercase">Entry</span><span class="text-white font-mono font-bold">$${o.entry.toFixed(4)}</span></div><div class="flex flex-col"><span class="text-[#848E9C] font-black uppercase">Mark Price</span><span class="text-[#F3BA2F] font-mono font-bold">$${livePrice.toFixed(4)}</span></div><div class="flex flex-col"><span class="text-[#848E9C] font-black uppercase">Margin</span><span class="text-white font-mono font-bold">$${o.margin.toFixed(2)}</span></div><div class="flex flex-col"><span class="text-[#848E9C] font-black uppercase">Total Size</span><span class="text-white font-mono font-bold">$${(o.margin * o.lev).toFixed(2)}</span></div></div><div class="flex items-center justify-between w-full md:w-auto gap-4 border-t-2 md:border-t-0 border-[#363c4e] pt-3 md:pt-0"><div class="flex flex-col text-right"><span class="text-[#848E9C] text-[9px] font-black uppercase">PnL / ROI</span><span class="${isProf?'text-green-400':'text-pink-500'} font-black font-mono text-[11px] bg-[#0b0e11] px-2 py-1 border border-[#363c4e]">${isProf?'+':''}${roi.toFixed(2)}% | ${isProf?'+':''}$${pnl.toFixed(2)}</span></div>${closeBtn}</div></div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function closeOrder(id) {
-            const idx = w().orders.findIndex(p => p.id === id); if(idx===-1) return; const o = w().orders[idx];
-            let pnl = o.side === 'buy' ? ((o.units * (livePrices[o.pair]||o.entry)) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * (livePrices[o.pair]||o.entry)));
-            w().usdtBalance += (o.margin + pnl); w().history.unshift({ pair: o.pair, pnl: pnl, isAI: false }); if(w().history.length > 50) w().history.pop();
-            w().orders.splice(idx, 1); saveState(); renderOrders(); renderHistory(); drawChart(); updateWalletSystem();
-        }
-
-        function renderHistory() {
-            const container = document.getElementById('history-body'); let html = '';
-            w().history.forEach(h => { 
-                const coin = h.pair.replace('USDT', '').replace('[AI] ', ''); 
-                let badge = h.isAI ? `<span class="bg-[#F3BA2F] text-black px-1 text-[7px] border border-black mr-2">API</span>` : `<span class="bg-white text-black px-1 text-[7px] border border-black mr-2">MANUAL</span>`;
-                html += `<div class="bold-box p-3 flex justify-between items-center"><div class="flex items-center gap-2">${badge}${getIconImg(coin, 'w-5 h-5')}<span class="text-white font-black text-[10px] uppercase">${h.pair}</span></div><span class="font-black font-mono text-[11px] ${h.pnl>=0?'text-green-400':'text-pink-500'} bg-[#0b0e11] px-2 py-1 border border-[#363c4e]">${h.pnl>=0?'+':''}$${h.pnl.toFixed(2)}</span></div>`; 
-            });
-            container.innerHTML = html || `<div class="p-6 text-center text-white text-xs uppercase font-black border-4 border-[#2b3139] border-dashed">NO HISTORY</div>`;
-        }
-
-        // --- WALLET APP ---
-        function updateWalletApp() {
-            let totalUsdValue = w().usdtBalance; let rows = []; let rate = FX_RATES[appState.currency] || 1; let sym = FX_SYM[appState.currency] || '$';
-            const addRow = (coin, amt) => { let valUsd = coin === 'USDT' ? amt : amt * (livePrices[coin + 'USDT'] || 0); totalUsdValue += valUsd; rows.push({ coin, amt, valUsd }); };
-            addRow('USDT', w().usdtBalance); for (const [coin, amt] of Object.entries(w().manualAssets)) addRow(coin, amt); rows.sort((a,b) => b.valUsd - a.valUsd);
-            
-            let gridHtml = ''; 
-            for(let i=0; i<rows.length; i++) {
-                let r = rows[i]; let valLocal = r.valUsd * rate;
-                gridHtml += `<div class="bold-box p-4 flex flex-col items-center justify-center text-center gap-2 bg-[#181a20]"><div class="w-12 h-12 mb-2">${getIconImg(r.coin, 'w-full h-full')}</div><span class="font-black text-white text-sm uppercase tracking-widest">${r.coin}</span><span class="font-mono text-[#848E9C] font-bold text-[11px]">${r.amt.toLocaleString(undefined, {maximumFractionDigits: 4})}</span><span class="font-mono text-black font-black mt-auto bg-[#F3BA2F] w-full py-2 border-2 border-black text-xs">${sym}${valLocal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>`;
-            }
-            document.getElementById('wallet-square-grid').innerHTML = gridHtml;
-        }
-
-        function setUsdt() { const amt = parseFloat(document.getElementById('add-usdt-input').value); if(amt >= 0) { w().usdtBalance = amt; w().startOfDayValue = amt; document.getElementById('add-usdt-input').value = ''; saveState(); toggleModal('settings-modal'); updateWalletSystem(); } }
-        function updateUI() { document.getElementById('ui-avail').innerText = w().usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; renderAIStats(); }
-        function saveState() { localStorage.setItem('gemini_api_quant', JSON.stringify(appState)); updateUI(); }
-
-        init();
-    </script>
-</body>
-</html>
+                document.getElementById('stat-high').innerText = parseFloat(data.highPrice).toLocaleString(); document.getElementById('stat-low').innerText = parseFloat(data
