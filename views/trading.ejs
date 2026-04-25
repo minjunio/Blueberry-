@@ -7,16 +7,16 @@
     <link rel="icon" type="image/png" href="https://cryptologos.cc/logos/bnb-bnb-logo.png?v=029">
     
     <style>
-        body { background: #0b0e11; color: #EAECEF; font-family: 'Inter', -apple-system, sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; touch-action: pan-y; }
-        .panel { background: #181a20; border: 1px solid #2b3139; border-radius: 4px; }
+        body { background: #0b0e11; color: #EAECEF; font-family: 'Inter', -apple-system, sans-serif; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; touch-action: pan-y; transition: background 0.3s, color 0.3s; }
+        .panel { background: #181a20; border: 1px solid #2b3139; border-radius: 4px; transition: background 0.3s, border-color 0.3s; }
         .overlay { background: #1e2329; border: 1px solid #2b3139; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        .neo-input { background: #0b0e11; border: 1px solid #363c4e; color: white; outline: none; transition: border-color 0.1s; border-radius: 4px; }
+        .neo-input { background: #0b0e11; border: 1px solid #363c4e; color: white; outline: none; transition: border-color 0.1s, background 0.3s, color 0.3s; border-radius: 4px; }
         .neo-input:focus, .neo-input:hover { border-color: #F3BA2F; }
         .neo-btn { background: #2b3139; border: 1px solid #2b3139; color: #EAECEF; transition: background 0.1s; border-radius: 4px; }
         .neo-btn:hover { background: #F3BA2F; color: #0b0e11; border-color: #F3BA2F; }
         .icon-btn { display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid transparent; border-radius: 4px; color: #848E9C; transition: 0.1s; }
         .icon-btn:hover { background: #2b3139; color: #F3BA2F; }
-        .text-muted { color: #848E9C; }
+        .text-muted { color: #848E9C; transition: color 0.3s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
@@ -45,37 +45,40 @@
         .spinner { border: 2px solid #2b3139; border-top-color: #F3BA2F; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Aesthetically enhanced dramatic boxes */
-        .dramatic-box { 
-            background: linear-gradient(145deg, #1e2329 0%, #15181e 100%); 
-            border: 1px solid #2b3139; 
-            box-shadow: 4px 4px 10px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.03); 
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            position: relative; 
-            border-radius: 8px;
-        }
-        .dramatic-box:hover { 
-            transform: translateY(-4px); 
-            border-color: #F3BA2F; 
-            z-index: 10; 
-            box-shadow: 0 12px 20px rgba(0,0,0,0.8), 0 0 15px rgba(243,186,47,0.15), inset 0 1px 2px rgba(255,255,255,0.1); 
-        }
-        
+        .dramatic-box { background: linear-gradient(145deg, #1e2329 0%, #15181e 100%); border: 1px solid #2b3139; box-shadow: 4px 4px 10px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.03); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; border-radius: 8px; }
+        .dramatic-box:hover { transform: translateY(-4px); border-color: #F3BA2F; z-index: 10; box-shadow: 0 12px 20px rgba(0,0,0,0.8), 0 0 15px rgba(243,186,47,0.15), inset 0 1px 2px rgba(255,255,255,0.1); }
         .card-row { background: #0b0e11; border: 1px solid #2b3139; border-radius: 4px; transition: all 0.1s; }
         .card-row:hover { border-color: #363c4e; transform: translateX(2px); }
 
-        .glass-icon-container {
-            background: rgba(11, 14, 17, 0.6);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.1);
-        }
+        /* LIGHT MODE OVERRIDES */
+        body.light-mode { background: #f0f2f5; color: #111827; }
+        .light-mode header, .light-mode .panel { background: #ffffff !important; border-color: #e5e7eb !important; }
+        .light-mode .bg-\[\#0b0e11\] { background: #f9fafb !important; border-color: #e5e7eb !important; }
+        .light-mode .bg-\[\#1e2329\], .light-mode .bg-\[\#181a20\] { background: #ffffff !important; border-color: #e5e7eb !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .light-mode .border-\[\#2b3139\] { border-color: #e5e7eb !important; }
+        .light-mode .text-white { color: #111827 !important; }
+        .light-mode .text-muted { color: #6b7280 !important; }
+        .light-mode .neo-input { background: #f9fafb !important; border-color: #d1d5db !important; color: #111827 !important; }
+        .light-mode .neo-input:focus { border-color: #F3BA2F !important; }
+        .light-mode .dramatic-box { background: #ffffff !important; border-color: #e5e7eb !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important; }
+        .light-mode .dramatic-box:hover { border-color: #F3BA2F !important; box-shadow: 0 10px 15px rgba(0,0,0,0.1) !important; }
+        .light-mode select option { background: #ffffff; color: #111827; }
+        .light-mode .tf-btn:hover:not(.active) { background: #f3f4f6; color: #111827; }
+        .light-mode .card-row { background: #f9fafb !important; border-color: #e5e7eb !important; }
+        .light-mode .icon-btn:hover { background: #f3f4f6; }
+        .light-mode .text-\[\#EAECEF\] { color: #111827 !important; }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 
-    <div class="w-full bg-[#0b0e11] border-b border-[#2b3139] px-4 py-1.5 flex items-center gap-3 overflow-x-auto no-scrollbar shrink-0">
+    <div id="custom-toast" class="fixed top-4 right-4 z-[99999] transition-transform duration-300 translate-x-[150%]">
+        <div id="custom-toast-body" class="bg-[#1e2329] border-l-4 border-pink-500 text-white px-5 py-3 rounded shadow-2xl flex items-center gap-3 font-mono text-[10px] font-black uppercase tracking-widest">
+            <span id="custom-toast-msg"></span>
+        </div>
+    </div>
+
+    <div class="w-full bg-[#0b0e11] border-b border-[#2b3139] px-4 py-1.5 flex items-center gap-3 overflow-x-auto no-scrollbar shrink-0 transition-colors">
         <span class="text-[9px] uppercase font-black text-muted tracking-widest flex-shrink-0">Connected Wallets:</span>
         <div id="wallet-tabs" class="flex gap-2 items-center flex-shrink-0"></div>
         <button onclick="addWallet()" class="text-[9px] uppercase font-black text-[#F3BA2F] hover:bg-[#F3BA2F] hover:text-black transition flex-shrink-0 px-2 py-0.5 border border-[#F3BA2F] rounded ml-2">+ Create New</button>
@@ -88,13 +91,18 @@
                     <img src="https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=029" class="w-6 h-6">
                     <h2 class="text-base font-black uppercase tracking-tight text-white hidden sm:block">Binance <span class="text-[#F3BA2F]">Pro</span></h2>
                 </div>
-                <div class="flex gap-1 bg-[#0b0e11] border border-[#2b3139] p-0.5 rounded">
+                <div class="flex gap-1 bg-[#0b0e11] border border-[#2b3139] p-0.5 rounded transition-colors">
                     <button onclick="switchApp('terminal')" id="nav-terminal" class="px-4 py-1.5 rounded text-[11px] font-black uppercase tracking-widest bg-[#F3BA2F] text-black">Terminal</button>
                     <button onclick="switchApp('wallet')" id="nav-wallet" class="px-4 py-1.5 rounded text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition">Wallet</button>
                 </div>
             </div>
             <div class="flex items-center gap-2 md:gap-3">
                 <button onclick="toggleModal('history-modal')" class="neo-btn px-4 py-1.5 rounded font-black text-[10px] uppercase tracking-widest hidden sm:flex">History</button>
+                
+                <button onclick="toggleLightMode()" class="icon-btn w-8 h-8" title="Toggle Theme">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </button>
+                
                 <button onclick="toggleModal('settings-modal')" class="icon-btn w-8 h-8" title="Settings">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 </button>
@@ -121,7 +129,7 @@
                     </div>
                 </div>
                 
-                <div class="border-t border-[#2b3139] pt-4 mt-4 z-10">
+                <div class="border-t border-[#2b3139] pt-4 mt-4 z-10 transition-colors">
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="text-[10px] font-black uppercase tracking-widest text-muted">Quick Asset View</h3>
                     </div>
@@ -133,7 +141,7 @@
                 <div class="lg:col-span-9 flex flex-col gap-4">
                     
                     <div class="panel p-3 md:p-4 flex flex-col gap-3 border-l-4 border-l-[#F3BA2F]">
-                        <div class="flex justify-between items-center border-b border-[#2b3139] pb-2">
+                        <div class="flex justify-between items-center border-b border-[#2b3139] pb-2 transition-colors">
                             <div class="flex items-center gap-2">
                                 <div class="w-2 h-2 bg-[#F3BA2F]"></div>
                                 <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F]">Auto-Quant Engine (v8.0 Deep Signals)</h3>
@@ -143,7 +151,7 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-[9px] font-mono border-b border-[#2b3139] pb-2">
+                        <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-[9px] font-mono border-b border-[#2b3139] pb-2 transition-colors">
                             <div class="flex flex-col"><span class="text-muted uppercase font-sans">RSI (14)</span><span id="ai-rsi" class="text-white">--</span></div>
                             <div class="flex flex-col"><span class="text-muted uppercase font-sans">SMA (20)</span><span id="ai-sma" class="text-white">--</span></div>
                             <div class="flex flex-col"><span class="text-muted uppercase font-sans">Volatility</span><span id="ai-vol" class="text-white">--</span></div>
@@ -154,18 +162,18 @@
 
                         <div class="flex flex-col md:flex-row gap-3">
                             <div class="flex-1 grid grid-cols-2 gap-3">
-                                <div class="bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-between group">
+                                <div class="bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-between group transition-colors">
                                     <div class="flex justify-between items-center mb-1"><span class="text-[9px] text-muted font-black uppercase tracking-widest">Short-Term (Scalp)</span><span id="ai-short-conf" class="text-[8px] font-mono text-[#F3BA2F]">0% Conf</span></div>
                                     <div class="flex justify-between items-end mt-1"><span id="ai-short-signal" class="text-xs font-black uppercase text-white">ANALYZING...</span><button id="ai-short-btn" onclick="executeAISuggestion('short')" class="px-2 py-1 bg-[#1e2329] border border-[#2b3139] group-hover:border-[#F3BA2F] text-[#F3BA2F] rounded text-[8px] font-black uppercase transition hidden">Trade</button></div>
                                 </div>
-                                <div class="bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-between group">
+                                <div class="bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-between group transition-colors">
                                     <div class="flex justify-between items-center mb-1"><span class="text-[9px] text-muted font-black uppercase tracking-widest">Long-Term (Swing)</span><span id="ai-long-conf" class="text-[8px] font-mono text-[#F3BA2F]">0% Conf</span></div>
                                     <div class="flex justify-between items-end mt-1"><span id="ai-long-signal" class="text-xs font-black uppercase text-white">ANALYZING...</span><button id="ai-long-btn" onclick="executeAISuggestion('long')" class="px-2 py-1 bg-[#1e2329] border border-[#2b3139] group-hover:border-[#F3BA2F] text-[#F3BA2F] rounded text-[8px] font-black uppercase transition hidden">Trade</button></div>
                                 </div>
                             </div>
-                            <div class="w-full md:w-72 bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-start">
+                            <div class="w-full md:w-72 bg-[#0b0e11] border border-[#2b3139] p-2 rounded flex flex-col justify-start transition-colors">
                                 <span class="text-[8px] uppercase font-black text-[#F3BA2F] mb-1">Hedge Paper Trading (Live Algo)</span>
-                                <div class="flex justify-between items-center font-mono text-xs font-black border-b border-[#2b3139] pb-1 mb-1"><span id="ai-paper-pnl" class="text-white">$0.00</span><span id="ai-paper-winrate" class="text-muted">Win: 0% (0/0)</span></div>
+                                <div class="flex justify-between items-center font-mono text-xs font-black border-b border-[#2b3139] pb-1 mb-1 transition-colors"><span id="ai-paper-pnl" class="text-white">$0.00</span><span id="ai-paper-winrate" class="text-muted">Win: 0% (0/0)</span></div>
                                 <div id="ai-active-papers-list" class="flex flex-col gap-1 overflow-y-auto no-scrollbar max-h-[100px] mt-1"><div class="text-[8px] text-muted text-center py-2 italic border border-dashed border-[#2b3139] rounded">Awaiting signals...</div></div>
                             </div>
                         </div>
@@ -174,14 +182,14 @@
                     <div class="panel p-4 md:p-6 flex flex-col relative min-h-[55vh] transition-colors duration-100" id="main-chart-wrapper">
                         <div class="flex justify-between items-start z-20">
                             <div class="relative w-fit">
-                                <button onclick="toggleDropdown('term-dropdown')" class="neo-input px-3 py-2 rounded flex items-center gap-3 w-[150px] md:w-48 bg-[#0b0e11]">
-                                    <div class="w-5 h-5 flex items-center justify-center" id="term-logo-container"><img id="term-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-5 h-5 rounded-full bg-[#1e2329] p-0.5 object-contain"></div>
+                                <button onclick="toggleDropdown('term-dropdown')" class="neo-input px-3 py-2 rounded flex items-center gap-3 w-[150px] md:w-48">
+                                    <div class="w-5 h-5 flex items-center justify-center" id="term-logo-container"><img id="term-logo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=029" class="w-5 h-5 object-contain"></div>
                                     <span id="term-text" class="font-black text-sm uppercase text-white tracking-wide">BTC/USDT</span>
                                     <svg class="w-4 h-4 ml-auto text-[#F3BA2F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
                                 <div id="term-dropdown" class="absolute top-full left-0 mt-1 w-48 overlay py-1 dropdown-menu dropdown-hidden z-50 overflow-y-auto max-h-[300px] no-scrollbar"></div>
                             </div>
-                            <div class="flex flex-wrap bg-[#0b0e11] p-1 rounded border border-[#2b3139] justify-end max-w-[50%] sm:max-w-full">
+                            <div class="flex flex-wrap bg-[#0b0e11] p-1 rounded border border-[#2b3139] justify-end max-w-[50%] sm:max-w-full transition-colors">
                                 <div class="tf-btn" onclick="setTimeframe('live')" id="tf-live">LIVE</div>
                                 <div class="tf-btn active" onclick="setTimeframe('5m')" id="tf-5m">5m</div>
                                 <div class="tf-btn" onclick="setTimeframe('1h')" id="tf-1h">1H</div>
@@ -191,7 +199,7 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap justify-between gap-4 sm:gap-6 mt-4 z-10 border-b border-[#2b3139] pb-3 items-end">
+                        <div class="flex flex-wrap justify-between gap-4 sm:gap-6 mt-4 z-10 border-b border-[#2b3139] pb-3 items-end transition-colors">
                             <div class="flex gap-4 sm:gap-6 shrink-0">
                                 <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">High</span><p class="text-xs font-mono text-green-400 font-black" id="stat-high">--</p></div>
                                 <div class="flex flex-col"><span class="text-[9px] text-muted uppercase tracking-widest">Low</span><p class="text-xs font-mono text-pink-400 font-black" id="stat-low">--</p></div>
@@ -207,7 +215,7 @@
                     </div>
 
                     <div class="panel flex flex-col h-[260px]">
-                        <div class="flex flex-col p-3 border-b border-[#2b3139] shrink-0 bg-[#1e2329] gap-3">
+                        <div class="flex flex-col p-3 border-b border-[#2b3139] shrink-0 bg-[#1e2329] gap-3 transition-colors">
                             <div class="flex justify-between items-center">
                                 <div class="flex gap-4 items-center">
                                     <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F] hidden sm:block">Asset Block Logs</h3>
@@ -219,7 +227,7 @@
                             </div>
                             <div class="w-full flex items-center gap-2">
                                 <span class="text-[10px] font-black text-green-400 w-8" id="ratio-buy-text">50%</span>
-                                <div class="flex-grow h-2.5 bg-[#0b0e11] rounded border border-[#2b3139] flex overflow-hidden">
+                                <div class="flex-grow h-2.5 bg-[#0b0e11] rounded border border-[#2b3139] flex overflow-hidden transition-colors">
                                     <div id="ratio-buy-bar" class="h-full bg-green-500 transition-all duration-300 shadow-[0_0_10px_rgba(34,197,94,0.5)]" style="width: 50%"></div>
                                     <div id="ratio-sell-bar" class="h-full bg-pink-500 transition-all duration-300 shadow-[0_0_10px_rgba(244,63,94,0.5)]" style="width: 50%"></div>
                                 </div>
@@ -232,7 +240,7 @@
                     </div>
 
                     <div class="panel flex flex-col min-h-[25vh]">
-                        <div class="flex justify-between items-center p-3 border-b border-[#2b3139] shrink-0 bg-[#1e2329]">
+                        <div class="flex justify-between items-center p-3 border-b border-[#2b3139] shrink-0 bg-[#1e2329] transition-colors">
                             <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F]">Active Trades</h3>
                         </div>
                         <div class="flex-grow overflow-y-auto no-scrollbar p-3 space-y-2" id="orders-body"></div>
@@ -241,12 +249,12 @@
 
                 <div class="lg:col-span-3 flex flex-col gap-4">
                     <div class="panel p-4 flex flex-col relative z-10">
-                        <div class="flex justify-between items-center mb-4 border-b border-[#2b3139] pb-2">
+                        <div class="flex justify-between items-center mb-4 border-b border-[#2b3139] pb-2 transition-colors">
                             <h3 class="text-[10px] font-black uppercase tracking-widest text-muted">Manual Execution</h3>
-                            <select id="trade-wallet-select" onchange="switchWallet(this.value)" class="bg-[#0b0e11] text-[#F3BA2F] border border-[#2b3139] rounded px-1.5 py-1 text-[9px] uppercase font-black outline-none cursor-pointer"></select>
+                            <select id="trade-wallet-select" onchange="switchWallet(this.value)" class="neo-input rounded px-1.5 py-1 text-[9px] uppercase font-black outline-none cursor-pointer text-[#F3BA2F]"></select>
                         </div>
                         
-                        <div class="flex gap-2 bg-[#0b0e11] p-1 border border-[#2b3139] rounded mb-5">
+                        <div class="flex gap-2 bg-[#0b0e11] p-1 border border-[#2b3139] rounded mb-5 transition-colors">
                             <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-3 rounded text-[10px] font-black uppercase tracking-widest bg-[#181a20] text-green-400 border border-[#2b3139]">Long / Buy</button>
                             <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-3 rounded text-[10px] font-black uppercase tracking-widest text-muted border border-transparent">Short / Sell</button>
                         </div>
@@ -268,7 +276,7 @@
                                 <input type="range" id="trade-lev" min="1" max="100" value="10" class="w-full">
                             </div>
 
-                            <div class="p-3 bg-[#0b0e11] border border-[#2b3139] rounded space-y-2 mt-2">
+                            <div class="p-3 bg-[#0b0e11] border border-[#2b3139] rounded space-y-2 mt-2 transition-colors">
                                 <div class="flex justify-between text-[9px] font-black uppercase"><span class="text-muted">Available</span><span class="text-white font-mono" id="ui-avail">0.00</span></div>
                                 <div class="flex justify-between text-[9px] font-black uppercase border-t border-[#2b3139] pt-2"><span class="text-muted">Position Size</span><span class="text-[#F3BA2F] font-mono" id="ui-size">0.00</span></div>
                                 <div class="flex justify-between text-[9px] font-black uppercase border-t border-[#2b3139] pt-2"><span class="text-muted">Est. Liq Price</span><span class="text-pink-400 font-mono" id="ui-liq-price">--</span></div>
@@ -279,9 +287,9 @@
                     </div>
 
                     <div class="panel p-4 flex flex-col flex-grow relative z-10">
-                        <div class="flex justify-between items-center mb-4 border-b border-[#2b3139] pb-2">
+                        <div class="flex justify-between items-center mb-4 border-b border-[#2b3139] pb-2 transition-colors">
                             <h3 class="text-[10px] font-black uppercase tracking-widest text-muted">On-Chain Alpha</h3>
-                            <select id="alpha-tf-select" onchange="setAlphaTimeframe(this.value)" class="bg-[#0b0e11] text-[#F3BA2F] border border-[#2b3139] rounded px-1.5 py-1 text-[9px] uppercase font-black outline-none cursor-pointer">
+                            <select id="alpha-tf-select" onchange="setAlphaTimeframe(this.value)" class="neo-input rounded px-1.5 py-1 text-[9px] uppercase font-black outline-none cursor-pointer text-[#F3BA2F]">
                                 <option value="300000">5 Mins</option>
                                 <option value="900000">15 Mins</option>
                                 <option value="3600000">1 Hour</option>
@@ -291,17 +299,17 @@
                         </div>
                         
                         <div class="mb-4">
-                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-green-400 mb-2 border-b border-[#2b3139] pb-1 flex justify-between"><span>Top Purchases</span> <span id="lbl-buy-tf">24H</span></h4>
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-green-400 mb-2 border-b border-[#2b3139] pb-1 flex justify-between transition-colors"><span>Top Purchases</span> <span id="lbl-buy-tf">24H</span></h4>
                             <div id="ui-top-buys" class="space-y-1"></div>
                         </div>
                         
                         <div class="mb-4">
-                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-pink-400 mb-2 border-b border-[#2b3139] pb-1 flex justify-between"><span>Top Sells</span> <span id="lbl-sell-tf">24H</span></h4>
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-pink-400 mb-2 border-b border-[#2b3139] pb-1 flex justify-between transition-colors"><span>Top Sells</span> <span id="lbl-sell-tf">24H</span></h4>
                             <div id="ui-top-sells" class="space-y-1"></div>
                         </div>
 
                         <div class="mt-auto">
-                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-[#F3BA2F] mb-2 border-b border-[#2b3139] pb-1">Whale Tracker</h4>
+                            <h4 class="text-[9px] font-bold uppercase tracking-widest text-[#F3BA2F] mb-2 border-b border-[#2b3139] pb-1 transition-colors">Whale Tracker</h4>
                             <div id="ui-top-holders" class="flex flex-col gap-1.5"></div>
                         </div>
                     </div>
@@ -315,14 +323,14 @@
             <div class="panel p-6 flex flex-col gap-6 border-t-2 border-t-[#F3BA2F]">
                 <div class="flex flex-col md:flex-row justify-between items-center md:items-start gap-6 w-full">
                     <div class="flex flex-col w-full">
-                        <div class="flex items-center justify-between border-b border-[#2b3139] pb-3 mb-4">
+                        <div class="flex items-center justify-between border-b border-[#2b3139] pb-3 mb-4 transition-colors">
                             <div class="flex items-center gap-3">
                                 <img src="https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=029" class="w-5 h-5">
                                 <span class="text-white text-sm font-black uppercase tracking-widest">Binance Wallet <span class="bg-[#2b3139] text-[#F3BA2F] text-[9px] px-2 py-0.5 rounded ml-2">API Connected</span></span>
                             </div>
                             <div class="flex items-center gap-3">
                                 <button onclick="toggleModal('settings-modal')" class="text-[9px] text-muted hover:text-white uppercase font-black transition border border-[#2b3139] px-2 py-1 rounded">Manage Portfolio</button>
-                                <select id="wallet-currency" onchange="setCurrency(this.value)" class="bg-[#0b0e11] border border-[#2b3139] text-[#F3BA2F] font-black text-xs rounded px-2 py-1 outline-none cursor-pointer"><option value="USD">USD</option><option value="AED">AED</option><option value="EUR">EUR</option><option value="GBP">GBP</option></select>
+                                <select id="wallet-currency" onchange="setCurrency(this.value)" class="neo-input text-[#F3BA2F] font-black text-xs rounded px-2 py-1 outline-none cursor-pointer"><option value="USD">USD</option><option value="AED">AED</option><option value="EUR">EUR</option><option value="GBP">GBP</option></select>
                             </div>
                         </div>
                         
@@ -341,7 +349,7 @@
 
                             <div class="flex gap-3 mt-6 md:mt-0 w-full md:w-auto shrink-0">
                                 <button onclick="toggleModal('send-modal')" class="flex-1 md:flex-none px-6 py-2.5 rounded text-[10px] font-black uppercase tracking-widest bg-[#F3BA2F] text-black hover:bg-yellow-400 transition">Send / Withdraw</button>
-                                <button onclick="toggleModal('swap-modal')" class="flex-1 md:flex-none px-6 py-2.5 rounded text-[10px] font-black uppercase tracking-widest bg-[#0b0e11] text-[#F3BA2F] border border-[#2b3139] hover:border-[#F3BA2F] transition">Swap Assets</button>
+                                <button onclick="toggleModal('swap-modal')" class="flex-1 md:flex-none px-6 py-2.5 rounded text-[10px] font-black uppercase tracking-widest bg-transparent text-[#F3BA2F] border border-[#2b3139] hover:border-[#F3BA2F] transition">Swap Assets</button>
                             </div>
                         </div>
                     </div>
@@ -350,7 +358,7 @@
             </div>
 
             <div>
-                <div class="flex justify-between items-end mb-4 border-b border-[#2b3139] pb-2">
+                <div class="flex justify-between items-end mb-4 border-b border-[#2b3139] pb-2 transition-colors">
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-white border-l-2 border-[#F3BA2F] pl-2">My Assets</h3>
                 </div>
                 <div id="wallet-square-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-2 pb-4"></div>
@@ -358,50 +366,62 @@
             </div>
 
             <div class="panel p-5 mt-4">
-                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-[#2b3139]">
-                    <div class="w-8 h-8 rounded bg-[#0b0e11] flex items-center justify-center border border-[#2b3139]">
+                <div class="flex items-center gap-3 mb-4 pb-3 border-b border-[#2b3139] transition-colors">
+                    <div class="w-8 h-8 rounded bg-[#0b0e11] flex items-center justify-center border border-[#2b3139] transition-colors">
                         <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                     <h2 class="text-sm font-black uppercase text-white tracking-widest">Binance Earn (Staking)</h2>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3" id="staking-grid"></div>
                 <div class="mt-6">
-                    <h3 class="text-[9px] font-black uppercase text-muted mb-3 tracking-widest border-b border-[#2b3139] pb-1">Active Stakes</h3>
+                    <h3 class="text-[9px] font-black uppercase text-muted mb-3 tracking-widest border-b border-[#2b3139] pb-1 transition-colors">Active Stakes</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="active-stakes-body"></div>
                 </div>
             </div>
         </main>
     </div>
 
+    <div id="custom-prompt-modal" class="fixed inset-0 z-[99999] modal-overlay modal-hidden flex items-center justify-center p-4">
+        <div class="modal-content panel w-full max-w-sm p-5 relative border-t-2 border-t-[#F3BA2F]">
+            <h2 class="text-xs font-black uppercase tracking-widest text-[#F3BA2F] mb-3 border-b border-[#2b3139] pb-2 transition-colors" id="custom-prompt-title">Input Required</h2>
+            <p id="custom-prompt-msg" class="text-[10px] text-white mb-4 whitespace-pre-wrap"></p>
+            <input type="text" id="custom-prompt-input" class="w-full neo-input p-2.5 rounded text-sm font-mono mb-4" autocomplete="off">
+            <div class="flex gap-2">
+                <button id="custom-prompt-cancel" class="flex-1 py-2 rounded font-black uppercase text-[10px] bg-[#1e2329] text-muted border border-[#2b3139] hover:text-white transition">Cancel</button>
+                <button id="custom-prompt-confirm" class="flex-1 py-2 rounded font-black uppercase text-[10px] bg-[#F3BA2F] text-black hover:bg-yellow-400 transition">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <div id="ai-code-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
-        <div class="modal-content panel w-full max-w-2xl p-5 relative flex flex-col">
+        <div class="modal-content panel w-full max-w-2xl p-5 relative flex flex-col border-t-2 border-t-[#F3BA2F]">
             <button onclick="toggleModal('ai-code-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-2 border-b border-[#2b3139] pb-2">Edit Advanced Algorithmic Logic</h2>
-            <textarea id="ai-logic-editor" class="code-area w-full h-[400px] bg-[#0b0e11] text-[#EAECEF] p-3 text-[10px] outline-none border border-[#2b3139] focus:border-[#F3BA2F] rounded resize-none mb-4" spellcheck="false"></textarea>
+            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-2 border-b border-[#2b3139] pb-2 transition-colors">Edit Advanced Algorithmic Logic</h2>
+            <textarea id="ai-logic-editor" class="code-area w-full h-[400px] bg-[#0b0e11] text-[#EAECEF] p-3 text-[10px] outline-none border border-[#2b3139] focus:border-[#F3BA2F] rounded resize-none mb-4 transition-colors" spellcheck="false"></textarea>
             <button onclick="saveAILogic()" class="w-full neo-btn py-3 rounded text-[10px] font-black uppercase bg-[#F3BA2F] text-black hover:bg-yellow-400">Save & Re-Compile Algo</button>
         </div>
     </div>
 
     <div id="history-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
-        <div class="modal-content panel w-full max-w-lg p-0 relative max-h-[80vh] flex flex-col overflow-hidden">
-            <div class="p-4 border-b border-[#2b3139] flex justify-between items-center bg-[#1e2329]">
+        <div class="modal-content panel w-full max-w-lg p-0 relative max-h-[80vh] flex flex-col overflow-hidden border-t-2 border-t-[#F3BA2F]">
+            <div class="p-4 border-b border-[#2b3139] flex justify-between items-center bg-[#1e2329] transition-colors">
                 <h2 class="text-xs font-black uppercase tracking-widest text-white">Trade History</h2>
                 <button onclick="toggleModal('history-modal')" class="text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
-            <div class="flex-grow overflow-y-auto no-scrollbar p-3 space-y-2 bg-[#0b0e11]" id="history-body"></div>
+            <div class="flex-grow overflow-y-auto no-scrollbar p-3 space-y-2 bg-[#0b0e11] transition-colors" id="history-body"></div>
         </div>
     </div>
 
     <div id="settings-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
         <div class="modal-content panel w-full max-w-sm p-5 relative border-t-2 border-t-[#F3BA2F]">
             <button onclick="toggleModal('settings-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-5 border-b border-[#2b3139] pb-2">Portfolio Management</h2>
+            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-5 border-b border-[#2b3139] pb-2 transition-colors">Portfolio Management</h2>
             <div class="space-y-5">
                 <div>
                     <label class="text-[9px] font-black uppercase tracking-widest text-[#F3BA2F] mb-1.5 block">Override USDT Balance</label>
                     <div class="flex gap-2"><input type="number" id="add-usdt-input" placeholder="Set Exact Amount" class="flex-grow neo-input p-2 rounded text-sm font-mono"><button onclick="setUsdt()" class="bg-[#F3BA2F] px-4 rounded text-[9px] font-black uppercase hover:bg-yellow-400 transition text-black">Set</button></div>
                 </div>
-                <div class="pt-4 border-t border-[#2b3139]">
+                <div class="pt-4 border-t border-[#2b3139] transition-colors">
                     <label class="text-[9px] font-black uppercase tracking-widest text-muted mb-1.5 block">Modify Specific Assets</label>
                     <div class="flex gap-2"><select id="new-asset-name" class="w-1/2 neo-input p-2 rounded text-xs font-black uppercase border border-[#2b3139]"></select><input type="number" id="new-asset-amt" placeholder="Qty (0 to Del)" class="w-1/2 neo-input p-2 rounded text-xs font-mono"></div>
                     <button onclick="addManualAsset()" class="w-full mt-3 neo-btn py-2.5 rounded text-[9px] font-black uppercase bg-[#2b3139] hover:bg-[#F3BA2F] hover:text-black text-white">Save Changes</button>
@@ -413,7 +433,7 @@
     <div id="send-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
         <div class="modal-content panel w-full max-w-md p-5 relative flex flex-col border-t-2 border-t-[#F3BA2F]">
             <button onclick="closeSendModal()" class="absolute top-4 right-4 text-muted hover:text-white" id="send-close-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-5 border-b border-[#2b3139] pb-2">Send Crypto via API</h2>
+            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-5 border-b border-[#2b3139] pb-2 transition-colors">Send Crypto via API</h2>
             
             <div id="send-form" class="space-y-4">
                 <div><label class="text-[9px] font-black uppercase tracking-widest text-muted block mb-1">Asset</label><select id="send-asset" class="w-full neo-input p-2.5 rounded text-xs font-black uppercase" onchange="updateSendMax()"></select></div>
@@ -428,27 +448,27 @@
             <div id="send-processing" class="hidden flex-col items-center justify-center py-6">
                 <div class="spinner w-8 h-8 mb-4"></div>
                 <h3 class="text-[10px] font-black uppercase tracking-widest text-[#F3BA2F] mb-3" id="send-status-title">Broadcasting...</h3>
-                <div class="w-full bg-[#0b0e11] p-3 rounded border border-[#2b3139] text-[9px] font-mono text-muted h-32 overflow-y-auto no-scrollbar" id="send-log"></div>
+                <div class="w-full bg-[#0b0e11] p-3 rounded border border-[#2b3139] text-[9px] font-mono text-muted h-32 overflow-y-auto no-scrollbar transition-colors" id="send-log"></div>
             </div>
         </div>
     </div>
 
     <div id="swap-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
-        <div class="modal-content panel w-full max-w-sm p-5 relative flex flex-col">
+        <div class="modal-content panel w-full max-w-sm p-5 relative flex flex-col border-t-2 border-t-[#F3BA2F]">
             <button onclick="toggleModal('swap-modal')" class="absolute top-4 right-4 text-muted hover:text-white" id="swap-close-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-5 border-b border-[#2b3139] pb-2">Swap Assets</h2>
+            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-5 border-b border-[#2b3139] pb-2 transition-colors">Swap Assets</h2>
             
             <div id="swap-form-content" class="space-y-3">
-                <div class="bg-[#0b0e11] p-3 rounded border border-[#2b3139]">
+                <div class="bg-[#0b0e11] p-3 rounded border border-[#2b3139] transition-colors">
                     <div class="flex justify-between text-[9px] font-black uppercase text-muted mb-2"><span>From</span><span id="swap-bal-from" class="text-white">Bal: 0.00</span></div>
                     <div class="flex gap-2"><input type="number" id="swap-amt-from" placeholder="0.00" class="flex-grow bg-transparent text-white text-lg font-mono outline-none w-full" oninput="calcSwap()"><select id="swap-asset-from" class="w-24 neo-input p-1.5 rounded text-xs font-black uppercase bg-[#1e2329]" onchange="updateSwapBals(); calcSwap()"></select></div>
                 </div>
-                <div class="flex justify-center -my-3 relative z-10"><div class="bg-[#2b3139] p-1.5 rounded border border-[#0b0e11]"><svg class="w-4 h-4 text-[#F3BA2F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg></div></div>
-                <div class="bg-[#0b0e11] p-3 rounded border border-[#2b3139]">
+                <div class="flex justify-center -my-3 relative z-10"><div class="bg-[#2b3139] p-1.5 rounded border border-[#0b0e11] transition-colors"><svg class="w-4 h-4 text-[#F3BA2F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg></div></div>
+                <div class="bg-[#0b0e11] p-3 rounded border border-[#2b3139] transition-colors">
                     <div class="flex justify-between text-[9px] font-black uppercase text-muted mb-2"><span>To (Est.)</span><span id="swap-bal-to" class="text-[#F3BA2F]">Bal: 0.00</span></div>
                     <div class="flex gap-2"><input type="text" id="swap-amt-to" placeholder="0.00" class="flex-grow bg-transparent text-muted text-lg font-mono outline-none w-full" readonly><select id="swap-asset-to" class="w-24 neo-input p-1.5 rounded text-xs font-black uppercase bg-[#1e2329]" onchange="updateSwapBals(); calcSwap()"></select></div>
                 </div>
-                <div class="text-[9px] font-mono text-muted text-center py-1.5 rounded border border-[#2b3139] bg-[#0b0e11]" id="swap-rate-text">1 -- = -- --</div>
+                <div class="text-[9px] font-mono text-muted text-center py-1.5 rounded border border-[#2b3139] bg-[#0b0e11] transition-colors" id="swap-rate-text">1 -- = -- --</div>
                 <button onclick="executeSwap()" class="w-full py-3 mt-2 rounded font-black uppercase tracking-[0.1em] text-[10px] bg-[#F3BA2F] text-black hover:bg-yellow-400 transition">Confirm Swap</button>
             </div>
             <div id="swap-animation" class="hidden flex-col items-center justify-center py-10"></div>
@@ -456,9 +476,9 @@
     </div>
 
     <div id="stake-modal" class="fixed inset-0 z-[100] modal-overlay modal-hidden flex items-center justify-center p-4">
-        <div class="modal-content panel w-full max-w-sm p-5 relative flex flex-col">
+        <div class="modal-content panel w-full max-w-sm p-5 relative flex flex-col border-t-2 border-t-[#F3BA2F]">
             <button onclick="toggleModal('stake-modal')" class="absolute top-4 right-4 text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-2 border-b border-[#2b3139] pb-2">Stake <span id="stake-modal-asset" class="text-[#F3BA2F]">--</span></h2>
+            <h2 class="text-xs font-black uppercase tracking-widest text-white mb-2 border-b border-[#2b3139] pb-2 transition-colors">Stake <span id="stake-modal-asset" class="text-[#F3BA2F]">--</span></h2>
             <p class="text-[10px] text-green-400 font-mono mb-4">Est. APR: <span id="stake-modal-apr" class="font-black">--%</span></p>
             <div class="mb-4">
                 <div class="flex justify-between text-[9px] font-black uppercase tracking-widest text-muted mb-1.5"><label>Amount to Stake</label><span class="text-[#F3BA2F] cursor-pointer" onclick="document.getElementById('stake-amount').value = document.getElementById('stake-modal-avail').dataset.val">MAX (<span id="stake-modal-avail" data-val="0">0.00</span>)</span></div>
@@ -469,9 +489,38 @@
     </div>
 
     <script>
+        // --- CUSTOM UI ALERTS & PROMPTS ---
+        function customAlert(msg, type='error') {
+            const el = document.getElementById('custom-toast');
+            const msgEl = document.getElementById('custom-toast-msg');
+            msgEl.innerText = msg;
+            document.getElementById('custom-toast-body').className = `bg-[#1e2329] border-l-4 ${type==='error'?'border-pink-500':'border-green-500'} text-white px-5 py-3 rounded shadow-2xl flex items-center gap-3 font-mono text-[10px] font-black uppercase tracking-widest`;
+            el.classList.remove('translate-x-[150%]');
+            setTimeout(() => el.classList.add('translate-x-[150%]'), 3500);
+        }
+
+        let promptCallback = null;
+        function customPrompt(title, msg, callback) {
+            document.getElementById('custom-prompt-title').innerText = title;
+            document.getElementById('custom-prompt-msg').innerText = msg;
+            document.getElementById('custom-prompt-input').value = '';
+            promptCallback = callback;
+            toggleModal('custom-prompt-modal');
+            setTimeout(() => document.getElementById('custom-prompt-input').focus(), 100);
+        }
+
+        document.getElementById('custom-prompt-cancel').onclick = () => toggleModal('custom-prompt-modal');
+        document.getElementById('custom-prompt-confirm').onclick = () => { 
+            const val = document.getElementById('custom-prompt-input').value;
+            toggleModal('custom-prompt-modal');
+            if(promptCallback) promptCallback(val);
+        };
+        document.getElementById('custom-prompt-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') document.getElementById('custom-prompt-confirm').click();
+        });
+
         // --- CORE DATA & ALGO STATE ---
         const ASSETS = [
-            // Removed GIFs for ETH, SOL, DOT ensuring sharp SVGs
             { id: 'BTCUSDT', name: 'BTC/USDT', icon: 'bitcoin-btc-logo.svg?v=029', coin: 'BTC' }, 
             { id: 'ETHUSDT', name: 'ETH/USDT', icon: 'ethereum-eth-logo.svg?v=029', coin: 'ETH' },
             { id: 'SOLUSDT', name: 'SOL/USDT', icon: 'solana-sol-logo.svg?v=029', coin: 'SOL' }, 
@@ -520,10 +569,10 @@ if (isLongBuy) { longSide = 'buy'; longConf = 85 + Math.round(whaleImbalance * 1
 shortConf = Math.max(0, Math.min(99, shortConf)); longConf = Math.max(0, Math.min(99, longConf));
 return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, long: { side: longSide, lev: 5, conf: longConf } });`;
 
-        let dbBalance = <%= user ? user.usdt_balance : 0 %>; // EJS INJECTION: True DB Balance
+        let dbBalance = <%= user ? user.usdt_balance : 0 %>; // EJS INJECTION
 
-        let appState = JSON.parse(localStorage.getItem('cloudquant_v14_algo')) || {
-            activeWalletIdx: 0, currency: 'USD', aiLogic: defaultAlgoScript, globalTradeLogs: [], topHoldersSim: [], lastRunTime: Date.now(),
+        let appState = JSON.parse(localStorage.getItem('cloudquant_v15_algo')) || {
+            activeWalletIdx: 0, currency: 'USD', lightMode: false, aiLogic: defaultAlgoScript, globalTradeLogs: [], topHoldersSim: [], lastRunTime: Date.now(),
             aiStats: { wins: 0, losses: 0, pnl: 0, activePaper: [] }, 
             wallets: [{ id: 1, name: "Main API", usdtBalance: dbBalance, startOfDayValue: dbBalance, orders: [], history: [], manualAssets: {}, stakes: [] }]
         };
@@ -557,6 +606,12 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
         }
         setInterval(optimizeMemory, 60000);
 
+        function toggleLightMode() {
+            document.body.classList.toggle('light-mode');
+            appState.lightMode = document.body.classList.contains('light-mode');
+            saveState(); drawChart();
+        }
+
         function switchApp(appName) {
             document.getElementById('app-terminal').style.display = appName === 'terminal' ? 'block' : 'none'; document.getElementById('app-wallet').style.display = appName === 'wallet' ? 'block' : 'none';
             document.getElementById('nav-terminal').className = appName === 'terminal' ? "px-4 py-1.5 rounded text-[11px] font-black uppercase tracking-widest bg-[#F3BA2F] text-black" : "px-4 py-1.5 rounded text-[11px] font-black uppercase tracking-widest text-muted hover:text-white transition";
@@ -565,6 +620,7 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
         }
 
         function init() {
+            if (appState.lightMode) document.body.classList.add('light-mode');
             document.getElementById('currency-select').value = appState.currency || 'USD'; document.getElementById('wallet-currency').value = appState.currency || 'USD';
             buildTerminalDropdown(); refreshWorkspace(); document.getElementById('ai-logic-editor').value = appState.aiLogic; setupCanvas();
             connectMultiStream(); connectGlobalTradeStream(); triggerPairChange(); optimizeMemory();
@@ -577,12 +633,19 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             document.getElementById('wallet-name-label').innerText = w().name;
         }
 
-        function addWallet() { let n = prompt("Enter new wallet name:"); if(!n) return; appState.wallets.push({ id: Date.now(), name: n, usdtBalance: 0, startOfDayValue: 0, orders: [], history: [], manualAssets: {}, stakes: [] }); appState.activeWalletIdx = appState.wallets.length - 1; saveState(); refreshWorkspace(); connectMultiStream(); }
+        function addWallet() { 
+            customPrompt("New Wallet", "Enter new wallet name:", (n) => {
+                if(!n || n.trim() === '') return; 
+                appState.wallets.push({ id: Date.now(), name: n.trim(), usdtBalance: 0, startOfDayValue: 0, orders: [], history: [], manualAssets: {}, stakes: [] }); 
+                appState.activeWalletIdx = appState.wallets.length - 1; 
+                saveState(); refreshWorkspace(); connectMultiStream(); 
+            });
+        }
         function switchWallet(idx) { appState.activeWalletIdx = parseInt(idx); saveState(); refreshWorkspace(); connectMultiStream(); drawChart(); }
         function refreshWorkspace() { renderWalletTabs(); renderOrders(); renderHistory(); buildNativeSelects(); updateWalletApp(); updateUI(); }
 
-        function getIconPath(coin) { if (coin === 'USDT') return 'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029'; const a = ASSETS.find(x => x.id.replace('USDT','') === coin || x.coin === coin); if (a && a.gif) return a.gif; if (a) return `https://cryptologos.cc/logos/${a.icon}`; return `https://ui-avatars.com/api/?name=${coin}&background=1e2329&color=F3BA2F&rounded=true`; }
-        function getIconImg(coin, cls) { const a = ASSETS.find(x => x.id.replace('USDT','') === coin || x.coin === coin); let src = getIconPath(coin); let fallback = a ? `https://cryptologos.cc/logos/${a.icon}` : 'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029'; return `<img src="${src}" class="${cls} rounded bg-[#1e2329] p-0.5 border border-[#2b3139] object-contain" onerror="this.onerror=null;this.src='${fallback}';">`; }
+        function getIconPath(coin) { if (coin === 'USDT') return 'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029'; const a = ASSETS.find(x => x.id.replace('USDT','') === coin || x.coin === coin); if (a) return `https://cryptologos.cc/logos/${a.icon}`; return `https://ui-avatars.com/api/?name=${coin}&background=1e2329&color=F3BA2F&rounded=true`; }
+        function getIconImg(coin, cls) { const a = ASSETS.find(x => x.id.replace('USDT','') === coin || x.coin === coin); let src = getIconPath(coin); let fallback = a ? `https://cryptologos.cc/logos/${a.icon}` : 'https://cryptologos.cc/logos/tether-usdt-logo.svg?v=029'; return `<img src="${src}" class="${cls}" style="object-fit:contain;" onerror="this.onerror=null;this.src='${fallback}';">`; }
 
         function setCurrency(c) { appState.currency = c; document.getElementById('currency-select').value = c; document.getElementById('wallet-currency').value = c; saveState(); updateWalletSystem(); updateWalletApp(); }
         function toggleDropdown(id) { const el = document.getElementById(id); if(el) { el.classList.toggle('dropdown-hidden'); el.classList.toggle('dropdown-active'); } }
@@ -594,7 +657,7 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             if(id === 'settings-modal' && el.classList.contains('modal-active')) buildNativeSelects(); 
         }
 
-        function buildTerminalDropdown() { document.getElementById('term-dropdown').innerHTML = ASSETS.map(a => `<div onclick="selectPair('${a.id}', '${a.name}', '${a.coin}')" class="px-3 py-2 hover:bg-[#2b3139] cursor-pointer flex items-center gap-2 transition border-b border-[#2b3139]"><img src="${getIconPath(a.coin)}" onerror="this.onerror=null;this.src='https://cryptologos.cc/logos/${a.icon}';" class="w-5 h-5 rounded bg-[#1e2329] p-0.5 object-contain"><span class="text-[10px] font-black uppercase text-white tracking-widest">${a.name}</span></div>`).join(''); }
+        function buildTerminalDropdown() { document.getElementById('term-dropdown').innerHTML = ASSETS.map(a => `<div onclick="selectPair('${a.id}', '${a.name}', '${a.coin}')" class="px-3 py-2 hover:bg-[#2b3139] cursor-pointer flex items-center gap-2 transition border-b border-[#2b3139]"><img src="${getIconPath(a.coin)}" onerror="this.onerror=null;this.src='https://cryptologos.cc/logos/${a.icon}';" class="w-5 h-5 object-contain"><span class="text-[10px] font-black uppercase text-white tracking-widest">${a.name}</span></div>`).join(''); }
         function selectPair(id, name, coin) { ui.pair = id; document.getElementById('term-text').innerText = name; document.getElementById('term-logo-container').innerHTML = getIconImg(coin, 'w-5 h-5 w-full h-full'); toggleDropdown('term-dropdown'); triggerPairChange(); }
         function buildNativeSelects() {
             const sels = ['send-asset', 'swap-asset-from', 'swap-asset-to', 'new-asset-name']; let availOpts = `<option value="USDT">USDT</option>`;
@@ -693,7 +756,7 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
         function createTerminalSimpleCard(coin, amount, valueUsd) {
             let rate = FX_RATES[appState.currency] || 1; let sym = FX_SYM[appState.currency] || '$'; let valLocal = valueUsd * rate;
             const valStr = valueUsd >= 0 ? `${sym}${valLocal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '...';
-            return `<div class="dramatic-box bg-[#1e2329] px-2 py-1.5 rounded flex items-center gap-2 cursor-pointer"><div class="w-4 h-4">${getIconImg(coin, 'w-full h-full')}</div><span class="text-[9px] font-black text-white uppercase">${coin}</span><span class="text-[9px] font-mono font-bold text-[#F3BA2F] ml-1">${valStr}</span></div>`;
+            return `<div class="dramatic-box bg-[#1e2329] px-2 py-1.5 rounded flex items-center gap-2 cursor-pointer"><div class="w-4 h-4">${getIconImg(coin, 'w-full h-full object-contain')}</div><span class="text-[9px] font-black text-white uppercase">${coin}</span><span class="text-[9px] font-mono font-bold text-[#F3BA2F] ml-1">${valStr}</span></div>`;
         }
 
         // --- ENHANCED GRAPH (Touch/Drag & Order Dots) ---
@@ -702,11 +765,9 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             function resize() { const rect = container.getBoundingClientRect(); if(rect.width === 0) return; const dpr = window.devicePixelRatio || 1; canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; chartCtx.scale(dpr, dpr); drawChart(); }
             window.addEventListener('resize', resize); setTimeout(resize, 100); 
             
-            // Mouse Events
             canvas.addEventListener('mousemove', (e) => { const rect = canvas.getBoundingClientRect(); canvasHoverPos = e.clientX - rect.left; drawChart(); }); 
             canvas.addEventListener('mouseleave', () => { canvasHoverPos = null; drawChart(); });
 
-            // Touch Events for Mobile Dragging
             canvas.addEventListener('touchstart', (e) => { const rect = canvas.getBoundingClientRect(); canvasHoverPos = e.touches[0].clientX - rect.left; drawChart(); });
             canvas.addEventListener('touchmove', (e) => { const rect = canvas.getBoundingClientRect(); canvasHoverPos = e.touches[0].clientX - rect.left; drawChart(); e.preventDefault(); }, {passive: false});
             canvas.addEventListener('touchend', () => { canvasHoverPos = null; drawChart(); });
@@ -728,7 +789,10 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             const padYBottom = 20, padXRight = 70; const gW = width - padXRight, gH = h - padYBottom;
             const prices = data.map(d => d.price); const minPrice = Math.min(...prices); const maxPrice = Math.max(...prices); const range = maxPrice - minPrice || 1; 
             
-            chartCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)'; chartCtx.lineWidth = 1; chartCtx.fillStyle = '#848E9C'; chartCtx.font = '9px monospace'; chartCtx.textAlign = 'left'; chartCtx.textBaseline = 'middle';
+            const isLightMode = document.body.classList.contains('light-mode');
+            chartCtx.strokeStyle = isLightMode ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)'; 
+            chartCtx.lineWidth = 1; chartCtx.fillStyle = isLightMode ? '#6b7280' : '#848E9C'; chartCtx.font = '9px monospace'; chartCtx.textAlign = 'left'; chartCtx.textBaseline = 'middle';
+            
             for(let i=0; i<=4; i++) { const yPos = (i / 4) * gH; chartCtx.beginPath(); chartCtx.moveTo(0, yPos); chartCtx.lineTo(gW, yPos); chartCtx.stroke(); let gridPrice = maxPrice - (i / 4) * range; let gridText = gridPrice >= 1000 ? Math.round(gridPrice).toLocaleString() : gridPrice.toFixed(minPrice<1?4:2); chartCtx.fillText(gridText, gW + 6, yPos); }
             
             chartCtx.beginPath(); let points = [];
@@ -737,7 +801,7 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             let gradient = chartCtx.createLinearGradient(0, 0, 0, gH); gradient.addColorStop(0, 'rgba(243, 186, 47, 0.3)'); gradient.addColorStop(1, 'rgba(243, 186, 47, 0.0)'); chartCtx.fillStyle = gradient; chartCtx.fill();
             chartCtx.beginPath(); for(let i = 0; i < points.length; i++) { if(i === 0) chartCtx.moveTo(points[i].x, points[i].y); else chartCtx.lineTo(points[i].x, points[i].y); } chartCtx.strokeStyle = '#F3BA2F'; chartCtx.lineWidth = 2; chartCtx.lineJoin = 'round'; chartCtx.stroke();
             
-            // Clean Accurate Order Dots (No Dashed Lines)
+            // Clean Accurate Order Dots
             w().orders.forEach(o => {
                 if(o.pair === ui.pair) {
                     let matchPoint = points[points.length - 1]; 
@@ -748,7 +812,7 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
                     chartCtx.arc(matchPoint.x, matchPoint.y, 4.5, 0, Math.PI*2); 
                     chartCtx.fillStyle = o.side === 'buy' ? '#34d399' : '#fb7185'; 
                     chartCtx.fill();
-                    chartCtx.strokeStyle = '#0b0e11';
+                    chartCtx.strokeStyle = isLightMode ? '#ffffff' : '#0b0e11';
                     chartCtx.lineWidth = 1.5;
                     chartCtx.stroke();
 
@@ -761,13 +825,13 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             function drawPriceTag(yPos, priceVal) {
                 let tagY = Math.max(10, Math.min(gH - 10, yPos)); let priceText = priceVal >= 1000 ? Math.round(priceVal).toLocaleString() : priceVal.toFixed(minPrice<1?4:2);
                 chartCtx.font = 'bold 11px monospace'; let boxWidth = chartCtx.measureText(priceText).width + 12; 
-                chartCtx.fillStyle = '#F3BA2F'; chartCtx.fillRect(gW, tagY - 11, boxWidth, 22); chartCtx.fillStyle = '#0b0e11'; chartCtx.fillText(priceText, gW + 6, tagY);
+                chartCtx.fillStyle = '#F3BA2F'; chartCtx.fillRect(gW, tagY - 11, boxWidth, 22); chartCtx.fillStyle = isLightMode ? '#ffffff' : '#0b0e11'; chartCtx.fillText(priceText, gW + 6, tagY);
             }
 
             // Interactive Drag/Hover Tracker
             if(canvasHoverPos !== null && canvasHoverPos <= gW && points.length > 0) {
                 let closest = points.reduce((prev, curr) => Math.abs(curr.x - canvasHoverPos) < Math.abs(prev.x - canvasHoverPos) ? curr : prev);
-                chartCtx.strokeStyle = 'rgba(255,255,255,0.3)'; chartCtx.lineWidth = 1; chartCtx.setLineDash([4, 4]); chartCtx.beginPath(); chartCtx.moveTo(closest.x, 0); chartCtx.lineTo(closest.x, gH); chartCtx.stroke();
+                chartCtx.strokeStyle = isLightMode ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.3)'; chartCtx.lineWidth = 1; chartCtx.setLineDash([4, 4]); chartCtx.beginPath(); chartCtx.moveTo(closest.x, 0); chartCtx.lineTo(closest.x, gH); chartCtx.stroke();
                 chartCtx.beginPath(); chartCtx.moveTo(0, closest.y); chartCtx.lineTo(gW, closest.y); chartCtx.stroke(); chartCtx.setLineDash([]); chartCtx.beginPath(); chartCtx.arc(closest.x, closest.y, 4, 0, Math.PI*2); chartCtx.fillStyle = '#F3BA2F'; chartCtx.fill(); drawPriceTag(closest.y, closest.p);
             } else if (points.length > 0) { 
                 const last = points[points.length-1]; chartCtx.beginPath(); chartCtx.arc(last.x, last.y, 4, 0, Math.PI*2); chartCtx.fillStyle = '#F3BA2F'; chartCtx.fill(); drawPriceTag(last.y, last.p); 
@@ -779,16 +843,20 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             if (ui.lastPrice !== 0 && newPrice !== ui.lastPrice) {
                 const isUp = newPrice > ui.lastPrice; el.style.color = isUp ? '#34d399' : '#fb7185';
                 const wrap = document.getElementById('main-chart-wrapper'); wrap.classList.remove('flash-up', 'flash-down'); void wrap.offsetWidth; wrap.classList.add(isUp ? 'flash-up' : 'flash-down');
-                setTimeout(()=>el.style.color='white', 300);
+                setTimeout(()=>{
+                    if(document.body.classList.contains('light-mode')){ el.style.color='#111827'; } else { el.style.color='white'; }
+                }, 300);
             }
             ui.lastPrice = newPrice; ui.price = newPrice;
             if(ui.timeframe === 'live') { ui.chartData.push({time: Date.now(), price: newPrice}); if(ui.chartData.length > 50) ui.chartData.shift(); } else if (ui.chartData.length > 0) { ui.chartData[ui.chartData.length - 1].price = newPrice; }
             
             calcSize(); // Update Liq Price Live
             processAIPaperTrades(newPrice);
-            if(Math.random() < 0.1) calcAIEngine(); 
-            if(!canvasHoverPos) drawChart(); 
             
+            // HYPER-FAST EXECUTION: AI runs on every single tick now
+            calcAIEngine(); 
+            
+            if(!canvasHoverPos) drawChart(); 
             el.innerText = newPrice.toLocaleString(undefined, {minimumFractionDigits: newPrice<1?4:2, maximumFractionDigits: newPrice<1?4:2});
             renderOrders(); 
         }
@@ -841,7 +909,7 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
                 const lEl = document.getElementById('ai-long-signal'); const lConf = document.getElementById('ai-long-conf'); const lBtn = document.getElementById('ai-long-btn');
                 if (res.long.side === 'WAIT' || !res.long.side) { lEl.innerText = 'WAITING FOR SETUP'; lEl.className = 'text-xs font-black uppercase text-muted'; lConf.innerText = '--'; lBtn.classList.add('hidden'); } else { lConf.innerText = res.long.conf + '% Conf'; lEl.innerText = `${res.long.lev}x ${res.long.side}`; lEl.className = res.long.side === 'buy' ? 'text-xs font-black uppercase text-green-400' : 'text-xs font-black uppercase text-pink-400'; lBtn.classList.remove('hidden'); }
 
-                if(Math.random() > 0.8 && appState.aiStats.activePaper.length < 6 && res.short.side !== 'WAIT') {
+                if(appState.aiStats.activePaper.length < 6 && res.short.side !== 'WAIT') {
                     let hId = Date.now();
                     appState.aiStats.activePaper.push({ hedgeId: hId, pair: ui.pair, side: 'buy', lev: res.short.lev, entry: ui.price, margin: 500, currentRoi: 0 });
                     appState.aiStats.activePaper.push({ hedgeId: hId, pair: ui.pair, side: 'sell', lev: res.short.lev, entry: ui.price, margin: 500, currentRoi: 0 });
@@ -860,16 +928,18 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
         }
 
         function executeAISuggestion(type) {
-            if(!currentAISuggestion || currentAISuggestion[type].side === 'WAIT') return alert("Algo is waiting for a setup.");
+            if(!currentAISuggestion || currentAISuggestion[type].side === 'WAIT') return customAlert("Algo is waiting for a setup.", "error");
             let suggestion = currentAISuggestion[type];
-            let amt = prompt(`[ALGO ${type.toUpperCase()}] Execute ${suggestion.lev}x ${suggestion.side.toUpperCase()}.\n\nEnter USDT Margin Amount:`);
-            let margin = parseFloat(amt);
-            if(!margin || margin <= 0 || margin > w().usdtBalance) return alert("Invalid margin or insufficient balance.");
-            w().usdtBalance -= margin; w().orders.push({ id: Math.random().toString(36).substr(2, 9), pair: ui.pair, side: suggestion.side, margin: margin, lev: suggestion.lev, entry: ui.price, units: (margin * suggestion.lev) / ui.price, time: Date.now() });
-            saveState(); renderOrders(); drawChart(); updateWalletSystem();
+            customPrompt(`[ALGO ${type.toUpperCase()}]`, `Execute ${suggestion.lev}x ${suggestion.side.toUpperCase()}.\n\nEnter USDT Margin Amount:`, (amt) => {
+                let margin = parseFloat(amt);
+                if(!margin || margin <= 0 || margin > w().usdtBalance) return customAlert("Invalid margin or insufficient balance.", "error");
+                w().usdtBalance -= margin; w().orders.push({ id: Math.random().toString(36).substr(2, 9), pair: ui.pair, side: suggestion.side, margin: margin, lev: suggestion.lev, entry: ui.price, units: (margin * suggestion.lev) / ui.price, time: Date.now() });
+                saveState(); renderOrders(); drawChart(); updateWalletSystem();
+                customAlert(`Executed ${suggestion.lev}x ${suggestion.side.toUpperCase()} successfully`, "success");
+            });
         }
 
-        function saveAILogic() { appState.aiLogic = document.getElementById('ai-logic-editor').value; saveState(); toggleModal('ai-code-modal'); calcAIEngine(); }
+        function saveAILogic() { appState.aiLogic = document.getElementById('ai-logic-editor').value; saveState(); toggleModal('ai-code-modal'); calcAIEngine(); customAlert("Algo Logic Re-Compiled.", "success"); }
 
         function updateRatioBar() {
             const t = flowData.buy + flowData.sell; let bPct = 50, sPct = 50; if(t > 0) { bPct = (flowData.buy/t)*100; sPct = (flowData.sell/t)*100; }
@@ -915,7 +985,6 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             const m = parseFloat(document.getElementById('trade-margin').value) || 0; 
             document.getElementById('ui-size').innerText = (m * ui.lev).toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; 
             
-            // Liquidation Engine Estimate display
             const estLiq = calcLiqPrice(ui.price, ui.lev, ui.side);
             document.getElementById('ui-liq-price').innerText = m > 0 ? '$' + estLiq.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 4}) : '--';
         }
@@ -923,9 +992,10 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
         function setMax() { document.getElementById('trade-margin').value = Math.floor(w().usdtBalance * 100) / 100; calcSize(); }
 
         function executeOrder() {
-            const m = parseFloat(document.getElementById('trade-margin').value); if (isNaN(m) || m <= 0) return; if (m > w().usdtBalance) return alert("Insufficient USDT.");
+            const m = parseFloat(document.getElementById('trade-margin').value); if (isNaN(m) || m <= 0) return; if (m > w().usdtBalance) return customAlert("Insufficient USDT.", "error");
             w().usdtBalance -= m; w().orders.push({ id: Math.random().toString(36).substr(2, 9), pair: ui.pair, side: ui.side, margin: m, lev: ui.lev, entry: ui.price, units: (m * ui.lev) / ui.price, time: Date.now() });
             document.getElementById('trade-margin').value = ''; calcSize(); saveState(); renderOrders(); drawChart(); updateWalletSystem();
+            customAlert("Order Executed successfully.", "success");
         }
 
         function renderOrders() {
@@ -935,7 +1005,7 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             w().orders.forEach(o => {
                 let livePrice = livePrices[o.pair] || o.entry; let pnl = o.side === 'buy' ? ((o.units * livePrice) - (o.margin * o.lev)) : ((o.margin * o.lev) - (o.units * livePrice));
                 let roi = (pnl / o.margin) * 100; const isProf = pnl >= 0; const coin = o.pair.replace('USDT', '');
-                let liqPrice = calcLiqPrice(o.entry, o.lev, o.side); // Calculate true Liquidation Price
+                let liqPrice = calcLiqPrice(o.entry, o.lev, o.side);
                 html += `<div class="card-row p-3 flex flex-col md:flex-row gap-3 items-center justify-between group"><div class="flex items-center justify-between w-full md:w-auto min-w-[120px] gap-2"><div class="flex items-center gap-2">${getIconImg(coin, 'w-5 h-5')}<span class="text-white font-black uppercase text-[10px]">${o.pair}</span></div><span class="px-2 py-0.5 rounded ${o.side==='buy'?'bg-[#1e2329] text-green-400 border border-green-500/20':'bg-[#1e2329] text-pink-400 border border-pink-500/20'} uppercase text-[8px] font-black">${o.lev}x ${o.side}</span></div><div class="grid grid-cols-2 sm:grid-cols-5 gap-3 w-full text-[9px] md:flex-1 md:justify-around"><div class="flex flex-col"><span class="text-muted">Entry</span><span class="text-[#F3BA2F] font-mono">$${o.entry.toFixed(4)}</span></div><div class="flex flex-col"><span class="text-muted">Mark Price</span><span class="text-white font-mono">$${livePrice.toFixed(4)}</span></div><div class="flex flex-col"><span class="text-muted">Liq. Price</span><span class="text-pink-400 font-mono">$${liqPrice.toFixed(4)}</span></div><div class="flex flex-col"><span class="text-muted">Margin</span><span class="text-white font-mono">$${o.margin.toFixed(2)}</span></div><div class="flex flex-col"><span class="text-muted">Total Size</span><span class="text-white font-mono">$${(o.margin * o.lev).toFixed(2)}</span></div></div><div class="flex items-center justify-between w-full md:w-auto gap-4 border-t md:border-t-0 border-[#2b3139] pt-2 md:pt-0"><div class="flex flex-col text-right"><span class="text-muted text-[8px] uppercase">PnL / ROI</span><span class="${isProf?'text-green-400':'text-pink-400'} font-black font-mono text-[10px]">${isProf?'+':''}${roi.toFixed(2)}% | ${isProf?'+':''}$${pnl.toFixed(2)}</span></div><button onclick="closeOrder('${o.id}')" class="px-3 py-1.5 bg-[#1e2329] text-white rounded text-[8px] uppercase font-black transition border border-[#2b3139] hover:border-pink-500 hover:text-pink-400">Close</button></div></div>`;
             });
             container.innerHTML = html;
@@ -948,6 +1018,7 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             w().orders.splice(idx, 1); 
             fetch('/admin/trading/sync', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ balance: w().usdtBalance }) });
             saveState(); renderOrders(); renderHistory(); drawChart(); updateWalletSystem();
+            customAlert("Trade Closed.", "success");
         }
 
         function renderHistory() {
@@ -955,7 +1026,7 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             w().history.forEach(h => { 
                 const coin = h.pair.replace('USDT', ''); 
                 const statusColor = h.status === 'LIQUIDATED' ? 'text-pink-500 border-pink-500/50' : (h.pnl>=0?'text-green-400 border-transparent':'text-pink-400 border-transparent');
-                html += `<div class="card-row p-2 flex justify-between items-center bg-[#1e2329] border ${statusColor}"><div class="flex items-center gap-2">${getIconImg(coin, 'w-4 h-4')}<span class="text-white font-black text-[9px] uppercase">${h.pair} ${h.status === 'LIQUIDATED' ? '(LIQ)' : ''}</span></div><span class="font-black font-mono text-[10px] ${h.pnl>=0?'text-green-400':'text-pink-400'}">${h.pnl>=0?'+':''}$${h.pnl.toFixed(2)}</span></div>`; 
+                html += `<div class="card-row p-2 flex justify-between items-center bg-[#1e2329] border ${statusColor}"><div class="flex items-center gap-2">${getIconImg(coin, 'w-4 h-4')} <span class="text-white font-black text-[9px] uppercase">${h.pair} ${h.status === 'LIQUIDATED' ? '(LIQ)' : ''}</span></div><span class="font-black font-mono text-[10px] ${h.pnl>=0?'text-green-400':'text-pink-400'}">${h.pnl>=0?'+':''}$${h.pnl.toFixed(2)}</span></div>`; 
             });
             container.innerHTML = html || `<div class="p-3 text-center text-muted text-[9px] uppercase font-black border border-[#2b3139] border-dashed rounded">No History</div>`;
         }
@@ -972,8 +1043,8 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
             for(let i=0; i<renderCount; i++) {
                 let r = rows[i]; let valLocal = r.valUsd * rate;
                 gridHtml += `<div class="dramatic-box panel p-4 flex flex-col items-center justify-center text-center gap-1.5 aspect-square cursor-pointer">
-                    ${r.isStake ? '<span class="absolute top-2 right-2 px-1 py-0.5 rounded bg-[#1e2329] text-green-400 border border-green-500/30 text-[7px] uppercase font-black">Staked</span>' : ''}
-                    <div class="w-12 h-12 md:w-16 md:h-16 mb-2 rounded-full shadow-[0_0_15px_rgba(243,186,47,0.15)] bg-[#0b0e11] p-1 flex items-center justify-center border border-[#2b3139]">${getIconImg(r.coin, 'w-full h-full object-contain')}</div>
+                    ${r.isStake ? '<span class="absolute top-2 right-2 px-1 py-0.5 rounded bg-[#1e2329] text-green-400 border border-green-500/30 text-[7px] uppercase font-black shadow-lg">Staked</span>' : ''}
+                    <div class="w-14 h-14 md:w-20 md:h-20 mb-2 flex items-center justify-center drop-shadow-[0_0_15px_rgba(243,186,47,0.15)]">${getIconImg(r.coin, 'w-full h-full object-contain')}</div>
                     <span class="font-black text-white text-sm md:text-base uppercase tracking-widest">${r.coin}</span>
                     <span class="font-mono text-[#EAECEF] font-bold text-xs md:text-sm">${r.amt.toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
                     <span class="font-mono text-muted font-bold mt-auto w-full pt-2 border-t border-[#2b3139]/50 text-[10px] md:text-xs">≈ ${sym}${valLocal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
@@ -1000,27 +1071,27 @@ return JSON.stringify({ short: { side: shortSide, lev: 50, conf: shortConf }, lo
         // --- STAKING / MODAL ACTIONS ---
         function buildStakingGrid() { document.getElementById('staking-grid').innerHTML = STAKING_OPTS.map(opt => `<div class="dramatic-box panel p-3 flex flex-col items-center"><span class="text-[7px] bg-[#1e2329] text-green-400 px-1.5 py-0.5 rounded mb-2 font-black uppercase border border-green-500/30">${opt.tag}</span><div class="w-8 h-8 mb-1.5">${getIconImg(opt.id, 'w-full h-full')}</div><h3 class="text-xs font-black text-white mb-0.5 tracking-widest">${opt.id}</h3><span class="text-sm font-mono font-black text-green-400">${opt.apr}%</span><button class="w-full mt-2 py-1 rounded bg-[#0b0e11] border border-[#2b3139] text-[#F3BA2F] text-[8px] font-black uppercase hover:border-[#F3BA2F] transition" onclick="openStakeModal('${opt.id}', ${opt.apr})">Stake</button></div>`).join(''); }
         function openStakeModal(coin, apr) { document.getElementById('stake-modal-asset').innerText = coin; document.getElementById('stake-modal-apr').innerText = apr + '%'; let avail = coin === 'USDT' ? w().usdtBalance : (w().manualAssets[coin] || 0); document.getElementById('stake-modal-avail').innerText = avail.toFixed(4); document.getElementById('stake-modal-avail').dataset.val = avail; document.getElementById('stake-amount').value = ''; document.getElementById('stake-amount').dataset.coin = coin; document.getElementById('stake-amount').dataset.apr = apr; toggleModal('stake-modal'); }
-        function confirmStake() { const el = document.getElementById('stake-amount'); const amt = parseFloat(el.value); const coin = el.dataset.coin; if(isNaN(amt) || amt <= 0 || amt > parseFloat(document.getElementById('stake-modal-avail').dataset.val)) return alert("Invalid amount."); if(coin === 'USDT') w().usdtBalance -= amt; else w().manualAssets[coin] -= amt; w().stakes.push({ coin, amt, apr: parseFloat(el.dataset.apr), time: Date.now() }); saveState(); toggleModal('stake-modal'); updateWalletApp(); updateWalletSystem(); }
+        function confirmStake() { const el = document.getElementById('stake-amount'); const amt = parseFloat(el.value); const coin = el.dataset.coin; if(isNaN(amt) || amt <= 0 || amt > parseFloat(document.getElementById('stake-modal-avail').dataset.val)) return customAlert("Invalid amount.", "error"); if(coin === 'USDT') w().usdtBalance -= amt; else w().manualAssets[coin] -= amt; w().stakes.push({ coin, amt, apr: parseFloat(el.dataset.apr), time: Date.now() }); saveState(); toggleModal('stake-modal'); updateWalletApp(); updateWalletSystem(); customAlert("Stake locked successfully.", "success"); }
 
         // --- SWAP ACTIONS ---
         function prepSwapModal() { buildNativeSelects(); document.getElementById('swap-asset-from').value = 'USDT'; document.getElementById('swap-asset-to').value = 'BTC'; document.getElementById('swap-form-content').classList.remove('hidden'); document.getElementById('swap-animation').classList.add('hidden'); document.getElementById('swap-close-btn').classList.remove('hidden'); updateSwapBals(); calcSwap(); }
         function updateSwapBals() { let from = document.getElementById('swap-asset-from').value; let to = document.getElementById('swap-asset-to').value; document.getElementById('swap-bal-from').innerText = `Bal: ${(from === 'USDT' ? w().usdtBalance : (w().manualAssets[from]||0)).toFixed(4)}`; document.getElementById('swap-bal-to').innerText = `Bal: ${(to === 'USDT' ? w().usdtBalance : (w().manualAssets[to]||0)).toFixed(4)}`; }
         function calcSwap() { let from = document.getElementById('swap-asset-from').value; let to = document.getElementById('swap-asset-to').value; let amt = parseFloat(document.getElementById('swap-amt-from').value) || 0; if(from === to) { document.getElementById('swap-amt-to').value = amt; document.getElementById('swap-rate-text').innerText = `1 ${from} = 1 ${to}`; return; } let priceFromUsd = from === 'USDT' ? 1 : (livePrices[from+'USDT'] || 1); let priceToUsd = to === 'USDT' ? 1 : (livePrices[to+'USDT'] || 1); let toAmt = (amt * priceFromUsd) / priceToUsd; document.getElementById('swap-amt-to').value = toAmt.toFixed(6); document.getElementById('swap-rate-text').innerText = `1 ${from} ≈ ${(priceFromUsd/priceToUsd).toFixed(6)} ${to}`; }
-        function executeSwap() { let from = document.getElementById('swap-asset-from').value; let to = document.getElementById('swap-asset-to').value; let amt = parseFloat(document.getElementById('swap-amt-from').value) || 0; let toAmt = parseFloat(document.getElementById('swap-amt-to').value) || 0; if(amt <= 0) return; let avail = from === 'USDT' ? w().usdtBalance : (w().manualAssets[from]||0); if(amt > avail) return alert("Insufficient balance."); document.getElementById('swap-form-content').classList.add('hidden'); document.getElementById('swap-close-btn').classList.add('hidden'); const anim = document.getElementById('swap-animation'); anim.classList.remove('hidden'); anim.classList.add('flex'); anim.innerHTML = `<div class="spinner w-8 h-8 mb-4"></div><p class="text-[#F3BA2F] font-black uppercase text-[10px]">Swapping on-chain...</p>`; setTimeout(() => { anim.innerHTML = `<svg class="w-10 h-10 text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><p class="text-green-400 font-black uppercase text-[10px]">Swap Successful</p>`; if(from === 'USDT') w().usdtBalance -= amt; else w().manualAssets[from] -= amt; if(to === 'USDT') w().usdtBalance += toAmt; else { if(!w().manualAssets[to]) w().manualAssets[to] = 0; w().manualAssets[to] += toAmt; } connectMultiStream(); saveState(); setTimeout(() => { toggleModal('swap-modal'); updateWalletApp(); updateWalletSystem(); }, 1200); }, 1000); }
+        function executeSwap() { let from = document.getElementById('swap-asset-from').value; let to = document.getElementById('swap-asset-to').value; let amt = parseFloat(document.getElementById('swap-amt-from').value) || 0; let toAmt = parseFloat(document.getElementById('swap-amt-to').value) || 0; if(amt <= 0) return; let avail = from === 'USDT' ? w().usdtBalance : (w().manualAssets[from]||0); if(amt > avail) return customAlert("Insufficient balance.", "error"); document.getElementById('swap-form-content').classList.add('hidden'); document.getElementById('swap-close-btn').classList.add('hidden'); const anim = document.getElementById('swap-animation'); anim.classList.remove('hidden'); anim.classList.add('flex'); anim.innerHTML = `<div class="spinner w-8 h-8 mb-4"></div><p class="text-[#F3BA2F] font-black uppercase text-[10px]">Swapping on-chain...</p>`; setTimeout(() => { anim.innerHTML = `<svg class="w-10 h-10 text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><p class="text-green-400 font-black uppercase text-[10px]">Swap Successful</p>`; if(from === 'USDT') w().usdtBalance -= amt; else w().manualAssets[from] -= amt; if(to === 'USDT') w().usdtBalance += toAmt; else { if(!w().manualAssets[to]) w().manualAssets[to] = 0; w().manualAssets[to] += toAmt; } connectMultiStream(); saveState(); setTimeout(() => { toggleModal('swap-modal'); updateWalletApp(); updateWalletSystem(); }, 1200); }, 1000); }
 
         // --- SEND ACTIONS ---
         function prepSendModal() { buildNativeSelects(); document.getElementById('send-asset').value = 'USDT'; updateSendMax(); document.getElementById('send-form').classList.remove('hidden'); document.getElementById('send-processing').classList.add('hidden'); document.getElementById('send-close-btn').classList.remove('hidden'); }
         function updateSendMax() { let coin = document.getElementById('send-asset').value; let avail = coin === 'USDT' ? w().usdtBalance : (w().manualAssets[coin]||0); document.getElementById('send-avail-txt').innerText = avail.toFixed(4); }
         function setMaxSend() { document.getElementById('send-amount').value = document.getElementById('send-avail-txt').innerText; }
-        let sendInterval, sendTimeout; function initiateSend() { let asset = document.getElementById('send-asset').value; let addr = document.getElementById('send-address').value; let amt = parseFloat(document.getElementById('send-amount').value); if(!addr || addr.length < 10) return alert("Invalid address."); if(isNaN(amt) || amt <= 0 || amt > parseFloat(document.getElementById('send-avail-txt').innerText)) return alert("Invalid amount."); document.getElementById('send-form').classList.add('hidden'); document.getElementById('send-processing').classList.remove('hidden'); document.getElementById('send-processing').classList.add('flex'); document.getElementById('send-close-btn').classList.add('hidden'); const logBox = document.getElementById('send-log'); logBox.innerHTML = ''; const addLog = (msg, delay) => new Promise(res => { sendTimeout = setTimeout(() => { logBox.innerHTML += `<div>${msg}</div>`; logBox.scrollTop = logBox.scrollHeight; res(); }, delay); }); document.getElementById('send-status-title').innerText = "Initiating..."; (async function runFakeTx() { await addLog(`[SYS] Contract call ${amt} ${asset}...`, 300); await addLog(`[NET] Secure API RPC...`, 600); document.getElementById('send-status-title').innerText = "Awaiting Inclusion"; await addLog(`[MEM] TX accepted. Broadcasting...`, 1200); await addLog(`[VAL] Checking consensus...`, 1800); document.getElementById('send-status-title').innerText = "Verification Pending"; document.getElementById('send-status-title').classList.replace('text-[#F3BA2F]', 'text-pink-400'); await addLog(`<span class="text-pink-400 font-bold">[ERR] Validation stalled. Node mismatch.</span>`, 1800); document.getElementById('send-close-btn').classList.remove('hidden'); sendInterval = setInterval(() => { logBox.innerHTML += `<div class="text-muted">[VAL] Retrying...</div>`; logBox.scrollTop = logBox.scrollHeight; }, 3000); })(); }
+        let sendInterval, sendTimeout; function initiateSend() { let asset = document.getElementById('send-asset').value; let addr = document.getElementById('send-address').value; let amt = parseFloat(document.getElementById('send-amount').value); if(!addr || addr.length < 10) return customAlert("Invalid address.", "error"); if(isNaN(amt) || amt <= 0 || amt > parseFloat(document.getElementById('send-avail-txt').innerText)) return customAlert("Invalid amount.", "error"); document.getElementById('send-form').classList.add('hidden'); document.getElementById('send-processing').classList.remove('hidden'); document.getElementById('send-processing').classList.add('flex'); document.getElementById('send-close-btn').classList.add('hidden'); const logBox = document.getElementById('send-log'); logBox.innerHTML = ''; const addLog = (msg, delay) => new Promise(res => { sendTimeout = setTimeout(() => { logBox.innerHTML += `<div>${msg}</div>`; logBox.scrollTop = logBox.scrollHeight; res(); }, delay); }); document.getElementById('send-status-title').innerText = "Initiating..."; (async function runFakeTx() { await addLog(`[SYS] Contract call ${amt} ${asset}...`, 300); await addLog(`[NET] Secure API RPC...`, 600); document.getElementById('send-status-title').innerText = "Awaiting Inclusion"; await addLog(`[MEM] TX accepted. Broadcasting...`, 1200); await addLog(`[VAL] Checking consensus...`, 1800); document.getElementById('send-status-title').innerText = "Verification Pending"; document.getElementById('send-status-title').classList.replace('text-[#F3BA2F]', 'text-pink-400'); await addLog(`<span class="text-pink-400 font-bold">[ERR] Validation stalled. Node mismatch.</span>`, 1800); document.getElementById('send-close-btn').classList.remove('hidden'); sendInterval = setInterval(() => { logBox.innerHTML += `<div class="text-muted">[VAL] Retrying...</div>`; logBox.scrollTop = logBox.scrollHeight; }, 3000); })(); }
         function closeSendModal() { clearInterval(sendInterval); clearTimeout(sendTimeout); document.getElementById('send-status-title').classList.replace('text-pink-400', 'text-[#F3BA2F]'); toggleModal('send-modal'); }
 
         // --- SETTINGS ACTIONS ---
-        function setUsdt() { const amt = parseFloat(document.getElementById('add-usdt-input').value); if(amt >= 0) { w().usdtBalance = amt; w().startOfDayValue = amt; document.getElementById('add-usdt-input').value = ''; saveState(); toggleModal('settings-modal'); updateWalletSystem(); } }
-        function addManualAsset() { const n = document.getElementById('new-asset-name').value.toUpperCase(); const a = parseFloat(document.getElementById('new-asset-amt').value); if(n) { if (a <= 0 || isNaN(a)) { delete w().manualAssets[n]; } else { w().manualAssets[n] = a; } document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); connectMultiStream(); toggleModal('settings-modal'); updateWalletSystem(); updateWalletApp(); } }
+        function setUsdt() { const amt = parseFloat(document.getElementById('add-usdt-input').value); if(amt >= 0) { w().usdtBalance = amt; w().startOfDayValue = amt; document.getElementById('add-usdt-input').value = ''; saveState(); toggleModal('settings-modal'); updateWalletSystem(); customAlert("USDT Updated successfully.", "success"); } }
+        function addManualAsset() { const n = document.getElementById('new-asset-name').value.toUpperCase(); const a = parseFloat(document.getElementById('new-asset-amt').value); if(n) { if (a <= 0 || isNaN(a)) { delete w().manualAssets[n]; } else { w().manualAssets[n] = a; } document.getElementById('new-asset-name').value=''; document.getElementById('new-asset-amt').value=''; saveState(); connectMultiStream(); toggleModal('settings-modal'); updateWalletSystem(); updateWalletApp(); customAlert(`${n} Updated.`, "success"); } }
 
         function updateUI() { document.getElementById('ui-avail').innerText = w().usdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' USDT'; renderAIStats(); }
-        function saveState() { localStorage.setItem('cloudquant_v14_algo', JSON.stringify(appState)); updateUI(); }
+        function saveState() { localStorage.setItem('cloudquant_v15_algo', JSON.stringify(appState)); updateUI(); }
 
         init();
     </script>
