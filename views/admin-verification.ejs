@@ -8,10 +8,10 @@
 
   <style>
     :root {
-      --bg: #0b0f17;
-      --panel: #121826;
-      --panel2: #182033;
-      --border: #273248;
+      --bg: #080b12;
+      --panel: #111827;
+      --panel2: #182235;
+      --border: #263247;
       --text: #f8fafc;
       --muted: #94a3b8;
       --blue: #5865f2;
@@ -27,23 +27,23 @@
 
     body {
       margin: 0;
-      background: radial-gradient(circle at top, #172036 0%, #0b0f17 45%, #05070b 100%);
+      background: radial-gradient(circle at top, #172036 0%, #080b12 48%, #03050a 100%);
       color: var(--text);
       font-family: Arial, sans-serif;
     }
 
     .page {
-      width: min(1300px, 100%);
-      margin: 0 auto;
+      width: min(1350px, 100%);
+      margin: auto;
       padding: 28px;
     }
 
     .header {
       display: flex;
       justify-content: space-between;
-      gap: 16px;
       align-items: center;
-      margin-bottom: 22px;
+      gap: 14px;
+      margin-bottom: 20px;
     }
 
     h1 {
@@ -64,17 +64,17 @@
     }
 
     .card {
-      background: rgba(18, 24, 38, 0.96);
+      background: rgba(17, 24, 39, 0.96);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
       margin-bottom: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 1.4fr 1fr;
+      grid-template-columns: 1.35fr .9fr;
       gap: 20px;
     }
 
@@ -95,7 +95,7 @@
     select,
     textarea {
       width: 100%;
-      background: #090d15;
+      background: #080b12;
       border: 1px solid var(--border);
       color: var(--text);
       border-radius: 10px;
@@ -111,7 +111,7 @@
     }
 
     textarea {
-      min-height: 80px;
+      min-height: 78px;
       resize: vertical;
     }
 
@@ -148,8 +148,8 @@
 
     .row {
       display: flex;
-      align-items: center;
       gap: 10px;
+      align-items: center;
       flex-wrap: wrap;
     }
 
@@ -158,12 +158,16 @@
       margin: 0;
     }
 
-    .stat-box {
+    .stats {
+      display: grid;
+      gap: 12px;
+    }
+
+    .stat {
       background: var(--panel2);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 16px;
-      margin-bottom: 12px;
     }
 
     .stat-number {
@@ -173,8 +177,8 @@
 
     .stat-label {
       color: var(--muted);
-      font-size: 13px;
       margin-top: 4px;
+      font-size: 13px;
     }
 
     .table-wrap {
@@ -183,15 +187,15 @@
 
     table {
       width: 100%;
+      min-width: 1050px;
       border-collapse: collapse;
-      min-width: 1100px;
     }
 
     th,
     td {
       text-align: left;
-      border-bottom: 1px solid var(--border);
       padding: 13px;
+      border-bottom: 1px solid var(--border);
       vertical-align: top;
       font-size: 14px;
     }
@@ -199,22 +203,31 @@
     th {
       color: var(--muted);
       background: #0c111d;
-      position: sticky;
-      top: 0;
     }
 
     code {
-      background: #090d15;
+      background: #080b12;
       border: 1px solid var(--border);
       padding: 4px 7px;
-      border-radius: 7px;
+      border-radius: 8px;
       word-break: break-all;
       display: inline-block;
-      max-width: 320px;
+      max-width: 330px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
     }
 
     .status-active {
       color: #4ade80;
+      font-weight: 900;
+    }
+
+    .status-pending {
+      color: #facc15;
       font-weight: 900;
     }
 
@@ -230,26 +243,26 @@
       flex-wrap: wrap;
     }
 
-    .small {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-
-    .search {
-      margin-bottom: 14px;
-    }
-
     .hidden {
       display: none;
+    }
+
+    pre {
+      background: #05070c;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      overflow: auto;
+      max-height: 420px;
+      color: #dbeafe;
     }
 
     @media (max-width: 900px) {
       .header,
       .grid,
       .form-grid {
-        grid-template-columns: 1fr;
         display: grid;
+        grid-template-columns: 1fr;
       }
 
       .top-actions {
@@ -264,12 +277,13 @@
     <div class="header">
       <div>
         <h1>Verification Admin</h1>
-        <div class="sub">Manage allowed machines, expiry dates, and session tokens.</div>
+        <div class="sub">Add, edit, approve, remove, export, and import machine keys.</div>
       </div>
 
       <div class="top-actions">
-        <button class="green" id="downloadBtn">Download Current List</button>
-        <button class="yellow" id="uploadBtn">Upload List</button>
+        <button class="green" id="downloadBtn">Download JSON</button>
+        <button class="yellow" id="uploadBtn">Upload JSON</button>
+        <button class="gray" id="viewJsonBtn">View JSON</button>
         <input class="hidden" type="file" id="uploadFile" accept="application/json,.json" />
       </div>
     </div>
@@ -278,87 +292,110 @@
 
     <div class="grid">
       <div class="card">
-        <h2>Add / Update Machine</h2>
+        <h2>Add / Edit Key</h2>
 
         <form id="machineForm">
-          <label>Machine ID</label>
-          <input id="machineId" placeholder="Paste hashed machineId from Python request" required />
+          <input type="hidden" id="editId" />
+
+          <label>Key Name</label>
+          <input id="keyName" placeholder="Example: Khalifa Laptop, Customer 001, Main PC" required />
+
+          <label>Machine ID / Key</label>
+          <input id="machineInput" placeholder="Paste raw MachineGuid or already-hashed machineId" />
+
+          <div class="small">
+            If you paste a raw ID, the server hashes it. If you paste a 64-character SHA-256 hash, it stores it directly.
+          </div>
+
+          <br />
 
           <div class="form-grid">
+            <div>
+              <label>Dashboard Display Key</label>
+              <input id="displayKey" placeholder="What you want to see in the list" />
+            </div>
+
             <div>
               <label>Hostname</label>
               <input id="hostname" placeholder="Example: DESKTOP-123" />
             </div>
+          </div>
 
+          <div class="form-grid">
             <div>
               <label>Status</label>
               <select id="status">
                 <option value="active">active</option>
+                <option value="pending">pending</option>
                 <option value="blocked">blocked</option>
                 <option value="expired">expired</option>
               </select>
             </div>
-          </div>
 
-          <label>Expire Date</label>
-          <input id="expiresAt" type="datetime-local" />
+            <div>
+              <label>Expire Date</label>
+              <input id="expiresAt" type="datetime-local" />
+            </div>
+          </div>
 
           <div class="row" style="margin-bottom: 14px;">
             <input id="forever" type="checkbox" checked />
-            <label for="forever" style="margin: 0;">Keep forever, no expiry</label>
+            <label for="forever" style="margin:0;">Keep forever</label>
           </div>
 
           <label>Note</label>
-          <textarea id="note" placeholder="Example: customer name, laptop name, payment info, etc."></textarea>
+          <textarea id="note" placeholder="Notes about this key"></textarea>
 
           <div class="row">
-            <button type="submit">Save Machine</button>
+            <button type="submit">Save Key</button>
             <button type="button" class="gray" id="clearBtn">Clear</button>
           </div>
         </form>
       </div>
 
       <div>
-        <div class="stat-box">
-          <div class="stat-number" id="totalMachines">0</div>
-          <div class="stat-label">Total Machines</div>
-        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-number" id="totalMachines">0</div>
+            <div class="stat-label">Total Keys</div>
+          </div>
 
-        <div class="stat-box">
-          <div class="stat-number" id="activeMachines">0</div>
-          <div class="stat-label">Active Machines</div>
-        </div>
+          <div class="stat">
+            <div class="stat-number" id="activeMachines">0</div>
+            <div class="stat-label">Active</div>
+          </div>
 
-        <div class="stat-box">
-          <div class="stat-number" id="expiredMachines">0</div>
-          <div class="stat-label">Expired / Blocked Machines</div>
+          <div class="stat">
+            <div class="stat-number" id="pendingMachines">0</div>
+            <div class="stat-label">Pending Approval</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-number" id="badMachines">0</div>
+            <div class="stat-label">Blocked / Expired</div>
+          </div>
         </div>
 
         <div class="card">
-          <h3>Import Mode</h3>
-
+          <h3>Upload Mode</h3>
           <select id="importMode">
             <option value="merge">Merge with current list</option>
             <option value="replace">Replace current list</option>
           </select>
-
-          <div class="small">
-            Merge keeps current machines and updates matching IDs. Replace deletes the current list and uses the uploaded file.
-          </div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h2>Current Machines</h2>
+      <h2>Current Keys</h2>
 
-      <input class="search" id="searchBox" placeholder="Search machineId, hostname, note, city, country..." />
+      <input id="searchBox" placeholder="Search key name, display key, hostname, note, status..." />
 
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Machine</th>
+              <th>Key</th>
               <th>Status</th>
               <th>Expiry</th>
               <th>Last Seen</th>
@@ -375,6 +412,11 @@
           </tbody>
         </table>
       </div>
+    </div>
+
+    <div class="card hidden" id="jsonCard">
+      <h2>Stored JSON</h2>
+      <pre id="jsonViewer">Loading...</pre>
     </div>
   </div>
 
