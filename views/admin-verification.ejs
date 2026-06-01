@@ -10,15 +10,19 @@
     :root {
       --bg: #080b12;
       --panel: #111827;
-      --panel2: #182235;
+      --panel-soft: #151e31;
+      --panel-strong: #0c111d;
       --border: #263247;
       --text: #f8fafc;
       --muted: #94a3b8;
       --blue: #5865f2;
-      --blue2: #4752c4;
+      --blue-hover: #4752c4;
       --red: #ef4444;
+      --red-hover: #dc2626;
       --green: #22c55e;
+      --green-hover: #16a34a;
       --yellow: #eab308;
+      --yellow-hover: #ca8a04;
     }
 
     * {
@@ -27,33 +31,52 @@
 
     body {
       margin: 0;
-      background: radial-gradient(circle at top, #172036 0%, #080b12 48%, #03050a 100%);
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, #172036 0%, #080b12 48%, #03050a 100%);
       color: var(--text);
       font-family: Arial, sans-serif;
     }
 
     .page {
       width: min(1350px, 100%);
-      margin: auto;
+      margin: 0 auto;
       padding: 28px;
     }
 
     .header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      gap: 14px;
+      align-items: flex-start;
+      gap: 18px;
       margin-bottom: 20px;
     }
 
+    h1,
+    h2,
+    h3 {
+      margin-top: 0;
+    }
+
     h1 {
-      margin: 0;
+      margin-bottom: 6px;
       font-size: 30px;
+      letter-spacing: -0.5px;
+    }
+
+    h2 {
+      font-size: 21px;
+      margin-bottom: 18px;
+    }
+
+    h3 {
+      font-size: 17px;
+      margin-bottom: 14px;
     }
 
     .sub {
       color: var(--muted);
-      margin-top: 8px;
+      font-size: 14px;
     }
 
     .top-actions {
@@ -69,13 +92,14 @@
       border-radius: 16px;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 1.35fr .9fr;
+      grid-template-columns: 1.35fr 0.9fr;
       gap: 20px;
+      align-items: start;
     }
 
     .form-grid {
@@ -102,6 +126,7 @@
       padding: 11px;
       outline: none;
       margin-bottom: 14px;
+      font-size: 14px;
     }
 
     input:focus,
@@ -120,30 +145,48 @@
       border-radius: 10px;
       padding: 11px 14px;
       font-weight: 800;
-      color: white;
+      color: #ffffff;
       background: var(--blue);
       cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
     }
 
     button:hover {
-      background: var(--blue2);
+      background: var(--blue-hover);
     }
 
     button.gray {
       background: #334155;
     }
 
+    button.gray:hover {
+      background: #475569;
+    }
+
     button.red {
       background: var(--red);
+    }
+
+    button.red:hover {
+      background: var(--red-hover);
     }
 
     button.green {
       background: var(--green);
     }
 
+    button.green:hover {
+      background: var(--green-hover);
+    }
+
     button.yellow {
       background: var(--yellow);
       color: #111827;
+    }
+
+    button.yellow:hover {
+      background: var(--yellow-hover);
     }
 
     .row {
@@ -158,13 +201,25 @@
       margin: 0;
     }
 
+    .checkbox-label {
+      margin: 0;
+      color: var(--text);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
     .stats {
       display: grid;
       gap: 12px;
     }
 
     .stat {
-      background: var(--panel2);
+      background: var(--panel-soft);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 16px;
@@ -173,22 +228,37 @@
     .stat-number {
       font-size: 28px;
       font-weight: 900;
+      line-height: 1;
     }
 
     .stat-label {
       color: var(--muted);
-      margin-top: 4px;
+      margin-top: 6px;
       font-size: 13px;
+    }
+
+    .table-tools {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .table-tools input {
+      margin-bottom: 0;
     }
 
     .table-wrap {
       overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
     }
 
     table {
       width: 100%;
       min-width: 1050px;
       border-collapse: collapse;
+      background: rgba(8, 11, 18, 0.45);
     }
 
     th,
@@ -200,9 +270,16 @@
       font-size: 14px;
     }
 
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
     th {
       color: var(--muted);
-      background: #0c111d;
+      background: var(--panel-strong);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     code {
@@ -213,12 +290,7 @@
       word-break: break-all;
       display: inline-block;
       max-width: 330px;
-    }
-
-    .small {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 5px;
+      color: #dbeafe;
     }
 
     .status-active {
@@ -255,18 +327,35 @@
       overflow: auto;
       max-height: 420px;
       color: #dbeafe;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .import-card select {
+      margin-bottom: 0;
     }
 
     @media (max-width: 900px) {
-      .header,
-      .grid,
-      .form-grid {
+      .page {
+        padding: 18px;
+      }
+
+      .header {
         display: grid;
         grid-template-columns: 1fr;
       }
 
       .top-actions {
         justify-content: flex-start;
+      }
+
+      .grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        min-width: 980px;
       }
     }
   </style>
@@ -277,13 +366,13 @@
     <div class="header">
       <div>
         <h1>Verification Admin</h1>
-        <div class="sub">Add, edit, approve, remove, export, and import machine keys.</div>
+        <div class="sub">Add, approve, edit, remove, export, and import machine keys.</div>
       </div>
 
       <div class="top-actions">
-        <button class="green" id="downloadBtn">Download JSON</button>
-        <button class="yellow" id="uploadBtn">Upload JSON</button>
-        <button class="gray" id="viewJsonBtn">View JSON</button>
+        <button type="button" class="green" id="downloadBtn">Download JSON</button>
+        <button type="button" class="yellow" id="uploadBtn">Upload JSON</button>
+        <button type="button" class="gray" id="viewJsonBtn">View JSON</button>
         <input class="hidden" type="file" id="uploadFile" accept="application/json,.json" />
       </div>
     </div>
@@ -297,54 +386,39 @@
         <form id="machineForm">
           <input type="hidden" id="editId" />
 
-          <label>Key Name</label>
-          <input id="keyName" placeholder="Example: Brandon, Customer 001, Main PC" required />
+          <label for="keyName">Key Name</label>
+          <input id="keyName" name="keyName" required autocomplete="off" />
 
-          <label>Machine ID / Key</label>
-          <input id="machineInput" placeholder="Paste raw MachineGuid or already-hashed machineId" />
-
-          <div class="small">
-            If you paste a raw ID, the server hashes it. If you paste a 64-character SHA-256 hash, it stores it directly.
-          </div>
-
-          <br />
+          <label for="machineInput">Machine ID / Key</label>
+          <input id="machineInput" name="machineInput" autocomplete="off" />
 
           <div class="form-grid">
             <div>
-              <label>Dashboard Display Key</label>
-              <input id="displayKey" placeholder="What you want to see in the list" />
+              <label for="hostname">Hostname</label>
+              <input id="hostname" name="hostname" autocomplete="off" />
             </div>
 
             <div>
-              <label>Hostname</label>
-              <input id="hostname" placeholder="Example: DESKTOP-123" />
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <div>
-              <label>Status</label>
-              <select id="status">
+              <label for="status">Status</label>
+              <select id="status" name="status">
                 <option value="active">active</option>
                 <option value="pending">pending</option>
                 <option value="blocked">blocked</option>
                 <option value="expired">expired</option>
               </select>
             </div>
-
-            <div>
-              <label>Expire Date</label>
-              <input id="expiresAt" type="datetime-local" />
-            </div>
           </div>
+
+          <label for="expiresAt">Expire Date</label>
+          <input id="expiresAt" name="expiresAt" type="datetime-local" />
 
           <div class="row" style="margin-bottom: 14px;">
-            <input id="forever" type="checkbox" checked />
-            <label for="forever" style="margin:0;">Keep forever</label>
+            <input id="forever" name="forever" type="checkbox" checked />
+            <label for="forever" class="checkbox-label">Keep forever</label>
           </div>
 
-          <label>Note</label>
-          <textarea id="note" placeholder="Notes about this key"></textarea>
+          <label for="note">Note</label>
+          <textarea id="note" name="note"></textarea>
 
           <div class="row">
             <button type="submit">Save Key</button>
@@ -376,7 +450,7 @@
           </div>
         </div>
 
-        <div class="card">
+        <div class="card import-card">
           <h3>Upload Mode</h3>
           <select id="importMode">
             <option value="merge">Merge with current list</option>
@@ -389,7 +463,9 @@
     <div class="card">
       <h2>Current Keys</h2>
 
-      <input id="searchBox" placeholder="Search key name, display key, hostname, note, status..." />
+      <div class="table-tools">
+        <input id="searchBox" autocomplete="off" />
+      </div>
 
       <div class="table-wrap">
         <table>
