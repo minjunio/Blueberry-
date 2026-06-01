@@ -3,7 +3,10 @@ const adminKey = document.getElementById("adminKey").value;
 const form = document.getElementById("machineForm");
 const machinesTable = document.getElementById("machinesTable");
 
-const machineIdInput = document.getElementById("machineId");
+const editIdInput = document.getElementById("editId");
+const keyNameInput = document.getElementById("keyName");
+const machineInput = document.getElementById("machineInput");
+const displayKeyInput = document.getElementById("displayKey");
 const hostnameInput = document.getElementById("hostname");
 const statusInput = document.getElementById("status");
 const expiresAtInput = document.getElementById("expiresAt");
@@ -17,9 +20,14 @@ const uploadFile = document.getElementById("uploadFile");
 const importMode = document.getElementById("importMode");
 const searchBox = document.getElementById("searchBox");
 
+const viewJsonBtn = document.getElementById("viewJsonBtn");
+const jsonCard = document.getElementById("jsonCard");
+const jsonViewer = document.getElementById("jsonViewer");
+
 const totalMachines = document.getElementById("totalMachines");
 const activeMachines = document.getElementById("activeMachines");
-const expiredMachines = document.getElementById("expiredMachines");
+const pendingMachines = document.getElementById("pendingMachines");
+const badMachines = document.getElementById("badMachines");
 
 let machinesCache = [];
 
@@ -40,39 +48,42 @@ function escapeHtml(value) {
 function formatDate(value) {
   if (!value) return "Forever";
 
-  const date = new Date(value);
+  const d = new Date(value);
 
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
+  if (Number.isNaN(d.getTime())) return value;
 
-  return date.toLocaleString();
+  return d.toLocaleString();
 }
 
 function isExpiredLocal(machine) {
   if (!machine.expiresAt) return false;
 
-  const expiry = new Date(machine.expiresAt).getTime();
+  const t = new Date(machine.expiresAt).getTime();
 
-  if (Number.isNaN(expiry)) return false;
+  if (Number.isNaN(t)) return false;
 
-  return expiry < Date.now();
+  return t < Date.now();
 }
 
-function updateStats(machines) {
-  const total = machines.length;
+function updateStats() {
+  const total = machinesCache.length;
 
-  const active = machines.filter(m =>
+  const active = machinesCache.filter(m =>
     m.status === "active" && !isExpiredLocal(m)
   ).length;
 
-  const bad = machines.filter(m =>
-    m.status !== "active" || isExpiredLocal(m)
+  const pending = machinesCache.filter(m => m.status === "pending").length;
+
+  const bad = machinesCache.filter(m =>
+    m.status === "blocked" ||
+    m.status === "expired" ||
+    isExpiredLocal(m)
   ).length;
 
   totalMachines.textContent = total;
   activeMachines.textContent = active;
-  expiredMachines.textContent = bad;
+  pendingMachines.textContent = pending;
+  badMachines.textContent = bad;
 }
 
 async function loadMachines() {
@@ -83,19 +94,22 @@ async function loadMachines() {
   `;
 
   const res = await fetch(adminUrl("/api/admin/machines"));
-  const machines = await res.json();
+  const data = await res.json();
 
-  machinesCache = Array.isArray(machines) ? machines : [];
+  machinesCache = Array.isArray(data) ? data : [];
 
   renderMachines();
 }
 
 function renderMachines() {
+  updateStats();
+
   const q = searchBox.value.trim().toLowerCase();
 
   const filtered = machinesCache.filter(machine => {
-    const joined = [
-      machine.machineId,
+    const text = [
+      machine.keyName,
+      machine.displayKey,
       machine.hostname,
       machine.note,
       machine.status,
@@ -105,15 +119,13 @@ function renderMachines() {
       machine.lastIp
     ].join(" ").toLowerCase();
 
-    return joined.includes(q);
+    return text.includes(q);
   });
-
-  updateStats(machinesCache);
 
   if (filtered.length === 0) {
     machinesTable.innerHTML = `
       <tr>
-        <td colspan="7">No machines found.</td>
+        <td colspan="7">No keys found.</td>
       </tr>
     `;
     return;
@@ -121,15 +133,16 @@ function renderMachines() {
 
   machinesTable.innerHTML = filtered.map(machine => {
     const expired = isExpiredLocal(machine);
-    const status = expired ? "expired" : machine.status || "unknown";
+    const status = expired ? "expired" : machine.status;
     const statusClass = `status-${escapeHtml(status)}`;
 
     return `
       <tr>
         <td>
-          <strong>${escapeHtml(machine.hostname || "Unknown PC")}</strong>
-          <div class="small">Machine ID:</div>
-          <code>${escapeHtml(machine.machineId)}</code>
+          <strong>${escapeHtml(machine.keyName || "Unnamed Key")}</strong>
+          <div class="small">Display Key:</div>
+          <code>${escapeHtml(machine.displayKey || "-")}</code>
+          <div class="small">Hostname: ${escapeHtml(machine.hostname || "-")}</div>
           <div class="small">${escapeHtml(machine.note || "")}</div>
         </td>
 
@@ -159,9 +172,9 @@ function renderMachines() {
         <td>
           <div class="actions">
             <button onclick='editMachine(${JSON.stringify(machine).replaceAll("'", "&apos;")})'>Edit</button>
-            <button class="gray" onclick="copyMachineId('${escapeHtml(machine.machineId)}')">Copy ID</button>
-            <button class="gray" onclick="regenerateToken('${escapeHtml(machine.machineId)}')">New Token</button>
-            <button class="red" onclick="deleteMachine('${escapeHtml(machine.machineId)}')">Delete</button>
+            <button class="green" onclick='quickApprove(${JSON.stringify(machine).replaceAll("'", "&apos;")})'>Approve</button>
+            <button class="gray" onclick="regenerateToken('${escapeHtml(machine.id)}')">New Token</button>
+            <button class="red" onclick="deleteMachine('${escapeHtml(machine.id)}')">Remove</button>
           </div>
         </td>
       </tr>
@@ -170,37 +183,40 @@ function renderMachines() {
 }
 
 function clearForm() {
-  machineIdInput.value = "";
+  editIdInput.value = "";
+  keyNameInput.value = "";
+  machineInput.value = "";
+  displayKeyInput.value = "";
   hostnameInput.value = "";
   statusInput.value = "active";
   expiresAtInput.value = "";
   foreverInput.checked = true;
-  noteInput.value = "";
   expiresAtInput.disabled = true;
+  noteInput.value = "";
 }
 
 function editMachine(machine) {
-  machineIdInput.value = machine.machineId || "";
+  editIdInput.value = machine.id || "";
+  keyNameInput.value = machine.keyName || "";
+  machineInput.value = "";
+  displayKeyInput.value = machine.displayKey || "";
   hostnameInput.value = machine.hostname || "";
   statusInput.value = machine.status || "active";
   noteInput.value = machine.note || "";
 
   if (machine.expiresAt) {
     foreverInput.checked = false;
+    expiresAtInput.disabled = false;
 
     const d = new Date(machine.expiresAt);
 
-    if (!Number.isNaN(d.getTime())) {
-      expiresAtInput.value = d.toISOString().slice(0, 16);
-    } else {
-      expiresAtInput.value = "";
-    }
-
-    expiresAtInput.disabled = false;
+    expiresAtInput.value = Number.isNaN(d.getTime())
+      ? ""
+      : d.toISOString().slice(0, 16);
   } else {
     foreverInput.checked = true;
-    expiresAtInput.value = "";
     expiresAtInput.disabled = true;
+    expiresAtInput.value = "";
   }
 
   window.scrollTo({
@@ -209,34 +225,54 @@ function editMachine(machine) {
   });
 }
 
-async function copyMachineId(machineId) {
-  try {
-    await navigator.clipboard.writeText(machineId);
-    alert("Machine ID copied");
-  } catch {
-    prompt("Copy machine ID:", machineId);
-  }
-}
+async function quickApprove(machine) {
+  const payload = {
+    id: machine.id,
+    machineInput: "",
+    keyName: machine.keyName || "Approved Key",
+    displayKey: machine.displayKey || "",
+    hostname: machine.hostname || "",
+    note: machine.note || "",
+    status: "active",
+    forever: true,
+    expiresAt: null
+  };
 
-async function deleteMachine(machineId) {
-  if (!confirm("Delete this machine?")) return;
-
-  const res = await fetch(adminUrl(`/api/admin/machines/${encodeURIComponent(machineId)}`), {
-    method: "DELETE"
+  const res = await fetch(adminUrl("/api/admin/machines"), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
   });
 
   if (!res.ok) {
-    alert("Failed to delete machine");
+    alert("Failed to approve key");
     return;
   }
 
   await loadMachines();
 }
 
-async function regenerateToken(machineId) {
-  if (!confirm("Regenerate token? The old token will stop working.")) return;
+async function deleteMachine(id) {
+  if (!confirm("Remove this key?")) return;
 
-  const res = await fetch(adminUrl(`/api/admin/machines/${encodeURIComponent(machineId)}/regenerate-token`), {
+  const res = await fetch(adminUrl(`/api/admin/machines/${encodeURIComponent(id)}`), {
+    method: "DELETE"
+  });
+
+  if (!res.ok) {
+    alert("Failed to remove key");
+    return;
+  }
+
+  await loadMachines();
+}
+
+async function regenerateToken(id) {
+  if (!confirm("Regenerate session token? Old token will stop working.")) return;
+
+  const res = await fetch(adminUrl(`/api/admin/machines/${encodeURIComponent(id)}/regenerate-token`), {
     method: "POST"
   });
 
@@ -258,7 +294,10 @@ form.addEventListener("submit", async event => {
   }
 
   const payload = {
-    machineId: machineIdInput.value.trim(),
+    id: editIdInput.value,
+    keyName: keyNameInput.value.trim(),
+    machineInput: machineInput.value.trim(),
+    displayKey: displayKeyInput.value.trim(),
     hostname: hostnameInput.value.trim(),
     status: statusInput.value,
     note: noteInput.value.trim(),
@@ -277,7 +316,7 @@ form.addEventListener("submit", async event => {
   const data = await res.json();
 
   if (!res.ok) {
-    alert(data.error || "Failed to save machine");
+    alert(data.error || "Failed to save key");
     return;
   }
 
@@ -331,7 +370,7 @@ uploadFile.addEventListener("change", async () => {
   const mode = importMode.value;
 
   if (mode === "replace") {
-    const ok = confirm("Replace current list with uploaded list? This will delete current machines.");
+    const ok = confirm("Replace current JSON list? This will remove current keys.");
     if (!ok) {
       uploadFile.value = "";
       return;
@@ -359,7 +398,23 @@ uploadFile.addEventListener("change", async () => {
 
   alert("Import complete");
   uploadFile.value = "";
+
   await loadMachines();
+});
+
+viewJsonBtn.addEventListener("click", async () => {
+  if (!jsonCard.classList.contains("hidden")) {
+    jsonCard.classList.add("hidden");
+    return;
+  }
+
+  jsonViewer.textContent = "Loading...";
+  jsonCard.classList.remove("hidden");
+
+  const res = await fetch(adminUrl("/api/admin/machines/json"));
+  const text = await res.text();
+
+  jsonViewer.textContent = text;
 });
 
 clearForm();
