@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
+const crypto = require("crypto");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,8 +21,20 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Setup Database
-const db = new sqlite3.Database('./data/database.sqlite', (err) => {
+// --- DATA DIRECTORIES & SETUP ---
+const DATA_DIR = path.join(__dirname, "data");
+const MACHINES_FILE = path.join(DATA_DIR, "machines.json");
+
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+if (!fs.existsSync(MACHINES_FILE)) {
+  fs.writeFileSync(MACHINES_FILE, JSON.stringify({ machines: [] }, null, 2));
+}
+
+// Setup Database (SQLite)
+const db = new sqlite3.Database(path.join(DATA_DIR, 'database.sqlite'), (err) => {
     if (err) console.error("Database opening error: ", err);
 });
 
@@ -60,12 +73,82 @@ db.serialize(() => {
     });
 });
 
-app.set('view engine', 'ejs');
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.static('public')); 
-app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false, cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 } })); 
+// --- MACHINE LICENSING HELPERS ---
+function readMachines() {
+  try {
+    const raw = fs.readFileSync(MACHINES_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.machines)) {
+      return { machines: [] };
+    }
+    return parsed;
+  } catch (err) {
+    console.error("Failed to read machines.json:", err);
+    return { machines: [] };
+  }
+}
 
+function writeMachines(data) {
+  if (!data || !Array.isArray(data.machines)) {
+    data = { machines: [] };
+  }
+  fs.writeFileSync(MACHINES_FILE, JSON.stringify(data, null, 2));
+}
+
+function generateSessionToken() {
+  return "sess_" + crypto.randomBytes(32).toString("hex");
+}
+
+function isExpired(machine) {
+  if (!machine.expiresAt) return false;
+  const expiryTime = new Date(machine.expiresAt).getTime();
+  if (Number.isNaN(expiryTime)) return false;
+  return expiryTime < Date.now();
+}
+
+function requireAdmin(req, res, next) {
+  const adminKey = process.env.ADMIN_KEY || "change_this_admin_key";
+  const providedKey = req.query.adminKey || req.headers["x-admin-key"] || req.body.adminKey;
+
+  if (providedKey === adminKey) {
+    return next();
+  }
+  return res.status(403).send("Admin access only");
+}
+
+function cleanMachine(machine) {
+  return {
+    machineId: String(machine.machineId || "").trim(),
+    hostname: String(machine.hostname || ""),
+    note: String(machine.note || ""),
+    status: String(machine.status || "active"),
+    expiresAt: machine.expiresAt || null,
+    sessionToken: machine.sessionToken || generateSessionToken(),
+    createdAt: machine.createdAt || new Date().toISOString(),
+    updatedAt: machine.updatedAt || new Date().toISOString(),
+    lastSeenAt: machine.lastSeenAt || null,
+    lastIp: machine.lastIp || null,
+    os: machine.os || null,
+    city: machine.city || null,
+    country: machine.country || null,
+    isAdmin: machine.isAdmin || null
+  };
+}
+
+// --- EXPRESS MIDDLEWARE ---
+app.set('view engine', 'ejs');
+app.set("views", path.join(__dirname, "views"));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(express.static(path.join(__dirname, "public"))); 
+app.use(session({ 
+    secret: 'examhub-super-secret-key-2026', 
+    resave: false, 
+    saveUninitialized: false, 
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 } 
+})); 
+
+// --- STOREFRONT HELPERS ---
 const renderSafe = (res, view, data) => {
     res.render(view, data, (err, html) => {
         if (err) return res.status(200).send(`Error loading page.`);
@@ -214,7 +297,6 @@ app.get('/api/search', (req, res) => {
 });
 
 // --- DYNAMIC POST ROUTE ---
-// --- DYNAMIC POST ROUTE ---
 app.get('/post/:id', (req, res) => {
     db.get("SELECT * FROM posts WHERE id = ?", [req.params.id], (err, post) => {
         if (!post) return res.redirect('/');
@@ -228,7 +310,6 @@ app.get('/post/:id', (req, res) => {
         }
     });
 });
-
 
 app.get('/my-orders', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/');
@@ -326,7 +407,6 @@ app.get('/admin', (req, res) => {
 });
 
 // --- CASINO API ENDPOINTS ---
-
 app.get('/admin/casino', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     renderSafe(res, 'casino', { user: req.session.user });
@@ -406,4 +486,247 @@ app.post('/admin/delete-post', (req, res) => {
     db.run("DELETE FROM posts WHERE id = ?", [req.body.id], () => res.redirect('/admin'));
 });
 
+// =========================
+//   ADMIN PAGE (MACHINES)
+// =========================
+app.get("/admin/verification", requireAdmin, (req, res) => {
+  res.render("admin-verification", {
+    adminKey: req.query.adminKey || ""
+  });
+});
+
+// =========================
+//   ADMIN API: VIEW MACHINES
+// =========================
+app.get("/api/admin/machines", requireAdmin, (req, res) => {
+  const data = readMachines();
+  data.machines = data.machines.map(cleanMachine);
+  writeMachines(data);
+  res.json(data.machines);
+});
+
+// =========================
+//   ADMIN API: ADD / UPDATE MACHINE
+// =========================
+app.post("/api/admin/machines", requireAdmin, (req, res) => {
+  const { machineId, hostname, note, status, expiresAt, forever } = req.body;
+  const cleanId = String(machineId || "").trim();
+
+  if (!cleanId) {
+    return res.status(400).json({ success: false, error: "machineId is required" });
+  }
+
+  const data = readMachines();
+  let machine = data.machines.find(m => m.machineId === cleanId);
+
+  if (!machine) {
+    machine = {
+      machineId: cleanId,
+      hostname: hostname || "",
+      note: note || "",
+      status: status || "active",
+      expiresAt: forever ? null : expiresAt || null,
+      sessionToken: generateSessionToken(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      lastSeenAt: null,
+      lastIp: null,
+      os: null,
+      city: null,
+      country: null,
+      isAdmin: null
+    };
+    data.machines.push(machine);
+  } else {
+    machine.hostname = hostname || "";
+    machine.note = note || "";
+    machine.status = status || "active";
+    machine.expiresAt = forever ? null : expiresAt || null;
+    machine.updatedAt = new Date().toISOString();
+    if (!machine.sessionToken) {
+      machine.sessionToken = generateSessionToken();
+    }
+  }
+
+  writeMachines(data);
+  res.json({ success: true, machine });
+});
+
+// =========================
+//   ADMIN API: DELETE MACHINE
+// =========================
+app.delete("/api/admin/machines/:machineId", requireAdmin, (req, res) => {
+  const machineId = req.params.machineId;
+  const data = readMachines();
+  const before = data.machines.length;
+  
+  data.machines = data.machines.filter(m => m.machineId !== machineId);
+  writeMachines(data);
+
+  res.json({ success: true, deleted: before !== data.machines.length });
+});
+
+// =========================
+//   ADMIN API: REGENERATE TOKEN
+// =========================
+app.post("/api/admin/machines/:machineId/regenerate-token", requireAdmin, (req, res) => {
+  const machineId = req.params.machineId;
+  const data = readMachines();
+  const machine = data.machines.find(m => m.machineId === machineId);
+
+  if (!machine) {
+    return res.status(404).json({ success: false, error: "Machine not found" });
+  }
+
+  machine.sessionToken = generateSessionToken();
+  machine.updatedAt = new Date().toISOString();
+  writeMachines(data);
+
+  res.json({ success: true, machine });
+});
+
+// =========================
+//   ADMIN API: DOWNLOAD CURRENT LIST
+// =========================
+app.get("/api/admin/machines/export", requireAdmin, (req, res) => {
+  const data = readMachines();
+  const filename = `machines-backup-${new Date().toISOString().slice(0, 10)}.json`;
+
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  res.send(JSON.stringify(data, null, 2));
+});
+
+// =========================
+//   ADMIN API: UPLOAD / IMPORT LIST
+// =========================
+app.post("/api/admin/machines/import", requireAdmin, (req, res) => {
+  const { importData, mode } = req.body;
+
+  if (!importData) {
+    return res.status(400).json({ success: false, error: "No import data received" });
+  }
+
+  let parsed;
+  try {
+    parsed = typeof importData === "string" ? JSON.parse(importData) : importData;
+  } catch {
+    return res.status(400).json({ success: false, error: "Invalid JSON file" });
+  }
+
+  if (!parsed || !Array.isArray(parsed.machines)) {
+    return res.status(400).json({ success: false, error: "JSON must contain a machines array" });
+  }
+
+  const incoming = parsed.machines.map(cleanMachine).filter(m => m.machineId);
+
+  if (mode === "replace") {
+    writeMachines({ machines: incoming });
+    return res.json({ success: true, mode: "replace", imported: incoming.length });
+  }
+
+  const current = readMachines();
+  let added = 0;
+  let updated = 0;
+
+  for (const importedMachine of incoming) {
+    const existing = current.machines.find(m => m.machineId === importedMachine.machineId);
+    if (existing) {
+      Object.assign(existing, { ...importedMachine, updatedAt: new Date().toISOString() });
+      updated++;
+    } else {
+      current.machines.push(importedMachine);
+      added++;
+    }
+  }
+
+  writeMachines(current);
+  res.json({ success: true, mode: "merge", added, updated, total: current.machines.length });
+});
+
+// =========================
+//   PYTHON AUTH ENDPOINT
+// =========================
+app.get("/api/auth", (req, res) => {
+  const { machineId, os, hostname, isAdmin, city, country } = req.query;
+
+  if (!machineId) {
+    return res.status(400).json([{ authorized: false, sessionToken: null, status: "denied", reason: "Missing machineId" }]);
+  }
+
+  const data = readMachines();
+  const machine = data.machines.find(m => m.machineId === machineId);
+
+  if (!machine) {
+    return res.status(403).json([{ authorized: false, sessionToken: null, status: "denied", reason: "Machine is not allowed" }]);
+  }
+
+  if (machine.status !== "active") {
+    return res.status(403).json([{ authorized: false, sessionToken: null, status: machine.status || "blocked", reason: "Machine is not active" }]);
+  }
+
+  if (isExpired(machine)) {
+    machine.status = "expired";
+    machine.updatedAt = new Date().toISOString();
+    writeMachines(data);
+    return res.status(403).json([{ authorized: false, sessionToken: null, status: "expired", reason: "License expired" }]);
+  }
+
+  if (!machine.sessionToken) {
+    machine.sessionToken = generateSessionToken();
+  }
+
+  machine.hostname = hostname || machine.hostname;
+  machine.os = os || machine.os;
+  machine.isAdmin = isAdmin || machine.isAdmin;
+  machine.city = city || machine.city;
+  machine.country = country || machine.country;
+  machine.lastSeenAt = new Date().toISOString();
+  machine.lastIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+  machine.updatedAt = new Date().toISOString();
+
+  writeMachines(data);
+
+  return res.status(200).json([{
+    authorized: true,
+    sessionToken: machine.sessionToken,
+    machineId: machine.machineId,
+    status: machine.status,
+    expiresAt: machine.expiresAt,
+    forever: !machine.expiresAt
+  }]);
+});
+
+// =========================
+//   SESSION TOKEN PROTECTION
+// =========================
+function requireValidSessionToken(req, res, next) {
+  const auth = req.headers.authorization || "";
+
+  if (!auth.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Missing Bearer token" });
+  }
+
+  const token = auth.slice("Bearer ".length).trim();
+
+  if (!token || token === "fallback_session_token") {
+    return res.status(401).json({ error: "Invalid session token" });
+  }
+
+  const data = readMachines();
+  const machine = data.machines.find(m =>
+    m.sessionToken === token &&
+    m.status === "active" &&
+    !isExpired(m)
+  );
+
+  if (!machine) {
+    return res.status(403).json({ error: "Unauthorized machine" });
+  }
+
+  req.machine = machine;
+  next();
+}
+
+// --- SERVER INITIALIZATION ---
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
