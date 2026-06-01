@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Verification Admin</title>
+
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --panel: #121826;
+      --panel2: #182033;
+      --border: #273248;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --blue: #5865f2;
+      --blue2: #4752c4;
+      --red: #ef4444;
+      --green: #22c55e;
+      --yellow: #eab308;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #172036 0%, #0b0f17 45%, #05070b 100%);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    .page {
+      width: min(1300px, 100%);
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .sub {
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .card {
+      background: rgba(18, 24, 38, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      background: #090d15;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 11px;
+      outline: none;
+      margin-bottom: 14px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--blue);
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-weight: 800;
+      color: white;
+      background: var(--blue);
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--blue2);
+    }
+
+    button.gray {
+      background: #334155;
+    }
+
+    button.red {
+      background: var(--red);
+    }
+
+    button.green {
+      background: var(--green);
+    }
+
+    button.yellow {
+      background: var(--yellow);
+      color: #111827;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .row input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .stat-box {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1100px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      padding: 13px;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--muted);
+      background: #0c111d;
+      position: sticky;
+      top: 0;
+    }
+
+    code {
+      background: #090d15;
+      border: 1px solid var(--border);
+      padding: 4px 7px;
+      border-radius: 7px;
+      word-break: break-all;
+      display: inline-block;
+      max-width: 320px;
+    }
+
+    .status-active {
+      color: #4ade80;
+      font-weight: 900;
+    }
+
+    .status-blocked,
+    .status-expired {
+      color: #f87171;
+      font-weight: 900;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .search {
+      margin-bottom: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .header,
+      .grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+
+      .top-actions {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="header">
+      <div>
+        <h1>Verification Admin</h1>
+        <div class="sub">Manage allowed machines, expiry dates, and session tokens.</div>
+      </div>
+
+      <div class="top-actions">
+        <button class="green" id="downloadBtn">Download Current List</button>
+        <button class="yellow" id="uploadBtn">Upload List</button>
+        <input class="hidden" type="file" id="uploadFile" accept="application/json,.json" />
+      </div>
+    </div>
+
+    <input type="hidden" id="adminKey" value="<%= adminKey %>" />
+
+    <div class="grid">
+      <div class="card">
+        <h2>Add / Update Machine</h2>
+
+        <form id="machineForm">
+          <label>Machine ID</label>
+          <input id="machineId" placeholder="Paste hashed machineId from Python request" required />
+
+          <div class="form-grid">
+            <div>
+              <label>Hostname</label>
+              <input id="hostname" placeholder="Example: DESKTOP-123" />
+            </div>
+
+            <div>
+              <label>Status</label>
+              <select id="status">
+                <option value="active">active</option>
+                <option value="blocked">blocked</option>
+                <option value="expired">expired</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Expire Date</label>
+          <input id="expiresAt" type="datetime-local" />
+
+          <div class="row" style="margin-bottom: 14px;">
+            <input id="forever" type="checkbox" checked />
+            <label for="forever" style="margin: 0;">Keep forever, no expiry</label>
+          </div>
+
+          <label>Note</label>
+          <textarea id="note" placeholder="Example: customer name, laptop name, payment info, etc."></textarea>
+
+          <div class="row">
+            <button type="submit">Save Machine</button>
+            <button type="button" class="gray" id="clearBtn">Clear</button>
+          </div>
+        </form>
+      </div>
+
+      <div>
+        <div class="stat-box">
+          <div class="stat-number" id="totalMachines">0</div>
+          <div class="stat-label">Total Machines</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-number" id="activeMachines">0</div>
+          <div class="stat-label">Active Machines</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-number" id="expiredMachines">0</div>
+          <div class="stat-label">Expired / Blocked Machines</div>
+        </div>
+
+        <div class="card">
+          <h3>Import Mode</h3>
+
+          <select id="importMode">
+            <option value="merge">Merge with current list</option>
+            <option value="replace">Replace current list</option>
+          </select>
+
+          <div class="small">
+            Merge keeps current machines and updates matching IDs. Replace deletes the current list and uses the uploaded file.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Current Machines</h2>
+
+      <input class="search" id="searchBox" placeholder="Search machineId, hostname, note, city, country..." />
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Machine</th>
+              <th>Status</th>
+              <th>Expiry</th>
+              <th>Last Seen</th>
+              <th>Location</th>
+              <th>Session Token</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="machinesTable">
+            <tr>
+              <td colspan="7">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/admin-verification.js"></script>
+</body>
+</html>
