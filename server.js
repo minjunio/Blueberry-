@@ -175,7 +175,7 @@ db.serialize(() => {
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json({ limit: '20mb' })); // UPDATED JSON LIMIT
 app.use(express.static('public')); 
 app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false, cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 } })); 
 
@@ -516,6 +516,421 @@ app.post('/admin/add-post', (req, res) => {
 app.post('/admin/delete-post', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     db.run("DELETE FROM posts WHERE id = ?", [req.body.id], () => res.redirect('/admin'));
+});
+
+// ======================================================
+// WHITELIST / MACHINE VERIFICATION SYSTEM
+// Put this AFTER your /admin route and BEFORE app.listen()
+// ======================================================
+
+function requireAdmin(req, res, next) {
+    if (!req.session.user || req.session.user.role !== 'admin') {
+        return res.redirect('/login');
+    }
+
+    next();
+}
+
+function requireAdminApi(req, res, next) {
+    if (!req.session.user || req.session.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    next();
+}
+
+// ======================================================
+// WHITELIST PAGE
+// Opens: /admin/whitelist
+// File needed: views/admin-whitelist.ejs
+// ======================================================
+
+app.get('/admin/whitelist', requireAdmin, (req, res) => {
+    renderSafe(res, 'admin-whitelist', {
+        user: req.session.user
+    });
+});
+
+// ======================================================
+// WHITELIST API: GET ALL MACHINES
+// ======================================================
+
+app.get('/api/admin/whitelist/machines', requireAdminApi, (req, res) => {
+    const data = readMachines();
+
+    data.machines = data.machines.map(cleanMachine);
+
+    writeMachines(data);
+
+    res.json(data.machines.map(machine => publicMachine(machine)));
+});
+
+// ======================================================
+// WHITELIST API: ADD / UPDATE MACHINE
+// ======================================================
+
+app.post('/api/admin/whitelist/machines', requireAdminApi, (req, res) => {
+    const {
+        id,
+        machineInput,
+        keyName,
+        hostname,
+        note,
+        status,
+        expiresAt,
+        forever
+    } = req.body;
+
+    const data = readMachines();
+
+    data.machines = data.machines.map(cleanMachine);
+
+    let machine = null;
+    let machineIdHash = null;
+
+    if (id) {
+        machine = data.machines.find(m => m.id === id);
+    }
+
+    if (machineInput) {
+        machineIdHash = normalizeMachineInput(machineInput);
+    }
+
+    if (!machine && machineIdHash) {
+        machine = data.machines.find(m => m.machineIdHash === machineIdHash);
+    }
+
+    if (!machine && !machineIdHash) {
+        return res.status(400).json({
+            success: false,
+            error: 'Machine ID is required'
+        });
+    }
+
+    if (!machine) {
+        machine = {
+            id: crypto.randomUUID(),
+            machineIdHash,
+            keyName: keyName || 'Unnamed Key',
+            hostname: hostname || '',
+            note: note || '',
+            status: status || 'active',
+            expiresAt: forever ? null : expiresAt || null,
+            sessionToken: generateSessionToken(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            lastSeenAt: null,
+            lastIp: null,
+            os: null,
+            city: null,
+            country: null,
+            isAdmin: null
+        };
+
+        data.machines.push(machine);
+    } else {
+        if (machineIdHash) {
+            machine.machineIdHash = machineIdHash;
+        }
+
+        machine.keyName = keyName || machine.keyName || 'Unnamed Key';
+        machine.hostname = hostname || machine.hostname || '';
+        machine.note = note || '';
+        machine.status = status || 'active';
+        machine.expiresAt = forever ? null : expiresAt || null;
+        machine.updatedAt = new Date().toISOString();
+
+        if (!machine.sessionToken) {
+            machine.sessionToken = generateSessionToken();
+        }
+    }
+
+    writeMachines(data);
+
+    res.json({
+        success: true,
+        machine: publicMachine(machine)
+    });
+});
+
+// ======================================================
+// WHITELIST API: DELETE MACHINE
+// ======================================================
+
+app.delete('/api/admin/whitelist/machines/:id', requireAdminApi, (req, res) => {
+    const data = readMachines();
+    const before = data.machines.length;
+
+    data.machines = data.machines.filter(machine => machine.id !== req.params.id);
+
+    writeMachines(data);
+
+    res.json({
+        success: true,
+        deleted: before !== data.machines.length
+    });
+});
+
+// ======================================================
+// WHITELIST API: REGENERATE SESSION TOKEN
+// ======================================================
+
+app.post('/api/admin/whitelist/machines/:id/regenerate-token', requireAdminApi, (req, res) => {
+    const data = readMachines();
+
+    const machine = data.machines.find(machine => machine.id === req.params.id);
+
+    if (!machine) {
+        return res.status(404).json({
+            success: false,
+            error: 'Machine not found'
+        });
+    }
+
+    machine.sessionToken = generateSessionToken();
+    machine.updatedAt = new Date().toISOString();
+
+    writeMachines(data);
+
+    res.json({
+        success: true,
+        machine: publicMachine(cleanMachine(machine))
+    });
+});
+
+// ======================================================
+// WHITELIST API: DOWNLOAD JSON
+// ======================================================
+
+app.get('/api/admin/whitelist/export', requireAdmin, (req, res) => {
+    const data = readMachines();
+
+    const filename = `machines-backup-${new Date().toISOString().slice(0, 10)}.json`;
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    res.send(JSON.stringify(data, null, 2));
+});
+
+// ======================================================
+// WHITELIST API: VIEW RAW JSON
+// ======================================================
+
+app.get('/api/admin/whitelist/json', requireAdminApi, (req, res) => {
+    const data = readMachines();
+
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(data, null, 2));
+});
+
+// ======================================================
+// WHITELIST API: IMPORT JSON
+// ======================================================
+
+app.post('/api/admin/whitelist/import', requireAdminApi, (req, res) => {
+    const { importData, mode } = req.body;
+
+    if (!importData) {
+        return res.status(400).json({
+            success: false,
+            error: 'No JSON data received'
+        });
+    }
+
+    let parsed;
+
+    try {
+        parsed = typeof importData === 'string' ? JSON.parse(importData) : importData;
+    } catch {
+        return res.status(400).json({
+            success: false,
+            error: 'Invalid JSON'
+        });
+    }
+
+    if (!parsed || !Array.isArray(parsed.machines)) {
+        return res.status(400).json({
+            success: false,
+            error: 'JSON must contain a machines array'
+        });
+    }
+
+    const incoming = parsed.machines
+        .map(cleanMachine)
+        .filter(machine => machine.machineIdHash);
+
+    if (mode === 'replace') {
+        writeMachines({ machines: incoming });
+
+        return res.json({
+            success: true,
+            mode: 'replace',
+            imported: incoming.length
+        });
+    }
+
+    const current = readMachines();
+
+    current.machines = current.machines.map(cleanMachine);
+
+    let added = 0;
+    let updated = 0;
+
+    for (const incomingMachine of incoming) {
+        const existing = current.machines.find(machine => {
+            return machine.machineIdHash === incomingMachine.machineIdHash;
+        });
+
+        if (existing) {
+            Object.assign(existing, {
+                ...incomingMachine,
+                id: existing.id,
+                updatedAt: new Date().toISOString()
+            });
+
+            updated++;
+        } else {
+            current.machines.push(incomingMachine);
+            added++;
+        }
+    }
+
+    writeMachines(current);
+
+    res.json({
+        success: true,
+        mode: 'merge',
+        added,
+        updated,
+        total: current.machines.length
+    });
+});
+
+// ======================================================
+// PUBLIC PYTHON VERIFICATION ENDPOINT
+// Python calls: /api/auth?machineId=HASH&hostname=PC&city=Abu Dhabi&country=AE
+// ======================================================
+
+app.get('/api/auth', (req, res) => {
+    const {
+        machineId,
+        os,
+        hostname,
+        isAdmin,
+        city,
+        country
+    } = req.query;
+
+    if (!machineId) {
+        return res.status(400).json([
+            {
+                authorized: false,
+                sessionToken: null,
+                status: 'denied',
+                reason: 'Missing machineId'
+            }
+        ]);
+    }
+
+    const machineIdHash = String(machineId).trim().toLowerCase();
+    const ip = getClientIp(req);
+
+    const data = readMachines();
+
+    data.machines = data.machines.map(cleanMachine);
+
+    let machine = data.machines.find(m => m.machineIdHash === machineIdHash);
+
+    // New unknown machine gets saved automatically as pending.
+    if (!machine) {
+        machine = {
+            id: crypto.randomUUID(),
+            machineIdHash,
+            keyName: hostname ? `Pending - ${hostname}` : 'Pending Machine',
+            hostname: hostname || 'Unknown Host',
+            note: 'Auto-added from auth request. Approve this machine to allow access.',
+            status: 'pending',
+            expiresAt: null,
+            sessionToken: generateSessionToken(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            lastSeenAt: new Date().toISOString(),
+            lastIp: ip,
+            os: os || 'windows',
+            city: city || 'Unknown City',
+            country: country || 'Unknown Country',
+            isAdmin: isAdmin || 'unknown'
+        };
+
+        data.machines.push(machine);
+
+        writeMachines(data);
+
+        return res.status(403).json([
+            {
+                authorized: false,
+                sessionToken: null,
+                status: 'pending',
+                reason: 'Machine is pending admin approval'
+            }
+        ]);
+    }
+
+    // Existing machine updates latest info.
+    machine.hostname = hostname || machine.hostname || 'Unknown Host';
+    machine.os = os || machine.os || 'windows';
+    machine.isAdmin = isAdmin || machine.isAdmin || 'unknown';
+    machine.city = city || machine.city || 'Unknown City';
+    machine.country = country || machine.country || 'Unknown Country';
+    machine.lastSeenAt = new Date().toISOString();
+    machine.lastIp = ip;
+    machine.updatedAt = new Date().toISOString();
+
+    if (machine.status !== 'active') {
+        writeMachines(data);
+
+        return res.status(403).json([
+            {
+                authorized: false,
+                sessionToken: null,
+                status: machine.status,
+                reason: 'Machine is not active'
+            }
+        ]);
+    }
+
+    if (isExpired(machine)) {
+        machine.status = 'expired';
+        machine.updatedAt = new Date().toISOString();
+
+        writeMachines(data);
+
+        return res.status(403).json([
+            {
+                authorized: false,
+                sessionToken: null,
+                status: 'expired',
+                reason: 'License expired'
+            }
+        ]);
+    }
+
+    if (!machine.sessionToken) {
+        machine.sessionToken = generateSessionToken();
+    }
+
+    writeMachines(data);
+
+    return res.status(200).json([
+        {
+            authorized: true,
+            sessionToken: machine.sessionToken,
+            status: 'active',
+            expiresAt: machine.expiresAt,
+            forever: !machine.expiresAt
+        }
+    ]);
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
