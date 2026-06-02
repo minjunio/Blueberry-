@@ -6,35 +6,13 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
-const crypto = require("crypto");
+const crypto = require('crypto'); // Added crypto for machine hashing
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const upload = multer({ dest: 'uploads/' });
 
-// --- EXPRESS MIDDLEWARE ---
-app.set('view engine', 'ejs');
-app.set("views", path.join(__dirname, "views"));
-app.use(express.json({ limit: "20mb" })); // Updated to 20mb
-app.use(express.urlencoded({ extended: true, limit: "20mb" })); // Updated to 20mb
-app.use(express.static(path.join(__dirname, "public"))); 
-app.use(session({ 
-    secret: 'examhub-super-secret-key-2026', 
-    resave: false, 
-    saveUninitialized: false, 
-    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 } 
-})); 
-
-// --- EMAIL CONFIGURATION ---
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'Kfdhs954@gmail.com',
-        pass: 'onbscnffehrrrgdn' 
-    }
-});
-
-// --- DATA DIRECTORIES & SETUP ---
+// --- MACHINE TRACKING CONFIGURATION & UTILITIES ---
 const DATA_DIR = path.join(__dirname, "data");
 const MACHINES_FILE = path.join(DATA_DIR, "machines.json");
 
@@ -46,7 +24,116 @@ if (!fs.existsSync(MACHINES_FILE)) {
   fs.writeFileSync(MACHINES_FILE, JSON.stringify({ machines: [] }, null, 2));
 }
 
-// Setup Database (SQLite)
+function sha256(value) {
+  return crypto
+    .createHash("sha256")
+    .update(String(value))
+    .digest("hex");
+}
+
+function looksLikeSha256(value) {
+  return /^[a-f0-9]{64}$/i.test(String(value || "").trim());
+}
+
+function normalizeMachineInput(value) {
+  const clean = String(value || "").trim();
+  if (!clean) return null;
+  return looksLikeSha256(clean) ? clean.toLowerCase() : sha256(clean);
+}
+
+function readMachines() {
+  try {
+    const raw = fs.readFileSync(MACHINES_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.machines)) {
+      return { machines: [] };
+    }
+    return parsed;
+  } catch {
+    return { machines: [] };
+  }
+}
+
+function writeMachines(data) {
+  if (!data || !Array.isArray(data.machines)) {
+    data = { machines: [] };
+  }
+  fs.writeFileSync(MACHINES_FILE, JSON.stringify(data, null, 2));
+}
+
+function generateSessionToken() {
+  return "sess_" + crypto.randomBytes(32).toString("hex");
+}
+
+function isExpired(machine) {
+  if (!machine.expiresAt) return false;
+  const expiryTime = new Date(machine.expiresAt).getTime();
+  if (Number.isNaN(expiryTime)) return false;
+  return expiryTime < Date.now();
+}
+
+function getClientIp(req) {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+  return req.socket.remoteAddress || "Unknown";
+}
+
+function cleanMachine(machine) {
+  return {
+    id: machine.id || crypto.randomUUID(),
+    machineIdHash: String(machine.machineIdHash || machine.machineId || "").trim().toLowerCase(),
+    keyName: String(machine.keyName || "Unnamed Key"),
+    hostname: String(machine.hostname || ""),
+    note: String(machine.note || ""),
+    status: String(machine.status || "active"),
+    expiresAt: machine.expiresAt || null,
+    sessionToken: machine.sessionToken || generateSessionToken(),
+    createdAt: machine.createdAt || new Date().toISOString(),
+    updatedAt: machine.updatedAt || new Date().toISOString(),
+    lastSeenAt: machine.lastSeenAt || null,
+    lastIp: machine.lastIp || null,
+    os: machine.os || null,
+    city: machine.city || null,
+    country: machine.country || null,
+    isAdmin: machine.isAdmin || null
+  };
+}
+
+function publicMachine(machine) {
+  const expired = isExpired(machine);
+  return {
+    id: machine.id,
+    keyName: machine.keyName,
+    hostname: machine.hostname,
+    note: machine.note,
+    status: expired ? "expired" : machine.status,
+    expiresAt: machine.expiresAt,
+    forever: !machine.expiresAt,
+    sessionToken: machine.sessionToken,
+    createdAt: machine.createdAt,
+    updatedAt: machine.updatedAt,
+    lastSeenAt: machine.lastSeenAt,
+    lastIp: machine.lastIp,
+    os: machine.os,
+    city: machine.city,
+    country: machine.country,
+    isAdmin: machine.isAdmin
+  };
+}
+
+
+// --- EMAIL CONFIGURATION ---
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'example@gmail.com', // REDACTED
+        pass: 'your-app-password'  // REDACTED
+    }
+});
+
+// Setup Database
 const db = new sqlite3.Database(path.join(DATA_DIR, 'database.sqlite'), (err) => {
     if (err) console.error("Database opening error: ", err);
 });
@@ -86,122 +173,12 @@ db.serialize(() => {
     });
 });
 
-// --- MACHINE LICENSING HELPERS ---
-function sha256(value) {
-  return crypto
-    .createHash("sha256")
-    .update(String(value))
-    .digest("hex");
-}
+app.set('view engine', 'ejs');
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static('public')); 
+app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false, cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 } })); 
 
-function looksLikeSha256(value) {
-  return /^[a-f0-9]{64}$/i.test(String(value || "").trim());
-}
-
-function normalizeMachineInput(value) {
-  const clean = String(value || "").trim();
-  if (!clean) return null;
-  return looksLikeSha256(clean) ? clean.toLowerCase() : sha256(clean);
-}
-
-function readMachines() {
-  try {
-    const raw = fs.readFileSync(MACHINES_FILE, "utf8");
-    const parsed = JSON.parse(raw);
-
-    if (!parsed || !Array.isArray(parsed.machines)) {
-      return { machines: [] };
-    }
-    return parsed;
-  } catch (err) {
-    console.error("Failed to read machines file:", err);
-    return { machines: [] };
-  }
-}
-
-function writeMachines(data) {
-  if (!data || !Array.isArray(data.machines)) {
-    data = { machines: [] };
-  }
-  fs.writeFileSync(MACHINES_FILE, JSON.stringify(data, null, 2));
-}
-
-function generateSessionToken() {
-  return "sess_" + crypto.randomBytes(32).toString("hex");
-}
-
-function isExpired(machine) {
-  if (!machine.expiresAt) return false;
-  const t = new Date(machine.expiresAt).getTime();
-  if (Number.isNaN(t)) return false;
-  return t < Date.now();
-}
-
-function requireAdmin(req, res, next) {
-  const adminKey = process.env.ADMIN_KEY || "change_this_admin_key";
-  const provided = req.query.adminKey || req.body.adminKey || req.headers["x-admin-key"];
-
-  if (provided === adminKey) {
-    return next();
-  }
-  return res.status(403).send("Admin access only");
-}
-
-function cleanMachine(machine) {
-  return {
-    id: machine.id || crypto.randomUUID(),
-
-    // Stored hash used for verification.
-    machineIdHash: String(machine.machineIdHash || machine.machineId || "").trim().toLowerCase(),
-
-    // Friendly dashboard fields.
-    keyName: String(machine.keyName || machine.name || "Unnamed Key"),
-    displayKey: String(machine.displayKey || ""),
-    hostname: String(machine.hostname || ""),
-    note: String(machine.note || ""),
-
-    status: String(machine.status || "active"),
-    expiresAt: machine.expiresAt || null,
-    sessionToken: machine.sessionToken || generateSessionToken(),
-
-    createdAt: machine.createdAt || new Date().toISOString(),
-    updatedAt: machine.updatedAt || new Date().toISOString(),
-
-    lastSeenAt: machine.lastSeenAt || null,
-    lastIp: machine.lastIp || null,
-    os: machine.os || null,
-    city: machine.city || null,
-    country: machine.country || null,
-    isAdmin: machine.isAdmin || null
-  };
-}
-
-function publicMachine(machine, showHash = false) {
-  const expired = isExpired(machine);
-
-  return {
-    id: machine.id,
-    keyName: machine.keyName,
-    displayKey: machine.displayKey,
-    hostname: machine.hostname,
-    note: machine.note,
-    status: expired ? "expired" : machine.status,
-    expiresAt: machine.expiresAt,
-    forever: !machine.expiresAt,
-    sessionToken: machine.sessionToken,
-    createdAt: machine.createdAt,
-    updatedAt: machine.updatedAt,
-    lastSeenAt: machine.lastSeenAt,
-    lastIp: machine.lastIp,
-    os: machine.os,
-    city: machine.city,
-    country: machine.country,
-    isAdmin: machine.isAdmin,
-    machineIdHash: showHash ? machine.machineIdHash : undefined
-  };
-}
-
-// --- STOREFRONT HELPERS ---
 const renderSafe = (res, view, data) => {
     res.render(view, data, (err, html) => {
         if (err) return res.status(200).send(`Error loading page.`);
@@ -244,7 +221,7 @@ app.post('/api/send-otp', (req, res) => {
 
         try {
             await transporter.sendMail({
-                from: '"ExamHub Support" <Kfdhs954@gmail.com>',
+                from: '"ExamHub Support" <example@gmail.com>',
                 to: email,
                 subject: 'Your ExamHub Verification Code',
                 text: `Your verification code is: ${code}. It expires in 15 minutes.`,
@@ -364,6 +341,7 @@ app.get('/post/:id', (req, res) => {
     });
 });
 
+
 app.get('/my-orders', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/');
     getActiveOrders(req, (activeOrderCount) => {
@@ -460,6 +438,7 @@ app.get('/admin', (req, res) => {
 });
 
 // --- CASINO API ENDPOINTS ---
+
 app.get('/admin/casino', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     renderSafe(res, 'casino', { user: req.session.user });
@@ -539,436 +518,4 @@ app.post('/admin/delete-post', (req, res) => {
     db.run("DELETE FROM posts WHERE id = ?", [req.body.id], () => res.redirect('/admin'));
 });
 
-/* =========================
-   ADMIN PAGE
-========================= */
-app.get("/admin/verification", requireAdmin, (req, res) => {
-  res.render("admin-verification", {
-    adminKey: req.query.adminKey || ""
-  });
-});
-
-/* =========================
-   ADMIN: VIEW MACHINES
-========================= */
-app.get("/api/admin/machines", requireAdmin, (req, res) => {
-  const data = readMachines();
-
-  data.machines = data.machines.map(cleanMachine);
-  writeMachines(data);
-
-  const showHash = req.query.showHash === "true";
-
-  res.json(data.machines.map(m => publicMachine(m, showHash)));
-});
-
-/* =========================
-   ADMIN: VIEW RAW JSON
-========================= */
-app.get("/api/admin/machines/json", requireAdmin, (req, res) => {
-  const data = readMachines();
-
-  res.setHeader("Content-Type", "application/json");
-  res.send(JSON.stringify(data, null, 2));
-});
-
-/* =========================
-   ADMIN: ADD / UPDATE MACHINE
-========================= */
-app.post("/api/admin/machines", requireAdmin, (req, res) => {
-  const {
-    id,
-    machineInput,
-    keyName,
-    displayKey,
-    hostname,
-    note,
-    status,
-    expiresAt,
-    forever
-  } = req.body;
-
-  const data = readMachines();
-
-  data.machines = data.machines.map(cleanMachine);
-
-  let machine = null;
-  let machineIdHash = null;
-
-  if (id) {
-    machine = data.machines.find(m => m.id === id);
-  }
-
-  if (machineInput) {
-    machineIdHash = normalizeMachineInput(machineInput);
-  }
-
-  if (!machine && machineIdHash) {
-    machine = data.machines.find(m => m.machineIdHash === machineIdHash);
-  }
-
-  if (!machine && !machineIdHash) {
-    return res.status(400).json({
-      success: false,
-      error: "Machine ID or existing machine ID is required"
-    });
-  }
-
-  if (!machine) {
-    machine = {
-      id: crypto.randomUUID(),
-      machineIdHash,
-      keyName: keyName || "Unnamed Key",
-      displayKey: displayKey || machineInput || "",
-      hostname: hostname || "",
-      note: note || "",
-      status: status || "active",
-      expiresAt: forever ? null : expiresAt || null,
-      sessionToken: generateSessionToken(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      lastSeenAt: null,
-      lastIp: null,
-      os: null,
-      city: null,
-      country: null,
-      isAdmin: null
-    };
-
-    data.machines.push(machine);
-  } else {
-    if (machineIdHash) {
-      machine.machineIdHash = machineIdHash;
-    }
-
-    machine.keyName = keyName || machine.keyName || "Unnamed Key";
-    machine.displayKey = displayKey || machine.displayKey || machineInput || "";
-    machine.hostname = hostname || machine.hostname || "";
-    machine.note = note || "";
-    machine.status = status || "active";
-    machine.expiresAt = forever ? null : expiresAt || null;
-    machine.updatedAt = new Date().toISOString();
-
-    if (!machine.sessionToken) {
-      machine.sessionToken = generateSessionToken();
-    }
-  }
-
-  writeMachines(data);
-
-  res.json({
-    success: true,
-    machine: publicMachine(machine, false)
-  });
-});
-
-/* =========================
-   ADMIN: DELETE MACHINE
-========================= */
-app.delete("/api/admin/machines/:id", requireAdmin, (req, res) => {
-  const id = req.params.id;
-
-  const data = readMachines();
-  const before = data.machines.length;
-
-  data.machines = data.machines.filter(m => m.id !== id);
-
-  writeMachines(data);
-
-  res.json({
-    success: true,
-    deleted: before !== data.machines.length
-  });
-});
-
-/* =========================
-   ADMIN: REGENERATE SESSION TOKEN
-========================= */
-app.post("/api/admin/machines/:id/regenerate-token", requireAdmin, (req, res) => {
-  const id = req.params.id;
-
-  const data = readMachines();
-  const machine = data.machines.find(m => m.id === id);
-
-  if (!machine) {
-    return res.status(404).json({
-      success: false,
-      error: "Machine not found"
-    });
-  }
-
-  machine.sessionToken = generateSessionToken();
-  machine.updatedAt = new Date().toISOString();
-
-  writeMachines(data);
-
-  res.json({
-    success: true,
-    machine: publicMachine(cleanMachine(machine), false)
-  });
-});
-
-/* =========================
-   ADMIN: DOWNLOAD JSON
-========================= */
-app.get("/api/admin/machines/export", requireAdmin, (req, res) => {
-  const data = readMachines();
-
-  const filename = `machines-backup-${new Date().toISOString().slice(0, 10)}.json`;
-
-  res.setHeader("Content-Type", "application/json");
-  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-  res.send(JSON.stringify(data, null, 2));
-});
-
-/* =========================
-   ADMIN: IMPORT JSON
-========================= */
-app.post("/api/admin/machines/import", requireAdmin, (req, res) => {
-  const { importData, mode } = req.body;
-
-  if (!importData) {
-    return res.status(400).json({
-      success: false,
-      error: "No JSON data received"
-    });
-  }
-
-  let parsed;
-
-  try {
-    parsed = typeof importData === "string" ? JSON.parse(importData) : importData;
-  } catch {
-    return res.status(400).json({
-      success: false,
-      error: "Invalid JSON"
-    });
-  }
-
-  if (!parsed || !Array.isArray(parsed.machines)) {
-    return res.status(400).json({
-      success: false,
-      error: "JSON must contain a machines array"
-    });
-  }
-
-  const incoming = parsed.machines
-    .map(cleanMachine)
-    .filter(m => m.machineIdHash);
-
-  if (mode === "replace") {
-    writeMachines({ machines: incoming });
-
-    return res.json({
-      success: true,
-      mode: "replace",
-      imported: incoming.length
-    });
-  }
-
-  const current = readMachines();
-  current.machines = current.machines.map(cleanMachine);
-
-  let added = 0;
-  let updated = 0;
-
-  for (const inc of incoming) {
-    const existing = current.machines.find(m => m.machineIdHash === inc.machineIdHash);
-
-    if (existing) {
-      Object.assign(existing, {
-        ...inc,
-        id: existing.id,
-        updatedAt: new Date().toISOString()
-      });
-      updated++;
-    } else {
-      current.machines.push(inc);
-      added++;
-    }
-  }
-
-  writeMachines(current);
-
-  res.json({
-    success: true,
-    mode: "merge",
-    added,
-    updated,
-    total: current.machines.length
-  });
-});
-
-/* =========================
-   PYTHON AUTH ENDPOINT
-========================= */
-app.get("/api/auth", (req, res) => {
-  const {
-    machineId,
-    os,
-    hostname,
-    isAdmin,
-    city,
-    country
-  } = req.query;
-
-  if (!machineId) {
-    return res.status(400).json([
-      {
-        authorized: false,
-        sessionToken: null,
-        status: "denied",
-        reason: "Missing machineId"
-      }
-    ]);
-  }
-
-  const machineIdHash = String(machineId).trim().toLowerCase();
-
-  const data = readMachines();
-  data.machines = data.machines.map(cleanMachine);
-
-  let machine = data.machines.find(m => m.machineIdHash === machineIdHash);
-
-  // New unknown machine gets saved as pending so you can approve it from dashboard.
-  if (!machine) {
-    machine = {
-      id: crypto.randomUUID(),
-      machineIdHash,
-      keyName: hostname ? `Pending - ${hostname}` : "Pending Machine",
-      displayKey: `pending-${machineIdHash.slice(0, 10)}`,
-      hostname: hostname || "",
-      note: "Auto-added from auth request. Change status to active to allow.",
-      status: "pending",
-      expiresAt: null,
-      sessionToken: generateSessionToken(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      lastSeenAt: new Date().toISOString(),
-      lastIp: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
-      os: os || null,
-      city: city || null,
-      country: country || null,
-      isAdmin: isAdmin || null
-    };
-
-    data.machines.push(machine);
-    writeMachines(data);
-
-    return res.status(403).json([
-      {
-        authorized: false,
-        sessionToken: null,
-        status: "pending",
-        reason: "Machine is pending admin approval"
-      }
-    ]);
-  }
-
-  machine.hostname = hostname || machine.hostname;
-  machine.os = os || machine.os;
-  machine.isAdmin = isAdmin || machine.isAdmin;
-  machine.city = city || machine.city;
-  machine.country = country || machine.country;
-  machine.lastSeenAt = new Date().toISOString();
-  machine.lastIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-  machine.updatedAt = new Date().toISOString();
-
-  if (machine.status !== "active") {
-    writeMachines(data);
-
-    return res.status(403).json([
-      {
-        authorized: false,
-        sessionToken: null,
-        status: machine.status,
-        reason: "Machine is not active"
-      }
-    ]);
-  }
-
-  if (isExpired(machine)) {
-    machine.status = "expired";
-    machine.updatedAt = new Date().toISOString();
-
-    writeMachines(data);
-
-    return res.status(403).json([
-      {
-        authorized: false,
-        sessionToken: null,
-        status: "expired",
-        reason: "License expired"
-      }
-    ]);
-  }
-
-  if (!machine.sessionToken) {
-    machine.sessionToken = generateSessionToken();
-  }
-
-  writeMachines(data);
-
-  return res.status(200).json([
-    {
-      authorized: true,
-      sessionToken: machine.sessionToken,
-      status: "active",
-      expiresAt: machine.expiresAt,
-      forever: !machine.expiresAt
-    }
-  ]);
-});
-
-/* =========================
-   PROTECT /api/proxy AND /api/log
-========================= */
-function requireValidSessionToken(req, res, next) {
-  const auth = req.headers.authorization || "";
-
-  if (!auth.startsWith("Bearer ")) {
-    return res.status(401).json({
-      error: "Missing Bearer token"
-    });
-  }
-
-  const token = auth.slice("Bearer ".length).trim();
-
-  if (!token || token === "fallback_session_token") {
-    return res.status(401).json({
-      error: "Invalid session token"
-    });
-  }
-
-  const data = readMachines();
-  const machine = data.machines.map(cleanMachine).find(m =>
-    m.sessionToken === token &&
-    m.status === "active" &&
-    !isExpired(m)
-  );
-
-  if (!machine) {
-    return res.status(403).json({
-      error: "Unauthorized machine"
-    });
-  }
-
-  req.machine = machine;
-  next();
-}
-
-/*
-Use this on your protected endpoints:
-
-app.post("/api/proxy", requireValidSessionToken, async (req, res) => {
-  // your AI proxy code here
-});
-
-app.post("/api/log", requireValidSessionToken, async (req, res) => {
-  // your log code here
-});
-*/
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
