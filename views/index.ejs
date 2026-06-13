@@ -1,48 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <% 
-        const seoTitle = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_title) ? categoryRow.seo_title : 'ExamHub ✨ Marketplace';
-        const seoDesc = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_desc) ? categoryRow.seo_desc : 'The ultimate exam marketplace for top-rated study tools and bypasses.';
-        const seoKeywords = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_keywords) ? categoryRow.seo_keywords : 'exams, study tools, bypasses, marketplace, honorlock, lockdown browser';
-        const ogImage = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.og_image) ? categoryRow.og_image : 'https://examhub.shop/favicon.png';
-        const canonicalUrl = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.canonical_url) ? categoryRow.canonical_url : '';
+    <%
+        const safeCategoryRow = (typeof categoryRow !== 'undefined' && categoryRow) ? categoryRow : {};
+        const safeBuyerEmail = (typeof buyerEmail !== 'undefined' && buyerEmail) ? String(buyerEmail) : '';
+        const safeCategories = (typeof categories !== 'undefined' && Array.isArray(categories)) ? categories : [];
+        const safeProducts = (typeof products !== 'undefined' && Array.isArray(products)) ? products : [];
+        const safePosts = (typeof posts !== 'undefined' && Array.isArray(posts)) ? posts : [];
+        const safeAnnouncements = (typeof announcements !== 'undefined' && Array.isArray(announcements)) ? announcements : [];
+        const currentCategory = (typeof categoryFilter !== 'undefined' && categoryFilter) ? String(categoryFilter) : 'All';
+        const currentSearchQuery = (typeof searchQuery !== 'undefined' && searchQuery) ? String(searchQuery) : '';
+
+        const seoTitle = safeCategoryRow.seo_title || 'ExamHub ✨ Marketplace';
+        const seoDesc = safeCategoryRow.seo_desc || 'A marketplace for exam preparation resources and study tools.';
+        const seoKeywords = safeCategoryRow.seo_keywords || 'exams, study tools, preparation, marketplace, learning resources';
+        const ogImage = safeCategoryRow.og_image || 'https://examhub.shop/favicon.png';
+        const canonicalUrl = safeCategoryRow.canonical_url || '';
 
         function formatPostText(text) {
             if (!text) return '';
-            let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-            safeText = safeText.replace(/\*\*([\s\S]*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>');
-            safeText = safeText.replace(/#([\s\S]*?)#/g, '<span class="text-xl md:text-2xl font-bold block mt-4 mb-2 text-gray-900 leading-tight">$1</span>');
-            safeText = safeText.replace(/\n/g, '<br>');
+
+            let safeText = String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+
+            safeText = safeText.replace(/^#\s+(.+)$/gm, '<span class="text-xl md:text-2xl font-bold block mt-4 mb-2 text-gray-900 leading-tight">$1</span>');
+            safeText = safeText.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>');
+            safeText = safeText.replace(/\r?\n/g, '<br>');
+
             return safeText;
         }
     %>
+
     <title><%= seoTitle %></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="<%= seoDesc %>">
     <meta name="keywords" content="<%= seoKeywords %>">
     <meta name="robots" content="index, follow, max-image-preview:large">
-    <% if (canonicalUrl) { %> <link rel="canonical" href="<%= canonicalUrl %>"> <% } %>
+    <meta name="theme-color" content="#2563eb">
+
+    <% if (canonicalUrl) { %>
+        <link rel="canonical" href="<%= canonicalUrl %>">
+    <% } %>
+
+    <meta property="og:type" content="website">
     <meta property="og:title" content="<%= seoTitle %>">
     <meta property="og:description" content="<%= seoDesc %>">
     <meta property="og:image" content="<%= ogImage %>">
+    <% if (canonicalUrl) { %>
+        <meta property="og:url" content="<%= canonicalUrl %>">
+    <% } %>
+
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
 
-    <script src="https://www.paypal.com/sdk/js?client-id=BAACqOV8IkLP3i0-_Ty6IA7zt5_OxtawbH5tAUCjenPO6KcpDgcEscgNhhZCTP9dVtHBQB6BrxF5QoOBnM&components=buttons&disable-funding=venmo&currency=USD"></script>
+    <!-- Load PayPal once. HostedButtons requires components=hosted-buttons. -->
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=BAACqOV8IkLP3i0-_Ty6IA7zt5_OxtawbH5tAUCjenPO6KcpDgcEscgNhhZCTP9dVtHBQB6BrxF5QoOBnM&components=hosted-buttons&disable-funding=venmo&currency=USD"
+        data-sdk-integration-source="button-factory"
+    ></script>
+
+    <style>
+        [data-modal-panel] {
+            animation: modalIn 180ms ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(8px) scale(.985); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-open {
+            overflow: hidden;
+        }
+    </style>
 </head>
 
-<body class="antialiased flex flex-col bg-[#f8fafc] text-gray-800">
+<body class="antialiased min-h-screen flex flex-col bg-[#f8fafc] text-gray-800">
     <nav class="py-5 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20 border-b border-gray-200 bg-white shadow-sm">
-        <a href="/" class="text-2xl font-black text-gray-900 tracking-tight">Exam<span class="text-blue-600">Hub</span></a>
-        
+        <a href="/" class="text-2xl font-black text-gray-900 tracking-tight" aria-label="ExamHub home">
+            Exam<span class="text-blue-600">Hub</span>
+        </a>
+
         <div class="flex items-center gap-3">
-            <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-lg font-bold text-sm transition">Discord</a>
-            
-            <% if (typeof buyerEmail !== 'undefined' && buyerEmail) { %>
+            <a
+                href="https://discord.gg/bg6wKj45w3"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-lg font-bold text-sm transition"
+            >Discord</a>
+
+            <% if (safeBuyerEmail) { %>
                 <a href="/my-orders" class="bg-gray-900 text-white hover:bg-gray-800 px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2">
                     My Orders
-                    <% if (typeof activeOrderCount !== 'undefined' && activeOrderCount > 0) { %>
-                        <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full"><%= activeOrderCount %></span>
+                    <% if (typeof activeOrderCount !== 'undefined' && Number(activeOrderCount) > 0) { %>
+                        <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full"><%= Number(activeOrderCount) %></span>
                     <% } %>
                 </a>
                 <a href="/buyer-logout" class="ml-1 text-sm font-medium text-gray-500 hover:text-red-600 transition hidden md:block">Logout</a>
@@ -50,50 +106,87 @@
 
             <% if (typeof user !== 'undefined' && user) { %>
                 <a href="/admin" class="ml-2 bg-white hover:bg-gray-50 px-4 py-2 rounded-lg font-bold text-sm transition border border-gray-300 shadow-sm text-gray-700">Admin</a>
-            <% } else if (typeof buyerEmail === 'undefined' || !buyerEmail) { %>
+            <% } else if (!safeBuyerEmail) { %>
                 <a href="/login" class="ml-2 bg-white hover:bg-gray-50 px-4 py-2 rounded-lg font-bold text-sm transition border border-gray-300 shadow-sm text-gray-700">Login</a>
             <% } %>
         </div>
     </nav>
 
     <header class="flex flex-col items-center text-center px-4 pt-12 pb-12 relative z-10">
-        <h1 class="text-4xl md:text-5xl font-black mb-4 text-gray-900 tracking-tight">Master Your <span class="text-blue-600">Exams</span></h1>
-        <p class="text-gray-500 mb-8 font-medium max-w-lg">The ultimate marketplace for top-rated study tools and secure bypasses.</p>
+        <h1 class="text-4xl md:text-5xl font-black mb-4 text-gray-900 tracking-tight">
+            Master Your <span class="text-blue-600">Exams</span>
+        </h1>
+        <p class="text-gray-500 mb-8 font-medium max-w-lg">
+            Discover exam-preparation resources and study tools in one secure marketplace.
+        </p>
+
         <div class="w-full max-w-2xl relative">
-            <form action="/" method="GET" class="relative">
-                <% if (typeof categoryFilter !== 'undefined' && categoryFilter && categoryFilter !== 'All') { %> <input type="hidden" name="category" value="<%= categoryFilter %>"> <% } %>
-                <input type="text" id="searchInput" name="q" autocomplete="off" value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" placeholder="Search exams, bypasses..." class="w-full bg-white border border-gray-300 focus:border-blue-500 rounded-xl py-4 pl-6 pr-24 outline-none shadow-sm text-base font-medium transition">
+            <form action="/" method="GET" class="relative" role="search">
+                <% if (currentCategory !== 'All') { %>
+                    <input type="hidden" name="category" value="<%= currentCategory %>">
+                <% } %>
+
+                <input
+                    type="search"
+                    id="searchInput"
+                    name="q"
+                    autocomplete="off"
+                    value="<%= currentSearchQuery %>"
+                    placeholder="Search products and resources..."
+                    aria-label="Search marketplace"
+                    aria-controls="searchDropdown"
+                    aria-expanded="false"
+                    class="w-full bg-white border border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl py-4 pl-6 pr-24 outline-none shadow-sm text-base font-medium transition"
+                >
                 <button type="submit" class="absolute right-2 top-2 bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-700 transition">Search</button>
             </form>
-            <div id="searchDropdown" class="hidden absolute top-full left-0 w-full bg-white border border-gray-200 rounded-xl mt-2 shadow-lg overflow-hidden z-50 flex flex-col text-left"></div>
+
+            <div
+                id="searchDropdown"
+                class="hidden absolute top-full left-0 w-full bg-white border border-gray-200 rounded-xl mt-2 shadow-lg overflow-hidden z-50 flex-col text-left"
+                role="listbox"
+            ></div>
         </div>
 
         <div class="flex flex-wrap justify-center gap-2 mt-8 max-w-4xl">
-            <a href="/" class="px-4 py-2 rounded-lg font-bold text-xs md:text-sm border <%= (!typeof categoryFilter !== 'undefined' || categoryFilter === 'All') ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400' %> transition">All</a>
-            <% categories.forEach(cat => { %>
-                <a href="/category/<%= encodeURIComponent(cat.name) %>" class="px-4 py-2 rounded-lg font-bold text-xs md:text-sm border <%= typeof categoryFilter !== 'undefined' && categoryFilter === cat.name ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400' %> transition"><%= cat.name %></a>
+            <a
+                href="/"
+                class="px-4 py-2 rounded-lg font-bold text-xs md:text-sm border <%= currentCategory === 'All' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400' %> transition"
+            >All</a>
+
+            <% safeCategories.forEach(cat => { %>
+                <a
+                    href="/category/<%= encodeURIComponent(cat.name) %>"
+                    class="px-4 py-2 rounded-lg font-bold text-xs md:text-sm border <%= currentCategory === cat.name ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400' %> transition"
+                ><%= cat.name %></a>
             <% }) %>
         </div>
     </header>
 
     <main class="flex-grow w-full max-w-6xl mx-auto px-4 md:px-6 relative z-20 pb-20">
-        
-        <% if (typeof announcements !== 'undefined' && announcements && announcements.length > 0) { %>
+        <% if (safeAnnouncements.length > 0) { %>
             <div class="mb-12 space-y-6">
-                <% announcements.forEach(ann => { %>
-                    <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-blue-100">
-                        <div class="inline-block bg-blue-50 text-blue-700 font-bold text-[10px] px-2 py-1 rounded uppercase tracking-wider mb-3"><%= ann.category %> Update</div>
-                        <h2 class="text-2xl font-bold mb-4 text-gray-900"><%= ann.title %></h2>
-                        
-                        <div class="flex flex-col md:flex-row gap-4 mb-4">
-                            <% if (ann.image1) { %> <img src="<%= ann.image1 %>" class="w-full md:w-1/2 rounded-xl object-cover border border-gray-100" style="max-height: 300px;"> <% } %>
-                            <% if (ann.image2) { %> <img src="<%= ann.image2 %>" class="w-full md:w-1/2 rounded-xl object-cover border border-gray-100" style="max-height: 300px;"> <% } %>
+                <% safeAnnouncements.forEach(ann => { %>
+                    <article class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-blue-100">
+                        <div class="inline-block bg-blue-50 text-blue-700 font-bold text-[10px] px-2 py-1 rounded uppercase tracking-wider mb-3">
+                            <%= ann.category || 'General' %> Update
                         </div>
-                        
+                        <h2 class="text-2xl font-bold mb-4 text-gray-900"><%= ann.title %></h2>
+
+                        <div class="flex flex-col md:flex-row gap-4 mb-4">
+                            <% if (ann.image1) { %>
+                                <img src="<%= ann.image1 %>" alt="<%= ann.title %>" loading="lazy" class="w-full md:w-1/2 rounded-xl object-cover border border-gray-100 max-h-[300px]">
+                            <% } %>
+                            <% if (ann.image2) { %>
+                                <img src="<%= ann.image2 %>" alt="<%= ann.title %>" loading="lazy" class="w-full md:w-1/2 rounded-xl object-cover border border-gray-100 max-h-[300px]">
+                            <% } %>
+                        </div>
+
                         <div class="text-sm font-medium text-gray-600 leading-relaxed"><%- formatPostText(ann.content) %></div>
-                    </div>
+                    </article>
                 <% }) %>
             </div>
+
             <div class="flex items-center gap-4 mb-8">
                 <div class="flex-grow h-px bg-gray-200"></div>
                 <span class="font-bold text-gray-400 uppercase tracking-widest text-xs">Marketplace Catalog</span>
@@ -101,133 +194,154 @@
             </div>
         <% } %>
 
-        <div class="flex gap-6 mb-6 border-b border-gray-200 pb-0 select-none justify-center md:justify-start">
-            <button onclick="switchTab('store')" id="tab-store" class="font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition">Store</button>
-            <button onclick="switchTab('posts')" id="tab-posts" class="font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition">Articles & Updates</button>
+        <div class="flex gap-6 mb-6 border-b border-gray-200 select-none justify-center md:justify-start" role="tablist">
+            <button type="button" onclick="switchTab('store')" id="tab-store" role="tab" aria-selected="true" class="font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition">Store</button>
+            <button type="button" onclick="switchTab('posts')" id="tab-posts" role="tab" aria-selected="false" class="font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition">Articles &amp; Updates</button>
         </div>
 
-        <div id="store-grid">
+        <section id="store-grid" role="tabpanel" aria-labelledby="tab-store">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <% if (products.length === 0) { %>
+                <% if (safeProducts.length === 0) { %>
                     <div class="col-span-full text-center py-10 font-bold text-lg text-gray-400">No products found.</div>
                 <% } else { %>
-                    <% products.forEach(product => { %>
-                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full p-5 relative">
+                    <% safeProducts.forEach(product => { %>
+                        <% const displayPrice = Number(product.price || 0); %>
+                        <% const displayTier = product.tier || 'Standard'; %>
+                        <article class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full p-5 relative">
                             <div class="flex items-start gap-4 mb-4">
                                 <div class="w-16 h-16 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
-                                    <img src="<%= product.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title || 'Product')}&background=random&size=512` %>" class="w-full h-full object-cover">
+                                    <img
+                                        src="<%= product.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title || 'Product')}&background=random&size=512` %>"
+                                        alt="<%= product.title || 'Product' %>"
+                                        loading="lazy"
+                                        class="w-full h-full object-cover"
+                                    >
                                 </div>
-                                <div class="flex-grow overflow-hidden">
-                                    <span class="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1"><%= product.category %></span>
-                                    <h3 class="font-bold text-lg text-gray-900 leading-tight mb-1 truncate"><%= product.title %></h3>
+
+                                <div class="flex-grow min-w-0">
+                                    <span class="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1"><%= product.category || 'General' %></span>
+                                    <h3 class="font-bold text-lg text-gray-900 leading-tight mb-1 truncate" title="<%= product.title %>"><%= product.title %></h3>
                                     <div class="flex items-center gap-2">
-                                        <span class="text-green-600 font-black text-sm">$<%= Number(product.price || 0).toFixed(2) %></span>
-                                        <span class="bg-gray-100 text-gray-600 font-bold text-[10px] px-2 py-0.5 rounded uppercase"><%= product.tier || 'Standard' %></span>
+                                        <span class="text-green-600 font-black text-sm">$<%= displayPrice.toFixed(2) %></span>
+                                        <span class="bg-gray-100 text-gray-600 font-bold text-[10px] px-2 py-0.5 rounded uppercase"><%= displayTier %></span>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="text-sm text-gray-500 mb-6 flex-grow leading-relaxed"><%- formatPostText(product.description) %></div>
+
                             <div class="mt-auto pt-4 border-t border-gray-100">
-                                <button onclick="handleBuyClick('<%= product.id %>', '<%= product.title.replace(/'/g, "\\'") %>', '<%= product.tier || 'Standard' %>', '<%= product.price %>')" class="w-full bg-gray-900 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-gray-800 transition">Purchase</button>
+                                <button
+                                    type="button"
+                                    data-purchase-button
+                                    data-product-id="<%= product.id %>"
+                                    data-product-title="<%= product.title %>"
+                                    data-product-tier="<%= displayTier %>"
+                                    data-product-price="<%= displayPrice.toFixed(2) %>"
+                                    data-paypal-button-id="<%= product.paypal_button_id || '' %>"
+                                    onclick="handleBuyClickFromButton(this)"
+                                    class="w-full bg-gray-900 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-gray-800 transition focus:outline-none focus:ring-4 focus:ring-gray-200"
+                                >Purchase</button>
                             </div>
-                        </div>
+                        </article>
                     <% }) %>
                 <% } %>
             </div>
-        </div>
+        </section>
 
-        <div id="posts-grid" class="hidden">
+        <section id="posts-grid" class="hidden" role="tabpanel" aria-labelledby="tab-posts">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <% if (typeof posts !== 'undefined' && posts.length > 0) { %>
-                    <% posts.forEach(post => { %>
+                <% if (safePosts.length > 0) { %>
+                    <% safePosts.forEach(post => { %>
                         <a href="/post/<%= post.id %>" class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full p-5">
                             <div class="flex items-center gap-3 mb-3">
                                 <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Update</span>
-                                <span class="text-[10px] text-gray-400 font-medium"><%= new Date(post.created_at).toLocaleDateString() %></span>
+                                <span class="text-[10px] text-gray-400 font-medium"><%= post.created_at ? new Date(post.created_at).toLocaleDateString() : '' %></span>
                             </div>
                             <h3 class="font-bold text-lg text-gray-900 leading-tight mb-2"><%= post.title %></h3>
                             <p class="text-sm text-gray-500 line-clamp-3 mb-4 flex-grow"><%= post.seo_desc || 'Read the full update...' %></p>
-                            <div class="text-blue-600 font-bold text-sm flex items-center justify-between mt-auto">
-                                Read Article &rarr;
-                            </div>
+                            <div class="text-blue-600 font-bold text-sm flex items-center justify-between mt-auto">Read Article &rarr;</div>
                         </a>
                     <% }) %>
                 <% } else { %>
                     <div class="col-span-full text-center py-10 font-bold text-lg text-gray-400">No updates posted yet.</div>
                 <% } %>
             </div>
-        </div>
+        </section>
     </main>
 
-    <div id="emailModal" class="hidden fixed inset-0 bg-gray-900/60 justify-center items-center z-50 p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-xl p-8 border border-gray-200">
-            <h2 class="text-xl font-bold text-gray-900 mb-1">Sign In / Guest</h2>
-            <p class="text-sm text-gray-500 mb-6">Enter email to receive secure code.</p>
-            <input type="email" id="authEmailInput" placeholder="you@email.com" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-medium outline-none focus:border-blue-500 text-sm mb-4">
-            <button onclick="sendOtp()" id="sendOtpBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">Send Code</button>
-            <button onclick="closeModals()" class="w-full mt-3 text-sm font-medium text-gray-500 hover:text-gray-800">Cancel</button>
+    <!-- EMAIL MODAL -->
+    <div id="emailModal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle" data-modal>
+        <div data-modal-panel class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-xl p-8 border border-gray-200">
+            <h2 id="emailModalTitle" class="text-xl font-bold text-gray-900 mb-1">Sign In / Guest</h2>
+            <p class="text-sm text-gray-500 mb-6">Enter your email to receive a secure code.</p>
+            <input type="email" id="authEmailInput" autocomplete="email" placeholder="you@email.com" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm mb-4">
+            <p id="emailAuthError" class="hidden text-sm font-semibold text-red-600 mb-3" role="alert"></p>
+            <button type="button" onclick="sendOtp()" id="sendOtpBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed">Send Code</button>
+            <button type="button" onclick="closeModals()" class="w-full mt-3 text-sm font-medium text-gray-500 hover:text-gray-800">Cancel</button>
         </div>
     </div>
 
-    <div id="otpModal" class="hidden fixed inset-0 bg-gray-900/60 justify-center items-center z-50 p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-xl p-8 border border-gray-200 text-center">
-            <h2 class="text-xl font-bold text-gray-900 mb-1">Verify Code</h2>
+    <!-- OTP MODAL -->
+    <div id="otpModal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="otpModalTitle" data-modal>
+        <div data-modal-panel class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-xl p-8 border border-gray-200 text-center">
+            <h2 id="otpModalTitle" class="text-xl font-bold text-gray-900 mb-1">Verify Code</h2>
             <p class="text-sm text-gray-500 mb-6">Check your inbox for the 6-digit code.</p>
-            <input type="text" id="authOtpInput" placeholder="123456" maxlength="6" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-bold text-2xl tracking-widest outline-none focus:border-blue-500 mb-4 text-center text-gray-900">
-            <button onclick="verifyOtp()" id="verifyOtpBtn" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition">Verify</button>
-            <button onclick="closeModals()" class="w-full mt-3 text-sm font-medium text-gray-500 hover:text-gray-800">Cancel</button>
+            <input type="text" id="authOtpInput" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" maxlength="6" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-bold text-2xl tracking-widest outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 mb-4 text-center text-gray-900">
+            <p id="otpAuthError" class="hidden text-sm font-semibold text-red-600 mb-3" role="alert"></p>
+            <button type="button" onclick="verifyOtp()" id="verifyOtpBtn" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition disabled:opacity-60 disabled:cursor-not-allowed">Verify</button>
+            <button type="button" onclick="closeModals()" class="w-full mt-3 text-sm font-medium text-gray-500 hover:text-gray-800">Cancel</button>
         </div>
     </div>
 
-    <div id="buyModal" class="hidden fixed inset-0 bg-gray-900/60 justify-center items-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl border border-gray-200 my-8">
+    <!-- CHECKOUT MODAL -->
+    <div id="buyModal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-start md:items-center z-50 p-4 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="checkoutModalTitle" data-modal>
+        <div data-modal-panel class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl border border-gray-200 my-4 md:my-8">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h2 class="text-lg font-bold text-gray-900">Checkout</h2>
-                <button onclick="closeModals()" class="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
+                <h2 id="checkoutModalTitle" class="text-lg font-bold text-gray-900">Checkout</h2>
+                <button type="button" onclick="closeModals()" aria-label="Close checkout" class="text-gray-400 hover:text-gray-600 font-bold text-2xl leading-none">&times;</button>
             </div>
-            
+
             <div class="p-6">
                 <div class="bg-green-50 text-green-700 text-xs font-bold px-3 py-2 rounded-lg mb-5 flex items-center gap-2 border border-green-200">
-                    <span>Account:</span> <span class="truncate"><%= typeof buyerEmail !== 'undefined' ? buyerEmail : '' %></span>
+                    <span>Account:</span>
+                    <span class="truncate"><%= safeBuyerEmail %></span>
                 </div>
-                
-                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
-                    <div>
+
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 gap-4">
+                    <div class="min-w-0">
                         <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Item</p>
-                        <p id="modalItemTitle" class="font-bold text-gray-900 text-sm max-w-[200px] truncate"></p>
+                        <p id="modalItemTitle" class="font-bold text-gray-900 text-sm truncate"></p>
+                        <p id="modalItemTier" class="text-xs text-gray-500 mt-1"></p>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right shrink-0">
                         <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Total</p>
                         <p id="modalItemPrice" class="font-black text-green-600 text-lg"></p>
                     </div>
                 </div>
 
-                <form id="buyForm" action="/checkout" method="POST">
+                <form id="buyForm" action="/checkout" method="POST" novalidate>
                     <input type="hidden" id="hiddenProductId" name="product_id">
                     <input type="hidden" id="hiddenProductTier" name="tier">
-                    <input type="hidden" id="hiddenPayPalCaptureId" name="paypal_capture_id">
 
                     <div class="mb-5">
-                        <label class="block text-xs font-bold text-gray-700 mb-2">Discord Username (Optional)</label>
-                        <input type="text" name="discord_username" placeholder="user#1234" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2.5 font-medium outline-none focus:border-blue-500 text-sm">
+                        <label for="discordUsername" class="block text-xs font-bold text-gray-700 mb-2">Discord Username (Optional)</label>
+                        <input id="discordUsername" type="text" name="discord_username" placeholder="username" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2.5 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm">
                     </div>
 
                     <div class="mb-5">
                         <label class="block text-xs font-bold text-gray-700 mb-2">Payment Method</label>
                         <div class="space-y-2">
-                            
                             <label class="relative block cursor-pointer">
                                 <input type="radio" name="payment_method" value="PayPal" class="peer sr-only" checked onchange="handlePaymentMethodChange()">
                                 <div class="rounded-lg border border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-600 transition flex items-center">
-                                    <div class="mr-3">
-                                        <svg viewBox="0 0 130 35" width="60" height="16"><path fill="#253B80" d="M14.9,3.7h-3.8c-0.6,0-1.1,0.4-1.2,1.1l-2,12.7c0,0.2,0.2,0.4,0.4,0.4h2.5c0.6,0,1.1-0.4,1.2-1.1l0.6-3.8h2.3c3.5,0,5.6-1.7,6.3-5.1C21.8,5.1,19.3,3.7,14.9,3.7z M15.4,8.8h-2.1l0.5-3.3h2.1c1.8,0,2.9,0.8,2.6,2.3C18.1,8.8,16.5,8.8,15.4,8.8z"/><path fill="#179BD7" d="M30.6,3.7H27c-0.6,0-1.1,0.4-1.2,1l-2,12.7c-0.1,0.3,0.1,0.5,0.4,0.5h2.8c0.6,0,1.1-0.4,1.2-1.1l1.1-7.1c0.1-0.6,0.6-1.1,1.2-1.1h1.1L30,14.6c0,0.1,0.1,0.2,0.2,0.2h2.9c0.2,0,0.4-0.2,0.4-0.4L35.4,4C35.5,3.8,35.3,3.7,35,3.7H31.9c-0.5,0-0.9,0.3-1,0.8l-0.1,0.9L30.6,3.7z M36.3,17.5h2.5c0.6,0,1.1-0.4,1.2-1.1l2-12.7c0-0.2-0.2-0.4-0.4-0.4H39c-0.6,0-1.1,0.4-1.2,1.1l-2,12.7C35.8,17.3,36,17.5,36.3,17.5z M47,3.7h-3.8c-0.6,0-1.1,0.4-1.2,1.1l-2,12.7c0,0.2,0.2,0.4,0.4,0.4h2.5c0.6,0,1.1-0.4,1.2-1l0.6-3.8h2.3c3.5,0,5.6-1.7,6.3-5.1C53.9,5.1,51.4,3.7,47,3.7z M47.5,8.8h-2.1l0.5-3.3h2.1c1.8,0,2.9,0.8,2.6,2.3C50.2,8.8,48.6,8.8,47.5,8.8z M57.3,3.7h-3.6c-0.6,0-1.1,0.4-1.2,1l-2,12.7c-0.1,0.3,0.1,0.5,0.4,0.5h2.8c0.6,0,1.1-0.4,1.2-1.1l1.1-7.1c0.1-0.6,0.6-1.1,1.2-1.1h1.1l-1.5,5.9c0,0.1,0.1,0.2,0.2,0.2h2.9c0.2,0,0.4-0.2,0.4-0.4L62,4C62.1,3.8,61.9,3.7,61.6,3.7H58.6c-0.5,0-0.9,0.3-1,0.8l-0.1,0.9L57.3,3.7z M65,3.7h-2.5c-0.6,0-1.1,0.4-1.2,1.1L59.3,17.5h2.8c0.6,0,1.1-0.4,1.2-1.1l2-12.7C65.5,3.8,65.3,3.7,65,3.7z"/></svg>
-                                    </div>
+                                    <div class="mr-3 font-black italic text-[#003087] text-base">Pay<span class="text-[#009cde]">Pal</span></div>
                                     <div class="flex-grow">
                                         <p class="font-bold text-sm text-gray-900">PayPal Checkout</p>
+                                        <p class="text-[11px] text-gray-500">Secure checkout hosted by PayPal</p>
                                     </div>
                                     <div class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-600 flex items-center justify-center shrink-0">
-                                        <div class="w-1.5 h-1.5 bg-white rounded-full opacity-0 peer-checked:opacity-100"></div>
+                                        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
                                     </div>
                                 </div>
                             </label>
@@ -240,20 +354,20 @@
                                         <p class="font-bold text-sm text-gray-900">Crypto (Solana)</p>
                                     </div>
                                     <div class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-gray-900 peer-checked:bg-gray-900 flex items-center justify-center shrink-0">
-                                        <div class="w-1.5 h-1.5 bg-white rounded-full opacity-0 peer-checked:opacity-100"></div>
+                                        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
                                     </div>
                                 </div>
                             </label>
-                            
+
                             <label id="giftcardLabel" class="relative block cursor-pointer">
                                 <input type="radio" name="payment_method" value="Giftcard" class="peer sr-only" onchange="handlePaymentMethodChange()">
                                 <div class="rounded-lg border border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-gray-900 peer-checked:ring-1 peer-checked:ring-gray-900 transition flex items-center">
                                     <div class="mr-3 text-lg">🎁</div>
                                     <div class="flex-grow">
-                                        <p class="font-bold text-sm text-gray-900">Kinguin / G2A Giftcard</p>
+                                        <p class="font-bold text-sm text-gray-900">Kinguin / G2A Gift Card</p>
                                     </div>
                                     <div class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-gray-900 peer-checked:bg-gray-900 flex items-center justify-center shrink-0">
-                                        <div class="w-1.5 h-1.5 bg-white rounded-full opacity-0 peer-checked:opacity-100"></div>
+                                        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
                                     </div>
                                 </div>
                             </label>
@@ -261,13 +375,17 @@
                     </div>
 
                     <div id="paypal-action-container" class="mt-6">
-                        <div id="paypal-button-render"></div>
+                        <div id="paypal-button-render" class="min-h-[44px]">
+                            <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-500 text-center">Loading PayPal…</div>
+                        </div>
+                        <p class="text-[11px] leading-relaxed text-gray-500 mt-3 text-center">
+                            After payment, use PayPal's return link to come back and view your order.
+                        </p>
                     </div>
 
                     <div id="normal-action-container" class="mt-6 hidden">
-                        <button type="submit" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-lg hover:bg-gray-800 transition">Place Order &rarr;</button>
+                        <button type="submit" id="normalCheckoutButton" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-lg hover:bg-gray-800 transition disabled:opacity-60 disabled:cursor-not-allowed">Place Order &rarr;</button>
                     </div>
-
                 </form>
             </div>
         </div>
@@ -280,187 +398,483 @@
     </footer>
 
     <script>
-        const isAuthenticated = <%= typeof buyerEmail !== 'undefined' && !!buyerEmail %>;
-        let userEmailToVerify = null;
-        let activeProduct = { id: '', title: '', tier: '', price: 0 };
+        const isAuthenticated = <%- JSON.stringify(Boolean(safeBuyerEmail)) %>;
+        const DEFAULT_PAYPAL_HOSTED_BUTTON_ID = 'QZ7HHN9DJGNSA';
 
-        // SEARCH
+        let userEmailToVerify = null;
+        let searchAbortController = null;
+        let searchDebounceTimer = null;
+        let paypalRenderSequence = 0;
+        let activeProduct = {
+            id: '',
+            title: '',
+            tier: '',
+            price: 0,
+            paypalButtonId: ''
+        };
+
         const searchInput = document.getElementById('searchInput');
         const searchDropdown = document.getElementById('searchDropdown');
+        const buyForm = document.getElementById('buyForm');
 
-        if(searchInput && searchDropdown) {
-            searchInput.addEventListener('input', async (e) => {
-                const val = e.target.value.trim();
-                if (val.length < 2) { searchDropdown.classList.add('hidden'); return; }
-                const res = await fetch('/api/search?q=' + encodeURIComponent(val));
-                const data = await res.json();
-                if (data.length > 0) {
-                    searchDropdown.innerHTML = data.map(item => `<a href="/?q=\( {encodeURIComponent(item.title)}" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0"><div class="font-bold text-sm text-gray-900"> \){item.title}</div><div class="text-[10px] font-bold text-gray-400 uppercase">${item.category}</div></a>`).join('');
-                    searchDropdown.classList.remove('hidden');
-                } else { searchDropdown.classList.add('hidden'); }
-            });
+        function setMessage(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            element.textContent = message || '';
+            element.classList.toggle('hidden', !message);
         }
 
-        // INIT PURCHASE
-        function handleBuyClick(id, title, tier, price) {
-            activeProduct = { id, title, tier, price: parseFloat(price || 0) };
-            
-            if (isAuthenticated) {
-                openBuyModal();
-            } else {
-                sessionStorage.setItem('pendingBuy', JSON.stringify(activeProduct));
-                document.getElementById('emailModal').classList.remove('hidden');
-                document.getElementById('emailModal').classList.add('flex');
+        function setButtonLoading(button, loadingText, isLoading, normalText) {
+            if (!button) return;
+            button.disabled = isLoading;
+            button.textContent = isLoading ? loadingText : normalText;
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('modal-open');
+        }
+
+        function hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function debounceSearch(value) {
+            window.clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = window.setTimeout(() => performSearch(value), 250);
+        }
+
+        async function performSearch(value) {
+            const query = String(value || '').trim();
+
+            if (!searchInput || !searchDropdown || query.length < 2) {
+                closeSearchDropdown();
+                return;
+            }
+
+            if (searchAbortController) {
+                searchAbortController.abort();
+            }
+
+            searchAbortController = new AbortController();
+
+            try {
+                const response = await fetch('/api/search?q=' + encodeURIComponent(query), {
+                    headers: { Accept: 'application/json' },
+                    signal: searchAbortController.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error('Search request failed with status ' + response.status);
+                }
+
+                const payload = await response.json();
+                const results = Array.isArray(payload) ? payload : [];
+
+                if (results.length === 0) {
+                    closeSearchDropdown();
+                    return;
+                }
+
+                searchDropdown.innerHTML = results.map(item => {
+                    const title = escapeHtml(item.title || 'Untitled');
+                    const category = escapeHtml(item.category || 'General');
+                    const destination = '/?q=' + encodeURIComponent(item.title || '');
+
+                    return `
+                        <a href="${destination}" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0" role="option">
+                            <div class="font-bold text-sm text-gray-900">${title}</div>
+                            <div class="text-[10px] font-bold text-gray-400 uppercase">${category}</div>
+                        </a>
+                    `;
+                }).join('');
+
+                searchDropdown.classList.remove('hidden');
+                searchDropdown.classList.add('flex');
+                searchInput.setAttribute('aria-expanded', 'true');
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Search failed:', error);
+                    closeSearchDropdown();
+                }
             }
         }
 
-        // AUTO RESUME
+        function closeSearchDropdown() {
+            if (!searchDropdown) return;
+            searchDropdown.classList.add('hidden');
+            searchDropdown.classList.remove('flex');
+            if (searchInput) searchInput.setAttribute('aria-expanded', 'false');
+        }
+
+        if (searchInput && searchDropdown) {
+            searchInput.addEventListener('input', event => debounceSearch(event.target.value));
+            searchInput.addEventListener('focus', event => {
+                if (event.target.value.trim().length >= 2) debounceSearch(event.target.value);
+            });
+        }
+
+        document.addEventListener('click', event => {
+            if (searchInput && searchDropdown && !searchInput.contains(event.target) && !searchDropdown.contains(event.target)) {
+                closeSearchDropdown();
+            }
+        });
+
+        function handleBuyClickFromButton(button) {
+            handleBuyClick({
+                id: button.dataset.productId || '',
+                title: button.dataset.productTitle || 'Product',
+                tier: button.dataset.productTier || 'Standard',
+                price: Number.parseFloat(button.dataset.productPrice || '0'),
+                paypalButtonId: button.dataset.paypalButtonId || DEFAULT_PAYPAL_HOSTED_BUTTON_ID
+            });
+        }
+
+        function handleBuyClick(product) {
+            const normalizedPrice = Number.isFinite(product.price) ? product.price : 0;
+
+            activeProduct = {
+                id: String(product.id || ''),
+                title: String(product.title || 'Product'),
+                tier: String(product.tier || 'Standard'),
+                price: normalizedPrice,
+                paypalButtonId: String(product.paypalButtonId || DEFAULT_PAYPAL_HOSTED_BUTTON_ID)
+            };
+
+            if (isAuthenticated) {
+                openBuyModal();
+                return;
+            }
+
+            sessionStorage.setItem('pendingBuy', JSON.stringify(activeProduct));
+            openModal('emailModal');
+            window.setTimeout(() => document.getElementById('authEmailInput')?.focus(), 50);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            if(urlParams.get('tab') === 'posts') switchTab('posts');
+            if (urlParams.get('tab') === 'posts') {
+                switchTab('posts');
+            }
 
             if (isAuthenticated) {
                 const savedPending = sessionStorage.getItem('pendingBuy');
+
                 if (savedPending) {
-                    activeProduct = JSON.parse(savedPending);
-                    sessionStorage.removeItem('pendingBuy');
-                    setTimeout(() => openBuyModal(), 400);
+                    try {
+                        const parsed = JSON.parse(savedPending);
+                        activeProduct = {
+                            id: String(parsed.id || ''),
+                            title: String(parsed.title || 'Product'),
+                            tier: String(parsed.tier || 'Standard'),
+                            price: Number.parseFloat(parsed.price || 0),
+                            paypalButtonId: String(parsed.paypalButtonId || DEFAULT_PAYPAL_HOSTED_BUTTON_ID)
+                        };
+                        sessionStorage.removeItem('pendingBuy');
+                        window.setTimeout(openBuyModal, 250);
+                    } catch (error) {
+                        console.error('Could not restore pending purchase:', error);
+                        sessionStorage.removeItem('pendingBuy');
+                    }
                 }
             }
         });
 
-        // AUTH
         async function sendOtp() {
-            const email = document.getElementById('authEmailInput').value;
-            if (!email || !email.includes('@')) return alert("Enter a valid email.");
-            
-            document.getElementById('sendOtpBtn').innerText = 'Sending...';
-            document.getElementById('sendOtpBtn').disabled = true;
+            const emailInput = document.getElementById('authEmailInput');
+            const sendButton = document.getElementById('sendOtpBtn');
+            const email = String(emailInput?.value || '').trim().toLowerCase();
+            const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-            const res = await fetch('/api/send-otp', {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            
-            if (data.success) {
+            setMessage('emailAuthError', '');
+
+            if (!validEmail) {
+                setMessage('emailAuthError', 'Enter a valid email address.');
+                emailInput?.focus();
+                return;
+            }
+
+            setButtonLoading(sendButton, 'Sending…', true, 'Send Code');
+
+            try {
+                const response = await fetch('/api/send-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Unable to send the verification code.');
+                }
+
                 userEmailToVerify = email;
-                document.getElementById('emailModal').classList.add('hidden');
-                document.getElementById('otpModal').classList.remove('hidden');
-                document.getElementById('otpModal').classList.add('flex');
-            } else {
-                alert("Error sending email.");
-                document.getElementById('sendOtpBtn').innerText = 'Send Code';
-                document.getElementById('sendOtpBtn').disabled = false;
+                hideModal('emailModal');
+                openModal('otpModal');
+                document.getElementById('authOtpInput').value = '';
+                window.setTimeout(() => document.getElementById('authOtpInput')?.focus(), 50);
+            } catch (error) {
+                console.error('OTP send failed:', error);
+                setMessage('emailAuthError', error.message || 'Error sending the verification code.');
+            } finally {
+                setButtonLoading(sendButton, 'Sending…', false, 'Send Code');
             }
         }
 
         async function verifyOtp() {
-            const code = document.getElementById('authOtpInput').value;
-            if (code.length !== 6) return alert("Enter the 6 digit code.");
-            
-            const res = await fetch('/api/verify-otp', {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: userEmailToVerify, code })
-            });
-            const data = await res.json();
+            const otpInput = document.getElementById('authOtpInput');
+            const verifyButton = document.getElementById('verifyOtpBtn');
+            const code = String(otpInput?.value || '').replace(/\D/g, '').slice(0, 6);
 
-            if (data.success) { window.location.reload(); } 
-            else { alert("Invalid or expired code."); }
+            if (otpInput) otpInput.value = code;
+            setMessage('otpAuthError', '');
+
+            if (!userEmailToVerify) {
+                hideModal('otpModal');
+                openModal('emailModal');
+                setMessage('emailAuthError', 'Enter your email again to request a new code.');
+                return;
+            }
+
+            if (code.length !== 6) {
+                setMessage('otpAuthError', 'Enter the complete 6-digit code.');
+                otpInput?.focus();
+                return;
+            }
+
+            setButtonLoading(verifyButton, 'Verifying…', true, 'Verify');
+
+            try {
+                const response = await fetch('/api/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json'
+                    },
+                    body: JSON.stringify({ email: userEmailToVerify, code })
+                });
+
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Invalid or expired code.');
+                }
+
+                window.location.reload();
+            } catch (error) {
+                console.error('OTP verification failed:', error);
+                setMessage('otpAuthError', error.message || 'Invalid or expired code.');
+            } finally {
+                setButtonLoading(verifyButton, 'Verifying…', false, 'Verify');
+            }
         }
 
-        // MODAL & PAYPAL RENDER
+        document.getElementById('authOtpInput')?.addEventListener('input', event => {
+            event.target.value = event.target.value.replace(/\D/g, '').slice(0, 6);
+        });
+
+        document.getElementById('authOtpInput')?.addEventListener('keydown', event => {
+            if (event.key === 'Enter') verifyOtp();
+        });
+
+        document.getElementById('authEmailInput')?.addEventListener('keydown', event => {
+            if (event.key === 'Enter') sendOtp();
+        });
+
         function openBuyModal() {
-            document.getElementById('modalItemTitle').innerText = activeProduct.title;
-            document.getElementById('modalItemPrice').innerText = `$${activeProduct.price.toFixed(2)}`;
+            if (!activeProduct.id) {
+                alert('This product could not be loaded. Please choose it again.');
+                return;
+            }
+
+            document.getElementById('modalItemTitle').textContent = activeProduct.title;
+            document.getElementById('modalItemTier').textContent = activeProduct.tier;
+            document.getElementById('modalItemPrice').textContent = '$' + activeProduct.price.toFixed(2);
             document.getElementById('hiddenProductId').value = activeProduct.id;
             document.getElementById('hiddenProductTier').value = activeProduct.tier;
 
+            const paypalRadio = document.querySelector('input[name="payment_method"][value="PayPal"]');
+            if (paypalRadio) paypalRadio.checked = true;
+
             const giftcardLabel = document.getElementById('giftcardLabel');
-            document.querySelector('input[name="payment_method"][value="PayPal"]').checked = true;
+            const giftcardRadio = document.querySelector('input[name="payment_method"][value="Giftcard"]');
+            const hideGiftcard = activeProduct.price > 900 || ['Custom', 'Ultra'].includes(activeProduct.tier);
 
-            if (activeProduct.price > 900 || activeProduct.tier === 'Custom' || activeProduct.tier === 'Ultra') {
-                giftcardLabel.classList.add('hidden');
-            } else {
-                giftcardLabel.classList.remove('hidden');
-            }
+            giftcardLabel?.classList.toggle('hidden', hideGiftcard);
+            if (hideGiftcard && giftcardRadio?.checked && paypalRadio) paypalRadio.checked = true;
 
-            document.getElementById('buyModal').classList.remove('hidden');
-            document.getElementById('buyModal').classList.add('flex');
-            
-            handlePaymentMethodChange(); // Init UI state
+            openModal('buyModal');
+            handlePaymentMethodChange();
+        }
+
+        function selectedPaymentMethod() {
+            return document.querySelector('input[name="payment_method"]:checked')?.value || 'PayPal';
         }
 
         function handlePaymentMethodChange() {
-            const selected = document.querySelector('input[name="payment_method"]:checked').value;
+            const selected = selectedPaymentMethod();
             const paypalContainer = document.getElementById('paypal-action-container');
             const normalContainer = document.getElementById('normal-action-container');
 
             if (selected === 'PayPal') {
-                paypalContainer.classList.remove('hidden');
-                normalContainer.classList.add('hidden');
-                renderPayPalButtons();
+                paypalContainer?.classList.remove('hidden');
+                normalContainer?.classList.add('hidden');
+                renderPayPalHostedButton();
             } else {
-                paypalContainer.classList.add('hidden');
-                normalContainer.classList.remove('hidden');
+                paypalRenderSequence += 1;
+                paypalContainer?.classList.add('hidden');
+                normalContainer?.classList.remove('hidden');
+                document.getElementById('paypal-button-render').innerHTML = '';
             }
         }
 
-        function renderPayPalButtons() {
-            const renderDiv = document.getElementById('paypal-button-render');
-            renderDiv.innerHTML = ''; // Clear previous instances
-            
-            if (typeof paypal !== 'undefined') {
-                paypal.Buttons({
-                    style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'checkout' },
-                    createOrder: function(data, actions) {
-                        return actions.order.create({
-                            purchase_units: [{
-                                amount: { value: activeProduct.price.toFixed(2) },
-                                description: activeProduct.title
-                            }]
-                        });
-                    },
-                    onApprove: function(data, actions) {
-                        return actions.order.capture().then(function(details) {
-                            // Inject capture ID and submit form to server
-                            document.getElementById('hiddenPayPalCaptureId').value = details.id;
-                            document.getElementById('buyForm').submit();
-                        });
-                    },
-                    onError: function(err) {
-                        console.error('PayPal Error', err);
-                        alert('Payment failed or was closed.');
+        function waitForPayPal(timeoutMs = 10000) {
+            return new Promise((resolve, reject) => {
+                const startedAt = Date.now();
+
+                const poll = () => {
+                    if (window.paypal && typeof window.paypal.HostedButtons === 'function') {
+                        resolve(window.paypal);
+                        return;
                     }
+
+                    if (Date.now() - startedAt >= timeoutMs) {
+                        reject(new Error('PayPal did not finish loading.'));
+                        return;
+                    }
+
+                    window.setTimeout(poll, 100);
+                };
+
+                poll();
+            });
+        }
+
+        async function renderPayPalHostedButton() {
+            const renderTarget = document.getElementById('paypal-button-render');
+            if (!renderTarget || selectedPaymentMethod() !== 'PayPal') return;
+
+            const sequence = ++paypalRenderSequence;
+            const hostedButtonId = activeProduct.paypalButtonId || DEFAULT_PAYPAL_HOSTED_BUTTON_ID;
+
+            renderTarget.innerHTML = '<div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-500 text-center">Loading PayPal…</div>';
+
+            try {
+                const paypalSdk = await waitForPayPal();
+
+                if (sequence !== paypalRenderSequence || selectedPaymentMethod() !== 'PayPal') return;
+
+                renderTarget.innerHTML = '';
+
+                const renderResult = paypalSdk.HostedButtons({
+                    hostedButtonId
                 }).render('#paypal-button-render');
-            } else {
-                renderDiv.innerHTML = '<p class="text-red-500 font-bold text-sm">PayPal failed to load. Please refresh.</p>';
+
+                if (renderResult && typeof renderResult.catch === 'function') {
+                    await renderResult;
+                }
+            } catch (error) {
+                if (sequence !== paypalRenderSequence) return;
+
+                console.error('PayPal hosted button failed:', error);
+                renderTarget.innerHTML = `
+                    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 text-center">
+                        PayPal failed to load. Refresh the page or choose another payment method.
+                    </div>
+                `;
             }
+        }
+
+        if (buyForm) {
+            buyForm.addEventListener('submit', event => {
+                if (selectedPaymentMethod() === 'PayPal') {
+                    event.preventDefault();
+                    return;
+                }
+
+                const submitButton = document.getElementById('normalCheckoutButton');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Creating order…';
+                }
+            });
         }
 
         function closeModals() {
-            document.getElementById('emailModal').classList.add('hidden');
-            document.getElementById('otpModal').classList.add('hidden');
-            document.getElementById('buyModal').classList.add('hidden');
-            document.getElementById('buyForm').reset();
-            document.getElementById('paypal-button-render').innerHTML = ''; // Clean up
+            paypalRenderSequence += 1;
+            hideModal('emailModal');
+            hideModal('otpModal');
+            hideModal('buyModal');
+            document.body.classList.remove('modal-open');
+            setMessage('emailAuthError', '');
+            setMessage('otpAuthError', '');
+
+            if (buyForm) buyForm.reset();
+
+            const paypalRenderTarget = document.getElementById('paypal-button-render');
+            if (paypalRenderTarget) paypalRenderTarget.innerHTML = '';
+
+            const normalCheckoutButton = document.getElementById('normalCheckoutButton');
+            if (normalCheckoutButton) {
+                normalCheckoutButton.disabled = false;
+                normalCheckoutButton.textContent = 'Place Order →';
+            }
         }
 
-        // TABS
+        document.querySelectorAll('[data-modal]').forEach(modal => {
+            modal.addEventListener('mousedown', event => {
+                if (event.target === modal) closeModals();
+            });
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeModals();
+        });
+
         function switchTab(tabId) {
             const storeBtn = document.getElementById('tab-store');
             const postsBtn = document.getElementById('tab-posts');
             const storeGrid = document.getElementById('store-grid');
             const postsGrid = document.getElementById('posts-grid');
+            const showStore = tabId === 'store';
 
-            if (tabId === 'store') {
-                storeGrid.classList.remove('hidden');
-                postsGrid.classList.add('hidden');
-                storeBtn.className = "font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition";
-                postsBtn.className = "font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition";
-            } else {
-                postsGrid.classList.remove('hidden');
-                storeGrid.classList.add('hidden');
-                postsBtn.className = "font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition";
-                storeBtn.className = "font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition";
+            storeGrid?.classList.toggle('hidden', !showStore);
+            postsGrid?.classList.toggle('hidden', showStore);
+
+            if (storeBtn) {
+                storeBtn.className = showStore
+                    ? 'font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition'
+                    : 'font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition';
+                storeBtn.setAttribute('aria-selected', String(showStore));
+            }
+
+            if (postsBtn) {
+                postsBtn.className = !showStore
+                    ? 'font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition'
+                    : 'font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition';
+                postsBtn.setAttribute('aria-selected', String(!showStore));
             }
         }
     </script>
