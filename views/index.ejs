@@ -2,20 +2,70 @@
 <html lang="en">
 <head>
     <%
-        const safeCategoryRow = (typeof categoryRow !== 'undefined' && categoryRow) ? categoryRow : {};
-        const safeBuyerEmail = (typeof buyerEmail !== 'undefined' && buyerEmail) ? String(buyerEmail) : '';
-        const safeCategories = (typeof categories !== 'undefined' && Array.isArray(categories)) ? categories : [];
-        const safeProducts = (typeof products !== 'undefined' && Array.isArray(products)) ? products : [];
-        const safePosts = (typeof posts !== 'undefined' && Array.isArray(posts)) ? posts : [];
-        const safeAnnouncements = (typeof announcements !== 'undefined' && Array.isArray(announcements)) ? announcements : [];
-        const currentCategory = (typeof categoryFilter !== 'undefined' && categoryFilter) ? String(categoryFilter) : 'All';
-        const currentSearchQuery = (typeof searchQuery !== 'undefined' && searchQuery) ? String(searchQuery) : '';
+        const safeProducts = Array.isArray(products) ? products : [];
+        const safeCategories = Array.isArray(categories) ? categories : [];
 
-        const seoTitle = safeCategoryRow.seo_title || 'ExamHub ✨ Marketplace';
-        const seoDesc = safeCategoryRow.seo_desc || 'A marketplace for exam preparation resources and study tools.';
-        const seoKeywords = safeCategoryRow.seo_keywords || 'exams, study tools, preparation, marketplace, learning resources';
-        const ogImage = safeCategoryRow.og_image || 'https://examhub.shop/favicon.png';
-        const canonicalUrl = safeCategoryRow.canonical_url || '';
+        const safePosts =
+            typeof posts !== 'undefined' && Array.isArray(posts)
+                ? posts
+                : [];
+
+        const safeAnnouncements =
+            typeof announcements !== 'undefined' && Array.isArray(announcements)
+                ? announcements
+                : [];
+
+        const currentCategory =
+            typeof categoryFilter !== 'undefined' && categoryFilter
+                ? categoryFilter
+                : 'All';
+
+        const currentSearch =
+            typeof searchQuery !== 'undefined' && searchQuery
+                ? searchQuery
+                : '';
+
+        const currentBuyerEmail =
+            typeof buyerEmail !== 'undefined' && buyerEmail
+                ? buyerEmail
+                : '';
+
+        const defaultPayPalButtonId = 'QZ7HHN9DJGNSA';
+
+        const seoTitle =
+            typeof categoryRow !== 'undefined' &&
+            categoryRow &&
+            categoryRow.seo_title
+                ? categoryRow.seo_title
+                : 'ExamHub ✨ Marketplace';
+
+        const seoDesc =
+            typeof categoryRow !== 'undefined' &&
+            categoryRow &&
+            categoryRow.seo_desc
+                ? categoryRow.seo_desc
+                : 'The ultimate exam marketplace for top-rated study tools.';
+
+        const seoKeywords =
+            typeof categoryRow !== 'undefined' &&
+            categoryRow &&
+            categoryRow.seo_keywords
+                ? categoryRow.seo_keywords
+                : 'exams, study tools, marketplace, preparation, learning';
+
+        const ogImage =
+            typeof categoryRow !== 'undefined' &&
+            categoryRow &&
+            categoryRow.og_image
+                ? categoryRow.og_image
+                : 'https://examhub.shop/favicon.png';
+
+        const canonicalUrl =
+            typeof categoryRow !== 'undefined' &&
+            categoryRow &&
+            categoryRow.canonical_url
+                ? categoryRow.canonical_url
+                : '';
 
         function formatPostText(text) {
             if (!text) return '';
@@ -27,21 +77,36 @@
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
 
-            safeText = safeText.replace(/^#\s+(.+)$/gm, '<span class="text-xl md:text-2xl font-bold block mt-4 mb-2 text-gray-900 leading-tight">$1</span>');
-            safeText = safeText.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>');
-            safeText = safeText.replace(/\r?\n/g, '<br>');
+            safeText = safeText.replace(
+                /\*\*([\s\S]*?)\*\*/g,
+                '<strong class="font-bold text-gray-900">$1</strong>'
+            );
+
+            safeText = safeText.replace(
+                /#([^#\n]+)#/g,
+                '<span class="text-xl md:text-2xl font-bold block mt-4 mb-2 text-gray-900 leading-tight">$1</span>'
+            );
+
+            safeText = safeText.replace(/\n/g, '<br>');
 
             return safeText;
         }
     %>
 
-    <title><%= seoTitle %></title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title><%= seoTitle %></title>
+
     <meta name="description" content="<%= seoDesc %>">
     <meta name="keywords" content="<%= seoKeywords %>">
-    <meta name="robots" content="index, follow, max-image-preview:large">
-    <meta name="theme-color" content="#2563eb">
+    <meta
+        name="robots"
+        content="index, follow, max-image-preview:large"
+    >
 
     <% if (canonicalUrl) { %>
         <link rel="canonical" href="<%= canonicalUrl %>">
@@ -51,79 +116,157 @@
     <meta property="og:title" content="<%= seoTitle %>">
     <meta property="og:description" content="<%= seoDesc %>">
     <meta property="og:image" content="<%= ogImage %>">
-    <% if (canonicalUrl) { %>
-        <meta property="og:url" content="<%= canonicalUrl %>">
-    <% } %>
 
     <link rel="icon" type="image/png" href="/favicon.png">
+
     <%- include('partials/head') %>
 
-    <!-- Load PayPal once. HostedButtons requires components=hosted-buttons. -->
+    <!--
+        Load the PayPal SDK only once.
+
+        HostedButtons requires:
+        components=hosted-buttons
+    -->
     <script
         src="https://www.paypal.com/sdk/js?client-id=BAACqOV8IkLP3i0-_Ty6IA7zt5_OxtawbH5tAUCjenPO6KcpDgcEscgNhhZCTP9dVtHBQB6BrxF5QoOBnM&components=hosted-buttons&disable-funding=venmo&currency=USD"
         data-sdk-integration-source="button-factory"
+        defer
     ></script>
 
     <style>
         [data-modal-panel] {
-            animation: modalIn 180ms ease-out;
+            max-height: calc(100vh - 2rem);
         }
 
-        @keyframes modalIn {
-            from { opacity: 0; transform: translateY(8px) scale(.985); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .modal-open {
+        body.modal-open {
             overflow: hidden;
+        }
+
+        .paypal-instance {
+            width: 100%;
+            min-height: 94px;
+            position: relative;
+            z-index: 20;
+            pointer-events: auto;
+        }
+
+        .paypal-instance iframe {
+            position: relative !important;
+            z-index: 30 !important;
+            pointer-events: auto !important;
+        }
+
+        #paypal-hosted-root {
+            position: relative;
+            z-index: 25;
+            pointer-events: auto;
         }
     </style>
 </head>
 
 <body class="antialiased min-h-screen flex flex-col bg-[#f8fafc] text-gray-800">
-    <nav class="py-5 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20 border-b border-gray-200 bg-white shadow-sm">
-        <a href="/" class="text-2xl font-black text-gray-900 tracking-tight" aria-label="ExamHub home">
+
+    <!-- NAVIGATION -->
+    <nav
+        class="py-5 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20 border-b border-gray-200 bg-white shadow-sm"
+    >
+        <a
+            href="/"
+            class="text-2xl font-black text-gray-900 tracking-tight"
+        >
             Exam<span class="text-blue-600">Hub</span>
         </a>
 
         <div class="flex items-center gap-3">
+
             <a
                 href="https://discord.gg/bg6wKj45w3"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-lg font-bold text-sm transition"
-            >Discord</a>
+            >
+                Discord
+            </a>
 
-            <% if (safeBuyerEmail) { %>
-                <a href="/my-orders" class="bg-gray-900 text-white hover:bg-gray-800 px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2">
+            <% if (currentBuyerEmail) { %>
+                <a
+                    href="/my-orders"
+                    class="bg-gray-900 text-white hover:bg-gray-800 px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2"
+                >
                     My Orders
-                    <% if (typeof activeOrderCount !== 'undefined' && Number(activeOrderCount) > 0) { %>
-                        <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full"><%= Number(activeOrderCount) %></span>
+
+                    <% if (
+                        typeof activeOrderCount !== 'undefined' &&
+                        Number(activeOrderCount) > 0
+                    ) { %>
+                        <span
+                            class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full"
+                        >
+                            <%= activeOrderCount %>
+                        </span>
                     <% } %>
                 </a>
-                <a href="/buyer-logout" class="ml-1 text-sm font-medium text-gray-500 hover:text-red-600 transition hidden md:block">Logout</a>
+
+                <a
+                    href="/buyer-logout"
+                    class="ml-1 text-sm font-medium text-gray-500 hover:text-red-600 transition hidden md:block"
+                >
+                    Logout
+                </a>
             <% } %>
 
             <% if (typeof user !== 'undefined' && user) { %>
-                <a href="/admin" class="ml-2 bg-white hover:bg-gray-50 px-4 py-2 rounded-lg font-bold text-sm transition border border-gray-300 shadow-sm text-gray-700">Admin</a>
-            <% } else if (!safeBuyerEmail) { %>
-                <a href="/login" class="ml-2 bg-white hover:bg-gray-50 px-4 py-2 rounded-lg font-bold text-sm transition border border-gray-300 shadow-sm text-gray-700">Login</a>
+                <a
+                    href="/admin"
+                    class="ml-2 bg-white hover:bg-gray-50 px-4 py-2 rounded-lg font-bold text-sm transition border border-gray-300 shadow-sm text-gray-700"
+                >
+                    Admin
+                </a>
+            <% } else if (!currentBuyerEmail) { %>
+                <a
+                    href="/login"
+                    class="ml-2 bg-white hover:bg-gray-50 px-4 py-2 rounded-lg font-bold text-sm transition border border-gray-300 shadow-sm text-gray-700"
+                >
+                    Login
+                </a>
             <% } %>
+
         </div>
     </nav>
 
-    <header class="flex flex-col items-center text-center px-4 pt-12 pb-12 relative z-10">
-        <h1 class="text-4xl md:text-5xl font-black mb-4 text-gray-900 tracking-tight">
-            Master Your <span class="text-blue-600">Exams</span>
+    <!-- HEADER -->
+    <header
+        class="flex flex-col items-center text-center px-4 pt-12 pb-12 relative z-10"
+    >
+        <h1
+            class="text-4xl md:text-5xl font-black mb-4 text-gray-900 tracking-tight"
+        >
+            Master Your
+            <span class="text-blue-600">Exams</span>
         </h1>
+
         <p class="text-gray-500 mb-8 font-medium max-w-lg">
-            Discover exam-preparation resources and study tools in one secure marketplace.
+            Browse top-rated study tools, preparation resources, and
+            digital services.
         </p>
 
         <div class="w-full max-w-2xl relative">
-            <form action="/" method="GET" class="relative" role="search">
-                <% if (currentCategory !== 'All') { %>
-                    <input type="hidden" name="category" value="<%= currentCategory %>">
+
+            <form
+                action="/"
+                method="GET"
+                class="relative"
+                role="search"
+            >
+                <% if (
+                    currentCategory &&
+                    currentCategory !== 'All'
+                ) { %>
+                    <input
+                        type="hidden"
+                        name="category"
+                        value="<%= currentCategory %>"
+                    >
                 <% } %>
 
                 <input
@@ -131,85 +274,180 @@
                     id="searchInput"
                     name="q"
                     autocomplete="off"
-                    value="<%= currentSearchQuery %>"
-                    placeholder="Search products and resources..."
+                    value="<%= currentSearch %>"
+                    placeholder="Search products and study tools..."
                     aria-label="Search marketplace"
                     aria-controls="searchDropdown"
-                    aria-expanded="false"
                     class="w-full bg-white border border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl py-4 pl-6 pr-24 outline-none shadow-sm text-base font-medium transition"
                 >
-                <button type="submit" class="absolute right-2 top-2 bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-700 transition">Search</button>
+
+                <button
+                    type="submit"
+                    class="absolute right-2 top-2 bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-700 transition"
+                >
+                    Search
+                </button>
             </form>
 
             <div
                 id="searchDropdown"
-                class="hidden absolute top-full left-0 w-full bg-white border border-gray-200 rounded-xl mt-2 shadow-lg overflow-hidden z-50 flex-col text-left"
+                class="hidden absolute top-full left-0 w-full bg-white border border-gray-200 rounded-xl mt-2 shadow-xl overflow-hidden z-50 flex-col text-left"
                 role="listbox"
             ></div>
+
         </div>
 
-        <div class="flex flex-wrap justify-center gap-2 mt-8 max-w-4xl">
+        <div
+            class="flex flex-wrap justify-center gap-2 mt-8 max-w-4xl"
+        >
             <a
                 href="/"
-                class="px-4 py-2 rounded-lg font-bold text-xs md:text-sm border <%= currentCategory === 'All' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400' %> transition"
-            >All</a>
+                class="px-4 py-2 rounded-lg font-bold text-xs md:text-sm border <%= (!currentCategory || currentCategory === 'All') ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400' %> transition"
+            >
+                All
+            </a>
 
             <% safeCategories.forEach(cat => { %>
                 <a
                     href="/category/<%= encodeURIComponent(cat.name) %>"
                     class="px-4 py-2 rounded-lg font-bold text-xs md:text-sm border <%= currentCategory === cat.name ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400' %> transition"
-                ><%= cat.name %></a>
+                >
+                    <%= cat.name %>
+                </a>
             <% }) %>
         </div>
     </header>
 
-    <main class="flex-grow w-full max-w-6xl mx-auto px-4 md:px-6 relative z-20 pb-20">
+    <!-- MAIN CONTENT -->
+    <main
+        class="flex-grow w-full max-w-6xl mx-auto px-4 md:px-6 relative z-20 pb-20"
+    >
+
+        <!-- ANNOUNCEMENTS -->
         <% if (safeAnnouncements.length > 0) { %>
             <div class="mb-12 space-y-6">
+
                 <% safeAnnouncements.forEach(ann => { %>
-                    <article class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-blue-100">
-                        <div class="inline-block bg-blue-50 text-blue-700 font-bold text-[10px] px-2 py-1 rounded uppercase tracking-wider mb-3">
-                            <%= ann.category || 'General' %> Update
-                        </div>
-                        <h2 class="text-2xl font-bold mb-4 text-gray-900"><%= ann.title %></h2>
-
-                        <div class="flex flex-col md:flex-row gap-4 mb-4">
-                            <% if (ann.image1) { %>
-                                <img src="<%= ann.image1 %>" alt="<%= ann.title %>" loading="lazy" class="w-full md:w-1/2 rounded-xl object-cover border border-gray-100 max-h-[300px]">
-                            <% } %>
-                            <% if (ann.image2) { %>
-                                <img src="<%= ann.image2 %>" alt="<%= ann.title %>" loading="lazy" class="w-full md:w-1/2 rounded-xl object-cover border border-gray-100 max-h-[300px]">
-                            <% } %>
+                    <article
+                        class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-blue-100"
+                    >
+                        <div
+                            class="inline-block bg-blue-50 text-blue-700 font-bold text-[10px] px-2 py-1 rounded uppercase tracking-wider mb-3"
+                        >
+                            <%= ann.category || 'Marketplace' %> Update
                         </div>
 
-                        <div class="text-sm font-medium text-gray-600 leading-relaxed"><%- formatPostText(ann.content) %></div>
+                        <h2
+                            class="text-2xl font-bold mb-4 text-gray-900"
+                        >
+                            <%= ann.title %>
+                        </h2>
+
+                        <% if (ann.image1 || ann.image2) { %>
+                            <div
+                                class="flex flex-col md:flex-row gap-4 mb-4"
+                            >
+                                <% if (ann.image1) { %>
+                                    <img
+                                        src="<%= ann.image1 %>"
+                                        alt="<%= ann.title %>"
+                                        loading="lazy"
+                                        class="w-full md:w-1/2 rounded-xl object-cover border border-gray-100 max-h-[300px]"
+                                    >
+                                <% } %>
+
+                                <% if (ann.image2) { %>
+                                    <img
+                                        src="<%= ann.image2 %>"
+                                        alt="<%= ann.title %>"
+                                        loading="lazy"
+                                        class="w-full md:w-1/2 rounded-xl object-cover border border-gray-100 max-h-[300px]"
+                                    >
+                                <% } %>
+                            </div>
+                        <% } %>
+
+                        <div
+                            class="text-sm font-medium text-gray-600 leading-relaxed"
+                        >
+                            <%- formatPostText(ann.content) %>
+                        </div>
                     </article>
                 <% }) %>
+
             </div>
 
             <div class="flex items-center gap-4 mb-8">
                 <div class="flex-grow h-px bg-gray-200"></div>
-                <span class="font-bold text-gray-400 uppercase tracking-widest text-xs">Marketplace Catalog</span>
+
+                <span
+                    class="font-bold text-gray-400 uppercase tracking-widest text-xs"
+                >
+                    Marketplace Catalog
+                </span>
+
                 <div class="flex-grow h-px bg-gray-200"></div>
             </div>
         <% } %>
 
-        <div class="flex gap-6 mb-6 border-b border-gray-200 select-none justify-center md:justify-start" role="tablist">
-            <button type="button" onclick="switchTab('store')" id="tab-store" role="tab" aria-selected="true" class="font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition">Store</button>
-            <button type="button" onclick="switchTab('posts')" id="tab-posts" role="tab" aria-selected="false" class="font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition">Articles &amp; Updates</button>
+        <!-- TABS -->
+        <div
+            class="flex gap-6 mb-6 border-b border-gray-200 select-none justify-center md:justify-start"
+            role="tablist"
+        >
+            <button
+                type="button"
+                onclick="switchTab('store')"
+                id="tab-store"
+                role="tab"
+                aria-controls="store-grid"
+                aria-selected="true"
+                class="font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition"
+            >
+                Store
+            </button>
+
+            <button
+                type="button"
+                onclick="switchTab('posts')"
+                id="tab-posts"
+                role="tab"
+                aria-controls="posts-grid"
+                aria-selected="false"
+                class="font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition"
+            >
+                Articles & Updates
+            </button>
         </div>
 
-        <section id="store-grid" role="tabpanel" aria-labelledby="tab-store">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- PRODUCT GRID -->
+        <section
+            id="store-grid"
+            role="tabpanel"
+            aria-labelledby="tab-store"
+        >
+            <div
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+
                 <% if (safeProducts.length === 0) { %>
-                    <div class="col-span-full text-center py-10 font-bold text-lg text-gray-400">No products found.</div>
+                    <div
+                        class="col-span-full text-center py-10 font-bold text-lg text-gray-400"
+                    >
+                        No products found.
+                    </div>
                 <% } else { %>
+
                     <% safeProducts.forEach(product => { %>
-                        <% const displayPrice = Number(product.price || 0); %>
-                        <% const displayTier = product.tier || 'Standard'; %>
-                        <article class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full p-5 relative">
+                        <article
+                            class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full p-5 relative"
+                        >
+
                             <div class="flex items-start gap-4 mb-4">
-                                <div class="w-16 h-16 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
+
+                                <div
+                                    class="w-16 h-16 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100"
+                                >
                                     <img
                                         src="<%= product.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title || 'Product')}&background=random&size=512` %>"
                                         alt="<%= product.title || 'Product' %>"
@@ -219,664 +457,1715 @@
                                 </div>
 
                                 <div class="flex-grow min-w-0">
-                                    <span class="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1"><%= product.category || 'General' %></span>
-                                    <h3 class="font-bold text-lg text-gray-900 leading-tight mb-1 truncate" title="<%= product.title %>"><%= product.title %></h3>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-green-600 font-black text-sm">$<%= displayPrice.toFixed(2) %></span>
-                                        <span class="bg-gray-100 text-gray-600 font-bold text-[10px] px-2 py-0.5 rounded uppercase"><%= displayTier %></span>
+
+                                    <span
+                                        class="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1"
+                                    >
+                                        <%= product.category || 'General' %>
+                                    </span>
+
+                                    <h3
+                                        class="font-bold text-lg text-gray-900 leading-tight mb-1 truncate"
+                                        title="<%= product.title %>"
+                                    >
+                                        <%= product.title %>
+                                    </h3>
+
+                                    <div
+                                        class="flex items-center gap-2 flex-wrap"
+                                    >
+                                        <span
+                                            class="text-green-600 font-black text-sm"
+                                        >
+                                            $<%= Number(product.price || 0).toFixed(2) %>
+                                        </span>
+
+                                        <span
+                                            class="bg-gray-100 text-gray-600 font-bold text-[10px] px-2 py-0.5 rounded uppercase"
+                                        >
+                                            <%= product.tier || 'Standard' %>
+                                        </span>
                                     </div>
+
                                 </div>
                             </div>
 
-                            <div class="text-sm text-gray-500 mb-6 flex-grow leading-relaxed"><%- formatPostText(product.description) %></div>
+                            <div
+                                class="text-sm text-gray-500 mb-6 flex-grow leading-relaxed"
+                            >
+                                <%- formatPostText(product.description) %>
+                            </div>
 
-                            <div class="mt-auto pt-4 border-t border-gray-100">
+                            <div
+                                class="mt-auto pt-4 border-t border-gray-100"
+                            >
                                 <button
                                     type="button"
-                                    data-purchase-button
+                                    class="purchase-button w-full bg-gray-900 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-gray-800 focus:ring-4 focus:ring-gray-200 transition"
                                     data-product-id="<%= product.id %>"
                                     data-product-title="<%= product.title %>"
-                                    data-product-tier="<%= displayTier %>"
-                                    data-product-price="<%= displayPrice.toFixed(2) %>"
-                                    data-paypal-button-id="<%= product.paypal_button_id || '' %>"
-                                    onclick="handleBuyClickFromButton(this)"
-                                    class="w-full bg-gray-900 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-gray-800 transition focus:outline-none focus:ring-4 focus:ring-gray-200"
-                                >Purchase</button>
+                                    data-product-tier="<%= product.tier || 'Standard' %>"
+                                    data-product-price="<%= Number(product.price || 0) %>"
+                                    data-paypal-button-id="<%= product.paypal_button_id || defaultPayPalButtonId %>"
+                                >
+                                    Purchase
+                                </button>
                             </div>
+
                         </article>
                     <% }) %>
+
                 <% } %>
+
             </div>
         </section>
 
-        <section id="posts-grid" class="hidden" role="tabpanel" aria-labelledby="tab-posts">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- POSTS GRID -->
+        <section
+            id="posts-grid"
+            class="hidden"
+            role="tabpanel"
+            aria-labelledby="tab-posts"
+        >
+            <div
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+
                 <% if (safePosts.length > 0) { %>
+
                     <% safePosts.forEach(post => { %>
-                        <a href="/post/<%= post.id %>" class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full p-5">
-                            <div class="flex items-center gap-3 mb-3">
-                                <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Update</span>
-                                <span class="text-[10px] text-gray-400 font-medium"><%= post.created_at ? new Date(post.created_at).toLocaleDateString() : '' %></span>
+                        <a
+                            href="/post/<%= post.id %>"
+                            class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full p-5"
+                        >
+                            <div
+                                class="flex items-center gap-3 mb-3"
+                            >
+                                <span
+                                    class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase"
+                                >
+                                    Update
+                                </span>
+
+                                <span
+                                    class="text-[10px] text-gray-400 font-medium"
+                                >
+                                    <%= new Date(post.created_at).toLocaleDateString() %>
+                                </span>
                             </div>
-                            <h3 class="font-bold text-lg text-gray-900 leading-tight mb-2"><%= post.title %></h3>
-                            <p class="text-sm text-gray-500 line-clamp-3 mb-4 flex-grow"><%= post.seo_desc || 'Read the full update...' %></p>
-                            <div class="text-blue-600 font-bold text-sm flex items-center justify-between mt-auto">Read Article &rarr;</div>
+
+                            <h3
+                                class="font-bold text-lg text-gray-900 leading-tight mb-2"
+                            >
+                                <%= post.title %>
+                            </h3>
+
+                            <p
+                                class="text-sm text-gray-500 line-clamp-3 mb-4 flex-grow"
+                            >
+                                <%= post.seo_desc || 'Read the full update...' %>
+                            </p>
+
+                            <div
+                                class="text-blue-600 font-bold text-sm mt-auto"
+                            >
+                                Read Article &rarr;
+                            </div>
                         </a>
                     <% }) %>
+
                 <% } else { %>
-                    <div class="col-span-full text-center py-10 font-bold text-lg text-gray-400">No updates posted yet.</div>
+                    <div
+                        class="col-span-full text-center py-10 font-bold text-lg text-gray-400"
+                    >
+                        No updates posted yet.
+                    </div>
                 <% } %>
+
             </div>
         </section>
+
     </main>
 
     <!-- EMAIL MODAL -->
-    <div id="emailModal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle" data-modal>
-        <div data-modal-panel class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-xl p-8 border border-gray-200">
-            <h2 id="emailModalTitle" class="text-xl font-bold text-gray-900 mb-1">Sign In / Guest</h2>
-            <p class="text-sm text-gray-500 mb-6">Enter your email to receive a secure code.</p>
-            <input type="email" id="authEmailInput" autocomplete="email" placeholder="you@email.com" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm mb-4">
-            <p id="emailAuthError" class="hidden text-sm font-semibold text-red-600 mb-3" role="alert"></p>
-            <button type="button" onclick="sendOtp()" id="sendOtpBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed">Send Code</button>
-            <button type="button" onclick="closeModals()" class="w-full mt-3 text-sm font-medium text-gray-500 hover:text-gray-800">Cancel</button>
+    <div
+        id="emailModal"
+        class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-center z-50 p-4"
+        aria-hidden="true"
+    >
+        <div
+            data-modal-panel
+            class="bg-white rounded-2xl w-full max-w-sm overflow-y-auto shadow-2xl p-8 border border-gray-200"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="emailModalTitle"
+        >
+            <h2
+                id="emailModalTitle"
+                class="text-xl font-bold text-gray-900 mb-1"
+            >
+                Sign In / Guest
+            </h2>
+
+            <p class="text-sm text-gray-500 mb-6">
+                Enter your email to receive a secure sign-in code.
+            </p>
+
+            <label
+                for="authEmailInput"
+                class="sr-only"
+            >
+                Email address
+            </label>
+
+            <input
+                type="email"
+                id="authEmailInput"
+                placeholder="you@email.com"
+                autocomplete="email"
+                class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm mb-4"
+            >
+
+            <p
+                id="emailAuthError"
+                class="hidden text-sm font-semibold text-red-600 mb-4"
+            ></p>
+
+            <button
+                type="button"
+                onclick="sendOtp()"
+                id="sendOtpBtn"
+                class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
+            >
+                Send Code
+            </button>
+
+            <button
+                type="button"
+                onclick="closeModals()"
+                class="w-full mt-3 text-sm font-medium text-gray-500 hover:text-gray-800"
+            >
+                Cancel
+            </button>
         </div>
     </div>
 
     <!-- OTP MODAL -->
-    <div id="otpModal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="otpModalTitle" data-modal>
-        <div data-modal-panel class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-xl p-8 border border-gray-200 text-center">
-            <h2 id="otpModalTitle" class="text-xl font-bold text-gray-900 mb-1">Verify Code</h2>
-            <p class="text-sm text-gray-500 mb-6">Check your inbox for the 6-digit code.</p>
-            <input type="text" id="authOtpInput" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" maxlength="6" class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-bold text-2xl tracking-widest outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 mb-4 text-center text-gray-900">
-            <p id="otpAuthError" class="hidden text-sm font-semibold text-red-600 mb-3" role="alert"></p>
-            <button type="button" onclick="verifyOtp()" id="verifyOtpBtn" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition disabled:opacity-60 disabled:cursor-not-allowed">Verify</button>
-            <button type="button" onclick="closeModals()" class="w-full mt-3 text-sm font-medium text-gray-500 hover:text-gray-800">Cancel</button>
+    <div
+        id="otpModal"
+        class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-center z-50 p-4"
+        aria-hidden="true"
+    >
+        <div
+            data-modal-panel
+            class="bg-white rounded-2xl w-full max-w-sm overflow-y-auto shadow-2xl p-8 border border-gray-200 text-center"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="otpModalTitle"
+        >
+            <h2
+                id="otpModalTitle"
+                class="text-xl font-bold text-gray-900 mb-1"
+            >
+                Verify Code
+            </h2>
+
+            <p class="text-sm text-gray-500 mb-6">
+                Check your inbox for the six-digit code.
+            </p>
+
+            <label
+                for="authOtpInput"
+                class="sr-only"
+            >
+                Verification code
+            </label>
+
+            <input
+                type="text"
+                id="authOtpInput"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                placeholder="123456"
+                maxlength="6"
+                class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-bold text-2xl tracking-widest outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 mb-4 text-center text-gray-900"
+            >
+
+            <p
+                id="otpAuthError"
+                class="hidden text-sm font-semibold text-red-600 mb-4"
+            ></p>
+
+            <button
+                type="button"
+                onclick="verifyOtp()"
+                id="verifyOtpBtn"
+                class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
+            >
+                Verify
+            </button>
+
+            <button
+                type="button"
+                onclick="closeModals()"
+                class="w-full mt-3 text-sm font-medium text-gray-500 hover:text-gray-800"
+            >
+                Cancel
+            </button>
         </div>
     </div>
 
     <!-- CHECKOUT MODAL -->
-    <div id="buyModal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-start md:items-center z-50 p-4 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="checkoutModalTitle" data-modal>
-        <div data-modal-panel class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl border border-gray-200 my-4 md:my-8">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h2 id="checkoutModalTitle" class="text-lg font-bold text-gray-900">Checkout</h2>
-                <button type="button" onclick="closeModals()" aria-label="Close checkout" class="text-gray-400 hover:text-gray-600 font-bold text-2xl leading-none">&times;</button>
+    <div
+        id="buyModal"
+        class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-center z-50 p-4 overflow-y-auto"
+        aria-hidden="true"
+    >
+        <div
+            data-modal-panel
+            class="bg-white rounded-2xl w-full max-w-md overflow-y-auto shadow-2xl border border-gray-200 my-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="buyModalTitle"
+        >
+
+            <div
+                class="sticky top-0 z-10 p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50"
+            >
+                <h2
+                    id="buyModalTitle"
+                    class="text-lg font-bold text-gray-900"
+                >
+                    Checkout
+                </h2>
+
+                <button
+                    type="button"
+                    onclick="closeModals()"
+                    aria-label="Close checkout"
+                    class="text-gray-400 hover:text-gray-700 font-bold text-2xl leading-none"
+                >
+                    &times;
+                </button>
             </div>
 
             <div class="p-6">
-                <div class="bg-green-50 text-green-700 text-xs font-bold px-3 py-2 rounded-lg mb-5 flex items-center gap-2 border border-green-200">
+
+                <div
+                    class="bg-green-50 text-green-700 text-xs font-bold px-3 py-2 rounded-lg mb-5 flex items-center gap-2 border border-green-200"
+                >
                     <span>Account:</span>
-                    <span class="truncate"><%= safeBuyerEmail %></span>
+
+                    <span class="truncate">
+                        <%= currentBuyerEmail %>
+                    </span>
                 </div>
 
-                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 gap-4">
+                <div
+                    class="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100"
+                >
                     <div class="min-w-0">
-                        <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Item</p>
-                        <p id="modalItemTitle" class="font-bold text-gray-900 text-sm truncate"></p>
-                        <p id="modalItemTier" class="text-xs text-gray-500 mt-1"></p>
+                        <p
+                            class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1"
+                        >
+                            Item
+                        </p>
+
+                        <p
+                            id="modalItemTitle"
+                            class="font-bold text-gray-900 text-sm truncate"
+                        ></p>
+
+                        <p
+                            id="modalItemTier"
+                            class="text-xs font-medium text-gray-500 mt-1"
+                        ></p>
                     </div>
+
                     <div class="text-right shrink-0">
-                        <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Total</p>
-                        <p id="modalItemPrice" class="font-black text-green-600 text-lg"></p>
+                        <p
+                            class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1"
+                        >
+                            Displayed total
+                        </p>
+
+                        <p
+                            id="modalItemPrice"
+                            class="font-black text-green-600 text-lg"
+                        ></p>
                     </div>
                 </div>
 
-                <form id="buyForm" action="/checkout" method="POST" novalidate>
-                    <input type="hidden" id="hiddenProductId" name="product_id">
-                    <input type="hidden" id="hiddenProductTier" name="tier">
+                <!--
+                    This form is submitted only for Crypto or Giftcard.
+
+                    PayPal is intentionally outside this form so PayPal's
+                    generated Checkout button cannot trigger /checkout.
+                -->
+                <form
+                    id="buyForm"
+                    action="/checkout"
+                    method="POST"
+                    novalidate
+                >
+                    <input
+                        type="hidden"
+                        id="hiddenProductId"
+                        name="product_id"
+                    >
+
+                    <input
+                        type="hidden"
+                        id="hiddenProductTier"
+                        name="tier"
+                    >
+
+                    <input
+                        type="hidden"
+                        id="hiddenPaymentMethod"
+                        name="payment_method"
+                        value="PayPal"
+                    >
 
                     <div class="mb-5">
-                        <label for="discordUsername" class="block text-xs font-bold text-gray-700 mb-2">Discord Username (Optional)</label>
-                        <input id="discordUsername" type="text" name="discord_username" placeholder="username" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2.5 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm">
+                        <label
+                            for="discordUsername"
+                            class="block text-xs font-bold text-gray-700 mb-2"
+                        >
+                            Discord Username (Optional)
+                        </label>
+
+                        <input
+                            type="text"
+                            id="discordUsername"
+                            name="discord_username"
+                            placeholder="username"
+                            autocomplete="off"
+                            class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2.5 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm"
+                        >
                     </div>
 
-                    <div class="mb-5">
-                        <label class="block text-xs font-bold text-gray-700 mb-2">Payment Method</label>
+                    <fieldset class="mb-5">
+                        <legend
+                            class="block text-xs font-bold text-gray-700 mb-2"
+                        >
+                            Payment Method
+                        </legend>
+
                         <div class="space-y-2">
-                            <label class="relative block cursor-pointer">
-                                <input type="radio" name="payment_method" value="PayPal" class="peer sr-only" checked onchange="handlePaymentMethodChange()">
-                                <div class="rounded-lg border border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-600 transition flex items-center">
-                                    <div class="mr-3 font-black italic text-[#003087] text-base">Pay<span class="text-[#009cde]">Pal</span></div>
-                                    <div class="flex-grow">
-                                        <p class="font-bold text-sm text-gray-900">PayPal Checkout</p>
-                                        <p class="text-[11px] text-gray-500">Secure checkout hosted by PayPal</p>
+
+                            <!-- PAYPAL -->
+                            <label
+                                class="relative block cursor-pointer"
+                            >
+                                <input
+                                    type="radio"
+                                    name="payment_method_choice"
+                                    value="PayPal"
+                                    class="peer sr-only"
+                                    checked
+                                >
+
+                                <div
+                                    class="rounded-lg border border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-600 transition flex items-center"
+                                >
+                                    <div
+                                        class="mr-3 font-black text-[#003087] text-base"
+                                    >
+                                        PayPal
                                     </div>
-                                    <div class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-600 flex items-center justify-center shrink-0">
-                                        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+
+                                    <div class="flex-grow">
+                                        <p
+                                            class="font-bold text-sm text-gray-900"
+                                        >
+                                            PayPal / Card Checkout
+                                        </p>
+
+                                        <p
+                                            class="text-[11px] text-gray-500 mt-0.5"
+                                        >
+                                            PayPal displays the eligible payment
+                                            options available to the customer.
+                                        </p>
+                                    </div>
+
+                                    <div
+                                        class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-600 flex items-center justify-center shrink-0"
+                                    >
+                                        <div
+                                            class="w-1.5 h-1.5 bg-white rounded-full"
+                                        ></div>
                                     </div>
                                 </div>
                             </label>
 
-                            <label class="relative block cursor-pointer">
-                                <input type="radio" name="payment_method" value="Crypto" class="peer sr-only" onchange="handlePaymentMethodChange()">
-                                <div class="rounded-lg border border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-gray-900 peer-checked:ring-1 peer-checked:ring-gray-900 transition flex items-center">
+                            <!-- CRYPTO -->
+                            <label
+                                class="relative block cursor-pointer"
+                            >
+                                <input
+                                    type="radio"
+                                    name="payment_method_choice"
+                                    value="Crypto"
+                                    class="peer sr-only"
+                                >
+
+                                <div
+                                    class="rounded-lg border border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-gray-900 peer-checked:ring-1 peer-checked:ring-gray-900 transition flex items-center"
+                                >
                                     <div class="mr-3 text-lg">🪙</div>
+
                                     <div class="flex-grow">
-                                        <p class="font-bold text-sm text-gray-900">Crypto (Solana)</p>
+                                        <p
+                                            class="font-bold text-sm text-gray-900"
+                                        >
+                                            Crypto (Solana)
+                                        </p>
                                     </div>
-                                    <div class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-gray-900 peer-checked:bg-gray-900 flex items-center justify-center shrink-0">
-                                        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+
+                                    <div
+                                        class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-gray-900 peer-checked:bg-gray-900 flex items-center justify-center shrink-0"
+                                    >
+                                        <div
+                                            class="w-1.5 h-1.5 bg-white rounded-full"
+                                        ></div>
                                     </div>
                                 </div>
                             </label>
 
-                            <label id="giftcardLabel" class="relative block cursor-pointer">
-                                <input type="radio" name="payment_method" value="Giftcard" class="peer sr-only" onchange="handlePaymentMethodChange()">
-                                <div class="rounded-lg border border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-gray-900 peer-checked:ring-1 peer-checked:ring-gray-900 transition flex items-center">
+                            <!-- GIFT CARD -->
+                            <label
+                                id="giftcardLabel"
+                                class="relative block cursor-pointer"
+                            >
+                                <input
+                                    type="radio"
+                                    name="payment_method_choice"
+                                    value="Giftcard"
+                                    class="peer sr-only"
+                                >
+
+                                <div
+                                    class="rounded-lg border border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-gray-900 peer-checked:ring-1 peer-checked:ring-gray-900 transition flex items-center"
+                                >
                                     <div class="mr-3 text-lg">🎁</div>
+
                                     <div class="flex-grow">
-                                        <p class="font-bold text-sm text-gray-900">Kinguin / G2A Gift Card</p>
+                                        <p
+                                            class="font-bold text-sm text-gray-900"
+                                        >
+                                            Kinguin / G2A Gift Card
+                                        </p>
                                     </div>
-                                    <div class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-gray-900 peer-checked:bg-gray-900 flex items-center justify-center shrink-0">
-                                        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+
+                                    <div
+                                        class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-gray-900 peer-checked:bg-gray-900 flex items-center justify-center shrink-0"
+                                    >
+                                        <div
+                                            class="w-1.5 h-1.5 bg-white rounded-full"
+                                        ></div>
                                     </div>
                                 </div>
                             </label>
+
                         </div>
+                    </fieldset>
+
+                    <div
+                        id="normal-action-container"
+                        class="hidden mt-6"
+                    >
+                        <button
+                            type="submit"
+                            id="normalCheckoutButton"
+                            class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-lg hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition"
+                        >
+                            Place Order &rarr;
+                        </button>
+                    </div>
+                </form>
+
+                <!--
+                    PAYPAL IS OUTSIDE buyForm.
+
+                    Do not move it inside the form.
+                -->
+                <div
+                    id="paypal-action-container"
+                    class="mt-6"
+                >
+                    <div
+                        id="paypalLoading"
+                        class="rounded-xl border border-blue-100 bg-blue-50 px-4 py-4 text-sm font-semibold text-blue-700 text-center"
+                    >
+                        Loading secure PayPal checkout...
                     </div>
 
-                    <div id="paypal-action-container" class="mt-6">
-                        <div id="paypal-button-render" class="min-h-[44px]">
-                            <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-500 text-center">Loading PayPal…</div>
-                        </div>
-                        <p class="text-[11px] leading-relaxed text-gray-500 mt-3 text-center">
-                            After payment, use PayPal's return link to come back and view your order.
+                    <div
+                        id="paypal-hosted-root"
+                        class="relative z-20 w-full pointer-events-auto"
+                    ></div>
+
+                    <div
+                        id="paypalError"
+                        class="hidden rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700 mt-3"
+                    >
+                        <p class="font-bold">
+                            The embedded PayPal checkout could not open.
+                        </p>
+
+                        <p
+                            id="paypalErrorMessage"
+                            class="mt-1"
+                        >
+                            Use the secure payment-page button below.
                         </p>
                     </div>
 
-                    <div id="normal-action-container" class="mt-6 hidden">
-                        <button type="submit" id="normalCheckoutButton" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-lg hover:bg-gray-800 transition disabled:opacity-60 disabled:cursor-not-allowed">Place Order &rarr;</button>
-                    </div>
-                </form>
+                    <!--
+                        This is a direct PayPal fallback.
+
+                        It opens the hosted payment page in a normal tab and
+                        avoids browser popup or iframe restrictions.
+                    -->
+                    <a
+                        id="paypalFallbackLink"
+                        href="https://www.paypal.com/ncp/payment/<%= defaultPayPalButtonId %>"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="mt-3 w-full border border-gray-300 bg-white text-gray-900 font-bold py-3 rounded-lg hover:bg-gray-50 transition flex items-center justify-center text-sm"
+                    >
+                        Open secure PayPal checkout in a new page
+                    </a>
+
+                    <p
+                        class="text-[11px] leading-relaxed text-gray-500 mt-3 text-center"
+                    >
+                        PayPal displays the exact item, total, currency, and
+                        payment options configured for this hosted button.
+                    </p>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <footer class="bg-white border-t border-gray-200 mt-20 relative z-20">
-        <div class="max-w-7xl mx-auto px-4 md:px-8 py-8 text-center">
-            <p class="text-sm font-bold text-gray-500">© 2026 ExamHub Marketplace. All rights reserved.</p>
+    <!-- FOOTER -->
+    <footer
+        class="bg-white border-t border-gray-200 mt-20 relative z-20"
+    >
+        <div
+            class="max-w-7xl mx-auto px-4 md:px-8 py-8 text-center"
+        >
+            <p class="text-sm font-bold text-gray-500">
+                © 2026 ExamHub Marketplace. All rights reserved.
+            </p>
         </div>
     </footer>
 
     <script>
-        const isAuthenticated = <%- JSON.stringify(Boolean(safeBuyerEmail)) %>;
-        const DEFAULT_PAYPAL_HOSTED_BUTTON_ID = 'QZ7HHN9DJGNSA';
+        'use strict';
 
-        let userEmailToVerify = null;
-        let searchAbortController = null;
-        let searchDebounceTimer = null;
-        let paypalRenderSequence = 0;
+        const isAuthenticated =
+            <%- JSON.stringify(Boolean(currentBuyerEmail)) %>;
+
+        const DEFAULT_PAYPAL_BUTTON_ID =
+            <%- JSON.stringify(defaultPayPalButtonId) %>;
+
+        let userEmailToVerify = '';
+
         let activeProduct = {
             id: '',
             title: '',
             tier: '',
             price: 0,
-            paypalButtonId: ''
+            paypalButtonId: DEFAULT_PAYPAL_BUTTON_ID
         };
 
-        const searchInput = document.getElementById('searchInput');
-        const searchDropdown = document.getElementById('searchDropdown');
-        const buyForm = document.getElementById('buyForm');
+        /*
+         * Each PayPal Hosted Button ID is rendered only once.
+         *
+         * Destroying and re-rendering the same hosted button repeatedly can
+         * make the second generated Checkout button stop responding.
+         */
+        const renderedPayPalButtons = new Map();
 
-        function setMessage(elementId, message) {
-            const element = document.getElementById(elementId);
+        let searchTimer = null;
+        let searchController = null;
+
+        function getElement(id) {
+            return document.getElementById(id);
+        }
+
+        function showElement(element, displayClass = 'flex') {
             if (!element) return;
 
-            element.textContent = message || '';
-            element.classList.toggle('hidden', !message);
-        }
+            element.classList.remove('hidden');
 
-        function setButtonLoading(button, loadingText, isLoading, normalText) {
-            if (!button) return;
-            button.disabled = isLoading;
-            button.textContent = isLoading ? loadingText : normalText;
-        }
+            if (displayClass) {
+                element.classList.add(displayClass);
+            }
 
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (!modal) return;
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            element.setAttribute('aria-hidden', 'false');
             document.body.classList.add('modal-open');
         }
 
-        function hideModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (!modal) return;
+        function hideElement(element, displayClass = 'flex') {
+            if (!element) return;
 
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+            element.classList.add('hidden');
+
+            if (displayClass) {
+                element.classList.remove(displayClass);
+            }
+
+            element.setAttribute('aria-hidden', 'true');
         }
 
-        function escapeHtml(value) {
-            return String(value ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
+        function setMessage(elementId, message) {
+            const element = getElement(elementId);
+
+            if (!element) return;
+
+            if (message) {
+                element.textContent = message;
+                element.classList.remove('hidden');
+            } else {
+                element.textContent = '';
+                element.classList.add('hidden');
+            }
         }
 
-        function debounceSearch(value) {
-            window.clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = window.setTimeout(() => performSearch(value), 250);
+        function normalizePayPalButtonId(value) {
+            const cleaned = String(value || '')
+                .trim()
+                .replace(/[^a-zA-Z0-9_-]/g, '');
+
+            return cleaned || DEFAULT_PAYPAL_BUTTON_ID;
         }
 
-        async function performSearch(value) {
-            const query = String(value || '').trim();
+        function paypalPaymentLink(buttonId) {
+            return (
+                'https://www.paypal.com/ncp/payment/' +
+                encodeURIComponent(buttonId)
+            );
+        }
 
-            if (!searchInput || !searchDropdown || query.length < 2) {
-                closeSearchDropdown();
+        /*
+         * Wait for the deferred PayPal SDK to finish loading.
+         */
+        function waitForPayPal(timeoutMs = 12000) {
+            return new Promise((resolve, reject) => {
+                const startedAt = Date.now();
+
+                function checkPayPal() {
+                    if (
+                        window.paypal &&
+                        typeof window.paypal.HostedButtons === 'function'
+                    ) {
+                        resolve(window.paypal);
+                        return;
+                    }
+
+                    if (Date.now() - startedAt >= timeoutMs) {
+                        reject(
+                            new Error(
+                                'PayPal SDK did not finish loading.'
+                            )
+                        );
+                        return;
+                    }
+
+                    window.setTimeout(checkPayPal, 100);
+                }
+
+                checkPayPal();
+            });
+        }
+
+        /*
+         * Render the hosted PayPal component.
+         *
+         * A button ID is never rendered more than once.
+         */
+        async function showHostedPayPalButton(rawButtonId) {
+            const buttonId =
+                normalizePayPalButtonId(rawButtonId);
+
+            const root =
+                getElement('paypal-hosted-root');
+
+            const loading =
+                getElement('paypalLoading');
+
+            const errorBox =
+                getElement('paypalError');
+
+            const fallbackLink =
+                getElement('paypalFallbackLink');
+
+            fallbackLink.href =
+                paypalPaymentLink(buttonId);
+
+            errorBox.classList.add('hidden');
+            setMessage('paypalErrorMessage', '');
+
+            /*
+             * Hide previously rendered PayPal button containers.
+             */
+            root
+                .querySelectorAll('.paypal-instance')
+                .forEach(instance => {
+                    instance.classList.add('hidden');
+                });
+
+            /*
+             * Reuse the existing rendered PayPal iframe when the user
+             * opens the same product again.
+             */
+            if (renderedPayPalButtons.has(buttonId)) {
+                const existing =
+                    renderedPayPalButtons.get(buttonId);
+
+                existing.classList.remove('hidden');
+                loading.classList.add('hidden');
+
                 return;
             }
 
-            if (searchAbortController) {
-                searchAbortController.abort();
-            }
+            loading.textContent =
+                'Loading secure PayPal checkout...';
 
-            searchAbortController = new AbortController();
+            loading.classList.remove('hidden');
+
+            const instance =
+                document.createElement('div');
+
+            instance.className =
+                'paypal-instance';
+
+            instance.dataset.paypalButtonId =
+                buttonId;
+
+            const container =
+                document.createElement('div');
+
+            container.id =
+                `paypal-container-${buttonId}`;
+
+            container.className =
+                'w-full relative z-20 pointer-events-auto';
+
+            instance.appendChild(container);
+            root.appendChild(instance);
+
+            renderedPayPalButtons.set(
+                buttonId,
+                instance
+            );
 
             try {
-                const response = await fetch('/api/search?q=' + encodeURIComponent(query), {
-                    headers: { Accept: 'application/json' },
-                    signal: searchAbortController.signal
+                const paypalApi =
+                    await waitForPayPal();
+
+                /*
+                 * Wait until the modal is visible and has a real width.
+                 *
+                 * Rendering while display:none can cause an incorrectly sized
+                 * or unresponsive PayPal iframe.
+                 */
+                await new Promise(resolve => {
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(resolve);
+                    });
                 });
 
-                if (!response.ok) {
-                    throw new Error('Search request failed with status ' + response.status);
-                }
+                await paypalApi.HostedButtons({
+                    hostedButtonId: buttonId
+                }).render(
+                    `#paypal-container-${buttonId}`
+                );
 
-                const payload = await response.json();
-                const results = Array.isArray(payload) ? payload : [];
-
-                if (results.length === 0) {
-                    closeSearchDropdown();
-                    return;
-                }
-
-                searchDropdown.innerHTML = results.map(item => {
-                    const title = escapeHtml(item.title || 'Untitled');
-                    const category = escapeHtml(item.category || 'General');
-                    const destination = '/?q=' + encodeURIComponent(item.title || '');
-
-                    return `
-                        <a href="${destination}" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0" role="option">
-                            <div class="font-bold text-sm text-gray-900">${title}</div>
-                            <div class="text-[10px] font-bold text-gray-400 uppercase">${category}</div>
-                        </a>
-                    `;
-                }).join('');
-
-                searchDropdown.classList.remove('hidden');
-                searchDropdown.classList.add('flex');
-                searchInput.setAttribute('aria-expanded', 'true');
+                loading.classList.add('hidden');
             } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.error('Search failed:', error);
-                    closeSearchDropdown();
-                }
+                console.error(
+                    'PayPal HostedButtons error:',
+                    error
+                );
+
+                loading.classList.add('hidden');
+
+                renderedPayPalButtons.delete(
+                    buttonId
+                );
+
+                instance.remove();
+
+                errorBox.classList.remove('hidden');
+
+                setMessage(
+                    'paypalErrorMessage',
+                    error && error.message
+                        ? error.message
+                        : 'PayPal could not display the embedded checkout.'
+                );
             }
         }
 
-        function closeSearchDropdown() {
-            if (!searchDropdown) return;
-            searchDropdown.classList.add('hidden');
-            searchDropdown.classList.remove('flex');
-            if (searchInput) searchInput.setAttribute('aria-expanded', 'false');
+        function openEmailModal() {
+            setMessage('emailAuthError', '');
+
+            showElement(
+                getElement('emailModal')
+            );
+
+            window.setTimeout(() => {
+                getElement('authEmailInput')?.focus();
+            }, 50);
         }
 
-        if (searchInput && searchDropdown) {
-            searchInput.addEventListener('input', event => debounceSearch(event.target.value));
-            searchInput.addEventListener('focus', event => {
-                if (event.target.value.trim().length >= 2) debounceSearch(event.target.value);
-            });
-        }
+        function openOtpModal() {
+            hideElement(
+                getElement('emailModal')
+            );
 
-        document.addEventListener('click', event => {
-            if (searchInput && searchDropdown && !searchInput.contains(event.target) && !searchDropdown.contains(event.target)) {
-                closeSearchDropdown();
-            }
-        });
+            setMessage('otpAuthError', '');
 
-        function handleBuyClickFromButton(button) {
-            handleBuyClick({
-                id: button.dataset.productId || '',
-                title: button.dataset.productTitle || 'Product',
-                tier: button.dataset.productTier || 'Standard',
-                price: Number.parseFloat(button.dataset.productPrice || '0'),
-                paypalButtonId: button.dataset.paypalButtonId || DEFAULT_PAYPAL_HOSTED_BUTTON_ID
-            });
+            showElement(
+                getElement('otpModal')
+            );
+
+            window.setTimeout(() => {
+                getElement('authOtpInput')?.focus();
+            }, 50);
         }
 
         function handleBuyClick(product) {
-            const normalizedPrice = Number.isFinite(product.price) ? product.price : 0;
-
             activeProduct = {
                 id: String(product.id || ''),
-                title: String(product.title || 'Product'),
-                tier: String(product.tier || 'Standard'),
-                price: normalizedPrice,
-                paypalButtonId: String(product.paypalButtonId || DEFAULT_PAYPAL_HOSTED_BUTTON_ID)
+                title: String(
+                    product.title || 'Product'
+                ),
+                tier: String(
+                    product.tier || 'Standard'
+                ),
+                price: Number(
+                    product.price || 0
+                ),
+                paypalButtonId:
+                    normalizePayPalButtonId(
+                        product.paypalButtonId
+                    )
             };
+
+            if (
+                !Number.isFinite(activeProduct.price) ||
+                activeProduct.price < 0
+            ) {
+                activeProduct.price = 0;
+            }
 
             if (isAuthenticated) {
                 openBuyModal();
                 return;
             }
 
-            sessionStorage.setItem('pendingBuy', JSON.stringify(activeProduct));
-            openModal('emailModal');
-            window.setTimeout(() => document.getElementById('authEmailInput')?.focus(), 50);
+            sessionStorage.setItem(
+                'pendingBuy',
+                JSON.stringify(activeProduct)
+            );
+
+            openEmailModal();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('tab') === 'posts') {
-                switchTab('posts');
+        function openBuyModal() {
+            getElement('modalItemTitle').textContent =
+                activeProduct.title;
+
+            getElement('modalItemTier').textContent =
+                activeProduct.tier;
+
+            getElement('modalItemPrice').textContent =
+                `$${activeProduct.price.toFixed(2)}`;
+
+            getElement('hiddenProductId').value =
+                activeProduct.id;
+
+            getElement('hiddenProductTier').value =
+                activeProduct.tier;
+
+            const paypalChoice =
+                document.querySelector(
+                    'input[name="payment_method_choice"][value="PayPal"]'
+                );
+
+            if (paypalChoice) {
+                paypalChoice.checked = true;
             }
 
-            if (isAuthenticated) {
-                const savedPending = sessionStorage.getItem('pendingBuy');
+            const giftcardLabel =
+                getElement('giftcardLabel');
 
-                if (savedPending) {
-                    try {
-                        const parsed = JSON.parse(savedPending);
-                        activeProduct = {
-                            id: String(parsed.id || ''),
-                            title: String(parsed.title || 'Product'),
-                            tier: String(parsed.tier || 'Standard'),
-                            price: Number.parseFloat(parsed.price || 0),
-                            paypalButtonId: String(parsed.paypalButtonId || DEFAULT_PAYPAL_HOSTED_BUTTON_ID)
-                        };
-                        sessionStorage.removeItem('pendingBuy');
-                        window.setTimeout(openBuyModal, 250);
-                    } catch (error) {
-                        console.error('Could not restore pending purchase:', error);
-                        sessionStorage.removeItem('pendingBuy');
-                    }
-                }
+            const giftcardChoice =
+                document.querySelector(
+                    'input[name="payment_method_choice"][value="Giftcard"]'
+                );
+
+            const restrictedGiftCard =
+                activeProduct.price > 900 ||
+                ['custom', 'ultra'].includes(
+                    activeProduct.tier.toLowerCase()
+                );
+
+            giftcardLabel.classList.toggle(
+                'hidden',
+                restrictedGiftCard
+            );
+
+            if (
+                restrictedGiftCard &&
+                giftcardChoice?.checked &&
+                paypalChoice
+            ) {
+                paypalChoice.checked = true;
             }
-        });
+
+            /*
+             * Make the modal visible before rendering PayPal.
+             */
+            showElement(
+                getElement('buyModal')
+            );
+
+            handlePaymentMethodChange();
+        }
+
+        function handlePaymentMethodChange() {
+            const selected =
+                document.querySelector(
+                    'input[name="payment_method_choice"]:checked'
+                );
+
+            const paymentMethod =
+                selected
+                    ? selected.value
+                    : 'PayPal';
+
+            const paypalContainer =
+                getElement('paypal-action-container');
+
+            const normalContainer =
+                getElement('normal-action-container');
+
+            const hiddenPaymentMethod =
+                getElement('hiddenPaymentMethod');
+
+            hiddenPaymentMethod.value =
+                paymentMethod;
+
+            if (paymentMethod === 'PayPal') {
+                paypalContainer.classList.remove(
+                    'hidden'
+                );
+
+                normalContainer.classList.add(
+                    'hidden'
+                );
+
+                showHostedPayPalButton(
+                    activeProduct.paypalButtonId
+                );
+            } else {
+                paypalContainer.classList.add(
+                    'hidden'
+                );
+
+                normalContainer.classList.remove(
+                    'hidden'
+                );
+            }
+        }
 
         async function sendOtp() {
-            const emailInput = document.getElementById('authEmailInput');
-            const sendButton = document.getElementById('sendOtpBtn');
-            const email = String(emailInput?.value || '').trim().toLowerCase();
-            const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            const emailInput =
+                getElement('authEmailInput');
+
+            const button =
+                getElement('sendOtpBtn');
+
+            const email =
+                emailInput.value
+                    .trim()
+                    .toLowerCase();
+
+            const emailPattern =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
             setMessage('emailAuthError', '');
 
-            if (!validEmail) {
-                setMessage('emailAuthError', 'Enter a valid email address.');
-                emailInput?.focus();
+            if (!emailPattern.test(email)) {
+                setMessage(
+                    'emailAuthError',
+                    'Enter a valid email address.'
+                );
+
+                emailInput.focus();
                 return;
             }
 
-            setButtonLoading(sendButton, 'Sending…', true, 'Send Code');
+            button.disabled = true;
+            button.textContent = 'Sending...';
 
             try {
-                const response = await fetch('/api/send-otp', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json'
-                    },
-                    body: JSON.stringify({ email })
-                });
+                const response = await fetch(
+                    '/api/send-otp',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+                        body: JSON.stringify({
+                            email
+                        })
+                    }
+                );
 
-                const data = await response.json().catch(() => ({}));
+                const data =
+                    await response
+                        .json()
+                        .catch(() => ({}));
 
-                if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Unable to send the verification code.');
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+                    throw new Error(
+                        data.message ||
+                        'Unable to send the verification code.'
+                    );
                 }
 
                 userEmailToVerify = email;
-                hideModal('emailModal');
-                openModal('otpModal');
-                document.getElementById('authOtpInput').value = '';
-                window.setTimeout(() => document.getElementById('authOtpInput')?.focus(), 50);
+
+                openOtpModal();
             } catch (error) {
-                console.error('OTP send failed:', error);
-                setMessage('emailAuthError', error.message || 'Error sending the verification code.');
+                setMessage(
+                    'emailAuthError',
+                    error.message ||
+                    'Unable to send the verification code.'
+                );
             } finally {
-                setButtonLoading(sendButton, 'Sending…', false, 'Send Code');
+                button.disabled = false;
+                button.textContent = 'Send Code';
             }
         }
 
         async function verifyOtp() {
-            const otpInput = document.getElementById('authOtpInput');
-            const verifyButton = document.getElementById('verifyOtpBtn');
-            const code = String(otpInput?.value || '').replace(/\D/g, '').slice(0, 6);
+            const otpInput =
+                getElement('authOtpInput');
 
-            if (otpInput) otpInput.value = code;
+            const button =
+                getElement('verifyOtpBtn');
+
+            const code =
+                otpInput.value
+                    .replace(/\D/g, '')
+                    .slice(0, 6);
+
+            otpInput.value = code;
+
             setMessage('otpAuthError', '');
 
             if (!userEmailToVerify) {
-                hideModal('otpModal');
-                openModal('emailModal');
-                setMessage('emailAuthError', 'Enter your email again to request a new code.');
+                setMessage(
+                    'otpAuthError',
+                    'Your email session expired. Please request another code.'
+                );
+
                 return;
             }
 
             if (code.length !== 6) {
-                setMessage('otpAuthError', 'Enter the complete 6-digit code.');
-                otpInput?.focus();
+                setMessage(
+                    'otpAuthError',
+                    'Enter the complete six-digit code.'
+                );
+
+                otpInput.focus();
                 return;
             }
 
-            setButtonLoading(verifyButton, 'Verifying…', true, 'Verify');
+            button.disabled = true;
+            button.textContent = 'Verifying...';
 
             try {
-                const response = await fetch('/api/verify-otp', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json'
-                    },
-                    body: JSON.stringify({ email: userEmailToVerify, code })
-                });
+                const response = await fetch(
+                    '/api/verify-otp',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+                        body: JSON.stringify({
+                            email:
+                                userEmailToVerify,
+                            code
+                        })
+                    }
+                );
 
-                const data = await response.json().catch(() => ({}));
+                const data =
+                    await response
+                        .json()
+                        .catch(() => ({}));
 
-                if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Invalid or expired code.');
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+                    throw new Error(
+                        data.message ||
+                        'The code is invalid or expired.'
+                    );
                 }
 
                 window.location.reload();
             } catch (error) {
-                console.error('OTP verification failed:', error);
-                setMessage('otpAuthError', error.message || 'Invalid or expired code.');
+                setMessage(
+                    'otpAuthError',
+                    error.message ||
+                    'The code is invalid or expired.'
+                );
             } finally {
-                setButtonLoading(verifyButton, 'Verifying…', false, 'Verify');
+                button.disabled = false;
+                button.textContent = 'Verify';
             }
-        }
-
-        document.getElementById('authOtpInput')?.addEventListener('input', event => {
-            event.target.value = event.target.value.replace(/\D/g, '').slice(0, 6);
-        });
-
-        document.getElementById('authOtpInput')?.addEventListener('keydown', event => {
-            if (event.key === 'Enter') verifyOtp();
-        });
-
-        document.getElementById('authEmailInput')?.addEventListener('keydown', event => {
-            if (event.key === 'Enter') sendOtp();
-        });
-
-        function openBuyModal() {
-            if (!activeProduct.id) {
-                alert('This product could not be loaded. Please choose it again.');
-                return;
-            }
-
-            document.getElementById('modalItemTitle').textContent = activeProduct.title;
-            document.getElementById('modalItemTier').textContent = activeProduct.tier;
-            document.getElementById('modalItemPrice').textContent = '$' + activeProduct.price.toFixed(2);
-            document.getElementById('hiddenProductId').value = activeProduct.id;
-            document.getElementById('hiddenProductTier').value = activeProduct.tier;
-
-            const paypalRadio = document.querySelector('input[name="payment_method"][value="PayPal"]');
-            if (paypalRadio) paypalRadio.checked = true;
-
-            const giftcardLabel = document.getElementById('giftcardLabel');
-            const giftcardRadio = document.querySelector('input[name="payment_method"][value="Giftcard"]');
-            const hideGiftcard = activeProduct.price > 900 || ['Custom', 'Ultra'].includes(activeProduct.tier);
-
-            giftcardLabel?.classList.toggle('hidden', hideGiftcard);
-            if (hideGiftcard && giftcardRadio?.checked && paypalRadio) paypalRadio.checked = true;
-
-            openModal('buyModal');
-            handlePaymentMethodChange();
-        }
-
-        function selectedPaymentMethod() {
-            return document.querySelector('input[name="payment_method"]:checked')?.value || 'PayPal';
-        }
-
-        function handlePaymentMethodChange() {
-            const selected = selectedPaymentMethod();
-            const paypalContainer = document.getElementById('paypal-action-container');
-            const normalContainer = document.getElementById('normal-action-container');
-
-            if (selected === 'PayPal') {
-                paypalContainer?.classList.remove('hidden');
-                normalContainer?.classList.add('hidden');
-                renderPayPalHostedButton();
-            } else {
-                paypalRenderSequence += 1;
-                paypalContainer?.classList.add('hidden');
-                normalContainer?.classList.remove('hidden');
-                document.getElementById('paypal-button-render').innerHTML = '';
-            }
-        }
-
-        function waitForPayPal(timeoutMs = 10000) {
-            return new Promise((resolve, reject) => {
-                const startedAt = Date.now();
-
-                const poll = () => {
-                    if (window.paypal && typeof window.paypal.HostedButtons === 'function') {
-                        resolve(window.paypal);
-                        return;
-                    }
-
-                    if (Date.now() - startedAt >= timeoutMs) {
-                        reject(new Error('PayPal did not finish loading.'));
-                        return;
-                    }
-
-                    window.setTimeout(poll, 100);
-                };
-
-                poll();
-            });
-        }
-
-        async function renderPayPalHostedButton() {
-            const renderTarget = document.getElementById('paypal-button-render');
-            if (!renderTarget || selectedPaymentMethod() !== 'PayPal') return;
-
-            const sequence = ++paypalRenderSequence;
-            const hostedButtonId = activeProduct.paypalButtonId || DEFAULT_PAYPAL_HOSTED_BUTTON_ID;
-
-            renderTarget.innerHTML = '<div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-500 text-center">Loading PayPal…</div>';
-
-            try {
-                const paypalSdk = await waitForPayPal();
-
-                if (sequence !== paypalRenderSequence || selectedPaymentMethod() !== 'PayPal') return;
-
-                renderTarget.innerHTML = '';
-
-                const renderResult = paypalSdk.HostedButtons({
-                    hostedButtonId
-                }).render('#paypal-button-render');
-
-                if (renderResult && typeof renderResult.catch === 'function') {
-                    await renderResult;
-                }
-            } catch (error) {
-                if (sequence !== paypalRenderSequence) return;
-
-                console.error('PayPal hosted button failed:', error);
-                renderTarget.innerHTML = `
-                    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 text-center">
-                        PayPal failed to load. Refresh the page or choose another payment method.
-                    </div>
-                `;
-            }
-        }
-
-        if (buyForm) {
-            buyForm.addEventListener('submit', event => {
-                if (selectedPaymentMethod() === 'PayPal') {
-                    event.preventDefault();
-                    return;
-                }
-
-                const submitButton = document.getElementById('normalCheckoutButton');
-                if (submitButton) {
-                    submitButton.disabled = true;
-                    submitButton.textContent = 'Creating order…';
-                }
-            });
         }
 
         function closeModals() {
-            paypalRenderSequence += 1;
-            hideModal('emailModal');
-            hideModal('otpModal');
-            hideModal('buyModal');
-            document.body.classList.remove('modal-open');
+            hideElement(
+                getElement('emailModal')
+            );
+
+            hideElement(
+                getElement('otpModal')
+            );
+
+            hideElement(
+                getElement('buyModal')
+            );
+
+            document.body.classList.remove(
+                'modal-open'
+            );
+
             setMessage('emailAuthError', '');
             setMessage('otpAuthError', '');
-
-            if (buyForm) buyForm.reset();
-
-            const paypalRenderTarget = document.getElementById('paypal-button-render');
-            if (paypalRenderTarget) paypalRenderTarget.innerHTML = '';
-
-            const normalCheckoutButton = document.getElementById('normalCheckoutButton');
-            if (normalCheckoutButton) {
-                normalCheckoutButton.disabled = false;
-                normalCheckoutButton.textContent = 'Place Order →';
-            }
         }
-
-        document.querySelectorAll('[data-modal]').forEach(modal => {
-            modal.addEventListener('mousedown', event => {
-                if (event.target === modal) closeModals();
-            });
-        });
-
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape') closeModals();
-        });
 
         function switchTab(tabId) {
-            const storeBtn = document.getElementById('tab-store');
-            const postsBtn = document.getElementById('tab-posts');
-            const storeGrid = document.getElementById('store-grid');
-            const postsGrid = document.getElementById('posts-grid');
-            const showStore = tabId === 'store';
+            const storeButton =
+                getElement('tab-store');
 
-            storeGrid?.classList.toggle('hidden', !showStore);
-            postsGrid?.classList.toggle('hidden', showStore);
+            const postsButton =
+                getElement('tab-posts');
 
-            if (storeBtn) {
-                storeBtn.className = showStore
+            const storeGrid =
+                getElement('store-grid');
+
+            const postsGrid =
+                getElement('posts-grid');
+
+            const showStore =
+                tabId === 'store';
+
+            storeGrid.classList.toggle(
+                'hidden',
+                !showStore
+            );
+
+            postsGrid.classList.toggle(
+                'hidden',
+                showStore
+            );
+
+            storeButton.setAttribute(
+                'aria-selected',
+                String(showStore)
+            );
+
+            postsButton.setAttribute(
+                'aria-selected',
+                String(!showStore)
+            );
+
+            storeButton.className =
+                showStore
                     ? 'font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition'
                     : 'font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition';
-                storeBtn.setAttribute('aria-selected', String(showStore));
+
+            postsButton.className =
+                !showStore
+                    ? 'font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition'
+                    : 'font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition';
+        }
+
+        function renderSearchResults(items) {
+            const dropdown =
+                getElement('searchDropdown');
+
+            dropdown.replaceChildren();
+
+            if (
+                !Array.isArray(items) ||
+                items.length === 0
+            ) {
+                dropdown.classList.add('hidden');
+                dropdown.classList.remove('flex');
+                return;
             }
 
-            if (postsBtn) {
-                postsBtn.className = !showStore
-                    ? 'font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition'
-                    : 'font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition';
-                postsBtn.setAttribute('aria-selected', String(!showStore));
+            items.forEach(item => {
+                const link =
+                    document.createElement('a');
+
+                link.href =
+                    '/?q=' +
+                    encodeURIComponent(
+                        String(item.title || '')
+                    );
+
+                link.className =
+                    'block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0';
+
+                link.setAttribute(
+                    'role',
+                    'option'
+                );
+
+                const title =
+                    document.createElement('div');
+
+                title.className =
+                    'font-bold text-sm text-gray-900';
+
+                title.textContent =
+                    String(
+                        item.title || 'Untitled'
+                    );
+
+                const category =
+                    document.createElement('div');
+
+                category.className =
+                    'text-[10px] font-bold text-gray-400 uppercase mt-0.5';
+
+                category.textContent =
+                    String(
+                        item.category || 'Product'
+                    );
+
+                link.append(
+                    title,
+                    category
+                );
+
+                dropdown.appendChild(link);
+            });
+
+            dropdown.classList.remove('hidden');
+            dropdown.classList.add('flex');
+        }
+
+        async function searchMarketplace(query) {
+            if (searchController) {
+                searchController.abort();
+            }
+
+            searchController =
+                new AbortController();
+
+            try {
+                const response = await fetch(
+                    '/api/search?q=' +
+                    encodeURIComponent(query),
+                    {
+                        headers: {
+                            Accept:
+                                'application/json'
+                        },
+                        signal:
+                            searchController.signal
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        'Search request failed.'
+                    );
+                }
+
+                const data =
+                    await response.json();
+
+                renderSearchResults(data);
+            } catch (error) {
+                if (
+                    error.name !==
+                    'AbortError'
+                ) {
+                    console.error(
+                        'Search error:',
+                        error
+                    );
+
+                    renderSearchResults([]);
+                }
             }
         }
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            () => {
+                const searchInput =
+                    getElement('searchInput');
+
+                const searchDropdown =
+                    getElement('searchDropdown');
+
+                const otpInput =
+                    getElement('authOtpInput');
+
+                const buyForm =
+                    getElement('buyForm');
+
+                const urlParams =
+                    new URLSearchParams(
+                        window.location.search
+                    );
+
+                if (
+                    urlParams.get('tab') ===
+                    'posts'
+                ) {
+                    switchTab('posts');
+                }
+
+                /*
+                 * Product buttons.
+                 */
+                document
+                    .querySelectorAll(
+                        '.purchase-button'
+                    )
+                    .forEach(button => {
+                        button.addEventListener(
+                            'click',
+                            () => {
+                                handleBuyClick({
+                                    id:
+                                        button.dataset
+                                            .productId,
+
+                                    title:
+                                        button.dataset
+                                            .productTitle,
+
+                                    tier:
+                                        button.dataset
+                                            .productTier,
+
+                                    price:
+                                        button.dataset
+                                            .productPrice,
+
+                                    paypalButtonId:
+                                        button.dataset
+                                            .paypalButtonId
+                                });
+                            }
+                        );
+                    });
+
+                /*
+                 * Payment-method selection.
+                 */
+                document
+                    .querySelectorAll(
+                        'input[name="payment_method_choice"]'
+                    )
+                    .forEach(input => {
+                        input.addEventListener(
+                            'change',
+                            handlePaymentMethodChange
+                        );
+                    });
+
+                /*
+                 * Search suggestions.
+                 */
+                if (
+                    searchInput &&
+                    searchDropdown
+                ) {
+                    searchInput.addEventListener(
+                        'input',
+                        event => {
+                            const value =
+                                event.target.value.trim();
+
+                            window.clearTimeout(
+                                searchTimer
+                            );
+
+                            if (
+                                value.length < 2
+                            ) {
+                                if (
+                                    searchController
+                                ) {
+                                    searchController.abort();
+                                }
+
+                                renderSearchResults(
+                                    []
+                                );
+
+                                return;
+                            }
+
+                            searchTimer =
+                                window.setTimeout(
+                                    () => {
+                                        searchMarketplace(
+                                            value
+                                        );
+                                    },
+                                    250
+                                );
+                        }
+                    );
+                }
+
+                document.addEventListener(
+                    'click',
+                    event => {
+                        if (
+                            searchDropdown &&
+                            searchInput &&
+                            !searchDropdown.contains(
+                                event.target
+                            ) &&
+                            event.target !==
+                                searchInput
+                        ) {
+                            searchDropdown.classList.add(
+                                'hidden'
+                            );
+
+                            searchDropdown.classList.remove(
+                                'flex'
+                            );
+                        }
+                    }
+                );
+
+                /*
+                 * OTP input cleanup.
+                 */
+                if (otpInput) {
+                    otpInput.addEventListener(
+                        'input',
+                        () => {
+                            otpInput.value =
+                                otpInput.value
+                                    .replace(
+                                        /\D/g,
+                                        ''
+                                    )
+                                    .slice(
+                                        0,
+                                        6
+                                    );
+                        }
+                    );
+
+                    otpInput.addEventListener(
+                        'keydown',
+                        event => {
+                            if (
+                                event.key ===
+                                'Enter'
+                            ) {
+                                verifyOtp();
+                            }
+                        }
+                    );
+                }
+
+                getElement(
+                    'authEmailInput'
+                )?.addEventListener(
+                    'keydown',
+                    event => {
+                        if (
+                            event.key ===
+                            'Enter'
+                        ) {
+                            sendOtp();
+                        }
+                    }
+                );
+
+                /*
+                 * Crypto and gift-card checkout only.
+                 *
+                 * PayPal never submits this form.
+                 */
+                if (buyForm) {
+                    buyForm.addEventListener(
+                        'submit',
+                        event => {
+                            const selected =
+                                document.querySelector(
+                                    'input[name="payment_method_choice"]:checked'
+                                );
+
+                            const method =
+                                selected
+                                    ? selected.value
+                                    : 'PayPal';
+
+                            if (
+                                method ===
+                                'PayPal'
+                            ) {
+                                event.preventDefault();
+
+                                handlePaymentMethodChange();
+
+                                return;
+                            }
+
+                            const submitButton =
+                                getElement(
+                                    'normalCheckoutButton'
+                                );
+
+                            submitButton.disabled =
+                                true;
+
+                            submitButton.textContent =
+                                'Submitting...';
+                        }
+                    );
+                }
+
+                /*
+                 * Close when the dark backdrop itself is clicked.
+                 */
+                [
+                    getElement('emailModal'),
+                    getElement('otpModal'),
+                    getElement('buyModal')
+                ].forEach(modal => {
+                    modal?.addEventListener(
+                        'mousedown',
+                        event => {
+                            if (
+                                event.target ===
+                                modal
+                            ) {
+                                closeModals();
+                            }
+                        }
+                    );
+                });
+
+                document.addEventListener(
+                    'keydown',
+                    event => {
+                        if (
+                            event.key ===
+                            'Escape'
+                        ) {
+                            closeModals();
+                        }
+                    }
+                );
+
+                /*
+                 * Resume purchase after OTP sign-in.
+                 */
+                if (isAuthenticated) {
+                    const pending =
+                        sessionStorage.getItem(
+                            'pendingBuy'
+                        );
+
+                    if (pending) {
+                        try {
+                            const parsed =
+                                JSON.parse(
+                                    pending
+                                );
+
+                            activeProduct = {
+                                id:
+                                    String(
+                                        parsed.id ||
+                                        ''
+                                    ),
+
+                                title:
+                                    String(
+                                        parsed.title ||
+                                        'Product'
+                                    ),
+
+                                tier:
+                                    String(
+                                        parsed.tier ||
+                                        'Standard'
+                                    ),
+
+                                price:
+                                    Number(
+                                        parsed.price ||
+                                        0
+                                    ),
+
+                                paypalButtonId:
+                                    normalizePayPalButtonId(
+                                        parsed.paypalButtonId
+                                    )
+                            };
+
+                            sessionStorage.removeItem(
+                                'pendingBuy'
+                            );
+
+                            window.setTimeout(
+                                openBuyModal,
+                                250
+                            );
+                        } catch (error) {
+                            console.error(
+                                'Could not restore pending purchase:',
+                                error
+                            );
+
+                            sessionStorage.removeItem(
+                                'pendingBuy'
+                            );
+                        }
+                    }
+                }
+            }
+        );
     </script>
 </body>
 </html>
