@@ -1,7 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Secure Checkout - ExamHub</title>
+    <% 
+        const seoTitle = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_title) ? categoryRow.seo_title : 'ExamHub ✨ Marketplace';
+        const seoDesc = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_desc) ? categoryRow.seo_desc : 'The ultimate exam marketplace for top-rated study tools and bypasses.';
+        const seoKeywords = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.seo_keywords) ? categoryRow.seo_keywords : 'exams, study tools, bypasses, marketplace, honorlock, lockdown browser';
+        const ogImage = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.og_image) ? categoryRow.og_image : 'https://examhub.shop/favicon.png';
+        const canonicalUrl = (typeof categoryRow !== 'undefined' && categoryRow && categoryRow.canonical_url) ? categoryRow.canonical_url : '';
+
+        function formatPostText(text) {
+            if (!text) return '';
+            let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+            safeText = safeText.replace(/\*\*([\s\S]*?)\*\*/g, '<strong class="font-black text-anime-textMain">$1</strong>');
+            safeText = safeText.replace(/#([\s\S]*?)#/g, '<span class="text-xl md:text-2xl font-black block mt-4 mb-2 text-anime-textMain leading-tight">$1</span>');
+            safeText = safeText.replace(/\n/g, '<br>');
+            return safeText;
+        }
+    %>
+    <title><%= seoTitle %></title>
+    <meta name="description" content="<%= seoDesc %>">
+    <meta name="keywords" content="<%= seoKeywords %>">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <% if (canonicalUrl) { %> <link rel="canonical" href="<%= canonicalUrl %>"> <% } %>
+    <meta property="og:title" content="<%= seoTitle %>">
+    <meta property="og:description" content="<%= seoDesc %>">
+    <meta property="og:image" content="<%= ogImage %>">
+    <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
 
     <!-- PayPal SDK -->
@@ -9,269 +33,392 @@
         src="https://www.paypal.com/sdk/js?client-id=BAACqOV8IkLP3i0-_Ty6IA7zt5_OxtawbH5tAUCjenPO6KcpDgcEscgNhhZCTP9dVtHBQB6BrxF5QoOBnM&components=hosted-buttons&disable-funding=venmo&currency=USD">
     </script>
 </head>
-<body class="antialiased flex items-center justify-center min-h-screen p-4 relative overflow-hidden bg-gray-50">
-    <div class="cloud w-[400px] h-[400px] top-[-100px] left-[-100px] opacity-70 animate-float"></div>
-    
-    <div class="absolute top-4 left-4 z-50 flex gap-2">
-        <a href="/" class="bg-white border-2 border-gray-200 px-4 py-2 rounded-full font-black text-sm text-gray-600 hover:text-black shadow-sm transition flex items-center">← Store</a>
-        <% if (typeof buyerEmail !== 'undefined' && buyerEmail) { %>
-            <a href="/my-orders" class="bg-gray-900 text-white hover:bg-gray-800 px-4 py-2 rounded-full font-black text-sm transition shadow-md flex items-center gap-2 group">
-                📦 My Orders
-                <% if (typeof activeOrderCount !== 'undefined' && activeOrderCount > 0) { %>
-                    <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm group-hover:scale-110 transition duration-300"><%= activeOrderCount %></span>
-                <% } else { %>
-                    <span class="bg-gray-600 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">0</span>
-                <% } %>
-            </a>
-        <% } %>
-    </div>
 
-    <div class="glass-card w-full max-w-xl p-6 md:p-8 relative z-10 shadow-2xl mt-12 md:mt-0">
+<body class="antialiased flex flex-col">
+    <nav class="py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
+        <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
         
-        <div class="flex justify-between items-center mb-6 pb-4 border-b-2 border-dashed border-gray-200">
-            <div>
-                <h1 class="text-2xl font-black text-anime-textMain">Secure Checkout</h1>
-                <p class="text-sm font-bold text-gray-400">Order ID: <span class="text-anime-accent">#<%= order.order_id %></span></p>
-            </div>
+        <div class="flex items-center gap-2">
+            <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-full font-black text-sm shadow-sm transition">Discord</a>
             
-            <div class="flex flex-col items-end gap-2">
-                <div class="px-3 py-1 <%= order.status === 'Closed' ? 'bg-red-100 text-red-600' : (order.status === 'Completed' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600 animate-pulse') %> rounded-lg font-black text-xs uppercase tracking-wider"><%= order.status %></div>
-                
-                <% if (order.status !== 'Closed' && order.status !== 'Completed') { %>
-                    <form action="/buyer/close-order" method="POST" onsubmit="return confirm('Cancel this order entirely?');">
-                        <input type="hidden" name="order_id" value="<%= order.order_id %>">
-                        <button type="submit" class="text-[10px] text-red-500 font-bold hover:underline">Cancel Order ✕</button>
-                    </form>
-                <% } %>
-            </div>
-        </div>
-
-        <div class="bg-gray-50 rounded-xl p-4 mb-6 border-2 border-gray-100 flex justify-between items-center">
-            <div class="flex-1 min-w-0 pr-4">
-                <h3 class="font-black text-gray-800 truncate"><%= order.product_title %></h3>
-                <div class="flex gap-4 mt-2">
-                    <p class="text-xs font-bold text-gray-500">Tier: <span class="text-anime-accent"><%= order.tier %></span></p>
-                    <p class="text-xs font-bold text-gray-500">Method: <span class="text-anime-accent"><%= order.payment_method %></span></p>
-                </div>
-                <div class="mt-2 text-[10px] font-bold text-gray-400 truncate">Delivery to: <%= order.email %></div>
-            </div>
-            
-            <div class="text-right pl-4 border-l-2 border-gray-200 shrink-0 max-w-[140px]">
-                <p class="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Total Due</p>
-                <p class="text-xl md:text-2xl font-black text-[#00b67a] break-all">$<%= Number(order.product_price || 0).toFixed(2) %></p>
-            </div>
-        </div>
-
-        <% if (order.status === 'Closed') { %>
-            <div class="bg-red-50 border-2 border-red-200 rounded-xl p-6 text-center mb-6">
-                <h3 class="font-black text-red-700 text-xl mb-2">Order Cancelled</h3>
-                <p class="text-xs font-bold text-gray-600">This order has been securely closed. You can return to the store to make a new purchase if this was a mistake.</p>
-                <a href="/" class="inline-block mt-4 bg-red-600 text-white font-black px-6 py-3 rounded-xl shadow-md hover:bg-red-700 transition">Return to Store</a>
-            </div>
-        <% } else { %>
-            
-            <div class="bg-blue-50 border-2 border-blue-100 rounded-xl p-4 mb-6">
-                <p class="text-xs font-black text-blue-600 uppercase mb-1">Stuck on payment?</p>
-                <p class="text-[11px] font-bold text-gray-600">Join our <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="text-blue-500 underline">Discord Server</a> or contact <span class="text-blue-600 font-black">@minjunio</span> for immediate help.</p>
-            </div>
-
-            <!-- ==================== PAYPAL OPTION ==================== -->
-            <% if (order.payment_method === 'PayPal') { %>
-                <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 mb-6 text-center">
-                    <h3 class="font-black text-blue-700 text-xl mb-2">Pay with PayPal</h3>
-                    <p class="text-sm font-bold text-gray-600 mb-4">Click the button below to complete your payment securely via PayPal.</p>
-                    
-                    <div id="paypal-button-container" class="flex justify-center"></div>
-                    
-                    <p class="text-[10px] text-gray-500 mt-3 font-bold">You will be redirected to PayPal to finish checkout</p>
-                </div>
-
-                <button onclick="confirmPayment('PayPal')" id="confirmBtn" class="w-full bg-[#00b67a] text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md">
-                    I have completed PayPal payment ✓
-                </button>
-
-            <!-- ==================== CRYPTO OPTION ==================== -->
-            <% } else if (order.payment_method === 'Crypto') { %>
-                <h3 class="font-black text-sm text-gray-500 uppercase tracking-wider mb-3">1. Select Currency to Send</h3>
-                <div class="grid grid-cols-3 gap-2 mb-6">
-                    <button onclick="showCrypto('SOL', '7M27KDHbF1BtxEhghY6vWaXmbXyrsehSsWwxHtPYfSoJ')" class="crypto-btn bg-white border-2 border-gray-200 py-3 rounded-xl font-black text-gray-600 hover:border-anime-accent focus:border-anime-accent focus:bg-anime-skyLight transition">SOL</button>
-                    <button onclick="showCrypto('BTC', '18MvG5FJ2a1CZLETt9bUpKPa33aLK9Qn5v')" class="crypto-btn bg-white border-2 border-gray-200 py-3 rounded-xl font-black text-gray-600 hover:border-anime-accent focus:border-anime-accent focus:bg-anime-skyLight transition">BTC</button>
-                    <button onclick="showCrypto('ETH', '0xD873A40dcA37dC2084E174007E30C71aC4463CD9')" class="crypto-btn bg-white border-2 border-gray-200 py-3 rounded-xl font-black text-gray-600 hover:border-anime-accent focus:border-anime-accent focus:bg-anime-skyLight transition">ETH</button>
-                </div>
-
-                <div id="cryptoDetails" class="hidden flex-col items-center bg-gray-50 rounded-xl p-6 border-2 border-gray-100 mb-6 w-full">
-                    <div id="cryptoCalcArea" class="w-full mb-4"></div>
-                    <div class="w-full bg-white border-2 border-gray-200 rounded-xl p-4 text-center mb-4 relative">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-2">Send to this Address</p>
-                        <p id="cryptoAddress" class="font-bold text-sm text-anime-textMain break-all"></p>
-                        <button onclick="copyAddress(this)" class="mt-3 bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-1.5 rounded-lg text-xs font-black transition">Copy Address</button>
-                    </div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Or Scan QR Code</p>
-                    <img id="qrCode" src="" alt="QR Code" class="w-32 h-32 rounded-lg shadow-sm border-4 border-white">
-                </div>
-
-                <button onclick="confirmPayment('Crypto')" id="confirmBtn" class="w-full bg-[#00b67a] text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md hidden">I have sent the Crypto ✓</button>
-
-            <!-- ==================== DISCORD / HIGH TIER OPTION ==================== -->
-            <% } else if (order.payment_method === 'DiscordMethod' || order.tier === 'Ultra' || order.tier === 'Custom' || order.product_price > 900) { %>
-                <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 text-center mb-6 shadow-sm">
-                    <h3 class="font-black text-purple-700 text-xl mb-2">Alternative Payment</h3>
-                    <p class="text-xs font-bold text-gray-600 mb-4 leading-relaxed">Because this service is highly specialized (<%= order.tier %> tier), automated giftcards are disabled for security. Please contact <span class="text-anime-accent font-black">@minjunio</span> on Discord to arrange payment via other methods.</p>
-                    <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="inline-block bg-purple-600 text-white font-black px-6 py-3 rounded-xl shadow-md hover:scale-105 transition">Message minjunio on Discord ↗</a>
-                </div>
-                <button onclick="confirmPayment('DiscordMethod')" id="confirmBtn" class="w-full bg-purple-200 text-purple-900 font-black py-4 rounded-xl hover:bg-purple-300 transition shadow-md">I have contacted him ✓</button>
-
-            <!-- ==================== GIFTCARD OPTION (default) ==================== -->
-            <% } else { %>
-                <% 
-                    let giftcardLink = "";
-                    if (order.tier === 'Standard') giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-200-usd-giftmecrypto-key-global-i10000503347012";
-                    else if (order.tier === 'Pro') giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-450-usd-giftmecrypto-key-global-i10000503347304";
-                    else giftcardLink = "https://www.g2a.com/gift-me-crypto-gift-card-900-usd-giftmecrypto-key-global-i10000503347308";
-                %>
-                <div class="bg-green-50 border-2 border-green-200 rounded-xl p-5 mb-6 text-center">
-                    <p class="text-sm font-black text-[#00b67a] uppercase mb-2">Step 1: Purchase Giftcard</p>
-                    <p class="text-xs font-bold text-gray-600 mb-4">Click the link below to purchase the exact required $<%= order.product_price %> giftcard for your tier.</p>
-                    <a href="<%= giftcardLink %>" target="_blank" class="inline-block bg-[#00b67a] text-white font-black px-6 py-3 rounded-xl shadow-sm hover:scale-105 transition">Buy $<%= order.product_price %> G2A Giftcard ↗</a>
-                </div>
-                <div class="bg-gray-50 rounded-xl p-5 border-2 border-gray-100 mb-6">
-                    <p class="text-sm font-black text-gray-600 uppercase mb-3">Step 2: Submit Code</p>
-                    <input type="text" id="giftcardInput" placeholder="Enter the exact Giftcard Code here" class="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm mb-4">
-                    <button onclick="confirmPayment('Giftcard')" id="confirmBtn" class="w-full bg-[#00b67a] text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md">Submit Code ✓</button>
-                </div>
+            <% if (typeof buyerEmail !== 'undefined' && buyerEmail) { %>
+                <a href="/my-orders" class="bg-gray-900 text-white hover:bg-gray-800 px-4 py-2 rounded-full font-black text-sm transition shadow-md flex items-center gap-2 group">
+                    📦 My Orders
+                    <% if (typeof activeOrderCount !== 'undefined' && activeOrderCount > 0) { %>
+                        <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm group-hover:scale-110 transition duration-300"><%= activeOrderCount %></span>
+                    <% } else { %>
+                        <span class="bg-gray-600 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">0</span>
+                    <% } %>
+                </a>
+                <a href="/buyer-logout" class="ml-1 text-sm font-bold text-gray-400 hover:text-red-500 transition hidden md:block">Logout</a>
             <% } %>
 
-            <div id="successMessage" class="hidden mt-6 bg-green-100 border-2 border-green-200 rounded-xl p-6 text-center">
-                <h3 class="text-xl font-black text-green-700 mb-2">Successfully submitted and awaiting verification!</h3>
-                <p class="text-sm font-bold text-green-600">Please leave this page open. Your order is now visible in our system. You will receive an email shortly with your delivery and tracking details.</p>
+            <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/admin" class="ml-2 bg-white hover:bg-anime-pink px-4 md:px-5 py-2 rounded-full font-black text-sm shadow-sm transition border border-gray-200">Admin</a>
+            <% } else if (typeof buyerEmail === 'undefined' || !buyerEmail) { %>
+                <a href="/login" class="ml-2 bg-white hover:bg-anime-pink px-4 md:px-5 py-2 rounded-full font-black text-sm shadow-sm transition border border-gray-200">Login</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <header class="flex flex-col items-center text-center px-4 pt-6 pb-10 relative z-10 animate-fade-in-up">
+        <h1 class="text-4xl md:text-6xl font-black mb-6">Master Your <span class="text-anime-accent relative inline-block">Exams</span></h1>
+        <div class="w-full max-w-2xl relative">
+            <form action="/" method="GET" class="relative">
+                <% if (categoryFilter && categoryFilter !== 'All') { %> <input type="hidden" name="category" value="<%= categoryFilter %>"> <% } %>
+                <input type="text" id="searchInput" name="q" autocomplete="off" value="<%= searchQuery || '' %>" placeholder="Search exams, bypasses..." class="w-full bg-white border-2 border-white focus:border-anime-accent rounded-full py-4 pl-6 pr-24 outline-none shadow-[0_8px_20px_rgba(0,0,0,0.04)] text-base md:text-lg font-bold transition">
+                <button type="submit" class="absolute right-2 top-2 bg-anime-accent text-white px-4 md:px-6 py-2 rounded-full font-black">Search</button>
+            </form>
+            <div id="searchDropdown" class="hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-2 border-white rounded-2xl mt-2 shadow-xl overflow-hidden z-50 flex flex-col text-left"></div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-2 mt-8 max-w-4xl">
+            <a href="/" class="px-3 md:px-4 py-2 rounded-full font-black text-xs md:text-sm border-2 <%= (!categoryFilter || categoryFilter === 'All') ? 'bg-anime-textMain text-white border-anime-textMain' : 'bg-white/80 border-transparent hover:border-anime-accent' %>">All</a>
+            <% categories.forEach(cat => { %>
+                <a href="/category/<%= encodeURIComponent(cat.name) %>" class="px-3 md:px-4 py-2 rounded-full font-black text-xs md:text-sm border-2 <%= categoryFilter === cat.name ? 'bg-anime-textMain text-white border-anime-textMain' : 'bg-white/80 border-transparent hover:border-anime-accent' %>"><%= cat.name %></a>
+            <% }) %>
+        </div>
+    </header>
+
+    <main class="flex-grow w-full max-w-6xl mx-auto px-4 md:px-6 relative z-20 pb-20">
+        
+        <% if (announcements && announcements.length > 0) { %>
+            <div class="mb-12 space-y-10">
+                <% announcements.forEach(ann => { %>
+                    <div class="bg-white rounded-3xl p-6 md:p-10 shadow-xl border-4 border-anime-skyLight animate-fade-in-up">
+                        <div class="inline-block bg-blue-100 text-blue-700 font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider mb-4"><%= ann.category %> Announcement</div>
+                        <h2 class="text-3xl md:text-4xl font-black mb-6 text-anime-textMain"><%= ann.title %></h2>
+                        
+                        <div class="flex flex-col md:flex-row gap-4 mb-6">
+                            <% if (ann.image1) { %>
+                                <img src="<%= ann.image1 %>" alt="Announcement Image 1" class="w-full md:w-1/2 rounded-2xl object-cover border-2 border-gray-100 shadow-sm" style="max-height: 400px;">
+                            <% } %>
+                            <% if (ann.image2) { %>
+                                <img src="<%= ann.image2 %>" alt="Announcement Image 2" class="w-full md:w-1/2 rounded-2xl object-cover border-2 border-gray-100 shadow-sm" style="max-height: 400px;">
+                            <% } %>
+                        </div>
+                        
+                        <div class="text-sm md:text-base font-medium text-gray-700 leading-relaxed"><%- formatPostText(ann.content) %></div>
+                    </div>
+                <% }) %>
             </div>
-            
-        <% } %> 
+            <div class="flex items-center gap-4 mb-10 opacity-50">
+                <div class="flex-grow h-[2px] bg-gray-300 rounded-full"></div>
+                <span class="font-black text-gray-400 uppercase tracking-widest text-xs">Marketplace</span>
+                <div class="flex-grow h-[2px] bg-gray-300 rounded-full"></div>
+            </div>
+        <% } %>
+
+        <div class="flex gap-6 mb-8 border-b-2 border-gray-100 pb-0 select-none justify-center md:justify-start overflow-x-auto no-scrollbar">
+            <button onclick="switchTab('store')" id="tab-store" class="font-black text-lg md:text-xl text-anime-accent border-b-4 border-anime-accent pb-3 px-2 transition whitespace-nowrap">Store Catalog</button>
+            <button onclick="switchTab('posts')" id="tab-posts" class="font-black text-lg md:text-xl text-gray-400 border-b-4 border-transparent hover:text-gray-600 pb-3 px-2 transition whitespace-nowrap">Posts & Updates</button>
+        </div>
+
+        <div id="store-grid">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <% if (products.length === 0) { %>
+                    <div class="col-span-full text-center py-10 font-black text-xl md:text-2xl text-anime-textDark">No products found.</div>
+                <% } else { %>
+                    <% products.forEach(product => { %>
+                        <div class="glass-card group hover:scale-[1.02] transition-all duration-300 flex flex-col h-full p-5 md:p-6 relative">
+                            <div class="flex items-start gap-4 mb-4 mt-2">
+                                <div class="w-16 h-16 md:w-20 md:h-20 shrink-0 bg-gray-100 rounded-2xl overflow-hidden shadow-sm border-2 border-white">
+                                    <img src="<%= product.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title || 'Product')}&background=random&size=512` %>" alt="<%= product.title %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                </div>
+                                <div class="flex-grow pt-1 overflow-hidden">
+                                    <span class="inline-block bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-md font-black text-[10px] text-gray-500 uppercase tracking-wider mb-2"><%= product.category %></span>
+                                    <h3 class="font-black text-lg md:text-xl text-anime-textMain leading-tight mb-2 break-words"><%= product.title %></h3>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="bg-green-100 text-green-700 font-black text-sm px-2 py-0.5 rounded-lg">$<%= Number(product.price || 0).toFixed(2) %></span>
+                                        <span class="bg-purple-100 text-purple-700 font-black text-xs px-2 py-1 rounded-lg uppercase tracking-wider"><%= product.tier || 'Standard' %></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-sm font-medium text-gray-600 mb-6 flex-grow leading-relaxed break-words"><%- formatPostText(product.description) %></div>
+                            
+                            <div class="mt-auto pt-4 border-t-2 border-dashed border-gray-100">
+                                <div class="flex flex-col gap-3">
+                                    
+                                    <!-- ==================== PROMINENT PAYPAL BUTTON ==================== -->
+                                    <button 
+                                        onclick="handlePayPalBuy('<%= product.id %>', '<%= product.title.replace(/'/g, "\\'") %>', '<%= product.tier || 'Standard' %>', '<%= product.price %>')"
+                                        class="w-full bg-[#003087] hover:bg-[#00205b] text-white font-black py-3.5 rounded-2xl text-sm flex items-center justify-center gap-2 shadow-md transition active:scale-[0.985]">
+                                        <span>Pay with</span> 
+                                        <span class="font-black tracking-wider">PayPal</span> 
+                                        <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">/ Credit Card</span>
+                                    </button>
+
+                                    <button 
+                                        onclick="handleBuyClick('<%= product.id %>', '<%= product.title.replace(/'/g, "\\'") %>', '<%= product.tier || 'Standard' %>', '<%= product.price %>')"
+                                        class="w-full bg-anime-textMain hover:bg-gray-800 text-white font-black py-2.5 rounded-xl text-sm transition">
+                                        Other Payment Methods
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+        </div>
+
+        <div id="posts-grid" class="hidden animate-fade-in-up">
+            <!-- Posts section remains unchanged -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <% if (typeof posts !== 'undefined' && posts.length > 0) { %>
+                    <% posts.forEach(post => { %>
+                        <a href="/post/<%= post.id %>" class="glass-card group hover:scale-[1.02] transition-all duration-300 flex flex-col h-full p-5 md:p-6 relative">
+                            <div class="flex items-start gap-4 mb-4 mt-2">
+                                <div class="w-16 h-16 md:w-20 md:h-20 shrink-0 bg-gray-100 rounded-2xl overflow-hidden shadow-sm border-2 border-white">
+                                    <img src="<%= post.og_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.title || 'Post')}&background=random&size=512` %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                </div>
+                                <div class="flex-grow pt-1 overflow-hidden">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="inline-block bg-anime-skyLight text-anime-accent px-2 py-0.5 rounded-md font-black text-[10px] uppercase tracking-wider">Update</span>
+                                        <span class="text-[10px] text-gray-400 font-bold"><%= new Date(post.created_at).toLocaleDateString() %></span>
+                                    </div>
+                                    <h3 class="font-black text-lg md:text-xl text-anime-textMain leading-tight break-words group-hover:text-anime-accent transition"><%= post.title %></h3>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 font-medium line-clamp-3 mb-6 flex-grow"><%= post.seo_desc || 'Read the full update to learn more...' %></p>
+                            <div class="mt-auto pt-4 border-t-2 border-dashed border-gray-100 font-black text-sm text-anime-accent flex items-center justify-between">
+                                <span>Read Article</span>
+                                <span>→</span>
+                            </div>
+                        </a>
+                    <% }) %>
+                <% } else { %>
+                    <div class="col-span-full text-center py-10 font-black text-xl md:text-2xl text-gray-400">No updates posted yet.</div>
+                <% } %>
+            </div>
+        </div>
+    </main>
+
+    <!-- Email Modal (unchanged) -->
+    <div id="emailModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm justify-center items-center z-50 p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-8 text-center animate-fade-in-up">
+            <h2 class="text-2xl font-black text-anime-textMain mb-2">Secure Checkout</h2>
+            <p class="text-sm font-bold text-gray-500 mb-6">Enter your email to receive your secure login code.</p>
+            <input type="email" id="authEmailInput" placeholder="you@email.com" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm mb-4 text-center">
+            <button onclick="sendOtp()" id="sendOtpBtn" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md">Send Verification Code</button>
+            <button onclick="closeModals()" class="mt-4 text-xs font-bold text-gray-400 hover:text-gray-600">Cancel</button>
+        </div>
+    </div>
+
+    <!-- OTP Modal (unchanged) -->
+    <div id="otpModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm justify-center items-center z-50 p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-8 text-center animate-fade-in-up">
+            <h2 class="text-2xl font-black text-anime-textMain mb-2">Enter Code</h2>
+            <p class="text-sm font-bold text-gray-500 mb-6">Check your inbox for the 6-digit verification code.</p>
+            <input type="text" id="authOtpInput" placeholder="123456" maxlength="6" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-black text-2xl tracking-widest outline-none focus:border-anime-accent mb-4 text-center">
+            <button onclick="verifyOtp()" id="verifyOtpBtn" class="w-full bg-[#00b67a] text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md">Verify & Proceed</button>
+            <button onclick="closeModals()" class="mt-4 text-xs font-bold text-gray-400 hover:text-gray-600">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Buy Modal (Other Methods) -->
+    <div id="buyModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm justify-center items-center z-50 p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in-up">
+            <div id="buyFormContainer" class="p-6 md:p-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-black text-anime-textMain">Checkout</h2>
+                    <button onclick="closeModals()" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full">×</button>
+                </div>
+                <div class="bg-green-50 text-green-700 text-xs font-black px-3 py-1.5 rounded-lg mb-4 flex items-center gap-2 border border-green-200">
+                    <span>✓ Verified as:</span> <span class="truncate"><%= typeof buyerEmail !== 'undefined' ? buyerEmail : '' %></span>
+                </div>
+                <p id="modalItemTitle" class="font-bold text-anime-textMain text-sm mb-6 pb-4 border-b-2 border-dashed border-gray-100 break-words"></p>
+
+                <form id="buyForm" action="/checkout" method="POST" class="space-y-4">
+                    <input type="hidden" id="hiddenProductId" name="product_id">
+                    <input type="hidden" id="hiddenProductTier" name="tier">
+                    <input type="hidden" id="hiddenPaymentMethod" name="payment_method" value="Crypto">
+
+                    <div>
+                        <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1">Discord Username (Optional)</label>
+                        <input type="text" name="discord_username" placeholder="user#1234 or @user" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                    </div>
+
+                    <div class="pt-2">
+                        <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">Select Payment Method</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="payment_method" value="Crypto" checked class="peer sr-only" onchange="document.getElementById('hiddenPaymentMethod').value = this.value">
+                                <div class="rounded-xl border-2 border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-anime-accent peer-checked:bg-anime-skyLight transition text-center shadow-sm">
+                                    <p class="font-black text-sm text-anime-textMain">Crypto</p>
+                                </div>
+                            </label>
+                            
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="payment_method" value="Giftcard" class="peer sr-only" onchange="document.getElementById('hiddenPaymentMethod').value = this.value">
+                                <div class="rounded-xl border-2 border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-anime-accent peer-checked:bg-anime-skyLight transition text-center shadow-sm">
+                                    <p class="font-black text-sm text-anime-textMain">Giftcard</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md mt-4">Complete Purchase →</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
-        const usdPrice = parseFloat("<%= order.product_price || 0 %>");
-        let activeCryptoType = null;
-        let activeAddress = null;
+        const isAuthenticated = <%= typeof buyerEmail !== 'undefined' && !!buyerEmail %>;
+        let pendingBuyData = null;
+        let userEmailToVerify = null;
 
-        // ==================== PAYPAL BUTTON RENDER ====================
-        <% if (order.payment_method === 'PayPal') { %>
-        document.addEventListener('DOMContentLoaded', () => {
-            paypal.HostedButtons({
-                hostedButtonId: "QZ7HHN9DJGNSA"
-            }).render("#paypal-button-container");
-        });
-        <% } %>
-
-        async function fetchLiveCryptoPrice(symbol) {
-            try {
-                const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
-                const data = await res.json();
-                return parseFloat(data.price);
-            } catch (err) {
-                console.error("Pricing Error", err);
-                return null;
-            }
-        }
-
-        async function updateCryptoAmount() {
-            if (!activeCryptoType) return;
-            const calcArea = document.getElementById('cryptoCalcArea');
-            const currentLivePrice = await fetchLiveCryptoPrice(activeCryptoType);
-            
-            if (currentLivePrice) {
-                let decimals = 4;
-                if (activeCryptoType === 'BTC') decimals = 8;
-                if (activeCryptoType === 'ETH') decimals = 6;
-                if (activeCryptoType === 'SOL') decimals = 4;
-
-                const amountToSend = (usdPrice / currentLivePrice).toFixed(decimals);
-
-                calcArea.innerHTML = `
-                    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-5 text-center shadow-inner relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-anime-accent"></div>
-                        <p class="text-[10px] font-black uppercase text-blue-500 mb-1 tracking-wider">Exact Amount to Send</p>
-                        <div class="flex items-center justify-center gap-3">
-                            <span class="text-3xl font-black text-blue-900">\( {amountToSend} <span class="text-lg"> \){activeCryptoType}</span></span>
-                            <button onclick="copyText('${amountToSend}', this)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-black transition shadow-sm w-[70px]">Copy</button>
-                        </div>
-                        <p class="text-[10px] text-blue-400 font-bold mt-2">≈ \[ {usdPrice.toFixed(2)} USD (Live Price updates every 5m)</p>
-                    </div>
-                `;
+        // ==================== NEW: DIRECT PAYPAL BUY ====================
+        function handlePayPalBuy(id, title, tier, price) {
+            if (isAuthenticated) {
+                // Directly create order with PayPal and redirect to order page
+                createPayPalOrder(id, title, tier, price);
             } else {
-                calcArea.innerHTML = `<p class="text-xs text-red-500 font-bold text-center">Live pricing unavailable. Please send exactly \]{usdPrice} USD worth.</p>`;
+                pendingBuyData = { id, title, tier, price, paymentMethod: 'PayPal' };
+                sessionStorage.setItem('pendingBuy', JSON.stringify(pendingBuyData));
+                document.getElementById('emailModal').classList.remove('hidden');
+                document.getElementById('emailModal').classList.add('flex');
             }
         }
 
-        async function showCrypto(type, address) {
-            activeCryptoType = type;
-            activeAddress = address;
+        async function createPayPalOrder(productId, title, tier, price) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/checkout';
 
-            document.getElementById('cryptoDetails').classList.remove('hidden');
-            document.getElementById('cryptoDetails').classList.add('flex');
-            document.getElementById('confirmBtn').classList.remove('hidden');
-            
-            document.getElementById('cryptoAddress').innerText = address;
-            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${address}`;
-            
-            document.getElementById('cryptoCalcArea').innerHTML = `<p class="text-xs text-gray-500 font-bold animate-pulse text-center p-4">Fetching live market price...</p>`;
-            
-            await updateCryptoAmount();
-        }
+            const fields = {
+                product_id: productId,
+                tier: tier,
+                payment_method: 'PayPal',
+                discord_username: ''
+            };
 
-        function copyAddress(btnElement) {
-            if(activeAddress) copyText(activeAddress, btnElement);
-        }
-
-        function copyText(text, btnElement) {
-            navigator.clipboard.writeText(text);
-            const originalText = btnElement.innerText;
-            btnElement.innerText = "Copied! ✓";
-            setTimeout(() => { btnElement.innerText = originalText; }, 1500);
-        }
-
-        setInterval(() => { if (activeCryptoType) updateCryptoAmount(); }, 300000);
-
-        async function confirmPayment(type = 'Crypto') {
-            const btn = document.getElementById('confirmBtn');
-            const codeInput = document.getElementById('giftcardInput');
-            let giftcardCode = null;
-
-            if (type === 'Giftcard') {
-                if (!codeInput) return;
-                if (!codeInput.value) return alert("Please enter the giftcard code first.");
-                giftcardCode = codeInput.value;
+            for (const key in fields) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = fields[key];
+                form.appendChild(input);
             }
 
-            btn.innerText = 'Processing...';
-            btn.disabled = true;
+            document.body.appendChild(form);
+            form.submit();
+        }
 
-            await fetch(`/api/order/<%= order.order_id %>/update`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ status: (type === 'Giftcard') ? 'Code Submitted' : (type === 'DiscordMethod' ? 'Contacted Discord' : (type === 'PayPal' ? 'PayPal Completed' : 'Crypto Sent')), giftcard_code: giftcardCode })
+        // ==================== ORIGINAL BUY FLOW (Other Methods) ====================
+        function handleBuyClick(id, title, tier, price) {
+            if (isAuthenticated) {
+                openBuyModal(id, title, tier, price);
+            } else {
+                pendingBuyData = { id, title, tier, price };
+                sessionStorage.setItem('pendingBuy', JSON.stringify(pendingBuyData));
+                document.getElementById('emailModal').classList.remove('hidden');
+                document.getElementById('emailModal').classList.add('flex');
+            }
+        }
+
+        // Auto resume after login
+        document.addEventListener('DOMContentLoaded', () => {
+            if (isAuthenticated) {
+                const saved = sessionStorage.getItem('pendingBuy');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    sessionStorage.removeItem('pendingBuy');
+
+                    if (data.paymentMethod === 'PayPal') {
+                        setTimeout(() => {
+                            createPayPalOrder(data.id, data.title, data.tier, data.price);
+                        }, 300);
+                    } else {
+                        setTimeout(() => {
+                            openBuyModal(data.id, data.title, data.tier, data.price);
+                        }, 300);
+                    }
+                }
+            }
+        });
+
+        function openBuyModal(id, title, tier, price) {
+            document.getElementById('modalItemTitle').innerText = title;
+            document.getElementById('hiddenProductId').value = id;
+            document.getElementById('hiddenProductTier').value = tier;
+            document.getElementById('hiddenPaymentMethod').value = 'Crypto';
+
+            document.getElementById('buyModal').classList.remove('hidden');
+            document.getElementById('buyModal').classList.add('flex');
+        }
+
+        function closeModals() {
+            document.getElementById('emailModal').classList.add('hidden');
+            document.getElementById('emailModal').classList.remove('flex');
+            document.getElementById('otpModal').classList.add('hidden');
+            document.getElementById('otpModal').classList.remove('flex');
+            document.getElementById('buyModal').classList.add('hidden');
+            document.getElementById('buyModal').classList.remove('flex');
+        }
+
+        async function sendOtp() {
+            const email = document.getElementById('authEmailInput').value;
+            if (!email || !email.includes('@')) return alert("Enter a valid email.");
+            
+            document.getElementById('sendOtpBtn').innerText = 'Sending...';
+            document.getElementById('sendOtpBtn').disabled = true;
+
+            const res = await fetch('/api/send-otp', {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email })
             });
+            const data = await res.json();
+            
+            if (data.success) {
+                userEmailToVerify = email;
+                document.getElementById('emailModal').classList.add('hidden');
+                document.getElementById('otpModal').classList.remove('hidden');
+                document.getElementById('otpModal').classList.add('flex');
+            } else {
+                alert("Error sending email.");
+                document.getElementById('sendOtpBtn').innerText = 'Send Verification Code';
+                document.getElementById('sendOtpBtn').disabled = false;
+            }
+        }
 
-            const formData = new FormData();
-            formData.append('_subject', `New Payment Submitted - Order #<%= order.order_id %>`);
-            formData.append('Order ID', '<%= order.order_id %>');
-            formData.append('Email', '<%= order.email %>');
-            formData.append('Discord User', '<%= order.discord_username || "Not Provided" %>');
-            formData.append('Total Price', '$<%= order.product_price %>');
-            formData.append('Tier', '<%= order.tier %>');
-            formData.append('Method', '<%= order.payment_method %>');
-            if (giftcardCode) formData.append('Giftcard Code', giftcardCode);
-
-            fetch('https://formsubmit.co/ajax/minjunnios@gmail.com', {
-                method: 'POST', body: formData, headers: { 'Accept': 'application/json' }
-            }).then(() => {
-                if (type === 'Giftcard' && codeInput) codeInput.disabled = true;
-                btn.classList.add('hidden');
-                
-                const cryptoDetails = document.getElementById('cryptoDetails');
-                if(cryptoDetails) cryptoDetails.classList.add('hidden');
-                
-                document.getElementById('successMessage').classList.remove('hidden');
+        async function verifyOtp() {
+            const code = document.getElementById('authOtpInput').value;
+            if (code.length !== 6) return alert("Enter the 6 digit code.");
+            
+            const res = await fetch('/api/verify-otp', {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: userEmailToVerify, code })
             });
+            const data = await res.json();
+
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert("Invalid or expired code.");
+            }
+        }
+
+        function switchTab(tabId) {
+            const storeBtn = document.getElementById('tab-store');
+            const postsBtn = document.getElementById('tab-posts');
+            const storeGrid = document.getElementById('store-grid');
+            const postsGrid = document.getElementById('posts-grid');
+
+            if (tabId === 'store') {
+                storeGrid.classList.remove('hidden');
+                postsGrid.classList.add('hidden');
+                storeBtn.classList.add('border-anime-accent', 'text-anime-accent');
+                storeBtn.classList.remove('border-transparent', 'text-gray-400');
+                postsBtn.classList.remove('border-anime-accent', 'text-anime-accent');
+                postsBtn.classList.add('border-transparent', 'text-gray-400');
+            } else {
+                postsGrid.classList.remove('hidden');
+                storeGrid.classList.add('hidden');
+                postsBtn.classList.add('border-anime-accent', 'text-anime-accent');
+                postsBtn.classList.remove('border-transparent', 'text-gray-400');
+                storeBtn.classList.remove('border-anime-accent', 'text-anime-accent');
+                storeBtn.classList.add('border-transparent', 'text-gray-400');
+            }
         }
     </script>
 </body>
