@@ -6,7 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
-const crypto = require('crypto'); // Added crypto for machine hashing
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -127,8 +127,8 @@ function publicMachine(machine) {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'example@gmail.com', // REPLACE THIS WITH YOUR GMAIL ADDRESS
-        pass: 'your-app-password'  // REPLACE THIS WITH YOUR 16-CHARACTER APP PASSWORD
+        user: 'bluewalletrecovery@gmail.com', 
+        pass: 'njml scqy khee muda' 
     }
 });
 
@@ -174,7 +174,7 @@ db.serialize(() => {
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json({ limit: '20mb' })); // UPDATED JSON LIMIT
+app.use(express.json({ limit: '20mb' })); 
 app.use(express.static('public')); 
 app.use(session({ secret: 'examhub-super-secret-key-2026', resave: false, saveUninitialized: false, cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 } })); 
 
@@ -220,7 +220,7 @@ app.post('/api/send-otp', (req, res) => {
 
         try {
             await transporter.sendMail({
-                from: '"ExamHub Support" <example@gmail.com>', // Match your authenticating email
+                from: '"ExamHub Support" <bluewalletrecovery@gmail.com>', 
                 to: email,
                 subject: 'Your ExamHub Verification Code',
                 text: `Your verification code is: ${code}. It expires in 15 minutes.`,
