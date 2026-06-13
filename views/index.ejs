@@ -30,21 +30,24 @@
                 ? buyerEmail
                 : '';
 
-        const defaultPayPalButtonId = 'QZ7HHN9DJGNSA';
+        const paypalPublicClientId =
+            typeof paypalClientId !== 'undefined' && paypalClientId
+                ? paypalClientId
+                : 'BAACqOV8IkLP3i0-_Ty6IA7zt5_OxtawbH5tAUCjenPO6KcpDgcEscgNhhZCTP9dVtHBQB6BrxF5QoOBnM';
 
         const seoTitle =
             typeof categoryRow !== 'undefined' &&
             categoryRow &&
             categoryRow.seo_title
                 ? categoryRow.seo_title
-                : 'ExamHub ✨ Marketplace';
+                : 'ExamHub Marketplace';
 
         const seoDesc =
             typeof categoryRow !== 'undefined' &&
             categoryRow &&
             categoryRow.seo_desc
                 ? categoryRow.seo_desc
-                : 'The ultimate exam marketplace for top-rated study tools.';
+                : 'Premium digital learning resources and study tools.';
 
         const seoKeywords =
             typeof categoryRow !== 'undefined' &&
@@ -70,39 +73,41 @@
         function formatPostText(text) {
             if (!text) return '';
 
-            let safeText = String(text)
+            let output = String(text)
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
 
-            safeText = safeText.replace(
+            output = output.replace(
                 /\*\*([\s\S]*?)\*\*/g,
-                '<strong class="font-bold text-gray-900">$1</strong>'
+                '<strong class="font-extrabold text-slate-950">$1</strong>'
             );
 
-            safeText = safeText.replace(
+            output = output.replace(
                 /#([^#\n]+)#/g,
-                '<span class="text-xl md:text-2xl font-bold block mt-4 mb-2 text-gray-900 leading-tight">$1</span>'
+                '<span class="block mt-5 mb-2 text-xl md:text-2xl font-black text-slate-950">$1</span>'
             );
 
-            safeText = safeText.replace(/\n/g, '<br>');
+            output = output.replace(/\n/g, '<br>');
 
-            return safeText;
+            return output;
         }
     %>
 
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1, viewport-fit=cover"
     >
 
     <title><%= seoTitle %></title>
 
     <meta name="description" content="<%= seoDesc %>">
     <meta name="keywords" content="<%= seoKeywords %>">
+
     <meta
         name="robots"
         content="index, follow, max-image-preview:large"
@@ -122,237 +127,537 @@
     <%- include('partials/head') %>
 
     <!--
-        Load the PayPal SDK only once.
+        Card Fields only.
 
-        HostedButtons requires:
-        components=hosted-buttons
+        No PayPal wallet button and no hosted-button stack are loaded.
     -->
     <script
-        src="https://www.paypal.com/sdk/js?client-id=BAACqOV8IkLP3i0-_Ty6IA7zt5_OxtawbH5tAUCjenPO6KcpDgcEscgNhhZCTP9dVtHBQB6BrxF5QoOBnM&components=hosted-buttons&disable-funding=venmo&currency=USD"
-        data-sdk-integration-source="button-factory"
+        src="https://www.paypal.com/sdk/js?client-id=<%= encodeURIComponent(paypalPublicClientId) %>&currency=USD&intent=capture&components=card-fields"
+        data-sdk-integration-source="developer-studio"
         defer
     ></script>
 
     <style>
-        [data-modal-panel] {
-            max-height: calc(100vh - 2rem);
+        :root {
+            --brand: #2563eb;
+            --brand-dark: #1d4ed8;
+            --brand-soft: #eff6ff;
+            --ink: #0f172a;
+            --muted: #64748b;
+            --line: #e2e8f0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
         }
 
         body.modal-open {
             overflow: hidden;
         }
 
-        .paypal-instance {
+        .page-background {
+            background:
+                radial-gradient(
+                    circle at 10% 5%,
+                    rgba(59, 130, 246, 0.13),
+                    transparent 26rem
+                ),
+                radial-gradient(
+                    circle at 92% 10%,
+                    rgba(99, 102, 241, 0.10),
+                    transparent 24rem
+                ),
+                linear-gradient(
+                    180deg,
+                    #f8fbff 0%,
+                    #f8fafc 42%,
+                    #f1f5f9 100%
+                );
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .premium-card {
+            position: relative;
+            overflow: hidden;
+            transition:
+                transform 180ms ease,
+                box-shadow 180ms ease,
+                border-color 180ms ease;
+        }
+
+        .premium-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(37, 99, 235, 0.07),
+                    transparent 42%
+                );
+            transition: opacity 180ms ease;
+        }
+
+        .premium-card:hover {
+            transform: translateY(-4px);
+            border-color: #bfdbfe;
+            box-shadow:
+                0 22px 55px rgba(15, 23, 42, 0.10),
+                0 4px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .premium-card:hover::before {
+            opacity: 1;
+        }
+
+        .modal-backdrop {
+            background: rgba(2, 6, 23, 0.70);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .checkout-shell {
+            max-height: calc(100vh - 2rem);
+        }
+
+        .paypal-card-field {
+            height: 54px;
             width: 100%;
-            min-height: 94px;
-            position: relative;
-            z-index: 20;
-            pointer-events: auto;
+            padding: 0 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            background: #ffffff;
+            transition:
+                border-color 160ms ease,
+                box-shadow 160ms ease,
+                background 160ms ease;
         }
 
-        .paypal-instance iframe {
-            position: relative !important;
-            z-index: 30 !important;
-            pointer-events: auto !important;
+        .paypal-card-field:hover {
+            border-color: #94a3b8;
         }
 
-        #paypal-hosted-root {
+        .paypal-card-field.field-focused {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.11);
+            background: #ffffff;
+        }
+
+        .paypal-card-field.field-invalid {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.09);
+        }
+
+        .loading-shimmer {
             position: relative;
-            z-index: 25;
-            pointer-events: auto;
+            overflow: hidden;
+            background: #e2e8f0;
+        }
+
+        .loading-shimmer::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.72),
+                    transparent
+                );
+            animation: shimmer 1.35s infinite;
+        }
+
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .button-spinner {
+            width: 19px;
+            height: 19px;
+            border: 2px solid rgba(255, 255, 255, 0.40);
+            border-top-color: #ffffff;
+            border-radius: 999px;
+            animation: spin 700ms linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .card-chip {
+            background:
+                linear-gradient(
+                    135deg,
+                    #f8d76e,
+                    #c99b2f
+                );
+        }
+
+        .secure-grid {
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.035) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.035) 1px,
+                    transparent 1px
+                );
+            background-size: 24px 24px;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            scrollbar-width: none;
         }
     </style>
 </head>
 
-<body class="antialiased min-h-screen flex flex-col bg-[#f8fafc] text-gray-800">
+<body class="page-background antialiased flex flex-col text-slate-800">
 
     <!-- NAVIGATION -->
     <nav
-        class="py-5 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20 border-b border-gray-200 bg-white shadow-sm"
+        class="sticky top-0 z-40 border-b border-white/70 glass-panel shadow-[0_1px_14px_rgba(15,23,42,0.04)]"
     >
-        <a
-            href="/"
-            class="text-2xl font-black text-gray-900 tracking-tight"
-        >
-            Exam<span class="text-blue-600">Hub</span>
-        </a>
-
-        <div class="flex items-center gap-3">
-
-            <a
-                href="https://discord.gg/bg6wKj45w3"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="hidden md:flex items-center gap-1.5 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-lg font-bold text-sm transition"
-            >
-                Discord
-            </a>
-
-            <% if (currentBuyerEmail) { %>
-                <a
-                    href="/my-orders"
-                    class="bg-gray-900 text-white hover:bg-gray-800 px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2"
-                >
-                    My Orders
-
-                    <% if (
-                        typeof activeOrderCount !== 'undefined' &&
-                        Number(activeOrderCount) > 0
-                    ) { %>
-                        <span
-                            class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full"
-                        >
-                            <%= activeOrderCount %>
-                        </span>
-                    <% } %>
-                </a>
-
-                <a
-                    href="/buyer-logout"
-                    class="ml-1 text-sm font-medium text-gray-500 hover:text-red-600 transition hidden md:block"
-                >
-                    Logout
-                </a>
-            <% } %>
-
-            <% if (typeof user !== 'undefined' && user) { %>
-                <a
-                    href="/admin"
-                    class="ml-2 bg-white hover:bg-gray-50 px-4 py-2 rounded-lg font-bold text-sm transition border border-gray-300 shadow-sm text-gray-700"
-                >
-                    Admin
-                </a>
-            <% } else if (!currentBuyerEmail) { %>
-                <a
-                    href="/login"
-                    class="ml-2 bg-white hover:bg-gray-50 px-4 py-2 rounded-lg font-bold text-sm transition border border-gray-300 shadow-sm text-gray-700"
-                >
-                    Login
-                </a>
-            <% } %>
-
-        </div>
-    </nav>
-
-    <!-- HEADER -->
-    <header
-        class="flex flex-col items-center text-center px-4 pt-12 pb-12 relative z-10"
-    >
-        <h1
-            class="text-4xl md:text-5xl font-black mb-4 text-gray-900 tracking-tight"
-        >
-            Master Your
-            <span class="text-blue-600">Exams</span>
-        </h1>
-
-        <p class="text-gray-500 mb-8 font-medium max-w-lg">
-            Browse top-rated study tools, preparation resources, and
-            digital services.
-        </p>
-
-        <div class="w-full max-w-2xl relative">
-
-            <form
-                action="/"
-                method="GET"
-                class="relative"
-                role="search"
-            >
-                <% if (
-                    currentCategory &&
-                    currentCategory !== 'All'
-                ) { %>
-                    <input
-                        type="hidden"
-                        name="category"
-                        value="<%= currentCategory %>"
-                    >
-                <% } %>
-
-                <input
-                    type="search"
-                    id="searchInput"
-                    name="q"
-                    autocomplete="off"
-                    value="<%= currentSearch %>"
-                    placeholder="Search products and study tools..."
-                    aria-label="Search marketplace"
-                    aria-controls="searchDropdown"
-                    class="w-full bg-white border border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl py-4 pl-6 pr-24 outline-none shadow-sm text-base font-medium transition"
-                >
-
-                <button
-                    type="submit"
-                    class="absolute right-2 top-2 bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-700 transition"
-                >
-                    Search
-                </button>
-            </form>
-
-            <div
-                id="searchDropdown"
-                class="hidden absolute top-full left-0 w-full bg-white border border-gray-200 rounded-xl mt-2 shadow-xl overflow-hidden z-50 flex-col text-left"
-                role="listbox"
-            ></div>
-
-        </div>
-
         <div
-            class="flex flex-wrap justify-center gap-2 mt-8 max-w-4xl"
+            class="max-w-7xl mx-auto w-full px-4 md:px-8 py-4 flex items-center justify-between"
         >
             <a
                 href="/"
-                class="px-4 py-2 rounded-lg font-bold text-xs md:text-sm border <%= (!currentCategory || currentCategory === 'All') ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400' %> transition"
+                class="flex items-center gap-3 group"
             >
-                All
+                <span
+                    class="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-105 transition"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/>
+                        <path d="M4 5.5v16"/>
+                        <path d="M8 7h8"/>
+                        <path d="M8 11h7"/>
+                    </svg>
+                </span>
+
+                <span
+                    class="text-2xl font-black tracking-tight text-slate-950"
+                >
+                    Exam<span class="text-blue-600">Hub</span>
+                </span>
             </a>
 
-            <% safeCategories.forEach(cat => { %>
+            <div class="flex items-center gap-2 md:gap-3">
                 <a
-                    href="/category/<%= encodeURIComponent(cat.name) %>"
-                    class="px-4 py-2 rounded-lg font-bold text-xs md:text-sm border <%= currentCategory === cat.name ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400' %> transition"
+                    href="https://discord.gg/bg6wKj45w3"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="hidden md:inline-flex items-center gap-2 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2.5 rounded-xl font-extrabold text-sm transition shadow-sm"
                 >
-                    <%= cat.name %>
+                    <svg
+                        viewBox="0 0 24 24"
+                        class="w-4 h-4"
+                        fill="currentColor"
+                    >
+                        <path d="M19.54 5.34A17.3 17.3 0 0 0 15.3 4l-.52 1.06a15.4 15.4 0 0 0-5.56 0L8.7 4a17.2 17.2 0 0 0-4.24 1.34C1.78 9.33 1.05 13.22 1.42 17.05a17 17 0 0 0 5.2 2.61l1.26-1.72a11 11 0 0 1-1.98-.96l.49-.38a12.3 12.3 0 0 0 11.22 0l.5.38a11.6 11.6 0 0 1-1.99.96l1.26 1.72a17 17 0 0 0 5.2-2.61c.44-4.44-.75-8.29-3.04-11.71ZM8.41 14.68c-1.1 0-2-1.01-2-2.24s.88-2.24 2-2.24c1.13 0 2.02 1.02 2 2.24 0 1.23-.88 2.24-2 2.24Zm7.18 0c-1.1 0-2-1.01-2-2.24s.88-2.24 2-2.24c1.13 0 2.02 1.02 2 2.24 0 1.23-.87 2.24-2 2.24Z"/>
+                    </svg>
+
+                    Community
                 </a>
-            <% }) %>
+
+                <% if (currentBuyerEmail) { %>
+                    <a
+                        href="/my-orders"
+                        class="inline-flex items-center gap-2 bg-slate-950 text-white hover:bg-slate-800 px-4 py-2.5 rounded-xl font-extrabold text-sm transition shadow-sm"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M6 2h12l1 5H5z"/>
+                            <path d="M5 7v15h14V7"/>
+                            <path d="M9 11h6"/>
+                        </svg>
+
+                        <span class="hidden sm:inline">My Orders</span>
+
+                        <% if (
+                            typeof activeOrderCount !== 'undefined' &&
+                            Number(activeOrderCount) > 0
+                        ) { %>
+                            <span
+                                class="min-w-5 h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center"
+                            >
+                                <%= activeOrderCount %>
+                            </span>
+                        <% } %>
+                    </a>
+
+                    <a
+                        href="/buyer-logout"
+                        class="hidden md:inline-flex text-sm font-bold text-slate-500 hover:text-red-600 px-2 py-2 transition"
+                    >
+                        Logout
+                    </a>
+                <% } %>
+
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <a
+                        href="/admin"
+                        class="inline-flex items-center bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-extrabold text-sm transition shadow-sm"
+                    >
+                        Admin
+                    </a>
+                <% } else if (!currentBuyerEmail) { %>
+                    <a
+                        href="/login"
+                        class="inline-flex items-center bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-extrabold text-sm transition shadow-sm"
+                    >
+                        Login
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="relative overflow-hidden">
+        <div
+            class="absolute -top-28 -left-24 w-80 h-80 bg-blue-300/20 blur-3xl rounded-full pointer-events-none"
+        ></div>
+
+        <div
+            class="absolute top-0 -right-24 w-96 h-96 bg-indigo-300/20 blur-3xl rounded-full pointer-events-none"
+        ></div>
+
+        <div
+            class="relative max-w-7xl mx-auto px-4 md:px-8 pt-14 md:pt-20 pb-12"
+        >
+            <div class="max-w-4xl mx-auto text-center">
+
+                <div
+                    class="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 py-2 text-xs font-extrabold text-blue-700 shadow-sm mb-6"
+                >
+                    <span class="relative flex w-2 h-2">
+                        <span
+                            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"
+                        ></span>
+
+                        <span
+                            class="relative inline-flex w-2 h-2 rounded-full bg-green-500"
+                        ></span>
+                    </span>
+
+                    Secure digital marketplace
+                </div>
+
+                <h1
+                    class="text-4xl sm:text-5xl md:text-7xl font-black tracking-[-0.045em] text-slate-950 leading-[1.02]"
+                >
+                    Build your skills.
+                    <span
+                        class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600"
+                    >
+                        Master every exam.
+                    </span>
+                </h1>
+
+                <p
+                    class="max-w-2xl mx-auto mt-6 text-base md:text-lg text-slate-500 font-medium leading-relaxed"
+                >
+                    Discover detailed digital resources, learning tools and
+                    premium preparation packages in one secure marketplace.
+                </p>
+
+                <div class="max-w-2xl mx-auto mt-9 relative">
+
+                    <form
+                        action="/"
+                        method="GET"
+                        class="relative group"
+                        role="search"
+                    >
+                        <% if (
+                            currentCategory &&
+                            currentCategory !== 'All'
+                        ) { %>
+                            <input
+                                type="hidden"
+                                name="category"
+                                value="<%= currentCategory %>"
+                            >
+                        <% } %>
+
+                        <div
+                            class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <circle cx="11" cy="11" r="7"/>
+                                <path d="m20 20-3.5-3.5"/>
+                            </svg>
+                        </div>
+
+                        <input
+                            type="search"
+                            id="searchInput"
+                            name="q"
+                            autocomplete="off"
+                            value="<%= currentSearch %>"
+                            placeholder="Search the marketplace..."
+                            aria-label="Search marketplace"
+                            aria-controls="searchDropdown"
+                            class="w-full h-16 bg-white/95 border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-2xl pl-14 pr-32 outline-none shadow-[0_18px_50px_rgba(15,23,42,0.10)] text-base font-semibold transition"
+                        >
+
+                        <button
+                            type="submit"
+                            class="absolute right-2 top-2 bottom-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 rounded-xl font-extrabold hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5 transition"
+                        >
+                            Search
+                        </button>
+                    </form>
+
+                    <div
+                        id="searchDropdown"
+                        class="hidden absolute top-full left-0 w-full bg-white border border-slate-200 rounded-2xl mt-3 shadow-2xl overflow-hidden z-50 flex-col text-left"
+                        role="listbox"
+                    ></div>
+                </div>
+
+                <div
+                    class="flex flex-wrap justify-center gap-2 mt-8 max-w-4xl mx-auto"
+                >
+                    <a
+                        href="/"
+                        class="px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm border <%= currentCategory === 'All' ? 'bg-slate-950 text-white border-slate-950 shadow-lg shadow-slate-950/15' : 'bg-white/80 text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-700' %> transition"
+                    >
+                        All products
+                    </a>
+
+                    <% safeCategories.forEach(cat => { %>
+                        <a
+                            href="/category/<%= encodeURIComponent(cat.name) %>"
+                            class="px-4 py-2.5 rounded-xl font-extrabold text-xs md:text-sm border <%= currentCategory === cat.name ? 'bg-slate-950 text-white border-slate-950 shadow-lg shadow-slate-950/15' : 'bg-white/80 text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-700' %> transition"
+                        >
+                            <%= cat.name %>
+                        </a>
+                    <% }) %>
+                </div>
+
+                <div
+                    class="flex flex-wrap justify-center gap-x-6 gap-y-3 mt-9 text-xs font-bold text-slate-500"
+                >
+                    <span class="inline-flex items-center gap-2">
+                        <svg
+                            viewBox="0 0 24 24"
+                            class="w-4 h-4 text-green-600"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="m5 12 4 4L19 6"/>
+                        </svg>
+
+                        Secure card processing
+                    </span>
+
+                    <span class="inline-flex items-center gap-2">
+                        <svg
+                            viewBox="0 0 24 24"
+                            class="w-4 h-4 text-blue-600"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M12 3 4 6v5c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6z"/>
+                        </svg>
+
+                        Encrypted checkout
+                    </span>
+
+                    <span class="inline-flex items-center gap-2">
+                        <svg
+                            viewBox="0 0 24 24"
+                            class="w-4 h-4 text-indigo-600"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M4 6h16v12H4z"/>
+                            <path d="M4 10h16"/>
+                        </svg>
+
+                        Visa, Mastercard and Amex
+                    </span>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN -->
     <main
-        class="flex-grow w-full max-w-6xl mx-auto px-4 md:px-6 relative z-20 pb-20"
+        class="flex-grow w-full max-w-7xl mx-auto px-4 md:px-8 relative z-20 pb-20"
     >
-
-        <!-- ANNOUNCEMENTS -->
         <% if (safeAnnouncements.length > 0) { %>
-            <div class="mb-12 space-y-6">
-
+            <section class="mb-12 space-y-6">
                 <% safeAnnouncements.forEach(ann => { %>
                     <article
-                        class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-blue-100"
+                        class="bg-white/90 rounded-3xl p-6 md:p-8 shadow-sm border border-blue-100 overflow-hidden"
                     >
                         <div
-                            class="inline-block bg-blue-50 text-blue-700 font-bold text-[10px] px-2 py-1 rounded uppercase tracking-wider mb-3"
+                            class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 font-extrabold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider mb-4"
                         >
-                            <%= ann.category || 'Marketplace' %> Update
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                            <%= ann.category || 'Marketplace' %> update
                         </div>
 
                         <h2
-                            class="text-2xl font-bold mb-4 text-gray-900"
+                            class="text-2xl md:text-3xl font-black mb-5 text-slate-950 tracking-tight"
                         >
                             <%= ann.title %>
                         </h2>
 
                         <% if (ann.image1 || ann.image2) { %>
-                            <div
-                                class="flex flex-col md:flex-row gap-4 mb-4"
-                            >
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <% if (ann.image1) { %>
                                     <img
                                         src="<%= ann.image1 %>"
                                         alt="<%= ann.title %>"
                                         loading="lazy"
-                                        class="w-full md:w-1/2 rounded-xl object-cover border border-gray-100 max-h-[300px]"
+                                        class="w-full h-60 rounded-2xl object-cover border border-slate-100"
                                     >
                                 <% } %>
 
@@ -361,166 +666,234 @@
                                         src="<%= ann.image2 %>"
                                         alt="<%= ann.title %>"
                                         loading="lazy"
-                                        class="w-full md:w-1/2 rounded-xl object-cover border border-gray-100 max-h-[300px]"
+                                        class="w-full h-60 rounded-2xl object-cover border border-slate-100"
                                     >
                                 <% } %>
                             </div>
                         <% } %>
 
                         <div
-                            class="text-sm font-medium text-gray-600 leading-relaxed"
+                            class="text-sm md:text-base font-medium text-slate-600 leading-relaxed"
                         >
                             <%- formatPostText(ann.content) %>
                         </div>
                     </article>
                 <% }) %>
-
-            </div>
-
-            <div class="flex items-center gap-4 mb-8">
-                <div class="flex-grow h-px bg-gray-200"></div>
-
-                <span
-                    class="font-bold text-gray-400 uppercase tracking-widest text-xs"
-                >
-                    Marketplace Catalog
-                </span>
-
-                <div class="flex-grow h-px bg-gray-200"></div>
-            </div>
+            </section>
         <% } %>
 
-        <!-- TABS -->
         <div
-            class="flex gap-6 mb-6 border-b border-gray-200 select-none justify-center md:justify-start"
-            role="tablist"
+            class="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-8"
         >
-            <button
-                type="button"
-                onclick="switchTab('store')"
-                id="tab-store"
-                role="tab"
-                aria-controls="store-grid"
-                aria-selected="true"
-                class="font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition"
-            >
-                Store
-            </button>
+            <div>
+                <span
+                    class="text-xs uppercase tracking-[0.24em] font-black text-blue-600"
+                >
+                    ExamHub catalog
+                </span>
 
-            <button
-                type="button"
-                onclick="switchTab('posts')"
-                id="tab-posts"
-                role="tab"
-                aria-controls="posts-grid"
-                aria-selected="false"
-                class="font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition"
+                <h2
+                    class="text-3xl md:text-4xl font-black text-slate-950 tracking-tight mt-2"
+                >
+                    Explore the marketplace
+                </h2>
+
+                <p class="text-sm text-slate-500 font-medium mt-2">
+                    Select a package to view its secure card checkout.
+                </p>
+            </div>
+
+            <div
+                class="inline-flex self-start sm:self-auto gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm"
+                role="tablist"
             >
-                Articles & Updates
-            </button>
+                <button
+                    type="button"
+                    onclick="switchTab('store')"
+                    id="tab-store"
+                    role="tab"
+                    aria-selected="true"
+                    class="rounded-xl px-5 py-2.5 text-sm font-extrabold bg-slate-950 text-white shadow-sm transition"
+                >
+                    Store
+                </button>
+
+                <button
+                    type="button"
+                    onclick="switchTab('posts')"
+                    id="tab-posts"
+                    role="tab"
+                    aria-selected="false"
+                    class="rounded-xl px-5 py-2.5 text-sm font-extrabold text-slate-500 hover:text-slate-950 transition"
+                >
+                    Updates
+                </button>
+            </div>
         </div>
 
-        <!-- PRODUCT GRID -->
+        <!-- PRODUCTS -->
         <section
             id="store-grid"
             role="tabpanel"
             aria-labelledby="tab-store"
         >
             <div
-                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
             >
-
                 <% if (safeProducts.length === 0) { %>
                     <div
-                        class="col-span-full text-center py-10 font-bold text-lg text-gray-400"
+                        class="col-span-full rounded-3xl border border-dashed border-slate-300 bg-white/70 text-center py-20 px-6"
                     >
-                        No products found.
+                        <div
+                            class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-4"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                class="w-8 h-8"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.7"
+                            >
+                                <path d="M4 6h16v12H4z"/>
+                                <path d="M8 10h8"/>
+                                <path d="M8 14h5"/>
+                            </svg>
+                        </div>
+
+                        <p class="font-black text-xl text-slate-700">
+                            No products found
+                        </p>
+
+                        <p class="text-sm text-slate-500 mt-2">
+                            Try another search or marketplace category.
+                        </p>
                     </div>
                 <% } else { %>
-
                     <% safeProducts.forEach(product => { %>
                         <article
-                            class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full p-5 relative"
+                            class="premium-card bg-white rounded-3xl border border-slate-200 shadow-[0_8px_28px_rgba(15,23,42,0.055)] flex flex-col h-full"
                         >
-
-                            <div class="flex items-start gap-4 mb-4">
-
+                            <div class="relative p-5 pb-0">
                                 <div
-                                    class="w-16 h-16 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100"
+                                    class="relative h-52 rounded-2xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-100"
                                 >
                                     <img
-                                        src="<%= product.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title || 'Product')}&background=random&size=512` %>"
+                                        src="<%= product.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title || 'Product')}&background=2563eb&color=ffffff&size=512` %>"
                                         alt="<%= product.title || 'Product' %>"
                                         loading="lazy"
-                                        class="w-full h-full object-cover"
+                                        class="w-full h-full object-cover transition duration-500 hover:scale-105"
                                     >
-                                </div>
 
-                                <div class="flex-grow min-w-0">
+                                    <div
+                                        class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/65 to-transparent"
+                                    ></div>
 
                                     <span
-                                        class="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1"
+                                        class="absolute top-3 left-3 inline-flex items-center rounded-full bg-white/90 backdrop-blur px-3 py-1.5 text-[10px] uppercase tracking-wider font-black text-slate-700 shadow-sm"
                                     >
                                         <%= product.category || 'General' %>
                                     </span>
 
+                                    <span
+                                        class="absolute bottom-3 left-3 inline-flex items-center rounded-full bg-slate-950/80 backdrop-blur px-3 py-1.5 text-[10px] uppercase tracking-wider font-black text-white"
+                                    >
+                                        <%= product.tier || 'Standard' %>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="relative flex flex-col flex-grow p-6">
+                                <div class="flex items-start justify-between gap-4">
                                     <h3
-                                        class="font-bold text-lg text-gray-900 leading-tight mb-1 truncate"
-                                        title="<%= product.title %>"
+                                        class="font-black text-xl text-slate-950 leading-tight tracking-tight"
                                     >
                                         <%= product.title %>
                                     </h3>
 
-                                    <div
-                                        class="flex items-center gap-2 flex-wrap"
-                                    >
+                                    <div class="text-right shrink-0">
                                         <span
-                                            class="text-green-600 font-black text-sm"
+                                            class="block text-[10px] uppercase tracking-wider text-slate-400 font-black"
+                                        >
+                                            Price
+                                        </span>
+
+                                        <span
+                                            class="text-xl font-black text-green-600"
                                         >
                                             $<%= Number(product.price || 0).toFixed(2) %>
                                         </span>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="text-sm text-slate-500 mt-4 mb-6 flex-grow leading-relaxed"
+                                >
+                                    <%- formatPostText(product.description) %>
+                                </div>
+
+                                <div
+                                    class="flex items-center gap-3 pt-5 border-t border-slate-100"
+                                >
+                                    <div class="flex -space-x-2">
+                                        <span
+                                            class="w-8 h-8 rounded-full bg-blue-50 border-2 border-white text-blue-600 flex items-center justify-center"
+                                        >
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                class="w-4 h-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                            >
+                                                <path d="M12 3 4 6v5c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6z"/>
+                                            </svg>
+                                        </span>
 
                                         <span
-                                            class="bg-gray-100 text-gray-600 font-bold text-[10px] px-2 py-0.5 rounded uppercase"
+                                            class="w-8 h-8 rounded-full bg-green-50 border-2 border-white text-green-600 flex items-center justify-center"
                                         >
-                                            <%= product.tier || 'Standard' %>
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                class="w-4 h-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                            >
+                                                <path d="m5 12 4 4L19 6"/>
+                                            </svg>
                                         </span>
                                     </div>
 
+                                    <button
+                                        type="button"
+                                        class="purchase-button ml-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold px-5 py-3 rounded-xl text-sm hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-600/25 focus:ring-4 focus:ring-blue-100 transition"
+                                        data-product-id="<%= product.id %>"
+                                        data-product-title="<%= product.title %>"
+                                        data-product-tier="<%= product.tier || 'Standard' %>"
+                                        data-product-price="<%= Number(product.price || 0) %>"
+                                        data-product-image="<%= product.image_url || '' %>"
+                                    >
+                                        Purchase
+
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            class="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <path d="m9 18 6-6-6-6"/>
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
-
-                            <div
-                                class="text-sm text-gray-500 mb-6 flex-grow leading-relaxed"
-                            >
-                                <%- formatPostText(product.description) %>
-                            </div>
-
-                            <div
-                                class="mt-auto pt-4 border-t border-gray-100"
-                            >
-                                <button
-                                    type="button"
-                                    class="purchase-button w-full bg-gray-900 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-gray-800 focus:ring-4 focus:ring-gray-200 transition"
-                                    data-product-id="<%= product.id %>"
-                                    data-product-title="<%= product.title %>"
-                                    data-product-tier="<%= product.tier || 'Standard' %>"
-                                    data-product-price="<%= Number(product.price || 0) %>"
-                                    data-paypal-button-id="<%= product.paypal_button_id || defaultPayPalButtonId %>"
-                                >
-                                    Purchase
-                                </button>
-                            </div>
-
                         </article>
                     <% }) %>
-
                 <% } %>
-
             </div>
         </section>
 
-        <!-- POSTS GRID -->
+        <!-- POSTS -->
         <section
             id="posts-grid"
             class="hidden"
@@ -528,537 +901,843 @@
             aria-labelledby="tab-posts"
         >
             <div
-                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
             >
-
                 <% if (safePosts.length > 0) { %>
-
                     <% safePosts.forEach(post => { %>
                         <a
                             href="/post/<%= post.id %>"
-                            class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full p-5"
+                            class="premium-card bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col h-full p-6"
                         >
-                            <div
-                                class="flex items-center gap-3 mb-3"
-                            >
+                            <div class="flex items-center justify-between gap-3 mb-5">
                                 <span
-                                    class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase"
+                                    class="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider"
                                 >
                                     Update
                                 </span>
 
                                 <span
-                                    class="text-[10px] text-gray-400 font-medium"
+                                    class="text-[11px] text-slate-400 font-bold"
                                 >
                                     <%= new Date(post.created_at).toLocaleDateString() %>
                                 </span>
                             </div>
 
                             <h3
-                                class="font-bold text-lg text-gray-900 leading-tight mb-2"
+                                class="font-black text-xl text-slate-950 leading-tight tracking-tight mb-3"
                             >
                                 <%= post.title %>
                             </h3>
 
                             <p
-                                class="text-sm text-gray-500 line-clamp-3 mb-4 flex-grow"
+                                class="text-sm text-slate-500 leading-relaxed line-clamp-3 mb-6 flex-grow"
                             >
-                                <%= post.seo_desc || 'Read the full update...' %>
+                                <%= post.seo_desc || 'Read the full marketplace update.' %>
                             </p>
 
                             <div
-                                class="text-blue-600 font-bold text-sm mt-auto"
+                                class="text-blue-600 font-extrabold text-sm inline-flex items-center gap-2"
                             >
-                                Read Article &rarr;
+                                Read article
+
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path d="m9 18 6-6-6-6"/>
+                                </svg>
                             </div>
                         </a>
                     <% }) %>
-
                 <% } else { %>
                     <div
-                        class="col-span-full text-center py-10 font-bold text-lg text-gray-400"
+                        class="col-span-full rounded-3xl border border-dashed border-slate-300 bg-white/70 text-center py-20 px-6"
                     >
-                        No updates posted yet.
+                        <p class="font-black text-xl text-slate-700">
+                            No updates posted yet
+                        </p>
                     </div>
                 <% } %>
-
             </div>
         </section>
-
     </main>
 
     <!-- EMAIL MODAL -->
     <div
         id="emailModal"
-        class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-center z-50 p-4"
+        class="hidden fixed inset-0 modal-backdrop justify-center items-center z-[100] p-4"
         aria-hidden="true"
     >
         <div
-            data-modal-panel
-            class="bg-white rounded-2xl w-full max-w-sm overflow-y-auto shadow-2xl p-8 border border-gray-200"
+            class="bg-white rounded-[28px] w-full max-w-md shadow-2xl border border-white overflow-hidden"
             role="dialog"
             aria-modal="true"
             aria-labelledby="emailModalTitle"
         >
-            <h2
-                id="emailModalTitle"
-                class="text-xl font-bold text-gray-900 mb-1"
-            >
-                Sign In / Guest
-            </h2>
+            <div class="p-7 md:p-8">
+                <div
+                    class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        class="w-7 h-7"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path d="M4 5h16v14H4z"/>
+                        <path d="m4 7 8 6 8-6"/>
+                    </svg>
+                </div>
 
-            <p class="text-sm text-gray-500 mb-6">
-                Enter your email to receive a secure sign-in code.
-            </p>
+                <h2
+                    id="emailModalTitle"
+                    class="text-2xl font-black text-slate-950 tracking-tight"
+                >
+                    Continue securely
+                </h2>
 
-            <label
-                for="authEmailInput"
-                class="sr-only"
-            >
-                Email address
-            </label>
+                <p class="text-sm text-slate-500 leading-relaxed mt-2 mb-6">
+                    Enter your email address. We will send a six-digit
+                    verification code before opening checkout.
+                </p>
 
-            <input
-                type="email"
-                id="authEmailInput"
-                placeholder="you@email.com"
-                autocomplete="email"
-                class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm mb-4"
-            >
+                <label
+                    for="authEmailInput"
+                    class="block text-xs font-extrabold text-slate-700 mb-2"
+                >
+                    Email address
+                </label>
 
-            <p
-                id="emailAuthError"
-                class="hidden text-sm font-semibold text-red-600 mb-4"
-            ></p>
+                <input
+                    type="email"
+                    id="authEmailInput"
+                    placeholder="you@example.com"
+                    autocomplete="email"
+                    class="w-full h-13 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 font-semibold outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm transition"
+                >
 
-            <button
-                type="button"
-                onclick="sendOtp()"
-                id="sendOtpBtn"
-                class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
-            >
-                Send Code
-            </button>
+                <p
+                    id="emailAuthError"
+                    class="hidden rounded-xl border border-red-200 bg-red-50 text-sm font-bold text-red-700 px-4 py-3 mt-4"
+                ></p>
 
-            <button
-                type="button"
-                onclick="closeModals()"
-                class="w-full mt-3 text-sm font-medium text-gray-500 hover:text-gray-800"
-            >
-                Cancel
-            </button>
+                <button
+                    type="button"
+                    onclick="sendOtp()"
+                    id="sendOtpBtn"
+                    class="w-full mt-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold py-3.5 rounded-xl hover:shadow-lg hover:shadow-blue-600/25 disabled:opacity-60 disabled:cursor-not-allowed transition"
+                >
+                    Send verification code
+                </button>
+
+                <button
+                    type="button"
+                    onclick="closeModals()"
+                    class="w-full mt-3 text-sm font-bold text-slate-500 hover:text-slate-950 py-2 transition"
+                >
+                    Cancel
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- OTP MODAL -->
     <div
         id="otpModal"
-        class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-center z-50 p-4"
+        class="hidden fixed inset-0 modal-backdrop justify-center items-center z-[100] p-4"
         aria-hidden="true"
     >
         <div
-            data-modal-panel
-            class="bg-white rounded-2xl w-full max-w-sm overflow-y-auto shadow-2xl p-8 border border-gray-200 text-center"
+            class="bg-white rounded-[28px] w-full max-w-md shadow-2xl border border-white overflow-hidden"
             role="dialog"
             aria-modal="true"
             aria-labelledby="otpModalTitle"
         >
-            <h2
-                id="otpModalTitle"
-                class="text-xl font-bold text-gray-900 mb-1"
-            >
-                Verify Code
-            </h2>
-
-            <p class="text-sm text-gray-500 mb-6">
-                Check your inbox for the six-digit code.
-            </p>
-
-            <label
-                for="authOtpInput"
-                class="sr-only"
-            >
-                Verification code
-            </label>
-
-            <input
-                type="text"
-                id="authOtpInput"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-                placeholder="123456"
-                maxlength="6"
-                class="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-bold text-2xl tracking-widest outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 mb-4 text-center text-gray-900"
-            >
-
-            <p
-                id="otpAuthError"
-                class="hidden text-sm font-semibold text-red-600 mb-4"
-            ></p>
-
-            <button
-                type="button"
-                onclick="verifyOtp()"
-                id="verifyOtpBtn"
-                class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
-            >
-                Verify
-            </button>
-
-            <button
-                type="button"
-                onclick="closeModals()"
-                class="w-full mt-3 text-sm font-medium text-gray-500 hover:text-gray-800"
-            >
-                Cancel
-            </button>
-        </div>
-    </div>
-
-    <!-- CHECKOUT MODAL -->
-    <div
-        id="buyModal"
-        class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm justify-center items-center z-50 p-4 overflow-y-auto"
-        aria-hidden="true"
-    >
-        <div
-            data-modal-panel
-            class="bg-white rounded-2xl w-full max-w-md overflow-y-auto shadow-2xl border border-gray-200 my-auto"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="buyModalTitle"
-        >
-
-            <div
-                class="sticky top-0 z-10 p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50"
-            >
-                <h2
-                    id="buyModalTitle"
-                    class="text-lg font-bold text-gray-900"
+            <div class="p-7 md:p-8 text-center">
+                <div
+                    class="w-14 h-14 mx-auto rounded-2xl bg-green-50 text-green-600 flex items-center justify-center mb-5"
                 >
-                    Checkout
+                    <svg
+                        viewBox="0 0 24 24"
+                        class="w-7 h-7"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <rect x="5" y="10" width="14" height="11" rx="2"/>
+                        <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                    </svg>
+                </div>
+
+                <h2
+                    id="otpModalTitle"
+                    class="text-2xl font-black text-slate-950 tracking-tight"
+                >
+                    Verify your email
                 </h2>
+
+                <p class="text-sm text-slate-500 leading-relaxed mt-2 mb-6">
+                    Enter the six-digit code sent to your inbox.
+                </p>
+
+                <input
+                    type="text"
+                    id="authOtpInput"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    placeholder="123456"
+                    maxlength="6"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 font-black text-3xl tracking-[0.45em] outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-center text-slate-950 transition"
+                >
+
+                <p
+                    id="otpAuthError"
+                    class="hidden rounded-xl border border-red-200 bg-red-50 text-sm font-bold text-red-700 px-4 py-3 mt-4"
+                ></p>
+
+                <button
+                    type="button"
+                    onclick="verifyOtp()"
+                    id="verifyOtpBtn"
+                    class="w-full mt-5 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-extrabold py-3.5 rounded-xl hover:shadow-lg hover:shadow-green-600/20 disabled:opacity-60 disabled:cursor-not-allowed transition"
+                >
+                    Verify and continue
+                </button>
 
                 <button
                     type="button"
                     onclick="closeModals()"
-                    aria-label="Close checkout"
-                    class="text-gray-400 hover:text-gray-700 font-bold text-2xl leading-none"
+                    class="w-full mt-3 text-sm font-bold text-slate-500 hover:text-slate-950 py-2 transition"
                 >
-                    &times;
+                    Cancel
                 </button>
             </div>
+        </div>
+    </div>
 
-            <div class="p-6">
+    <!-- CARD CHECKOUT MODAL -->
+    <div
+        id="buyModal"
+        class="hidden fixed inset-0 modal-backdrop justify-center items-center z-[100] p-3 md:p-6 overflow-y-auto"
+        aria-hidden="true"
+    >
+        <div
+            class="checkout-shell bg-white rounded-[30px] w-full max-w-5xl shadow-[0_30px_100px_rgba(2,6,23,0.45)] border border-white overflow-y-auto no-scrollbar"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="buyModalTitle"
+        >
+            <div class="grid grid-cols-1 lg:grid-cols-[0.86fr_1.14fr]">
 
-                <div
-                    class="bg-green-50 text-green-700 text-xs font-bold px-3 py-2 rounded-lg mb-5 flex items-center gap-2 border border-green-200"
+                <!-- ORDER SIDE -->
+                <aside
+                    class="secure-grid relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white p-7 md:p-9"
                 >
-                    <span>Account:</span>
+                    <button
+                        type="button"
+                        onclick="closeModals()"
+                        aria-label="Close checkout"
+                        class="lg:hidden absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl transition"
+                    >
+                        &times;
+                    </button>
 
-                    <span class="truncate">
-                        <%= currentBuyerEmail %>
-                    </span>
-                </div>
+                    <div
+                        class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] font-black text-blue-100"
+                    >
+                        <span
+                            class="w-1.5 h-1.5 rounded-full bg-green-400"
+                        ></span>
 
-                <div
-                    class="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100"
-                >
-                    <div class="min-w-0">
-                        <p
-                            class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1"
-                        >
-                            Item
-                        </p>
-
-                        <p
-                            id="modalItemTitle"
-                            class="font-bold text-gray-900 text-sm truncate"
-                        ></p>
-
-                        <p
-                            id="modalItemTier"
-                            class="text-xs font-medium text-gray-500 mt-1"
-                        ></p>
+                        Secure checkout
                     </div>
 
-                    <div class="text-right shrink-0">
-                        <p
-                            class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1"
-                        >
-                            Displayed total
-                        </p>
+                    <h2
+                        id="buyModalTitle"
+                        class="text-3xl md:text-4xl font-black tracking-tight mt-6"
+                    >
+                        Complete your order
+                    </h2>
 
-                        <p
-                            id="modalItemPrice"
-                            class="font-black text-green-600 text-lg"
-                        ></p>
+                    <p
+                        class="text-sm text-slate-300 leading-relaxed mt-3 max-w-sm"
+                    >
+                        Review your selected product and complete payment using
+                        your credit or debit card.
+                    </p>
+
+                    <div
+                        class="mt-8 rounded-3xl border border-white/10 bg-white/[0.07] p-5 backdrop-blur"
+                    >
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-16 h-16 rounded-2xl bg-white/10 overflow-hidden border border-white/10 shrink-0"
+                            >
+                                <img
+                                    id="modalProductImage"
+                                    src=""
+                                    alt=""
+                                    class="hidden w-full h-full object-cover"
+                                >
+
+                                <div
+                                    id="modalProductPlaceholder"
+                                    class="w-full h-full flex items-center justify-center text-blue-200"
+                                >
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        class="w-7 h-7"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                    >
+                                        <path d="M4 5h16v14H4z"/>
+                                        <path d="M8 9h8"/>
+                                        <path d="M8 13h5"/>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="min-w-0">
+                                <span
+                                    id="modalItemTier"
+                                    class="inline-flex rounded-full bg-blue-500/20 text-blue-200 px-2.5 py-1 text-[9px] uppercase tracking-wider font-black mb-2"
+                                ></span>
+
+                                <h3
+                                    id="modalItemTitle"
+                                    class="font-black text-lg leading-tight truncate"
+                                ></h3>
+                            </div>
+                        </div>
+
+                        <div class="h-px bg-white/10 my-5"></div>
+
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-400 font-semibold">
+                                    Product
+                                </span>
+
+                                <span class="text-white font-extrabold">
+                                    Digital item
+                                </span>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-400 font-semibold">
+                                    Delivery
+                                </span>
+
+                                <span class="text-green-300 font-extrabold">
+                                    Account access
+                                </span>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-400 font-semibold">
+                                    Currency
+                                </span>
+
+                                <span class="text-white font-extrabold">
+                                    USD
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="h-px bg-white/10 my-5"></div>
+
+                        <div class="flex items-end justify-between gap-4">
+                            <div>
+                                <span
+                                    class="block text-[10px] uppercase tracking-[0.18em] font-black text-slate-400"
+                                >
+                                    Total due
+                                </span>
+
+                                <span
+                                    class="block text-xs text-slate-400 mt-1"
+                                >
+                                    One-time payment
+                                </span>
+                            </div>
+
+                            <span
+                                id="modalItemPrice"
+                                class="text-3xl font-black tracking-tight"
+                            ></span>
+                        </div>
                     </div>
-                </div>
 
-                <!--
-                    This form is submitted only for Crypto or Giftcard.
-
-                    PayPal is intentionally outside this form so PayPal's
-                    generated Checkout button cannot trigger /checkout.
-                -->
-                <form
-                    id="buyForm"
-                    action="/checkout"
-                    method="POST"
-                    novalidate
-                >
-                    <input
-                        type="hidden"
-                        id="hiddenProductId"
-                        name="product_id"
+                    <div
+                        class="grid grid-cols-3 gap-2 mt-6 text-center"
                     >
+                        <div
+                            class="rounded-2xl bg-white/[0.06] border border-white/10 px-2 py-3"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                class="w-5 h-5 mx-auto text-green-300"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path d="M12 3 4 6v5c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6z"/>
+                                <path d="m8 12 2.5 2.5L16 9"/>
+                            </svg>
 
-                    <input
-                        type="hidden"
-                        id="hiddenProductTier"
-                        name="tier"
+                            <span
+                                class="block text-[9px] uppercase tracking-wider font-black text-slate-300 mt-2"
+                            >
+                                Protected
+                            </span>
+                        </div>
+
+                        <div
+                            class="rounded-2xl bg-white/[0.06] border border-white/10 px-2 py-3"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                class="w-5 h-5 mx-auto text-blue-300"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <rect x="5" y="10" width="14" height="10" rx="2"/>
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                            </svg>
+
+                            <span
+                                class="block text-[9px] uppercase tracking-wider font-black text-slate-300 mt-2"
+                            >
+                                Encrypted
+                            </span>
+                        </div>
+
+                        <div
+                            class="rounded-2xl bg-white/[0.06] border border-white/10 px-2 py-3"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                class="w-5 h-5 mx-auto text-violet-300"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path d="M4 7h16v10H4z"/>
+                                <path d="M4 11h16"/>
+                            </svg>
+
+                            <span
+                                class="block text-[9px] uppercase tracking-wider font-black text-slate-300 mt-2"
+                            >
+                                Card only
+                            </span>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- PAYMENT SIDE -->
+                <section class="relative p-6 md:p-9 lg:p-10 bg-white">
+                    <button
+                        type="button"
+                        onclick="closeModals()"
+                        aria-label="Close checkout"
+                        class="hidden lg:flex absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-950 items-center justify-center text-xl transition"
                     >
+                        &times;
+                    </button>
 
-                    <input
-                        type="hidden"
-                        id="hiddenPaymentMethod"
-                        name="payment_method"
-                        value="PayPal"
+                    <div class="pr-12">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    class="w-6 h-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <rect x="3" y="5" width="18" height="14" rx="2"/>
+                                    <path d="M3 10h18"/>
+                                    <path d="M7 15h3"/>
+                                </svg>
+                            </div>
+
+                            <div>
+                                <h3
+                                    class="text-2xl font-black text-slate-950 tracking-tight"
+                                >
+                                    Credit or debit card
+                                </h3>
+
+                                <p class="text-xs text-slate-500 font-semibold mt-1">
+                                    Complete payment without signing into PayPal
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex items-center justify-between gap-4 mt-7 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
                     >
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="inline-flex items-center justify-center h-7 px-2 rounded-md bg-white border border-slate-200 font-black italic text-[10px] text-blue-800"
+                            >
+                                VISA
+                            </span>
 
-                    <div class="mb-5">
+                            <span
+                                class="relative inline-flex items-center justify-center w-10 h-7 rounded-md bg-white border border-slate-200"
+                            >
+                                <span
+                                    class="absolute w-4 h-4 rounded-full bg-red-500 left-2"
+                                ></span>
+
+                                <span
+                                    class="absolute w-4 h-4 rounded-full bg-amber-400 right-2 opacity-90"
+                                ></span>
+                            </span>
+
+                            <span
+                                class="inline-flex items-center justify-center h-7 px-2 rounded-md bg-[#1877c9] font-black text-[9px] text-white"
+                            >
+                                AMEX
+                            </span>
+                        </div>
+
+                        <span
+                            class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-green-700"
+                        >
+                            <svg
+                                viewBox="0 0 24 24"
+                                class="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path d="M12 3 4 6v5c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6z"/>
+                            </svg>
+
+                            Secure
+                        </span>
+                    </div>
+
+                    <div class="mt-6">
                         <label
                             for="discordUsername"
-                            class="block text-xs font-bold text-gray-700 mb-2"
+                            class="block text-xs font-extrabold text-slate-700 mb-2"
                         >
-                            Discord Username (Optional)
+                            Discord username
+                            <span class="text-slate-400 font-semibold">
+                                (optional)
+                            </span>
                         </label>
 
                         <input
                             type="text"
                             id="discordUsername"
-                            name="discord_username"
-                            placeholder="username"
+                            placeholder="your_username"
                             autocomplete="off"
-                            class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2.5 font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm"
+                            maxlength="80"
+                            class="w-full h-[54px] bg-white border border-slate-300 rounded-[14px] px-4 font-semibold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm transition"
                         >
                     </div>
 
-                    <fieldset class="mb-5">
-                        <legend
-                            class="block text-xs font-bold text-gray-700 mb-2"
-                        >
-                            Payment Method
-                        </legend>
-
-                        <div class="space-y-2">
-
-                            <!-- PAYPAL -->
-                            <label
-                                class="relative block cursor-pointer"
-                            >
-                                <input
-                                    type="radio"
-                                    name="payment_method_choice"
-                                    value="PayPal"
-                                    class="peer sr-only"
-                                    checked
-                                >
-
-                                <div
-                                    class="rounded-lg border border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-600 transition flex items-center"
-                                >
-                                    <div
-                                        class="mr-3 font-black text-[#003087] text-base"
-                                    >
-                                        PayPal
-                                    </div>
-
-                                    <div class="flex-grow">
-                                        <p
-                                            class="font-bold text-sm text-gray-900"
-                                        >
-                                            PayPal / Card Checkout
-                                        </p>
-
-                                        <p
-                                            class="text-[11px] text-gray-500 mt-0.5"
-                                        >
-                                            PayPal displays the eligible payment
-                                            options available to the customer.
-                                        </p>
-                                    </div>
-
-                                    <div
-                                        class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-600 flex items-center justify-center shrink-0"
-                                    >
-                                        <div
-                                            class="w-1.5 h-1.5 bg-white rounded-full"
-                                        ></div>
-                                    </div>
-                                </div>
-                            </label>
-
-                            <!-- CRYPTO -->
-                            <label
-                                class="relative block cursor-pointer"
-                            >
-                                <input
-                                    type="radio"
-                                    name="payment_method_choice"
-                                    value="Crypto"
-                                    class="peer sr-only"
-                                >
-
-                                <div
-                                    class="rounded-lg border border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-gray-900 peer-checked:ring-1 peer-checked:ring-gray-900 transition flex items-center"
-                                >
-                                    <div class="mr-3 text-lg">🪙</div>
-
-                                    <div class="flex-grow">
-                                        <p
-                                            class="font-bold text-sm text-gray-900"
-                                        >
-                                            Crypto (Solana)
-                                        </p>
-                                    </div>
-
-                                    <div
-                                        class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-gray-900 peer-checked:bg-gray-900 flex items-center justify-center shrink-0"
-                                    >
-                                        <div
-                                            class="w-1.5 h-1.5 bg-white rounded-full"
-                                        ></div>
-                                    </div>
-                                </div>
-                            </label>
-
-                            <!-- GIFT CARD -->
-                            <label
-                                id="giftcardLabel"
-                                class="relative block cursor-pointer"
-                            >
-                                <input
-                                    type="radio"
-                                    name="payment_method_choice"
-                                    value="Giftcard"
-                                    class="peer sr-only"
-                                >
-
-                                <div
-                                    class="rounded-lg border border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-gray-900 peer-checked:ring-1 peer-checked:ring-gray-900 transition flex items-center"
-                                >
-                                    <div class="mr-3 text-lg">🎁</div>
-
-                                    <div class="flex-grow">
-                                        <p
-                                            class="font-bold text-sm text-gray-900"
-                                        >
-                                            Kinguin / G2A Gift Card
-                                        </p>
-                                    </div>
-
-                                    <div
-                                        class="w-4 h-4 rounded-full border border-gray-300 peer-checked:border-gray-900 peer-checked:bg-gray-900 flex items-center justify-center shrink-0"
-                                    >
-                                        <div
-                                            class="w-1.5 h-1.5 bg-white rounded-full"
-                                        ></div>
-                                    </div>
-                                </div>
-                            </label>
-
-                        </div>
-                    </fieldset>
-
+                    <!-- PAYPAL CARD FIELD LOADER -->
                     <div
-                        id="normal-action-container"
+                        id="cardFieldsLoading"
+                        class="mt-6 space-y-4"
+                    >
+                        <div class="loading-shimmer h-[54px] rounded-[14px]"></div>
+
+                        <div class="loading-shimmer h-[54px] rounded-[14px]"></div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="loading-shimmer h-[54px] rounded-[14px]"></div>
+                            <div class="loading-shimmer h-[54px] rounded-[14px]"></div>
+                        </div>
+
+                        <div class="flex items-center justify-center gap-2 py-2 text-xs font-bold text-slate-500">
+                            <span
+                                class="w-4 h-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin"
+                            ></span>
+
+                            Loading encrypted card fields...
+                        </div>
+                    </div>
+
+                    <!-- CARD FIELDS -->
+                    <div
+                        id="cardFieldsContainer"
                         class="hidden mt-6"
                     >
-                        <button
-                            type="submit"
-                            id="normalCheckoutButton"
-                            class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-lg hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition"
+                        <div class="space-y-4">
+                            <div>
+                                <label
+                                    class="block text-xs font-extrabold text-slate-700 mb-2"
+                                >
+                                    Name on card
+                                </label>
+
+                                <div
+                                    id="card-name-field-container"
+                                    class="paypal-card-field"
+                                ></div>
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-xs font-extrabold text-slate-700 mb-2"
+                                >
+                                    Card number
+                                </label>
+
+                                <div class="relative">
+                                    <div
+                                        id="card-number-field-container"
+                                        class="paypal-card-field pr-12"
+                                    ></div>
+
+                                    <div
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"
+                                    >
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            class="w-5 h-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <rect x="3" y="5" width="18" height="14" rx="2"/>
+                                            <path d="M3 10h18"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label
+                                        class="block text-xs font-extrabold text-slate-700 mb-2"
+                                    >
+                                        Expiry date
+                                    </label>
+
+                                    <div
+                                        id="card-expiry-field-container"
+                                        class="paypal-card-field"
+                                    ></div>
+                                </div>
+
+                                <div>
+                                    <label
+                                        class="block text-xs font-extrabold text-slate-700 mb-2"
+                                    >
+                                        Security code
+                                    </label>
+
+                                    <div
+                                        id="card-cvv-field-container"
+                                        class="paypal-card-field"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD ERROR -->
+                    <div
+                        id="cardPaymentError"
+                        class="hidden mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-4"
+                        role="alert"
+                    >
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path d="M12 9v4"/>
+                                    <path d="M12 17h.01"/>
+                                    <path d="M10.3 3.7 2.5 17.2A2 2 0 0 0 4.2 20h15.6a2 2 0 0 0 1.7-2.8L13.7 3.7a2 2 0 0 0-3.4 0Z"/>
+                                </svg>
+                            </div>
+
+                            <div>
+                                <p class="text-sm font-black text-red-800">
+                                    Card payment could not continue
+                                </p>
+
+                                <p
+                                    id="cardPaymentErrorMessage"
+                                    class="text-xs font-semibold text-red-700 mt-1 leading-relaxed"
+                                ></p>
+
+                                <button
+                                    type="button"
+                                    onclick="retryCardFields()"
+                                    id="retryCardFieldsButton"
+                                    class="hidden mt-3 text-xs font-black text-red-800 underline"
+                                >
+                                    Try loading card checkout again
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUCCESS -->
+                    <div
+                        id="cardPaymentSuccess"
+                        class="hidden mt-5 rounded-2xl border border-green-200 bg-green-50 px-4 py-4"
+                    >
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                >
+                                    <path d="m5 12 4 4L19 6"/>
+                                </svg>
+                            </div>
+
+                            <div>
+                                <p class="text-sm font-black text-green-800">
+                                    Payment completed
+                                </p>
+
+                                <p class="text-xs font-semibold text-green-700 mt-1">
+                                    Preparing your order now...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ONLY CHECKOUT BUTTON -->
+                    <button
+                        type="button"
+                        id="cardPaymentButton"
+                        onclick="submitCardPayment()"
+                        disabled
+                        class="w-full mt-6 min-h-[58px] bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 text-white font-black py-4 px-5 rounded-2xl hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-600/25 focus:ring-4 focus:ring-blue-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none transition flex items-center justify-center gap-3"
+                    >
+                        <span
+                            id="cardPaymentButtonIcon"
+                            class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center"
                         >
-                            Place Order &rarr;
-                        </button>
-                    </div>
-                </form>
+                            <svg
+                                viewBox="0 0 24 24"
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                                <path d="M3 10h18"/>
+                                <path d="M7 15h3"/>
+                            </svg>
+                        </span>
 
-                <!--
-                    PAYPAL IS OUTSIDE buyForm.
+                        <span id="cardPaymentButtonText">
+                            Pay securely by card
+                        </span>
+                    </button>
 
-                    Do not move it inside the form.
-                -->
-                <div
-                    id="paypal-action-container"
-                    class="mt-6"
-                >
                     <div
-                        id="paypalLoading"
-                        class="rounded-xl border border-blue-100 bg-blue-50 px-4 py-4 text-sm font-semibold text-blue-700 text-center"
+                        class="flex items-center justify-center gap-2 mt-4 text-[10px] font-bold text-slate-400"
                     >
-                        Loading secure PayPal checkout...
-                    </div>
-
-                    <div
-                        id="paypal-hosted-root"
-                        class="relative z-20 w-full pointer-events-auto"
-                    ></div>
-
-                    <div
-                        id="paypalError"
-                        class="hidden rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700 mt-3"
-                    >
-                        <p class="font-bold">
-                            The embedded PayPal checkout could not open.
-                        </p>
-
-                        <p
-                            id="paypalErrorMessage"
-                            class="mt-1"
+                        <svg
+                            viewBox="0 0 24 24"
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
                         >
-                            Use the secure payment-page button below.
-                        </p>
+                            <rect x="5" y="10" width="14" height="10" rx="2"/>
+                            <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                        </svg>
+
+                        Card information is entered into PayPal-hosted
+                        encrypted fields
                     </div>
-
-                    <!--
-                        This is a direct PayPal fallback.
-
-                        It opens the hosted payment page in a normal tab and
-                        avoids browser popup or iframe restrictions.
-                    -->
-                    <a
-                        id="paypalFallbackLink"
-                        href="https://www.paypal.com/ncp/payment/<%= defaultPayPalButtonId %>"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="mt-3 w-full border border-gray-300 bg-white text-gray-900 font-bold py-3 rounded-lg hover:bg-gray-50 transition flex items-center justify-center text-sm"
-                    >
-                        Open secure PayPal checkout in a new page
-                    </a>
-
-                    <p
-                        class="text-[11px] leading-relaxed text-gray-500 mt-3 text-center"
-                    >
-                        PayPal displays the exact item, total, currency, and
-                        payment options configured for this hosted button.
-                    </p>
-                </div>
-
+                </section>
             </div>
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer
-        class="bg-white border-t border-gray-200 mt-20 relative z-20"
+    <!--
+        After PayPal captures the card payment, this form passes the verified
+        capture into your existing /checkout route so your existing order
+        creation and delivery logic can continue.
+    -->
+    <form
+        id="completedPaymentForm"
+        action="/checkout"
+        method="POST"
+        class="hidden"
     >
+        <input type="hidden" name="product_id" id="completedProductId">
+        <input type="hidden" name="tier" id="completedProductTier">
+        <input type="hidden" name="discord_username" id="completedDiscordUsername">
+        <input type="hidden" name="payment_method" value="PayPal">
+        <input type="hidden" name="paypal_order_id" id="completedPayPalOrderId">
+        <input type="hidden" name="paypal_capture_id" id="completedPayPalCaptureId">
+    </form>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 text-white mt-10 relative overflow-hidden">
         <div
-            class="max-w-7xl mx-auto px-4 md:px-8 py-8 text-center"
+            class="absolute inset-0 secure-grid opacity-50 pointer-events-none"
+        ></div>
+
+        <div
+            class="relative max-w-7xl mx-auto px-4 md:px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-5"
         >
-            <p class="text-sm font-bold text-gray-500">
+            <div class="flex items-center gap-3">
+                <span
+                    class="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/>
+                        <path d="M4 5.5v16"/>
+                    </svg>
+                </span>
+
+                <div>
+                    <p class="font-black text-lg">
+                        ExamHub
+                    </p>
+
+                    <p class="text-xs text-slate-400 font-semibold">
+                        Digital learning marketplace
+                    </p>
+                </div>
+            </div>
+
+            <p class="text-xs md:text-sm font-bold text-slate-400 text-center">
                 © 2026 ExamHub Marketplace. All rights reserved.
             </p>
         </div>
@@ -1070,9 +1749,6 @@
         const isAuthenticated =
             <%- JSON.stringify(Boolean(currentBuyerEmail)) %>;
 
-        const DEFAULT_PAYPAL_BUTTON_ID =
-            <%- JSON.stringify(defaultPayPalButtonId) %>;
-
         let userEmailToVerify = '';
 
         let activeProduct = {
@@ -1080,265 +1756,649 @@
             title: '',
             tier: '',
             price: 0,
-            paypalButtonId: DEFAULT_PAYPAL_BUTTON_ID
+            image: ''
         };
 
-        /*
-         * Each PayPal Hosted Button ID is rendered only once.
-         *
-         * Destroying and re-rendering the same hosted button repeatedly can
-         * make the second generated Checkout button stop responding.
-         */
-        const renderedPayPalButtons = new Map();
+        let cardFieldsInstance = null;
+        let cardFieldsInitializing = false;
+        let cardFieldsReady = false;
+        let paymentProcessing = false;
 
         let searchTimer = null;
         let searchController = null;
 
-        function getElement(id) {
+        function byId(id) {
             return document.getElementById(id);
         }
 
-        function showElement(element, displayClass = 'flex') {
-            if (!element) return;
+        function setText(id, text) {
+            const element = byId(id);
 
-            element.classList.remove('hidden');
-
-            if (displayClass) {
-                element.classList.add(displayClass);
+            if (element) {
+                element.textContent = String(text || '');
             }
+        }
 
-            element.setAttribute('aria-hidden', 'false');
+        function showModal(id) {
+            const modal = byId(id);
+
+            if (!modal) return;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.setAttribute('aria-hidden', 'false');
+
             document.body.classList.add('modal-open');
         }
 
-        function hideElement(element, displayClass = 'flex') {
-            if (!element) return;
+        function hideModal(id) {
+            const modal = byId(id);
 
-            element.classList.add('hidden');
+            if (!modal) return;
 
-            if (displayClass) {
-                element.classList.remove(displayClass);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        function showError(containerId, messageId, message, retry = false) {
+            const container = byId(containerId);
+            const messageElement = byId(messageId);
+            const retryButton = byId('retryCardFieldsButton');
+
+            if (messageElement) {
+                messageElement.textContent =
+                    String(message || 'Something went wrong.');
             }
 
-            element.setAttribute('aria-hidden', 'true');
-        }
+            if (container) {
+                container.classList.remove('hidden');
+            }
 
-        function setMessage(elementId, message) {
-            const element = getElement(elementId);
-
-            if (!element) return;
-
-            if (message) {
-                element.textContent = message;
-                element.classList.remove('hidden');
-            } else {
-                element.textContent = '';
-                element.classList.add('hidden');
+            if (retryButton) {
+                retryButton.classList.toggle('hidden', !retry);
             }
         }
 
-        function normalizePayPalButtonId(value) {
-            const cleaned = String(value || '')
-                .trim()
-                .replace(/[^a-zA-Z0-9_-]/g, '');
+        function clearError(containerId, messageId) {
+            const container = byId(containerId);
+            const messageElement = byId(messageId);
 
-            return cleaned || DEFAULT_PAYPAL_BUTTON_ID;
+            if (container) {
+                container.classList.add('hidden');
+            }
+
+            if (messageElement) {
+                messageElement.textContent = '';
+            }
         }
 
-        function paypalPaymentLink(buttonId) {
-            return (
-                'https://www.paypal.com/ncp/payment/' +
-                encodeURIComponent(buttonId)
+        function setButtonLoading(loading, text = '') {
+            const button = byId('cardPaymentButton');
+            const icon = byId('cardPaymentButtonIcon');
+            const label = byId('cardPaymentButtonText');
+
+            if (!button || !icon || !label) return;
+
+            button.disabled = Boolean(
+                loading ||
+                !cardFieldsReady ||
+                paymentProcessing
             );
+
+            if (loading) {
+                icon.innerHTML =
+                    '<span class="button-spinner"></span>';
+
+                label.textContent =
+                    text || 'Processing secure payment...';
+            } else {
+                icon.innerHTML = `
+                    <svg
+                        viewBox="0 0 24 24"
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                        <path d="M3 10h18"></path>
+                        <path d="M7 15h3"></path>
+                    </svg>
+                `;
+
+                label.textContent =
+                    `Pay $${activeProduct.price.toFixed(2)} securely`;
+            }
         }
 
-        /*
-         * Wait for the deferred PayPal SDK to finish loading.
-         */
-        function waitForPayPal(timeoutMs = 12000) {
+        function waitForPayPalCardFields(timeout = 15000) {
             return new Promise((resolve, reject) => {
                 const startedAt = Date.now();
 
-                function checkPayPal() {
+                const check = () => {
                     if (
                         window.paypal &&
-                        typeof window.paypal.HostedButtons === 'function'
+                        typeof window.paypal.CardFields === 'function'
                     ) {
                         resolve(window.paypal);
                         return;
                     }
 
-                    if (Date.now() - startedAt >= timeoutMs) {
+                    if (Date.now() - startedAt >= timeout) {
                         reject(
                             new Error(
-                                'PayPal SDK did not finish loading.'
+                                'The secure card service did not finish loading.'
                             )
                         );
+
                         return;
                     }
 
-                    window.setTimeout(checkPayPal, 100);
-                }
+                    window.setTimeout(check, 100);
+                };
 
-                checkPayPal();
+                check();
             });
         }
 
-        /*
-         * Render the hosted PayPal component.
-         *
-         * A button ID is never rendered more than once.
-         */
-        async function showHostedPayPalButton(rawButtonId) {
-            const buttonId =
-                normalizePayPalButtonId(rawButtonId);
-
-            const root =
-                getElement('paypal-hosted-root');
-
-            const loading =
-                getElement('paypalLoading');
-
-            const errorBox =
-                getElement('paypalError');
-
-            const fallbackLink =
-                getElement('paypalFallbackLink');
-
-            fallbackLink.href =
-                paypalPaymentLink(buttonId);
-
-            errorBox.classList.add('hidden');
-            setMessage('paypalErrorMessage', '');
-
-            /*
-             * Hide previously rendered PayPal button containers.
-             */
-            root
-                .querySelectorAll('.paypal-instance')
-                .forEach(instance => {
-                    instance.classList.add('hidden');
-                });
-
-            /*
-             * Reuse the existing rendered PayPal iframe when the user
-             * opens the same product again.
-             */
-            if (renderedPayPalButtons.has(buttonId)) {
-                const existing =
-                    renderedPayPalButtons.get(buttonId);
-
-                existing.classList.remove('hidden');
-                loading.classList.add('hidden');
-
+        async function initializeCardFields() {
+            if (cardFieldsReady || cardFieldsInitializing) {
                 return;
             }
 
-            loading.textContent =
-                'Loading secure PayPal checkout...';
+            cardFieldsInitializing = true;
 
-            loading.classList.remove('hidden');
-
-            const instance =
-                document.createElement('div');
-
-            instance.className =
-                'paypal-instance';
-
-            instance.dataset.paypalButtonId =
-                buttonId;
-
-            const container =
-                document.createElement('div');
-
-            container.id =
-                `paypal-container-${buttonId}`;
-
-            container.className =
-                'w-full relative z-20 pointer-events-auto';
-
-            instance.appendChild(container);
-            root.appendChild(instance);
-
-            renderedPayPalButtons.set(
-                buttonId,
-                instance
+            clearError(
+                'cardPaymentError',
+                'cardPaymentErrorMessage'
             );
+
+            byId('cardFieldsLoading')?.classList.remove('hidden');
+            byId('cardFieldsContainer')?.classList.add('hidden');
 
             try {
                 const paypalApi =
-                    await waitForPayPal();
+                    await waitForPayPalCardFields();
 
-                /*
-                 * Wait until the modal is visible and has a real width.
-                 *
-                 * Rendering while display:none can cause an incorrectly sized
-                 * or unresponsive PayPal iframe.
-                 */
-                await new Promise(resolve => {
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(resolve);
+                const commonStyle = {
+                    input: {
+                        'font-family':
+                            'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+
+                        'font-size': '15px',
+                        'font-weight': '600',
+                        color: '#0f172a',
+                        padding: '15px 0',
+                        height: '52px',
+                        outline: 'none',
+                        background: 'transparent'
+                    },
+
+                    '.invalid': {
+                        color: '#dc2626'
+                    },
+
+                    '.valid': {
+                        color: '#0f172a'
+                    }
+                };
+
+                cardFieldsInstance =
+                    paypalApi.CardFields({
+                        style: commonStyle,
+
+                        inputEvents: {
+                            onFocus() {
+                                const focused =
+                                    document.activeElement;
+
+                                document
+                                    .querySelectorAll(
+                                        '.paypal-card-field'
+                                    )
+                                    .forEach(element => {
+                                        element.classList.remove(
+                                            'field-invalid'
+                                        );
+                                    });
+                            },
+
+                            onChange(data) {
+                                const button =
+                                    byId('cardPaymentButton');
+
+                                if (button && !paymentProcessing) {
+                                    button.disabled =
+                                        !data.isFormValid;
+                                }
+                            },
+
+                            onInputSubmitRequest(data) {
+                                if (data.isFormValid) {
+                                    submitCardPayment();
+                                }
+                            }
+                        },
+
+                        createOrder: async function () {
+                            if (
+                                !activeProduct.id ||
+                                activeProduct.price <= 0
+                            ) {
+                                throw new Error(
+                                    'The selected product is invalid.'
+                                );
+                            }
+
+                            const response = await fetch(
+                                '/api/paypal/create-order',
+                                {
+                                    method: 'POST',
+
+                                    headers: {
+                                        'Content-Type':
+                                            'application/json',
+
+                                        Accept:
+                                            'application/json'
+                                    },
+
+                                    body: JSON.stringify({
+                                        product_id:
+                                            activeProduct.id,
+
+                                        discord_username:
+                                            byId('discordUsername')
+                                                ?.value
+                                                ?.trim() || ''
+                                    })
+                                }
+                            );
+
+                            const result =
+                                await response
+                                    .json()
+                                    .catch(() => ({}));
+
+                            if (
+                                !response.ok ||
+                                !result.orderID
+                            ) {
+                                throw new Error(
+                                    result.message ||
+                                    result.error ||
+                                    'The payment order could not be created.'
+                                );
+                            }
+
+                            return result.orderID;
+                        },
+
+                        onApprove: async function (data) {
+                            setButtonLoading(
+                                true,
+                                'Confirming your payment...'
+                            );
+
+                            const response = await fetch(
+                                '/api/paypal/capture-order',
+                                {
+                                    method: 'POST',
+
+                                    headers: {
+                                        'Content-Type':
+                                            'application/json',
+
+                                        Accept:
+                                            'application/json'
+                                    },
+
+                                    body: JSON.stringify({
+                                        orderID:
+                                            data.orderID
+                                    })
+                                }
+                            );
+
+                            const result =
+                                await response
+                                    .json()
+                                    .catch(() => ({}));
+
+                            if (
+                                !response.ok ||
+                                !result.success ||
+                                !result.captureID
+                            ) {
+                                throw new Error(
+                                    result.message ||
+                                    result.error ||
+                                    'The card payment could not be confirmed.'
+                                );
+                            }
+
+                            byId('cardPaymentSuccess')
+                                ?.classList
+                                .remove('hidden');
+
+                            byId('cardFieldsContainer')
+                                ?.classList
+                                .add('hidden');
+
+                            byId('completedProductId').value =
+                                activeProduct.id;
+
+                            byId('completedProductTier').value =
+                                activeProduct.tier;
+
+                            byId('completedDiscordUsername').value =
+                                byId('discordUsername')
+                                    ?.value
+                                    ?.trim() || '';
+
+                            byId('completedPayPalOrderId').value =
+                                data.orderID;
+
+                            byId('completedPayPalCaptureId').value =
+                                result.captureID;
+
+                            window.setTimeout(() => {
+                                byId('completedPaymentForm')
+                                    ?.submit();
+                            }, 850);
+                        },
+
+                        onError: function (error) {
+                            console.error(
+                                'PayPal Card Fields error:',
+                                error
+                            );
+
+                            paymentProcessing = false;
+
+                            setButtonLoading(false);
+
+                            showError(
+                                'cardPaymentError',
+                                'cardPaymentErrorMessage',
+                                extractCardErrorMessage(error),
+                                false
+                            );
+                        },
+
+                        onCancel: function () {
+                            paymentProcessing = false;
+
+                            setButtonLoading(false);
+
+                            showError(
+                                'cardPaymentError',
+                                'cardPaymentErrorMessage',
+                                'Card verification was cancelled. No payment was completed.',
+                                false
+                            );
+                        }
                     });
-                });
 
-                await paypalApi.HostedButtons({
-                    hostedButtonId: buttonId
-                }).render(
-                    `#paypal-container-${buttonId}`
-                );
+                if (!cardFieldsInstance.isEligible()) {
+                    throw new Error(
+                        'Credit and debit card payments are not enabled for this PayPal business account.'
+                    );
+                }
 
-                loading.classList.add('hidden');
+                await Promise.all([
+                    cardFieldsInstance
+                        .NameField({
+                            placeholder: 'Full name as shown on card'
+                        })
+                        .render('#card-name-field-container'),
+
+                    cardFieldsInstance
+                        .NumberField({
+                            placeholder: '1234 5678 9012 3456'
+                        })
+                        .render('#card-number-field-container'),
+
+                    cardFieldsInstance
+                        .ExpiryField({
+                            placeholder: 'MM / YY'
+                        })
+                        .render('#card-expiry-field-container'),
+
+                    cardFieldsInstance
+                        .CVVField({
+                            placeholder: 'CVV'
+                        })
+                        .render('#card-cvv-field-container')
+                ]);
+
+                cardFieldsReady = true;
+
+                byId('cardFieldsLoading')
+                    ?.classList
+                    .add('hidden');
+
+                byId('cardFieldsContainer')
+                    ?.classList
+                    .remove('hidden');
+
+                setButtonLoading(false);
             } catch (error) {
                 console.error(
-                    'PayPal HostedButtons error:',
+                    'Card Fields initialization error:',
                     error
                 );
 
-                loading.classList.add('hidden');
+                cardFieldsInstance = null;
+                cardFieldsReady = false;
 
-                renderedPayPalButtons.delete(
-                    buttonId
+                byId('cardFieldsLoading')
+                    ?.classList
+                    .add('hidden');
+
+                byId('cardFieldsContainer')
+                    ?.classList
+                    .add('hidden');
+
+                showError(
+                    'cardPaymentError',
+                    'cardPaymentErrorMessage',
+                    extractCardErrorMessage(error),
+                    true
+                );
+            } finally {
+                cardFieldsInitializing = false;
+            }
+        }
+
+        function extractCardErrorMessage(error) {
+            if (!error) {
+                return 'The card payment could not continue.';
+            }
+
+            const text =
+                error.message ||
+                error.details?.[0]?.description ||
+                String(error);
+
+            if (
+                /instrument_declined/i.test(text) ||
+                /declined/i.test(text)
+            ) {
+                return 'Your card was declined. Check the card information or use another card.';
+            }
+
+            if (/eligible|enabled/i.test(text)) {
+                return 'Card Fields are not enabled for this PayPal business account. Enable Expanded Credit and Debit Card Payments in the PayPal Developer Dashboard.';
+            }
+
+            if (/network|fetch/i.test(text)) {
+                return 'The payment service could not be reached. Check your connection and try again.';
+            }
+
+            return text;
+        }
+
+        async function retryCardFields() {
+            const retryButton =
+                byId('retryCardFieldsButton');
+
+            if (retryButton) {
+                retryButton.classList.add('hidden');
+            }
+
+            clearError(
+                'cardPaymentError',
+                'cardPaymentErrorMessage'
+            );
+
+            cardFieldsInstance = null;
+            cardFieldsReady = false;
+
+            [
+                'card-name-field-container',
+                'card-number-field-container',
+                'card-expiry-field-container',
+                'card-cvv-field-container'
+            ].forEach(id => {
+                const element = byId(id);
+
+                if (element) {
+                    element.replaceChildren();
+                }
+            });
+
+            await initializeCardFields();
+        }
+
+        async function submitCardPayment() {
+            if (
+                paymentProcessing ||
+                !cardFieldsInstance ||
+                !cardFieldsReady
+            ) {
+                return;
+            }
+
+            clearError(
+                'cardPaymentError',
+                'cardPaymentErrorMessage'
+            );
+
+            try {
+                const state =
+                    await cardFieldsInstance.getState();
+
+                if (!state.isFormValid) {
+                    showError(
+                        'cardPaymentError',
+                        'cardPaymentErrorMessage',
+                        'Check the cardholder name, card number, expiry date and security code.',
+                        false
+                    );
+
+                    return;
+                }
+
+                paymentProcessing = true;
+
+                setButtonLoading(
+                    true,
+                    'Processing encrypted card payment...'
                 );
 
-                instance.remove();
+                await cardFieldsInstance.submit();
+            } catch (error) {
+                console.error(
+                    'Card submission error:',
+                    error
+                );
 
-                errorBox.classList.remove('hidden');
+                paymentProcessing = false;
 
-                setMessage(
-                    'paypalErrorMessage',
-                    error && error.message
-                        ? error.message
-                        : 'PayPal could not display the embedded checkout.'
+                setButtonLoading(false);
+
+                showError(
+                    'cardPaymentError',
+                    'cardPaymentErrorMessage',
+                    extractCardErrorMessage(error),
+                    false
                 );
             }
         }
 
         function openEmailModal() {
-            setMessage('emailAuthError', '');
-
-            showElement(
-                getElement('emailModal')
+            clearError(
+                'emailAuthError',
+                'emailAuthError'
             );
 
+            showModal('emailModal');
+
             window.setTimeout(() => {
-                getElement('authEmailInput')?.focus();
-            }, 50);
+                byId('authEmailInput')?.focus();
+            }, 80);
         }
 
-        function openOtpModal() {
-            hideElement(
-                getElement('emailModal')
+        function openBuyModal() {
+            setText(
+                'modalItemTitle',
+                activeProduct.title
             );
 
-            setMessage('otpAuthError', '');
-
-            showElement(
-                getElement('otpModal')
+            setText(
+                'modalItemTier',
+                activeProduct.tier
             );
 
-            window.setTimeout(() => {
-                getElement('authOtpInput')?.focus();
-            }, 50);
+            setText(
+                'modalItemPrice',
+                `$${activeProduct.price.toFixed(2)}`
+            );
+
+            setText(
+                'cardPaymentButtonText',
+                `Pay $${activeProduct.price.toFixed(2)} securely`
+            );
+
+            const image =
+                byId('modalProductImage');
+
+            const placeholder =
+                byId('modalProductPlaceholder');
+
+            if (activeProduct.image) {
+                image.src = activeProduct.image;
+                image.alt = activeProduct.title;
+
+                image.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                image.removeAttribute('src');
+                image.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+
+            byId('cardPaymentSuccess')
+                ?.classList
+                .add('hidden');
+
+            clearError(
+                'cardPaymentError',
+                'cardPaymentErrorMessage'
+            );
+
+            showModal('buyModal');
+
+            /*
+             * Render only after the modal is visible and has a measurable width.
+             */
+            window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => {
+                    initializeCardFields();
+                });
+            });
         }
 
         function handleBuyClick(product) {
@@ -1353,17 +2413,20 @@
                 price: Number(
                     product.price || 0
                 ),
-                paypalButtonId:
-                    normalizePayPalButtonId(
-                        product.paypalButtonId
-                    )
+                image: String(
+                    product.image || ''
+                )
             };
 
             if (
                 !Number.isFinite(activeProduct.price) ||
-                activeProduct.price < 0
+                activeProduct.price <= 0
             ) {
-                activeProduct.price = 0;
+                window.alert(
+                    'This product does not have a valid price.'
+                );
+
+                return;
             }
 
             if (isAuthenticated) {
@@ -1379,221 +2442,141 @@
             openEmailModal();
         }
 
-        function openBuyModal() {
-            getElement('modalItemTitle').textContent =
-                activeProduct.title;
-
-            getElement('modalItemTier').textContent =
-                activeProduct.tier;
-
-            getElement('modalItemPrice').textContent =
-                `$${activeProduct.price.toFixed(2)}`;
-
-            getElement('hiddenProductId').value =
-                activeProduct.id;
-
-            getElement('hiddenProductTier').value =
-                activeProduct.tier;
-
-            const paypalChoice =
-                document.querySelector(
-                    'input[name="payment_method_choice"][value="PayPal"]'
-                );
-
-            if (paypalChoice) {
-                paypalChoice.checked = true;
-            }
-
-            const giftcardLabel =
-                getElement('giftcardLabel');
-
-            const giftcardChoice =
-                document.querySelector(
-                    'input[name="payment_method_choice"][value="Giftcard"]'
-                );
-
-            const restrictedGiftCard =
-                activeProduct.price > 900 ||
-                ['custom', 'ultra'].includes(
-                    activeProduct.tier.toLowerCase()
-                );
-
-            giftcardLabel.classList.toggle(
-                'hidden',
-                restrictedGiftCard
-            );
-
-            if (
-                restrictedGiftCard &&
-                giftcardChoice?.checked &&
-                paypalChoice
-            ) {
-                paypalChoice.checked = true;
-            }
-
-            /*
-             * Make the modal visible before rendering PayPal.
-             */
-            showElement(
-                getElement('buyModal')
-            );
-
-            handlePaymentMethodChange();
-        }
-
-        function handlePaymentMethodChange() {
-            const selected =
-                document.querySelector(
-                    'input[name="payment_method_choice"]:checked'
-                );
-
-            const paymentMethod =
-                selected
-                    ? selected.value
-                    : 'PayPal';
-
-            const paypalContainer =
-                getElement('paypal-action-container');
-
-            const normalContainer =
-                getElement('normal-action-container');
-
-            const hiddenPaymentMethod =
-                getElement('hiddenPaymentMethod');
-
-            hiddenPaymentMethod.value =
-                paymentMethod;
-
-            if (paymentMethod === 'PayPal') {
-                paypalContainer.classList.remove(
-                    'hidden'
-                );
-
-                normalContainer.classList.add(
-                    'hidden'
-                );
-
-                showHostedPayPalButton(
-                    activeProduct.paypalButtonId
-                );
-            } else {
-                paypalContainer.classList.add(
-                    'hidden'
-                );
-
-                normalContainer.classList.remove(
-                    'hidden'
-                );
-            }
-        }
-
         async function sendOtp() {
-            const emailInput =
-                getElement('authEmailInput');
+            const input =
+                byId('authEmailInput');
 
             const button =
-                getElement('sendOtpBtn');
+                byId('sendOtpBtn');
 
             const email =
-                emailInput.value
+                input.value
                     .trim()
                     .toLowerCase();
 
-            const emailPattern =
+            const validEmail =
                 /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            setMessage('emailAuthError', '');
+            byId('emailAuthError')
+                ?.classList
+                .add('hidden');
 
-            if (!emailPattern.test(email)) {
-                setMessage(
+            if (!validEmail.test(email)) {
+                setText(
                     'emailAuthError',
                     'Enter a valid email address.'
                 );
 
-                emailInput.focus();
+                byId('emailAuthError')
+                    ?.classList
+                    .remove('hidden');
+
+                input.focus();
                 return;
             }
 
             button.disabled = true;
-            button.textContent = 'Sending...';
+            button.textContent = 'Sending code...';
 
             try {
                 const response = await fetch(
                     '/api/send-otp',
                     {
                         method: 'POST',
+
                         headers: {
                             'Content-Type':
                                 'application/json'
                         },
+
                         body: JSON.stringify({
                             email
                         })
                     }
                 );
 
-                const data =
+                const result =
                     await response
                         .json()
                         .catch(() => ({}));
 
                 if (
                     !response.ok ||
-                    !data.success
+                    !result.success
                 ) {
                     throw new Error(
-                        data.message ||
-                        'Unable to send the verification code.'
+                        result.message ||
+                        'The verification code could not be sent.'
                     );
                 }
 
                 userEmailToVerify = email;
 
-                openOtpModal();
+                hideModal('emailModal');
+                showModal('otpModal');
+
+                window.setTimeout(() => {
+                    byId('authOtpInput')?.focus();
+                }, 80);
             } catch (error) {
-                setMessage(
+                setText(
                     'emailAuthError',
                     error.message ||
-                    'Unable to send the verification code.'
+                    'The verification code could not be sent.'
                 );
+
+                byId('emailAuthError')
+                    ?.classList
+                    .remove('hidden');
             } finally {
                 button.disabled = false;
-                button.textContent = 'Send Code';
+                button.textContent =
+                    'Send verification code';
             }
         }
 
         async function verifyOtp() {
-            const otpInput =
-                getElement('authOtpInput');
+            const input =
+                byId('authOtpInput');
 
             const button =
-                getElement('verifyOtpBtn');
+                byId('verifyOtpBtn');
 
             const code =
-                otpInput.value
+                input.value
                     .replace(/\D/g, '')
                     .slice(0, 6);
 
-            otpInput.value = code;
+            input.value = code;
 
-            setMessage('otpAuthError', '');
+            byId('otpAuthError')
+                ?.classList
+                .add('hidden');
 
             if (!userEmailToVerify) {
-                setMessage(
+                setText(
                     'otpAuthError',
-                    'Your email session expired. Please request another code.'
+                    'Your verification session expired. Request another code.'
                 );
+
+                byId('otpAuthError')
+                    ?.classList
+                    .remove('hidden');
 
                 return;
             }
 
             if (code.length !== 6) {
-                setMessage(
+                setText(
                     'otpAuthError',
                     'Enter the complete six-digit code.'
                 );
 
-                otpInput.focus();
+                byId('otpAuthError')
+                    ?.classList
+                    .remove('hidden');
+
+                input.focus();
                 return;
             }
 
@@ -1605,89 +2588,90 @@
                     '/api/verify-otp',
                     {
                         method: 'POST',
+
                         headers: {
                             'Content-Type':
                                 'application/json'
                         },
+
                         body: JSON.stringify({
                             email:
                                 userEmailToVerify,
+
                             code
                         })
                     }
                 );
 
-                const data =
+                const result =
                     await response
                         .json()
                         .catch(() => ({}));
 
                 if (
                     !response.ok ||
-                    !data.success
+                    !result.success
                 ) {
                     throw new Error(
-                        data.message ||
+                        result.message ||
                         'The code is invalid or expired.'
                     );
                 }
 
                 window.location.reload();
             } catch (error) {
-                setMessage(
+                setText(
                     'otpAuthError',
                     error.message ||
                     'The code is invalid or expired.'
                 );
+
+                byId('otpAuthError')
+                    ?.classList
+                    .remove('hidden');
             } finally {
                 button.disabled = false;
-                button.textContent = 'Verify';
+                button.textContent =
+                    'Verify and continue';
             }
         }
 
         function closeModals() {
-            hideElement(
-                getElement('emailModal')
-            );
+            if (paymentProcessing) {
+                return;
+            }
 
-            hideElement(
-                getElement('otpModal')
-            );
-
-            hideElement(
-                getElement('buyModal')
-            );
+            hideModal('emailModal');
+            hideModal('otpModal');
+            hideModal('buyModal');
 
             document.body.classList.remove(
                 'modal-open'
             );
-
-            setMessage('emailAuthError', '');
-            setMessage('otpAuthError', '');
         }
 
         function switchTab(tabId) {
-            const storeButton =
-                getElement('tab-store');
-
-            const postsButton =
-                getElement('tab-posts');
-
-            const storeGrid =
-                getElement('store-grid');
-
-            const postsGrid =
-                getElement('posts-grid');
-
             const showStore =
                 tabId === 'store';
 
-            storeGrid.classList.toggle(
+            const store =
+                byId('store-grid');
+
+            const posts =
+                byId('posts-grid');
+
+            const storeButton =
+                byId('tab-store');
+
+            const postsButton =
+                byId('tab-posts');
+
+            store.classList.toggle(
                 'hidden',
                 !showStore
             );
 
-            postsGrid.classList.toggle(
+            posts.classList.toggle(
                 'hidden',
                 showStore
             );
@@ -1704,18 +2688,18 @@
 
             storeButton.className =
                 showStore
-                    ? 'font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition'
-                    : 'font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition';
+                    ? 'rounded-xl px-5 py-2.5 text-sm font-extrabold bg-slate-950 text-white shadow-sm transition'
+                    : 'rounded-xl px-5 py-2.5 text-sm font-extrabold text-slate-500 hover:text-slate-950 transition';
 
             postsButton.className =
                 !showStore
-                    ? 'font-bold text-sm md:text-base text-blue-600 border-b-2 border-blue-600 pb-3 px-2 transition'
-                    : 'font-bold text-sm md:text-base text-gray-500 border-b-2 border-transparent hover:text-gray-800 pb-3 px-2 transition';
+                    ? 'rounded-xl px-5 py-2.5 text-sm font-extrabold bg-slate-950 text-white shadow-sm transition'
+                    : 'rounded-xl px-5 py-2.5 text-sm font-extrabold text-slate-500 hover:text-slate-950 transition';
         }
 
         function renderSearchResults(items) {
             const dropdown =
-                getElement('searchDropdown');
+                byId('searchDropdown');
 
             dropdown.replaceChildren();
 
@@ -1739,38 +2723,59 @@
                     );
 
                 link.className =
-                    'block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0';
+                    'flex items-center justify-between gap-4 px-5 py-4 hover:bg-blue-50 border-b border-slate-100 last:border-0 transition';
 
                 link.setAttribute(
                     'role',
                     'option'
                 );
 
+                const content =
+                    document.createElement('div');
+
+                content.className =
+                    'min-w-0';
+
                 const title =
                     document.createElement('div');
 
                 title.className =
-                    'font-bold text-sm text-gray-900';
+                    'font-extrabold text-sm text-slate-950 truncate';
 
                 title.textContent =
                     String(
-                        item.title || 'Untitled'
+                        item.title ||
+                        'Untitled product'
                     );
 
                 const category =
                     document.createElement('div');
 
                 category.className =
-                    'text-[10px] font-bold text-gray-400 uppercase mt-0.5';
+                    'text-[10px] font-black text-slate-400 uppercase tracking-wider mt-1';
 
                 category.textContent =
                     String(
-                        item.category || 'Product'
+                        item.category ||
+                        'Marketplace'
                     );
 
-                link.append(
+                const arrow =
+                    document.createElement('span');
+
+                arrow.className =
+                    'w-8 h-8 shrink-0 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center';
+
+                arrow.innerHTML = '&rarr;';
+
+                content.append(
                     title,
                     category
+                );
+
+                link.append(
+                    content,
+                    arrow
                 );
 
                 dropdown.appendChild(link);
@@ -1797,6 +2802,7 @@
                             Accept:
                                 'application/json'
                         },
+
                         signal:
                             searchController.signal
                     }
@@ -1804,21 +2810,21 @@
 
                 if (!response.ok) {
                     throw new Error(
-                        'Search request failed.'
+                        'Search failed.'
                     );
                 }
 
-                const data =
+                const result =
                     await response.json();
 
-                renderSearchResults(data);
+                renderSearchResults(result);
             } catch (error) {
                 if (
                     error.name !==
                     'AbortError'
                 ) {
                     console.error(
-                        'Search error:',
+                        'Marketplace search error:',
                         error
                     );
 
@@ -1831,32 +2837,29 @@
             'DOMContentLoaded',
             () => {
                 const searchInput =
-                    getElement('searchInput');
+                    byId('searchInput');
 
                 const searchDropdown =
-                    getElement('searchDropdown');
+                    byId('searchDropdown');
 
                 const otpInput =
-                    getElement('authOtpInput');
+                    byId('authOtpInput');
 
-                const buyForm =
-                    getElement('buyForm');
+                const emailInput =
+                    byId('authEmailInput');
 
-                const urlParams =
+                const urlParameters =
                     new URLSearchParams(
                         window.location.search
                     );
 
                 if (
-                    urlParams.get('tab') ===
+                    urlParameters.get('tab') ===
                     'posts'
                 ) {
                     switchTab('posts');
                 }
 
-                /*
-                 * Product buttons.
-                 */
                 document
                     .querySelectorAll(
                         '.purchase-button'
@@ -1882,31 +2885,14 @@
                                         button.dataset
                                             .productPrice,
 
-                                    paypalButtonId:
+                                    image:
                                         button.dataset
-                                            .paypalButtonId
+                                            .productImage
                                 });
                             }
                         );
                     });
 
-                /*
-                 * Payment-method selection.
-                 */
-                document
-                    .querySelectorAll(
-                        'input[name="payment_method_choice"]'
-                    )
-                    .forEach(input => {
-                        input.addEventListener(
-                            'change',
-                            handlePaymentMethodChange
-                        );
-                    });
-
-                /*
-                 * Search suggestions.
-                 */
                 if (
                     searchInput &&
                     searchDropdown
@@ -1914,25 +2900,17 @@
                     searchInput.addEventListener(
                         'input',
                         event => {
-                            const value =
+                            const query =
                                 event.target.value.trim();
 
                             window.clearTimeout(
                                 searchTimer
                             );
 
-                            if (
-                                value.length < 2
-                            ) {
-                                if (
-                                    searchController
-                                ) {
-                                    searchController.abort();
-                                }
+                            if (query.length < 2) {
+                                searchController?.abort();
 
-                                renderSearchResults(
-                                    []
-                                );
+                                renderSearchResults([]);
 
                                 return;
                             }
@@ -1941,7 +2919,7 @@
                                 window.setTimeout(
                                     () => {
                                         searchMarketplace(
-                                            value
+                                            query
                                         );
                                     },
                                     250
@@ -1949,6 +2927,40 @@
                         }
                     );
                 }
+
+                otpInput?.addEventListener(
+                    'input',
+                    () => {
+                        otpInput.value =
+                            otpInput.value
+                                .replace(/\D/g, '')
+                                .slice(0, 6);
+                    }
+                );
+
+                otpInput?.addEventListener(
+                    'keydown',
+                    event => {
+                        if (
+                            event.key ===
+                            'Enter'
+                        ) {
+                            verifyOtp();
+                        }
+                    }
+                );
+
+                emailInput?.addEventListener(
+                    'keydown',
+                    event => {
+                        if (
+                            event.key ===
+                            'Enter'
+                        ) {
+                            sendOtp();
+                        }
+                    }
+                );
 
                 document.addEventListener(
                     'click',
@@ -1973,104 +2985,10 @@
                     }
                 );
 
-                /*
-                 * OTP input cleanup.
-                 */
-                if (otpInput) {
-                    otpInput.addEventListener(
-                        'input',
-                        () => {
-                            otpInput.value =
-                                otpInput.value
-                                    .replace(
-                                        /\D/g,
-                                        ''
-                                    )
-                                    .slice(
-                                        0,
-                                        6
-                                    );
-                        }
-                    );
-
-                    otpInput.addEventListener(
-                        'keydown',
-                        event => {
-                            if (
-                                event.key ===
-                                'Enter'
-                            ) {
-                                verifyOtp();
-                            }
-                        }
-                    );
-                }
-
-                getElement(
-                    'authEmailInput'
-                )?.addEventListener(
-                    'keydown',
-                    event => {
-                        if (
-                            event.key ===
-                            'Enter'
-                        ) {
-                            sendOtp();
-                        }
-                    }
-                );
-
-                /*
-                 * Crypto and gift-card checkout only.
-                 *
-                 * PayPal never submits this form.
-                 */
-                if (buyForm) {
-                    buyForm.addEventListener(
-                        'submit',
-                        event => {
-                            const selected =
-                                document.querySelector(
-                                    'input[name="payment_method_choice"]:checked'
-                                );
-
-                            const method =
-                                selected
-                                    ? selected.value
-                                    : 'PayPal';
-
-                            if (
-                                method ===
-                                'PayPal'
-                            ) {
-                                event.preventDefault();
-
-                                handlePaymentMethodChange();
-
-                                return;
-                            }
-
-                            const submitButton =
-                                getElement(
-                                    'normalCheckoutButton'
-                                );
-
-                            submitButton.disabled =
-                                true;
-
-                            submitButton.textContent =
-                                'Submitting...';
-                        }
-                    );
-                }
-
-                /*
-                 * Close when the dark backdrop itself is clicked.
-                 */
                 [
-                    getElement('emailModal'),
-                    getElement('otpModal'),
-                    getElement('buyModal')
+                    byId('emailModal'),
+                    byId('otpModal'),
+                    byId('buyModal')
                 ].forEach(modal => {
                     modal?.addEventListener(
                         'mousedown',
@@ -2097,50 +3015,48 @@
                     }
                 );
 
-                /*
-                 * Resume purchase after OTP sign-in.
-                 */
                 if (isAuthenticated) {
-                    const pending =
+                    const pendingPurchase =
                         sessionStorage.getItem(
                             'pendingBuy'
                         );
 
-                    if (pending) {
+                    if (pendingPurchase) {
                         try {
-                            const parsed =
+                            const restored =
                                 JSON.parse(
-                                    pending
+                                    pendingPurchase
                                 );
 
                             activeProduct = {
                                 id:
                                     String(
-                                        parsed.id ||
+                                        restored.id ||
                                         ''
                                     ),
 
                                 title:
                                     String(
-                                        parsed.title ||
+                                        restored.title ||
                                         'Product'
                                     ),
 
                                 tier:
                                     String(
-                                        parsed.tier ||
+                                        restored.tier ||
                                         'Standard'
                                     ),
 
                                 price:
                                     Number(
-                                        parsed.price ||
+                                        restored.price ||
                                         0
                                     ),
 
-                                paypalButtonId:
-                                    normalizePayPalButtonId(
-                                        parsed.paypalButtonId
+                                image:
+                                    String(
+                                        restored.image ||
+                                        ''
                                     )
                             };
 
@@ -2150,11 +3066,11 @@
 
                             window.setTimeout(
                                 openBuyModal,
-                                250
+                                300
                             );
                         } catch (error) {
                             console.error(
-                                'Could not restore pending purchase:',
+                                'Could not restore purchase:',
                                 error
                             );
 
