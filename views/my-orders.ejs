@@ -1,164 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Secure Payment | Order <%= order.order_id %> - ExamHub</title>
+    <title>My Orders - ExamHub Professional</title>
     <%- include('partials/head') %>
-    
-    <% if (order.payment_method === 'PayPal' && order.status === 'Pending Payment') { %>
-        <script src="https://www.paypal.com/sdk/js?client-id=BAACqOV8IkLP3i0-_Ty6IA7zt5_OxtawbH5tAUCjenPO6KcpDgcEscgNhhZCTP9dVtHBQB6BrxF5QoOBnM&currency=USD&components=buttons"></script>
-    <% } %>
 </head>
-<body class="antialiased flex flex-col bg-gray-50 min-h-screen">
-    <nav class="py-6 px-4 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full relative z-20">
-        <a href="/" class="text-2xl md:text-3xl font-black text-anime-textMain">Exam<span class="text-anime-accent">Hub</span></a>
-        <div class="flex items-center gap-2">
-            <a href="/my-orders" class="bg-gray-900 text-white hover:bg-gray-800 px-4 py-2 rounded-full font-black text-sm transition shadow-md">📦 My Orders</a>
+<body class="antialiased flex flex-col min-h-screen bg-gray-50 text-gray-800">
+    
+    <nav class="border-b border-gray-200 bg-white sticky top-0 z-40 shadow-sm">
+        <div class="py-4 px-6 md:px-8 flex justify-between items-center max-w-7xl mx-auto w-full">
+            <a href="/" class="text-2xl font-extrabold tracking-tight text-gray-900">Exam<span class="text-blue-600">Hub</span></a>
+            
+            <div class="flex items-center gap-3">
+                <a href="https://discord.gg/bg6wKj45w3" target="_blank" class="hidden md:flex items-center gap-2 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-md font-semibold text-sm transition">
+                    Discord Support
+                </a>
+                <a href="/buyer-logout" class="ml-2 text-sm font-medium text-gray-500 hover:text-red-600 transition">Logout</a>
+            </div>
         </div>
     </nav>
 
-    <main class="flex-grow w-full max-w-4xl mx-auto px-4 md:px-6 relative z-20 pb-20 pt-10">
-        <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border-2 border-gray-100 animate-fade-in-up">
-            
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 pb-8 border-b-2 border-dashed border-gray-100">
-                <div>
-                    <span class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Order ID</span>
-                    <h1 class="text-3xl md:text-4xl font-black text-anime-textMain"><%= order.order_id %></h1>
-                </div>
-                <div class="text-right">
-                    <span class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Status</span>
-                    <% 
-                        let statusClass = "bg-gray-100 text-gray-600";
-                        if (order.status === 'Pending Payment') statusClass = "bg-orange-100 text-orange-700 border border-orange-200";
-                        else if (order.status.includes('Paid') || order.status === 'Completed') statusClass = "bg-green-100 text-green-700 border border-green-200";
-                        else if (order.status === 'Closed') statusClass = "bg-red-100 text-red-700 border border-red-200";
-                    %>
-                    <span class="px-4 py-2 rounded-full font-black text-sm <%= statusClass %>"><%= order.status %></span>
-                </div>
+    <main class="flex-grow w-full max-w-6xl mx-auto px-4 md:px-8 py-10 relative z-20">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Order History</h1>
+                <p class="text-sm font-medium text-gray-500 mt-2">Authenticated as: <span class="text-gray-900 font-bold"><%= buyerEmail %></span></p>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                <div class="md:col-span-2 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                    <span class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 block">Item details</span>
-                    <h3 class="font-black text-xl text-anime-textMain leading-tight mb-2"><%= order.product_title %></h3>
-                    <div class="flex items-center gap-2">
-                        <span class="bg-purple-100 text-purple-700 font-black text-xs px-2 py-0.5 rounded uppercase tracking-wider"><%= order.tier %></span>
-                        <span class="text-sm font-bold text-gray-500">Provided to: <%= order.email %></span>
-                    </div>
-                </div>
-                <div class="p-6 bg-gray-50 rounded-2xl border border-gray-100 text-center flex flex-col justify-center">
-                    <span class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Total Amount Due</span>
-                    <p class="text-5xl font-black text-green-600 tracking-tight">$<%= parseFloat(order.product_price).toFixed(2) %></p>
-                </div>
-            </div>
-
-            <% if (order.status === 'Pending Payment') { %>
-                <div class="mt-12 p-8 md:p-10 rounded-3xl border-4 <%= order.payment_method === 'PayPal' ? 'border-blue-200 bg-blue-50' : 'border-orange-200 bg-orange-50' %>">
-                    
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl <%= order.payment_method === 'PayPal' ? 'bg-blue-100' : 'bg-orange-100' %>">
-                            <%= order.payment_method === 'PayPal' ? '💳' : '🪙' %>
-                        </div>
-                        <div>
-                            <h2 class="text-2xl font-black text-anime-textMain">Complete Payment</h2>
-                            <p class="text-sm font-bold text-gray-600">Method: <%= order.payment_method === 'PayPal' ? 'PayPal / Credit Card' : order.payment_method %></p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-6 text-anime-textMain">
-                        <% if (order.payment_method === 'PayPal') { %>
-                            <div class="bg-white p-6 rounded-2xl border-2 border-gray-100 shadow-inner text-center">
-                                <p class="text-sm font-bold text-gray-600 mb-6">Click below to pay $<span class="text-green-600"><%= parseFloat(order.product_price).toFixed(2) %></span> securely.</p>
-                                
-                                <div id="paypal-button-container" class="max-w-sm mx-auto"></div>
-                                <p class="text-xs font-medium text-gray-400 mt-4">Verified instant delivery processing after successful payment.</p>
-                            </div>
-
-                            <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    if (typeof paypal !== 'undefined') {
-                                        paypal.Buttons({
-                                            style: {
-                                                layout: 'vertical',
-                                                color:  'blue',
-                                                shape:  'rect',
-                                                label:  'pay'
-                                            },
-                                            // Dynamic creation based on actual order amount
-                                            createOrder: function(data, actions) {
-                                                return actions.order.create({
-                                                    purchase_units: [{
-                                                        amount: {
-                                                            value: '<%= parseFloat(order.product_price).toFixed(2) %>'
-                                                        },
-                                                        description: 'ExamHub Order <%= order.order_id %> - <%= order.product_title.replace(/'/g, "\\'") %>'
-                                                    }]
-                                                });
-                                            },
-                                            onApprove: function(data, actions) {
-                                                return actions.order.capture().then(function(details) {
-                                                    // Dynamic redirect/update
-                                                    fetch('/api/order/<%= order.order_id %>/update', {
-                                                        method: 'POST',
-                                                        headers: {'Content-Type': 'application/json'},
-                                                        body: JSON.stringify({ status: 'Paid - Awaiting delivery', paypal_capture_id: details.id })
-                                                    }).then(() => {
-                                                        window.location.reload();
-                                                    });
-                                                });
-                                            },
-                                            onError: function(err) {
-                                                console.error('PayPal Error', err);
-                                                alert('Payment failed or cancelled.');
-                                            }
-                                        }).render('#paypal-button-container');
-                                    } else {
-                                        document.getElementById('paypal-button-container').innerHTML = '<p class="text-red-500 font-bold">Failed to load PayPal secure buttons. Please refresh.</p>';
-                                    }
-                                });
-                            </script>
-
-                        <% } else if (order.payment_method === 'Crypto') { %>
-                            <div class="bg-white p-6 rounded-2xl border-2 border-gray-100 shadow-inner">
-                                <p class="text-sm font-bold text-gray-600 mb-4">Send exactly $<span class="text-green-600"><%= parseFloat(order.product_price).toFixed(2) %></span> value of Solana (SOL) to:</p>
-                                <div class="bg-gray-100 p-4 rounded-xl border border-gray-200 font-mono text-xs break-all select-all text-center mb-6">REDACTED_SOLANA_ADDRESS</div>
-                                <p class="text-xs font-bold text-orange-700 bg-orange-100 p-3 rounded-lg">Once sent, contact Support on Discord with your Order ID and Transaction Hash for delivery.</p>
-                            </div>
-
-                        <% } else if (order.payment_method === 'Giftcard') { %>
-                            <div class="bg-white p-6 rounded-2xl border-2 border-gray-100 shadow-inner text-center">
-                                <p class="text-sm font-bold text-gray-600 mb-6">Provide Kinguin/G2A code for total $<span class="text-green-600"><%= parseFloat(order.product_price).toFixed(2) %></span></p>
-                                
-                                <input type="text" id="giftcard_code" placeholder="Enter Giftcard Code" class="w-full max-w-sm mx-auto bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-purple-400 text-sm mb-4 text-center">
-                                <button onclick="submitGiftcard()" class="w-full max-w-sm mx-auto block bg-purple-600 text-white font-black py-3 rounded-xl hover:bg-purple-700 transition shadow-sm">Submit Code</button>
-                            </div>
-                            <script>
-                                function submitGiftcard() {
-                                    const code = document.getElementById('giftcard_code').value.trim();
-                                    if(!code) return alert("Enter a code.");
-                                    fetch('/api/order/<%= order.order_id %>/update', {
-                                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                                        body: JSON.stringify({ status: 'Code Processing', giftcard_code: code })
-                                    }).then(() => window.location.reload());
-                                }
-                            </script>
-                        <% } %>
-                    </div>
-                </div>
-            <% } else { %>
-                <div class="mt-12 text-center bg-green-50 p-10 rounded-3xl border-4 border-green-100">
-                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">✅</div>
-                    <h2 class="text-3xl font-black text-green-800 mb-3">Payment Confirmed!</h2>
-                    <p class="text-lg font-bold text-green-700 mb-6">Delivery is being prepared for <%= order.email %>.</p>
-                    <p class="text-sm font-bold text-green-600">Please contact support on Discord if delivery takes longer than 15 minutes.</p>
+            <% if (error === 'max_orders') { %>
+                <div class="bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded-md text-sm font-bold shadow-sm">
+                    Max active orders reached (3). Close completed orders to create new ones.
                 </div>
             <% } %>
-
         </div>
+
+        <div class="bg-white border border-gray-200 shadow-sm rounded-md overflow-hidden">
+            <% if (!orders || orders.length === 0) { %>
+                <div class="p-12 text-center text-gray-500 font-medium">
+                    <p class="text-4xl mb-3">📦</p>
+                    <p>No orders found in your history.</p>
+                    <a href="/" class="inline-block mt-4 text-blue-600 font-bold hover:underline">Browse Marketplace</a>
+                </div>
+            <% } else { %>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left whitespace-nowrap">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Order ID</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Product</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <% orders.forEach(order => { %>
+                                <tr class="hover:bg-gray-50/50 transition">
+                                    <td class="px-6 py-5">
+                                        <div class="font-mono text-sm font-bold text-gray-900"><%= order.order_id %></div>
+                                        <div class="text-[11px] text-gray-400 mt-0.5"><%= new Date(order.created_at).toLocaleDateString() %></div>
+                                    </td>
+                                    <td class="px-6 py-5">
+                                        <div class="font-bold text-gray-900 text-sm truncate max-w-[200px] md:max-w-xs"><%= order.product_title || 'Item Unavailable' %></div>
+                                        <div class="text-xs text-gray-500 mt-0.5"><%= order.payment_method %> • <%= order.tier %></div>
+                                    </td>
+                                    <td class="px-6 py-5">
+                                        <span class="font-bold text-gray-900 text-sm">$<%= parseFloat(order.product_price || 0).toFixed(2) %></span>
+                                    </td>
+                                    <td class="px-6 py-5">
+                                        <% 
+                                            let statusClass = "bg-gray-100 text-gray-700 border-gray-200";
+                                            if (order.status === 'Pending Payment') statusClass = "bg-orange-50 text-orange-700 border-orange-200";
+                                            else if (order.status.includes('Paid') || order.status === 'Completed') statusClass = "bg-green-50 text-green-700 border-green-200";
+                                            else if (order.status === 'Closed') statusClass = "bg-red-50 text-red-700 border-red-200";
+                                        %>
+                                        <span class="px-2.5 py-1 rounded-sm border text-[11px] font-bold uppercase tracking-wide <%= statusClass %>">
+                                            <%= order.status %>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-5 text-right flex items-center justify-end gap-3">
+                                        <a href="/order/<%= order.order_id %>" class="text-sm font-bold text-blue-600 hover:text-blue-800 transition">View Receipt</a>
+                                        
+                                        <% if (order.status !== 'Closed') { %>
+                                            <form action="/buyer/close-order" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to close this order permanently?');">
+                                                <input type="hidden" name="order_id" value="<%= order.order_id %>">
+                                                <button type="submit" class="text-sm font-medium text-gray-400 hover:text-red-600 transition">Close</button>
+                                            </form>
+                                        <% } else { %>
+                                            <span class="text-sm font-medium text-gray-300 select-none">Closed</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </div>
+
     </main>
 
-    <footer class="bg-white border-t border-gray-100 relative z-20">
-        <div class="max-w-7xl mx-auto px-4 md:px-8 py-8 text-center text-sm font-bold text-gray-500">
-            © 2026 ExamHub Marketplace.
+    <footer class="bg-white border-t border-gray-200 mt-auto relative z-20">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-xl font-bold text-gray-900">Exam<span class="text-blue-600">Hub</span></p>
+            <p class="text-sm font-medium text-gray-500">© 2026 Professional Marketplace. All rights reserved.</p>
         </div>
     </footer>
 </body>
