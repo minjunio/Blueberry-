@@ -123,13 +123,12 @@ function publicMachine(machine) {
   };
 }
 
-
 // --- EMAIL CONFIGURATION ---
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'example@gmail.com', // REDACTED
-        pass: 'your-app-password'  // REDACTED
+        user: 'example@gmail.com', // REPLACE THIS WITH YOUR GMAIL ADDRESS
+        pass: 'your-app-password'  // REPLACE THIS WITH YOUR 16-CHARACTER APP PASSWORD
     }
 });
 
@@ -221,7 +220,7 @@ app.post('/api/send-otp', (req, res) => {
 
         try {
             await transporter.sendMail({
-                from: '"ExamHub Support" <example@gmail.com>',
+                from: '"ExamHub Support" <example@gmail.com>', // Match your authenticating email
                 to: email,
                 subject: 'Your ExamHub Verification Code',
                 text: `Your verification code is: ${code}. It expires in 15 minutes.`,
@@ -340,7 +339,6 @@ app.get('/post/:id', (req, res) => {
         }
     });
 });
-
 
 app.get('/my-orders', (req, res) => {
     if (!req.session.buyerEmail) return res.redirect('/');
