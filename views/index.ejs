@@ -11,7 +11,6 @@
         function formatPostText(text) {
             if (!text) return '';
             let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-            // Fixed Regex: Using [\s\S]*? allows the bolding and headers to work across multiple lines and paragraphs
             safeText = safeText.replace(/\*\*([\s\S]*?)\*\*/g, '<strong class="font-black text-anime-textMain">$1</strong>');
             safeText = safeText.replace(/#([\s\S]*?)#/g, '<span class="text-xl md:text-2xl font-black block mt-4 mb-2 text-anime-textMain leading-tight">$1</span>');
             safeText = safeText.replace(/\n/g, '<br>');
@@ -28,6 +27,11 @@
     <meta property="og:image" content="<%= ogImage %>">
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
+
+    <!-- PayPal SDK - Loaded once -->
+    <script 
+        src="https://www.paypal.com/sdk/js?client-id=BAACqOV8IkLP3i0-_Ty6IA7zt5_OxtawbH5tAUCjenPO6KcpDgcEscgNhhZCTP9dVtHBQB6BrxF5QoOBnM&components=hosted-buttons&disable-funding=venmo&currency=USD">
+    </script>
 </head>
 
 <body class="antialiased flex flex-col">
@@ -174,6 +178,7 @@
         </div>
     </main>
 
+    <!-- Email Modal -->
     <div id="emailModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm justify-center items-center z-50 p-4">
         <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-8 text-center animate-fade-in-up">
             <h2 class="text-2xl font-black text-anime-textMain mb-2">Secure Checkout</h2>
@@ -184,6 +189,7 @@
         </div>
     </div>
 
+    <!-- OTP Modal -->
     <div id="otpModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm justify-center items-center z-50 p-4">
         <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-8 text-center animate-fade-in-up">
             <h2 class="text-2xl font-black text-anime-textMain mb-2">Enter Code</h2>
@@ -194,6 +200,7 @@
         </div>
     </div>
 
+    <!-- Buy / Checkout Modal -->
     <div id="buyModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm justify-center items-center z-50 p-4">
         <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in-up">
             <div id="buyFormContainer" class="p-6 md:p-8">
@@ -218,6 +225,7 @@
                     <div class="pt-2">
                         <label class="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">Select Payment Method</label>
                         <div class="grid grid-cols-2 gap-3">
+                            <!-- Crypto -->
                             <label class="cursor-pointer relative">
                                 <input type="radio" id="radioCrypto" name="payment_method" value="Crypto" required class="peer sr-only" checked>
                                 <div class="rounded-xl border-2 border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-anime-accent peer-checked:bg-anime-skyLight transition text-center shadow-sm">
@@ -226,6 +234,7 @@
                                 </div>
                             </label>
                             
+                            <!-- Giftcard -->
                             <label id="giftcardLabel" class="cursor-pointer relative">
                                 <input type="radio" name="payment_method" value="Giftcard" class="peer sr-only">
                                 <div class="rounded-xl border-2 border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-anime-accent peer-checked:bg-anime-skyLight transition text-center shadow-sm">
@@ -234,17 +243,24 @@
                                 </div>
                             </label>
 
-                            <label id="discordLabel" class="cursor-pointer relative hidden">
-                                <input type="radio" name="payment_method" value="DiscordMethod" class="peer sr-only">
-                                <div class="rounded-xl border-2 border-gray-200 bg-white p-3 hover:bg-purple-50 peer-checked:border-purple-500 peer-checked:bg-purple-100 transition text-center shadow-sm">
-                                    <p class="font-black text-sm text-purple-800">Other</p>
-                                    <p class="text-[10px] font-bold text-purple-600 mt-1 uppercase tracking-wider">Via Discord</p>
+                            <!-- PayPal -->
+                            <label class="cursor-pointer relative">
+                                <input type="radio" id="radioPayPal" name="payment_method" value="PayPal" class="peer sr-only">
+                                <div class="rounded-xl border-2 border-gray-200 bg-white p-3 hover:bg-gray-50 peer-checked:border-anime-accent peer-checked:bg-anime-skyLight transition text-center shadow-sm">
+                                    <p class="font-black text-sm text-anime-textMain">PayPal</p>
+                                    <p class="text-[10px] font-bold text-blue-600 mt-1 uppercase tracking-wider">Secure</p>
                                 </div>
                             </label>
                         </div>
                     </div>
-                    
-                    <button type="submit" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md mt-4">Complete Purchase →</button>
+
+                    <!-- PayPal Button Container (shown only when PayPal is selected) -->
+                    <div id="paypalButtonContainer" class="hidden mt-4">
+                        <div id="paypal-button-render"></div>
+                        <p class="text-[10px] text-center text-gray-500 mt-2 font-bold">You will be redirected to PayPal to complete payment</p>
+                    </div>
+
+                    <button type="submit" id="normalSubmitBtn" class="w-full bg-anime-accent text-white font-black py-4 rounded-xl hover:scale-[1.02] transition shadow-md mt-4">Complete Purchase →</button>
                 </form>
             </div>
         </div>
@@ -254,6 +270,7 @@
         const isAuthenticated = <%= typeof buyerEmail !== 'undefined' && !!buyerEmail %>;
         let pendingBuyData = null;
         let userEmailToVerify = null;
+        let currentProductPrice = 0;
 
         // TAB LOGIC
         function switchTab(tabId) {
@@ -265,7 +282,6 @@
             if (tabId === 'store') {
                 storeGrid.classList.remove('hidden');
                 postsGrid.classList.add('hidden');
-                
                 storeBtn.classList.add('border-anime-accent', 'text-anime-accent');
                 storeBtn.classList.remove('border-transparent', 'text-gray-400');
                 postsBtn.classList.remove('border-anime-accent', 'text-anime-accent');
@@ -273,7 +289,6 @@
             } else {
                 postsGrid.classList.remove('hidden');
                 storeGrid.classList.add('hidden');
-                
                 postsBtn.classList.add('border-anime-accent', 'text-anime-accent');
                 postsBtn.classList.remove('border-transparent', 'text-gray-400');
                 storeBtn.classList.remove('border-anime-accent', 'text-anime-accent');
@@ -281,13 +296,42 @@
             }
         }
 
-        // Auto Open Tab based on URL
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             if(urlParams.get('tab') === 'posts') {
                 switchTab('posts');
             }
+
+            // Listen for payment method change to show/hide PayPal button
+            const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+            paymentRadios.forEach(radio => {
+                radio.addEventListener('change', handlePaymentMethodChange);
+            });
         });
+
+        function handlePaymentMethodChange() {
+            const paypalContainer = document.getElementById('paypalButtonContainer');
+            const normalBtn = document.getElementById('normalSubmitBtn');
+            const selected = document.querySelector('input[name="payment_method"]:checked').value;
+
+            if (selected === 'PayPal') {
+                paypalContainer.classList.remove('hidden');
+                normalBtn.classList.add('hidden');
+                renderPayPalButton();
+            } else {
+                paypalContainer.classList.add('hidden');
+                normalBtn.classList.remove('hidden');
+            }
+        }
+
+        function renderPayPalButton() {
+            const container = document.getElementById('paypal-button-render');
+            container.innerHTML = ''; // clear previous
+
+            paypal.HostedButtons({
+                hostedButtonId: "QZ7HHN9DJGNSA"   // ← Change this per product if you have multiple button IDs
+            }).render("#paypal-button-render");
+        }
 
         // SEARCH BAR LOGIC
         const searchInput = document.getElementById('searchInput');
@@ -299,7 +343,7 @@
             const res = await fetch('/api/search?q=' + encodeURIComponent(val));
             const data = await res.json();
             if (data.length > 0) {
-                searchDropdown.innerHTML = data.map(item => `<a href="/?q=${encodeURIComponent(item.title)}" class="block px-6 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0"><div class="font-black text-sm text-anime-textMain">${item.title}</div><div class="text-[10px] font-bold text-anime-accent uppercase tracking-wider">${item.category}</div></a>`).join('');
+                searchDropdown.innerHTML = data.map(item => `<a href="/?q=\( {encodeURIComponent(item.title)}" class="block px-6 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0"><div class="font-black text-sm text-anime-textMain"> \){item.title}</div><div class="text-[10px] font-bold text-anime-accent uppercase tracking-wider">${item.category}</div></a>`).join('');
                 searchDropdown.classList.remove('hidden');
             } else { searchDropdown.classList.add('hidden'); }
         });
@@ -358,18 +402,22 @@
             document.getElementById('modalItemTitle').innerText = title;
             document.getElementById('hiddenProductId').value = id;
             document.getElementById('hiddenProductTier').value = tier;
+            currentProductPrice = parseFloat(price || 0);
 
-            const numericPrice = parseFloat(price || 0);
             const giftcardLabel = document.getElementById('giftcardLabel');
-            const discordLabel = document.getElementById('discordLabel');
+            const normalBtn = document.getElementById('normalSubmitBtn');
+            const paypalContainer = document.getElementById('paypalButtonContainer');
 
-            if (numericPrice > 900 || tier === 'Custom' || tier === 'Ultra') {
+            // Reset UI
+            paypalContainer.classList.add('hidden');
+            normalBtn.classList.remove('hidden');
+            document.getElementById('radioCrypto').checked = true;
+
+            // Hide giftcard for expensive/custom items (your existing logic)
+            if (currentProductPrice > 900 || tier === 'Custom' || tier === 'Ultra') {
                 giftcardLabel.classList.add('hidden');
-                discordLabel.classList.remove('hidden');
-                document.getElementById('radioCrypto').checked = true;
             } else {
                 giftcardLabel.classList.remove('hidden');
-                discordLabel.classList.add('hidden');
             }
 
             document.getElementById('buyModal').classList.remove('hidden');
@@ -384,6 +432,10 @@
             document.getElementById('buyModal').classList.add('hidden');
             document.getElementById('buyModal').classList.remove('flex');
             document.getElementById('buyForm').reset();
+
+            // Reset PayPal container
+            document.getElementById('paypalButtonContainer').classList.add('hidden');
+            document.getElementById('normalSubmitBtn').classList.remove('hidden');
         }
     </script>
 </body>
