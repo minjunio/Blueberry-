@@ -28,7 +28,7 @@
     <link rel="icon" type="image/png" href="/favicon.png">
     <%- include('partials/head') %>
 
-    <!-- PayPal SDK - Loaded once -->
+    <!-- PayPal SDK -->
     <script 
         src="https://www.paypal.com/sdk/js?client-id=BAACqOV8IkLP3i0-_Ty6IA7zt5_OxtawbH5tAUCjenPO6KcpDgcEscgNhhZCTP9dVtHBQB6BrxF5QoOBnM&components=hosted-buttons&disable-funding=venmo&currency=USD">
     </script>
@@ -254,7 +254,7 @@
                         </div>
                     </div>
 
-                    <!-- PayPal Button Container (shown only when PayPal is selected) -->
+                    <!-- PayPal Button Container -->
                     <div id="paypalButtonContainer" class="hidden mt-4">
                         <div id="paypal-button-render"></div>
                         <p class="text-[10px] text-center text-gray-500 mt-2 font-bold">You will be redirected to PayPal to complete payment</p>
@@ -272,7 +272,166 @@
         let userEmailToVerify = null;
         let currentProductPrice = 0;
 
-        // TAB LOGIC
+        // ==================== IMPROVED LOGIN + BUY FLOW ====================
+        function handleBuyClick(id, title, tier, price) {
+            if (isAuthenticated) {
+                openBuyModal(id, title, tier, price);
+            } else {
+                // Save the product they want to buy
+                pendingBuyData = { id, title, tier, price };
+                sessionStorage.setItem('pendingBuy', JSON.stringify(pendingBuyData));
+
+                document.getElementById('emailModal').classList.remove('hidden');
+                document.getElementById('emailModal').classList.add('flex');
+            }
+        }
+
+        // Check for pending purchase after page load (after OTP login)
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('tab') === 'posts') {
+                switchTab('posts');
+            }
+
+            // Payment method change listener
+            const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+            paymentRadios.forEach(radio => {
+                radio.addEventListener('change', handlePaymentMethodChange);
+            });
+
+            // === AUTO RESUME PURCHASE AFTER LOGIN ===
+            if (isAuthenticated) {
+                const savedPending = sessionStorage.getItem('pendingBuy');
+                if (savedPending) {
+                    const data = JSON.parse(savedPending);
+                    sessionStorage.removeItem('pendingBuy'); // clear it
+
+                    // Small delay so the page is fully ready
+                    setTimeout(() => {
+                        openBuyModal(data.id, data.title, data.tier, data.price);
+                    }, 400);
+                }
+            }
+        });
+
+        function handlePaymentMethodChange() {
+            const paypalContainer = document.getElementById('paypalButtonContainer');
+            const normalBtn = document.getElementById('normalSubmitBtn');
+            const selected = document.querySelector('input[name="payment_method"]:checked').value;
+
+            if (selected === 'PayPal') {
+                paypalContainer.classList.remove('hidden');
+                normalBtn.classList.add('hidden');
+                renderPayPalButton();
+            } else {
+                paypalContainer.classList.add('hidden');
+                normalBtn.classList.remove('hidden');
+            }
+        }
+
+        function renderPayPalButton() {
+            const container = document.getElementById('paypal-button-render');
+            container.innerHTML = '';
+
+            paypal.HostedButtons({
+                hostedButtonId: "QZ7HHN9DJGNSA"
+            }).render("#paypal-button-render");
+        }
+
+        // SEARCH
+        const searchInput = document.getElementById('searchInput');
+        const searchDropdown = document.getElementById('searchDropdown');
+
+        searchInput.addEventListener('input', async (e) => {
+            const val = e.target.value.trim();
+            if (val.length < 2) { searchDropdown.classList.add('hidden'); return; }
+            const res = await fetch('/api/search?q=' + encodeURIComponent(val));
+            const data = await res.json();
+            if (data.length > 0) {
+                searchDropdown.innerHTML = data.map(item => `<a href="/?q=\( {encodeURIComponent(item.title)}" class="block px-6 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0"><div class="font-black text-sm text-anime-textMain"> \){item.title}</div><div class="text-[10px] font-bold text-anime-accent uppercase tracking-wider">${item.category}</div></a>`).join('');
+                searchDropdown.classList.remove('hidden');
+            } else { searchDropdown.classList.add('hidden'); }
+        });
+
+        async function sendOtp() {
+            const email = document.getElementById('authEmailInput').value;
+            if (!email || !email.includes('@')) return alert("Enter a valid email.");
+            
+            document.getElementById('sendOtpBtn').innerText = 'Sending...';
+            document.getElementById('sendOtpBtn').disabled = true;
+
+            const res = await fetch('/api/send-otp', {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                userEmailToVerify = email;
+                document.getElementById('emailModal').classList.add('hidden');
+                document.getElementById('otpModal').classList.remove('hidden');
+                document.getElementById('otpModal').classList.add('flex');
+            } else {
+                alert("Error sending email. Please try again.");
+                document.getElementById('sendOtpBtn').innerText = 'Send Verification Code';
+                document.getElementById('sendOtpBtn').disabled = false;
+            }
+        }
+
+        async function verifyOtp() {
+            const code = document.getElementById('authOtpInput').value;
+            if (code.length !== 6) return alert("Enter the 6 digit code.");
+            
+            const res = await fetch('/api/verify-otp', {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: userEmailToVerify, code })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                // Reload the page — the pendingBuy logic will automatically open the modal
+                window.location.reload();
+            } else {
+                alert("Invalid or expired code. Please try again.");
+            }
+        }
+
+        function openBuyModal(id, title, tier, price) {
+            document.getElementById('modalItemTitle').innerText = title;
+            document.getElementById('hiddenProductId').value = id;
+            document.getElementById('hiddenProductTier').value = tier;
+            currentProductPrice = parseFloat(price || 0);
+
+            const giftcardLabel = document.getElementById('giftcardLabel');
+            const normalBtn = document.getElementById('normalSubmitBtn');
+            const paypalContainer = document.getElementById('paypalButtonContainer');
+
+            paypalContainer.classList.add('hidden');
+            normalBtn.classList.remove('hidden');
+            document.getElementById('radioCrypto').checked = true;
+
+            if (currentProductPrice > 900 || tier === 'Custom' || tier === 'Ultra') {
+                giftcardLabel.classList.add('hidden');
+            } else {
+                giftcardLabel.classList.remove('hidden');
+            }
+
+            document.getElementById('buyModal').classList.remove('hidden');
+            document.getElementById('buyModal').classList.add('flex');
+        }
+
+        function closeModals() {
+            document.getElementById('emailModal').classList.add('hidden');
+            document.getElementById('emailModal').classList.remove('flex');
+            document.getElementById('otpModal').classList.add('hidden');
+            document.getElementById('otpModal').classList.remove('flex');
+            document.getElementById('buyModal').classList.add('hidden');
+            document.getElementById('buyModal').classList.remove('flex');
+            document.getElementById('buyForm').reset();
+
+            document.getElementById('paypalButtonContainer').classList.add('hidden');
+            document.getElementById('normalSubmitBtn').classList.remove('hidden');
+        }
+
+        // TAB SWITCHING
         function switchTab(tabId) {
             const storeBtn = document.getElementById('tab-store');
             const postsBtn = document.getElementById('tab-posts');
@@ -294,148 +453,6 @@
                 storeBtn.classList.remove('border-anime-accent', 'text-anime-accent');
                 storeBtn.classList.add('border-transparent', 'text-gray-400');
             }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            if(urlParams.get('tab') === 'posts') {
-                switchTab('posts');
-            }
-
-            // Listen for payment method change to show/hide PayPal button
-            const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
-            paymentRadios.forEach(radio => {
-                radio.addEventListener('change', handlePaymentMethodChange);
-            });
-        });
-
-        function handlePaymentMethodChange() {
-            const paypalContainer = document.getElementById('paypalButtonContainer');
-            const normalBtn = document.getElementById('normalSubmitBtn');
-            const selected = document.querySelector('input[name="payment_method"]:checked').value;
-
-            if (selected === 'PayPal') {
-                paypalContainer.classList.remove('hidden');
-                normalBtn.classList.add('hidden');
-                renderPayPalButton();
-            } else {
-                paypalContainer.classList.add('hidden');
-                normalBtn.classList.remove('hidden');
-            }
-        }
-
-        function renderPayPalButton() {
-            const container = document.getElementById('paypal-button-render');
-            container.innerHTML = ''; // clear previous
-
-            paypal.HostedButtons({
-                hostedButtonId: "QZ7HHN9DJGNSA"   // ← Change this per product if you have multiple button IDs
-            }).render("#paypal-button-render");
-        }
-
-        // SEARCH BAR LOGIC
-        const searchInput = document.getElementById('searchInput');
-        const searchDropdown = document.getElementById('searchDropdown');
-
-        searchInput.addEventListener('input', async (e) => {
-            const val = e.target.value.trim();
-            if (val.length < 2) { searchDropdown.classList.add('hidden'); return; }
-            const res = await fetch('/api/search?q=' + encodeURIComponent(val));
-            const data = await res.json();
-            if (data.length > 0) {
-                searchDropdown.innerHTML = data.map(item => `<a href="/?q=\( {encodeURIComponent(item.title)}" class="block px-6 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0"><div class="font-black text-sm text-anime-textMain"> \){item.title}</div><div class="text-[10px] font-bold text-anime-accent uppercase tracking-wider">${item.category}</div></a>`).join('');
-                searchDropdown.classList.remove('hidden');
-            } else { searchDropdown.classList.add('hidden'); }
-        });
-
-        function handleBuyClick(id, title, tier, price) {
-            if (isAuthenticated) {
-                openBuyModal(id, title, tier, price);
-            } else {
-                pendingBuyData = { id, title, tier, price };
-                document.getElementById('emailModal').classList.remove('hidden');
-                document.getElementById('emailModal').classList.add('flex');
-            }
-        }
-
-        async function sendOtp() {
-            const email = document.getElementById('authEmailInput').value;
-            if (!email || !email.includes('@')) return alert("Enter a valid email.");
-            
-            document.getElementById('sendOtpBtn').innerText = 'Sending...';
-            document.getElementById('sendOtpBtn').disabled = true;
-
-            const res = await fetch('/api/send-otp', {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            
-            if (data.success) {
-                userEmailToVerify = email;
-                document.getElementById('emailModal').classList.add('hidden');
-                document.getElementById('otpModal').classList.remove('hidden');
-                document.getElementById('otpModal').classList.add('flex');
-            } else {
-                alert("Error sending email.");
-                document.getElementById('sendOtpBtn').innerText = 'Send Verification Code';
-                document.getElementById('sendOtpBtn').disabled = false;
-            }
-        }
-
-        async function verifyOtp() {
-            const code = document.getElementById('authOtpInput').value;
-            if (code.length !== 6) return alert("Enter the 6 digit code.");
-            
-            const res = await fetch('/api/verify-otp', {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email: userEmailToVerify, code })
-            });
-            const data = await res.json();
-
-            if (data.success) {
-                window.location.reload();
-            } else {
-                alert("Invalid or expired code.");
-            }
-        }
-
-        function openBuyModal(id, title, tier, price) {
-            document.getElementById('modalItemTitle').innerText = title;
-            document.getElementById('hiddenProductId').value = id;
-            document.getElementById('hiddenProductTier').value = tier;
-            currentProductPrice = parseFloat(price || 0);
-
-            const giftcardLabel = document.getElementById('giftcardLabel');
-            const normalBtn = document.getElementById('normalSubmitBtn');
-            const paypalContainer = document.getElementById('paypalButtonContainer');
-
-            // Reset UI
-            paypalContainer.classList.add('hidden');
-            normalBtn.classList.remove('hidden');
-            document.getElementById('radioCrypto').checked = true;
-
-            // Hide giftcard for expensive/custom items (your existing logic)
-            if (currentProductPrice > 900 || tier === 'Custom' || tier === 'Ultra') {
-                giftcardLabel.classList.add('hidden');
-            } else {
-                giftcardLabel.classList.remove('hidden');
-            }
-
-            document.getElementById('buyModal').classList.remove('hidden');
-            document.getElementById('buyModal').classList.add('flex');
-        }
-
-        function closeModals() {
-            document.getElementById('emailModal').classList.add('hidden');
-            document.getElementById('emailModal').classList.remove('flex');
-            document.getElementById('otpModal').classList.add('hidden');
-            document.getElementById('otpModal').classList.remove('flex');
-            document.getElementById('buyModal').classList.add('hidden');
-            document.getElementById('buyModal').classList.remove('flex');
-            document.getElementById('buyForm').reset();
-
-            // Reset PayPal container
-            document.getElementById('paypalButtonContainer').classList.add('hidden');
-            document.getElementById('normalSubmitBtn').classList.remove('hidden');
         }
     </script>
 </body>
