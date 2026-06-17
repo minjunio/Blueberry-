@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WindowServer.app - Easy Tutorial</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+        h1, h2, h3 {
+            color: #1d1d1f;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .highlight {
+            background: #f0f0f5;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #0071e3;
+        }
+        .hotkey {
+            background: #1d1d1f;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            display: inline-block;
+            margin: 4px 0;
+        }
+        .illustration {
+            background: #f8f8fa;
+            border: 2px dashed #0071e3;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin: 16px 0;
+            font-size: 15px;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .step-number {
+            background: #0071e3;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align: center; font-size: 2.5rem;">🖥️ WindowServer.app</h1>
+    <p style="text-align: center; font-size: 1.2rem; color: #555;">Easy Tutorial for Beginners</p>
+
+    <div class="card">
+        <h2>What is this app?</h2>
+        <p>WindowServer.app is a powerful but easy-to-use tool that helps you:</p>
+        <ul>
+            <li>Extract text from other apps (even when they try to hide it)</li>
+            <li>Take stealth screenshots that many apps can't block</li>
+            <li>Send questions to Gemini AI and get answers</li>
+            <li>Automatically type answers using virtual clipboard</li>
+            <li>Teleport your mouse cursor for multiple choice questions</li>
+        </ul>
+        <p><strong>It runs in the background</strong> and uses the name "WindowServer" so it stays discreet.</p>
+    </div>
+
+    <!-- Step 1: Get API Key -->
+    <div class="card">
+        <h2>Step 1: Get Your Gemini API Key (Free)</h2>
+        
+        <div class="step">
+            <div class="step-number">1</div>
+            <div>
+                <p>Go to Google AI Studio:</p>
+                <p><a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #0071e3; font-weight: bold;">https://aistudio.google.com/app/apikey</a></p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div>
+                <p>Sign in with your Google account.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div>
+                <p>Click <strong>"Create API Key"</strong>.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">4</div>
+            <div>
+                <p>Copy the key (it starts with <code>AIza...</code>).</p>
+                <div class="illustration">
+                    <strong>Example:</strong><br>
+                    <code style="background:#eee; padding:4px 8px; border-radius:4px;">AIzaSyDxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>Important:</strong> Keep this key private. Do not share it with anyone.
+        </div>
+    </div>
+
+    <!-- Step 2: Running the App -->
+    <div class="card">
+        <h2>Step 2: Running WindowServer.app</h2>
+        
+        <div class="step">
+            <div class="step-number">1</div>
+            <div>
+                <p>Double-click <strong>WindowServer.app</strong> to launch it.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div>
+                <p>The app runs in the background. You won't see a big window.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div>
+                <p>Press <span class="hotkey">Ctrl + E</span> to open the Settings window.</p>
+            </div>
+        </div>
+
+        <div class="illustration">
+            <strong>💡 Tip:</strong> The app name shows as "WindowServer" in Activity Monitor.<br>
+            This helps it stay discreet.
+        </div>
+    </div>
+
+    <!-- Step 3: API Key in Settings -->
+    <div class="card">
+        <h2>Step 3: Enter Your API Key</h2>
+        
+        <div class="step">
+            <div class="step-number">1</div>
+            <div>
+                <p>Press <span class="hotkey">Ctrl + E</span> to open Settings.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div>
+                <p>Paste your Gemini API key into the <strong>"Gemini API Key"</strong> field.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div>
+                <p>The key is automatically saved when you type.</p>
+            </div>
+        </div>
+
+        <div class="highlight">
+            <strong>Pro Tip:</strong> You only need to enter the key once. It stays saved even after restarting the app.
+        </div>
+    </div>
+
+    <!-- Step 4: Virtual Display -->
+    <div class="card">
+        <h2>Step 4: Using Virtual Display (For Cloud / Headless)</h2>
+        
+        <p>This is useful when you're running the app on a server or cloud computer that has no physical screen.</p>
+
+        <div class="illustration">
+            <strong>🖥️ What is a Virtual Display?</strong><br><br>
+            It creates a fake monitor (1920x1080) that appears in System Settings → Displays.<br>
+            This allows the app to take screenshots even when there's no real screen.
+        </div>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div>
+                <p>Press <span class="hotkey">Ctrl + E</span> to open Settings.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div>
+                <p>Check the box: <strong>"Enable Virtual Display + Screenshot Mode"</strong></p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div>
+                <p>Click the button <strong>"Create Virtual Display (1920x1080)"</strong></p>
+            </div>
+        </div>
+
+        <div class="illustration">
+            <strong>✅ Success!</strong><br>
+            Go to <strong>System Settings → Displays</strong><br>
+            You should now see a new display called <strong>"LG UltraFine 5K"</strong>.
+        </div>
+
+        <div class="warning">
+            <strong>Note:</strong> You only need to create the virtual display once. It stays until you restart your Mac.
+        </div>
+    </div>
+
+    <!-- Step 5: Hotkeys -->
+    <div class="card">
+        <h2>Step 5: Hotkeys (The Most Important Part)</h2>
+
+        <div style="background:#f8f8fa; padding:20px; border-radius:10px; margin:20px 0;">
+            
+            <h3 style="margin-top:0;">🔥 Main Hotkeys</h3>
+            
+            <div style="margin:12px 0;">
+                <span class="hotkey">Ctrl + A</span><br>
+                <strong>Extract text or take stealth screenshot</strong><br>
+                <small>→ Sends to Gemini AI automatically</small>
+            </div>
+
+            <div style="margin:12px 0;">
+                <span class="hotkey">Ctrl + V</span><br>
+                <strong>Type the answer from virtual clipboard</strong><br>
+                <small>→ Automatically types what Gemini answered</small>
+            </div>
+
+            <div style="margin:12px 0;">
+                <span class="hotkey">Ctrl + E</span><br>
+                <strong>Open Settings window</strong>
+            </div>
+
+        </div>
+
+        <div class="illustration">
+            <strong>How to use hotkeys:</strong><br><br>
+            1. Open your exam or target app<br>
+            2. Press <span class="hotkey">Ctrl + A</span><br>
+            3. Wait a few seconds<br>
+            4. Gemini answer appears in the app<br>
+            5. Press <span class="hotkey">Ctrl + V</span> to type the answer
+        </div>
+    </div>
+
+    <!-- Step 6: Cursor Teleport -->
+    <div class="card">
+        <h2>Step 6: Cursor Teleport for MCQ Questions</h2>
+        
+        <p>This feature automatically moves your mouse to the correct answer (A, B, C, or D).</p>
+
+        <div class="illustration">
+            <strong>🖱️ How Cursor Teleport Works</strong><br><br>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 400px; margin: 0 auto;">
+                <div style="background:#e3f2fd; padding:12px; border-radius:8px;">
+                    <strong>A = Top Left</strong><br>
+                    <span style="font-size:2rem;">↖️</span>
+                </div>
+                <div style="background:#e8f5e9; padding:12px; border-radius:8px;">
+                    <strong>B = Top Right</strong><br>
+                    <span style="font-size:2rem;">↗️</span>
+                </div>
+                <div style="background:#fff3e0; padding:12px; border-radius:8px;">
+                    <strong>C = Bottom Left</strong><br>
+                    <span style="font-size:2rem;">↙️</span>
+                </div>
+                <div style="background:#fce4ec; padding:12px; border-radius:8px;">
+                    <strong>D = Bottom Right</strong><br>
+                    <span style="font-size:2rem;">↘️</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight">
+            <strong>How to use it:</strong><br>
+            1. Make sure Virtual Display is <strong>OFF</strong><br>
+            2. Press <span class="hotkey">Ctrl + A</span><br>
+            3. If Gemini detects it's an MCQ, your mouse will automatically move to the correct answer.
+        </div>
+    </div>
+
+    <!-- Final Tips -->
+    <div class="card">
+        <h2>Final Tips</h2>
+        
+        <ul>
+            <li>Always keep the app running in the background.</li>
+            <li>Use <strong>Screenshot Mode</strong> when the target app tries to hide text.</li>
+            <li>Use <strong>Aux Mode</strong> (uncheck Screenshot Mode) for normal apps.</li>
+            <li>Press <span class="hotkey">Ctrl + E</span> anytime to open settings.</li>
+            <li>The app saves your API key automatically.</li>
+        </ul>
+
+        <div class="warning">
+            <strong>⚠️ Important:</strong><br>
+            This tool is powerful. Use it responsibly and only on apps where you have permission.
+        </div>
+    </div>
+
+    <p style="text-align: center; color: #888; margin-top: 40px;">
+        Made for WindowServer.app • Keep it simple, keep it powerful.
+    </p>
+
+</body>
+</html>
