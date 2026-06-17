@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmed • WindowServer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap');
+
+        :root {
+            --primary: #0066ff;
+            --primary-hover: #0052cc;
+            --success: #16a34a;
+            --success-light: #dcfce7;
+            --bg-gradient: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #ede9fe 100%);
+            --text-main: #0f172a;
+            --text-muted: #475569;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1), 
+                        0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+            padding: 48px 40px;
+            text-align: center;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- New Checkmark Animation --- */
+        .success-animation {
+            margin: 0 auto 32px;
+            width: 88px;
+            height: 88px;
+        }
+
+        .checkmark {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 3;
+            stroke: #fff;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px var(--success);
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 3;
+            stroke-miterlimit: 10;
+            stroke: var(--success);
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+        }
+
+        @keyframes stroke {
+            100% { stroke-dashoffset: 0; }
+        }
+        @keyframes scale {
+            0%, 100% { transform: none; }
+            50% { transform: scale3d(1.1, 1.1, 1); }
+        }
+        @keyframes fill {
+            100% { box-shadow: inset 0px 0px 0px 50px var(--success); }
+        }
+
+        /* --- Typography --- */
+        h1 {
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            font-size: 2rem;
+            margin: 0 0 12px 0;
+            color: var(--text-main);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        /* --- Contact Sections --- */
+        .section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 28px 24px;
+            margin-bottom: 28px;
+            text-align: left;
+        }
+
+        .section h3 {
+            margin: 0 0 12px 0;
+            color: var(--text-main);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .contact-option {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .contact-option:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .contact-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .discord-icon { background: #EEF2FF; color: #5865F2; }
+        .email-icon { background: #FEF2F2; color: #EF4444; }
+
+        .contact-details {
+            flex-grow: 1;
+        }
+
+        .contact-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .contact-value {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .contact-value strong {
+            color: var(--text-main);
+        }
+
+        /* --- Button & Footer --- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 16px 32px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.05rem;
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.25);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 102, 255, 0.35);
+        }
+
+        .footer-text {
+            margin-top: 24px;
+            color: #64748b;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Smooth Animated Success Icon -->
+        <div class="success-animation">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+        </div>
+
+        <!-- Header -->
+        <h1>Payment Confirmed</h1>
+        <p class="subtitle">Thank you for purchasing <strong>WindowServer</strong>.</p>
+
+        <!-- Next Steps -->
+        <div class="section">
+            <h3>Next Steps</h3>
+            <p class="section-desc">
+                Your payment has been successfully verified. To receive the software and get your machine whitelisted, please contact us with your proof of payment:
+            </p>
+
+            <!-- Discord Option -->
+            <div class="contact-option">
+                <div class="contact-icon discord-icon">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+                    </svg>
+                </div>
+                <div class="contact-details">
+                    <div class="contact-title">Discord (Recommended)</div>
+                    <div class="contact-value">Message <strong>@minjunio</strong></div>
+                </div>
+            </div>
+
+            <!-- Email Option -->
+            <div class="contact-option">
+                <div class="contact-icon email-icon">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div class="contact-details">
+                    <div class="contact-title">Email Address</div>
+                    <div class="contact-value"><strong>minjunnios@gmail.com</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conditional Tutorial Button (EJS logic checks if they have the software) -->
+        <% if (locals.hasSoftware) { %>
+            <a href="https://examhub.com/tutorial" class="btn">
+                Go to Tutorial
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+            </a>
+        <% } %>
+
+        <p class="footer-text">
+            Once we verify your payment, we will send you the software securely and automatically whitelist your machine.
+        </p>
+    </div>
+
+</body>
+</html>
