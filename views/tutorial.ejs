@@ -3,342 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WindowServer.app - Easy Tutorial</title>
+    <title>WindowServer • Easy Guide</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', system_ui, sans-serif;
             line-height: 1.6;
-            max-width: 900px;
+            max-width: 820px;
             margin: 40px auto;
             padding: 20px;
-            background: #f5f5f7;
-            color: #1d1d1f;
+            background: #f8f9fc;
+            color: #1f2937;
         }
+        
         h1, h2, h3 {
-            color: #1d1d1f;
+            font-family: 'Space Grotesk', system_ui, sans-serif;
+            font-weight: 600;
         }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .header h1 {
+            font-size: 2.6rem;
+            margin: 0;
+            background: linear-gradient(90deg, #0066ff, #3388ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
         .card {
             background: white;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 16px;
+            padding: 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
         }
-        .highlight {
-            background: #f0f0f5;
-            padding: 16px;
-            border-radius: 8px;
-            border-left: 4px solid #0071e3;
+        
+        .section-title {
+            font-size: 1.3rem;
+            margin: 0 0 14px 0;
         }
+        
         .hotkey {
-            background: #1d1d1f;
+            background: #111827;
             color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-family: monospace;
-            display: inline-block;
-            margin: 4px 0;
+            padding: 5px 12px;
+            border-radius: 7px;
+            font-family: ui-monospace, monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
+        
         .illustration {
-            background: #f8f8fa;
-            border: 2px dashed #0071e3;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
             border-radius: 12px;
-            padding: 20px;
+            padding: 18px;
+            margin: 14px 0;
             text-align: center;
-            margin: 16px 0;
-            font-size: 15px;
         }
+        
         .step {
             display: flex;
-            align-items: flex-start;
-            margin-bottom: 20px;
+            gap: 14px;
+            margin-bottom: 12px;
         }
+        
         .step-number {
-            background: #0071e3;
+            background: #0066ff;
             color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            border-radius: 9999px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            margin-right: 16px;
+            font-weight: 700;
             flex-shrink: 0;
+            font-size: 0.85rem;
         }
-        .warning {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 16px;
-            border-radius: 8px;
+        
+        .highlight {
+            background: #f0f7ff;
+            border-left: 4px solid #0066ff;
+            padding: 14px 18px;
+            border-radius: 10px;
         }
-        ul {
-            padding-left: 20px;
+        
+        .mouse-demo {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin: 16px 0;
+            flex-wrap: wrap;
         }
-        li {
-            margin-bottom: 8px;
+        
+        .mouse-box {
+            width: 130px;
+            height: 82px;
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        
+        .mouse-cursor {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #0066ff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.25);
+            transition: all 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .label {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+        
+        .stealth {
+            display: inline-block;
+            background: #dcfce7;
+            color: #166534;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .tip {
+            font-size: 0.9rem;
+            color: #475569;
         }
     </style>
 </head>
 <body>
 
-    <h1 style="text-align: center; font-size: 2.5rem;">🖥️ WindowServer.app</h1>
-    <p style="text-align: center; font-size: 1.2rem; color: #555;">Easy Tutorial for Beginners</p>
-
-    <div class="card">
-        <h2>What is this app?</h2>
-        <p>WindowServer.app is a powerful but easy-to-use tool that helps you:</p>
-        <ul>
-            <li>Extract text from other apps (even when they try to hide it)</li>
-            <li>Take stealth screenshots that many apps can't block</li>
-            <li>Send questions to Gemini AI and get answers</li>
-            <li>Automatically type answers using virtual clipboard</li>
-            <li>Teleport your mouse cursor for multiple choice questions</li>
-        </ul>
-        <p><strong>It runs in the background</strong> and uses the name "WindowServer" so it stays discreet.</p>
+    <!-- Header -->
+    <div class="header">
+        <h1>WindowServer</h1>
+        <p style="font-size: 1.1rem; color: #64748b; margin-top: 4px;">The most stealthy exam assistant for macOS</p>
     </div>
 
-    <!-- Step 1: Get API Key -->
+    <!-- What makes it special -->
     <div class="card">
-        <h2>Step 1: Get Your Gemini API Key (Free)</h2>
+        <h2 class="section-title">Why This App is Extremely Stealthy</h2>
+        <p>It uses private SkyLight APIs to capture exactly what you see on screen — bypassing most normal screenshot blocks used by exam software.</p>
         
-        <div class="step">
-            <div class="step-number">1</div>
-            <div>
-                <p>Go to Google AI Studio:</p>
-                <p><a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #0071e3; font-weight: bold;">https://aistudio.google.com/app/apikey</a></p>
-            </div>
-        </div>
-
-        <div class="step">
-            <div class="step-number">2</div>
-            <div>
-                <p>Sign in with your Google account.</p>
-            </div>
-        </div>
-
-        <div class="step">
-            <div class="step-number">3</div>
-            <div>
-                <p>Click <strong>"Create API Key"</strong>.</p>
-            </div>
-        </div>
-
-        <div class="step">
-            <div class="step-number">4</div>
-            <div>
-                <p>Copy the key (it starts with <code>AIza...</code>).</p>
-                <div class="illustration">
-                    <strong>Example:</strong><br>
-                    <code style="background:#eee; padding:4px 8px; border-radius:4px;">AIzaSyDxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
-                </div>
-            </div>
-        </div>
-
-        <div class="warning">
-            <strong>Important:</strong> Keep this key private. Do not share it with anyone.
+        <div style="margin-top: 12px;">
+            <span class="stealth">Uses SkyLight private API</span>
+            <span class="stealth" style="margin-left: 8px;">Runs as "WindowServer"</span>
         </div>
     </div>
 
-    <!-- Step 2: Running the App -->
+    <!-- Get API Key -->
     <div class="card">
-        <h2>Step 2: Running WindowServer.app</h2>
+        <h2 class="section-title">1. Get Your Free Gemini API Key</h2>
         
         <div class="step">
             <div class="step-number">1</div>
-            <div>
-                <p>Double-click <strong>WindowServer.app</strong> to launch it.</p>
-            </div>
+            <div>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#0066ff; font-weight:600;">Google AI Studio</a></div>
         </div>
-
         <div class="step">
             <div class="step-number">2</div>
-            <div>
-                <p>The app runs in the background. You won't see a big window.</p>
-            </div>
+            <div>Click <strong>Create API Key</strong> and copy it</div>
         </div>
-
         <div class="step">
             <div class="step-number">3</div>
-            <div>
-                <p>Press <span class="hotkey">Ctrl + E</span> to open the Settings window.</p>
-            </div>
-        </div>
-
-        <div class="illustration">
-            <strong>💡 Tip:</strong> The app name shows as "WindowServer" in Activity Monitor.<br>
-            This helps it stay discreet.
+            <div>Paste it in Settings (<span class="hotkey">Ctrl + E</span>). It saves automatically.</div>
         </div>
     </div>
 
-    <!-- Step 3: API Key in Settings -->
+    <!-- Virtual Display -->
     <div class="card">
-        <h2>Step 3: Enter Your API Key</h2>
+        <h2 class="section-title">2. Create Virtual Display (Highly Recommended)</h2>
         
-        <div class="step">
-            <div class="step-number">1</div>
-            <div>
-                <p>Press <span class="hotkey">Ctrl + E</span> to open Settings.</p>
-            </div>
-        </div>
-
-        <div class="step">
-            <div class="step-number">2</div>
-            <div>
-                <p>Paste your Gemini API key into the <strong>"Gemini API Key"</strong> field.</p>
-            </div>
-        </div>
-
-        <div class="step">
-            <div class="step-number">3</div>
-            <div>
-                <p>The key is automatically saved when you type.</p>
-            </div>
-        </div>
-
+        <p>The virtual display pretends to be a real external monitor. This makes the app much harder to detect.</p>
+        
         <div class="highlight">
-            <strong>Pro Tip:</strong> You only need to enter the key once. It stays saved even after restarting the app.
-        </div>
-    </div>
-
-    <!-- Step 4: Virtual Display -->
-    <div class="card">
-        <h2>Step 4: Using Virtual Display (For Cloud / Headless)</h2>
-        
-        <p>This is useful when you're running the app on a server or cloud computer that has no physical screen.</p>
-
-        <div class="illustration">
-            <strong>🖥️ What is a Virtual Display?</strong><br><br>
-            It creates a fake monitor (1920x1080) that appears in System Settings → Displays.<br>
-            This allows the app to take screenshots even when there's no real screen.
+            <strong>Best Stealth Practice:</strong><br>
+            Open <strong>Bluebook</strong> or <strong>Lockdown Browser</strong> <strong>inside</strong> the virtual display. 
+            The exam software will think it's running on a normal external monitor.
         </div>
 
-        <div class="step">
+        <div class="step" style="margin-top:16px;">
             <div class="step-number">1</div>
-            <div>
-                <p>Press <span class="hotkey">Ctrl + E</span> to open Settings.</p>
-            </div>
+            <div>Press <span class="hotkey">Ctrl + E</span></div>
         </div>
-
         <div class="step">
             <div class="step-number">2</div>
-            <div>
-                <p>Check the box: <strong>"Enable Virtual Display + Screenshot Mode"</strong></p>
-            </div>
-        </div>
-
-        <div class="step">
-            <div class="step-number">3</div>
-            <div>
-                <p>Click the button <strong>"Create Virtual Display (1920x1080)"</strong></p>
-            </div>
+            <div>Enable Virtual Display and click <strong>Create Virtual Display</strong></div>
         </div>
 
         <div class="illustration">
-            <strong>✅ Success!</strong><br>
-            Go to <strong>System Settings → Displays</strong><br>
-            You should now see a new display called <strong>"LG UltraFine 5K"</strong>.
-        </div>
-
-        <div class="warning">
-            <strong>Note:</strong> You only need to create the virtual display once. It stays until you restart your Mac.
+            After creating it, go to <strong>System Settings → Displays</strong>.<br>
+            You’ll see a new monitor called <strong>LG UltraFine 5K</strong>.
         </div>
     </div>
 
-    <!-- Step 5: Hotkeys -->
+    <!-- Hotkeys -->
     <div class="card">
-        <h2>Step 5: Hotkeys (The Most Important Part)</h2>
-
-        <div style="background:#f8f8fa; padding:20px; border-radius:10px; margin:20px 0;">
-            
-            <h3 style="margin-top:0;">🔥 Main Hotkeys</h3>
-            
-            <div style="margin:12px 0;">
+        <h2 class="section-title">3. Hotkeys</h2>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div style="background:#f8fafc; padding:14px; border-radius:10px;">
                 <span class="hotkey">Ctrl + A</span><br>
-                <strong>Extract text or take stealth screenshot</strong><br>
-                <small>→ Sends to Gemini AI automatically</small>
+                <strong>Capture screen + send to Gemini</strong>
             </div>
-
-            <div style="margin:12px 0;">
+            <div style="background:#f8fafc; padding:14px; border-radius:10px;">
                 <span class="hotkey">Ctrl + V</span><br>
-                <strong>Type the answer from virtual clipboard</strong><br>
-                <small>→ Automatically types what Gemini answered</small>
+                <strong>Automatically type the answer</strong>
             </div>
-
-            <div style="margin:12px 0;">
-                <span class="hotkey">Ctrl + E</span><br>
-                <strong>Open Settings window</strong>
-            </div>
-
         </div>
-
-        <div class="illustration">
-            <strong>How to use hotkeys:</strong><br><br>
-            1. Open your exam or target app<br>
-            2. Press <span class="hotkey">Ctrl + A</span><br>
-            3. Wait a few seconds<br>
-            4. Gemini answer appears in the app<br>
-            5. Press <span class="hotkey">Ctrl + V</span> to type the answer
-        </div>
+        
+        <p class="tip" style="margin-top:14px;">
+            Just press <span class="hotkey">Ctrl + A</span> while in your exam. The app captures stealthily and sends it to AI.
+        </p>
     </div>
 
-    <!-- Step 6: Cursor Teleport -->
+    <!-- How to Answer Questions -->
     <div class="card">
-        <h2>Step 6: Cursor Teleport for MCQ Questions</h2>
+        <h2 class="section-title">4. How to Answer Questions (Live Demo)</h2>
         
-        <p>This feature automatically moves your mouse to the correct answer (A, B, C, or D).</p>
-
+        <p>When Gemini detects a multiple choice question, your mouse automatically moves to the correct answer.</p>
+        
         <div class="illustration">
-            <strong>🖱️ How Cursor Teleport Works</strong><br><br>
+            <strong>Live Mouse Teleport</strong>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 400px; margin: 0 auto;">
-                <div style="background:#e3f2fd; padding:12px; border-radius:8px;">
-                    <strong>A = Top Left</strong><br>
-                    <span style="font-size:2rem;">↖️</span>
+            <div class="mouse-demo">
+                <!-- A -->
+                <div>
+                    <div class="mouse-box">
+                        <div class="mouse-cursor" style="left:22px; top:22px; animation: moveToA 2.8s infinite ease-in-out;"></div>
+                    </div>
+                    <div class="label"><strong>A</strong> — Top Left</div>
                 </div>
-                <div style="background:#e8f5e9; padding:12px; border-radius:8px;">
-                    <strong>B = Top Right</strong><br>
-                    <span style="font-size:2rem;">↗️</span>
-                </div>
-                <div style="background:#fff3e0; padding:12px; border-radius:8px;">
-                    <strong>C = Bottom Left</strong><br>
-                    <span style="font-size:2rem;">↙️</span>
-                </div>
-                <div style="background:#fce4ec; padding:12px; border-radius:8px;">
-                    <strong>D = Bottom Right</strong><br>
-                    <span style="font-size:2rem;">↘️</span>
+                
+                <!-- B -->
+                <div>
+                    <div class="mouse-box">
+                        <div class="mouse-cursor" style="left:90px; top:22px; animation: moveToB 2.8s infinite ease-in-out;"></div>
+                    </div>
+                    <div class="label"><strong>B</strong> — Top Right</div>
                 </div>
             </div>
         </div>
-
-        <div class="highlight">
-            <strong>How to use it:</strong><br>
-            1. Make sure Virtual Display is <strong>OFF</strong><br>
-            2. Press <span class="hotkey">Ctrl + A</span><br>
-            3. If Gemini detects it's an MCQ, your mouse will automatically move to the correct answer.
-        </div>
-    </div>
-
-    <!-- Final Tips -->
-    <div class="card">
-        <h2>Final Tips</h2>
         
-        <ul>
-            <li>Always keep the app running in the background.</li>
-            <li>Use <strong>Screenshot Mode</strong> when the target app tries to hide text.</li>
-            <li>Use <strong>Aux Mode</strong> (uncheck Screenshot Mode) for normal apps.</li>
-            <li>Press <span class="hotkey">Ctrl + E</span> anytime to open settings.</li>
-            <li>The app saves your API key automatically.</li>
-        </ul>
-
-        <div class="warning">
-            <strong>⚠️ Important:</strong><br>
-            This tool is powerful. Use it responsibly and only on apps where you have permission.
-        </div>
+        <style>
+            @keyframes moveToA {
+                0%, 100% { left: 22px; top: 22px; }
+                50% { left: 22px; top: 52px; }
+            }
+            @keyframes moveToB {
+                0%, 100% { left: 90px; top: 22px; }
+                50% { left: 90px; top: 52px; }
+            }
+        </style>
     </div>
 
-    <p style="text-align: center; color: #888; margin-top: 40px;">
-        Made for WindowServer.app • Keep it simple, keep it powerful.
+    <div class="card" style="background:#f0f7ff; border:1px solid #bfdbfe;">
+        <h3 style="margin-top:0; color:#1e40af;">Quick Summary</h3>
+        <ul style="margin:8px 0 0 18px; padding:0;">
+            <li>Use Virtual Display + open Bluebook/Lockdown inside it for maximum stealth</li>
+            <li>Press <span class="hotkey">Ctrl + A</span> to capture and get AI help</li>
+            <li>Press <span class="hotkey">Ctrl + V</span> to type the answer</li>
+            <li>Mouse auto-moves to the correct MCQ answer</li>
+        </ul>
+    </div>
+
+    <p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin-top:32px;">
+        WindowServer.app • Extremely stealthy by design
     </p>
 
 </body>
