@@ -63,16 +63,32 @@
             >
           </div>
 
-          <div>
-            <label for="machineInput" class="block text-sm font-black mb-1 text-gray-600">
-              Machine ID / Key
-            </label>
-            <input
-              id="machineInput"
-              name="machineInput"
-              autocomplete="off"
-              class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm"
-            >
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="rawSerial" class="block text-sm font-black mb-1 text-blue-600">
+                Raw Serial (Auto-Saves to Note)
+              </label>
+              <input
+                id="rawSerial"
+                type="text"
+                placeholder="e.g. BIOS-12345"
+                autocomplete="off"
+                class="w-full bg-blue-50 border-2 border-blue-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm"
+                oninput="document.getElementById('note').value = 'Decrypted/Raw Serial: ' + this.value;"
+              >
+            </div>
+            
+            <div>
+              <label for="machineInput" class="block text-sm font-black mb-1 text-gray-600">
+                Machine ID Hash
+              </label>
+              <input
+                id="machineInput"
+                name="machineInput"
+                autocomplete="off"
+                class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm"
+              >
+            </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -124,7 +140,7 @@
 
           <div>
             <label for="note" class="block text-sm font-black mb-1 text-gray-600">
-              Note
+              Note / Decrypted Serial
             </label>
             <textarea
               id="note"
@@ -190,6 +206,7 @@
       <input
         id="searchBox"
         autocomplete="off"
+        placeholder="Search by IP, Location, or Serial Note..."
         class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm mb-4"
       >
 
@@ -197,11 +214,11 @@
         <table class="w-full min-w-[1050px]">
           <thead>
             <tr class="text-left text-xs uppercase tracking-widest text-gray-400 border-b-2 border-gray-100">
-              <th class="p-3">Key</th>
+              <th class="p-3">Key Details</th>
               <th class="p-3">Status</th>
               <th class="p-3">Expiry</th>
               <th class="p-3">Last Seen</th>
-              <th class="p-3">Location</th>
+              <th class="p-3">IP & Location</th>
               <th class="p-3">Session Token</th>
               <th class="p-3">Actions</th>
             </tr>
