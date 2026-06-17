@@ -3,6 +3,7 @@ const machinesTable = document.getElementById("machinesTable");
 
 const editIdInput = document.getElementById("editId");
 const keyNameInput = document.getElementById("keyName");
+const rawSerialInput = document.getElementById("rawSerial"); // Added new field
 const machineInput = document.getElementById("machineInput");
 const hostnameInput = document.getElementById("hostname");
 const statusInput = document.getElementById("status");
@@ -176,9 +177,10 @@ function renderMachines() {
         return `
             <tr class="border-b-2 border-gray-100">
                 <td class="p-3">
-                    <div class="font-black text-gray-800">${escapeHtml(machine.keyName || "Unnamed Key")}</div>
+                    <div class="font-black text-gray-900">${escapeHtml(machine.keyName || "Unnamed Key")}</div>
+                    <div class="text-xs text-blue-600 font-bold mt-0.5 bg-blue-50 inline-block px-2 py-0.5 rounded-md break-all">Serial/Note: ${escapeHtml(machine.note || "None Saved")}</div>
                     <div class="text-xs font-bold text-gray-400 mt-1">Hostname: ${escapeHtml(machine.hostname || "-")}</div>
-                    <div class="text-xs font-bold text-gray-400 mt-1">${escapeHtml(machine.note || "")}</div>
+                    <div class="text-[10px] text-gray-400 font-mono mt-1 break-all" title="${escapeHtml(machine.machineIdHash || machine.id)}">Hash: ${escapeHtml(machine.machineIdHash || machine.id).substring(0, 16)}...</div>
                 </td>
 
                 <td class="p-3 font-black ${statusClass(status)}">${escapeHtml(status)}</td>
@@ -187,13 +189,12 @@ function renderMachines() {
 
                 <td class="p-3 text-sm font-bold text-gray-600">
                     ${escapeHtml(formatDate(machine.lastSeenAt))}
-                    <div class="text-xs text-gray-400 mt-1">IP: ${escapeHtml(machine.lastIp || "-")}</div>
                 </td>
 
-                <td class="p-3 text-sm font-bold text-gray-600">
-                    ${escapeHtml(machine.city || "-")}, ${escapeHtml(machine.country || "-")}
-                    <div class="text-xs text-gray-400 mt-1">OS: ${escapeHtml(machine.os || "-")}</div>
-                    <div class="text-xs text-gray-400 mt-1">Admin: ${escapeHtml(machine.isAdmin || "-")}</div>
+                <td class="p-3">
+                    <div class="font-black text-gray-900">${escapeHtml(machine.lastIp || "0.0.0.0")}</div>
+                    <div class="text-xs text-gray-500 font-bold mt-0.5">${escapeHtml(machine.city || "-")}, ${escapeHtml(machine.country || "-")}</div>
+                    <div class="text-[10px] text-gray-400 mt-1">OS: ${escapeHtml(machine.os || "-")} | Admin: ${escapeHtml(machine.isAdmin || "-")}</div>
                 </td>
 
                 <td class="p-3">
@@ -237,6 +238,9 @@ function editMachineFromButton(button) {
     hostnameInput.value = machine.hostname || "";
     statusInput.value = machine.status || "active";
     noteInput.value = machine.note || "";
+    
+    // Clear out the raw serial helper when editing
+    if (rawSerialInput) rawSerialInput.value = "";
 
     if (machine.expiresAt) {
         foreverInput.checked = false;
@@ -281,6 +285,7 @@ async function approveMachineFromButton(button) {
 function clearForm() {
     editIdInput.value = "";
     keyNameInput.value = "";
+    if (rawSerialInput) rawSerialInput.value = "";
     machineInput.value = "";
     hostnameInput.value = "";
     statusInput.value = "active";
