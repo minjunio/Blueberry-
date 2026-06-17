@@ -5,46 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WindowServer • Easy Guide</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 860px;
+            font-family: 'Inter', system_ui, sans-serif;
+            max-width: 840px;
             margin: 40px auto;
             padding: 20px;
             background: #f8f9fc;
             color: #1f2937;
-            line-height: 1.6;
+            line-height: 1.65;
         }
-        h1, h2 { font-weight: 600; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 2.5rem; color: #0066ff; margin: 0; }
-        .card {
-            background: white;
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-        }
-        .hotkey {
-            background: #111827;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-family: monospace;
+
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', system_ui, sans-serif;
             font-weight: 600;
         }
-        .step { display: flex; gap: 12px; margin-bottom: 10px; }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 2.6rem;
+            margin: 0;
+            color: #0066ff;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            border: 1px solid #f1f5f9;
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            margin: 0 0 16px 0;
+            color: #0f172a;
+        }
+
+        .hotkey {
+            background: #0f172a;
+            color: white;
+            padding: 6px 13px;
+            border-radius: 8px;
+            font-family: ui-monospace, monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
         .step-number {
             background: #0066ff;
             color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            border-radius: 9999px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
             flex-shrink: 0;
+            font-size: 0.9rem;
         }
+
+        .terminal-box {
+            background: #0f172a;
+            color: #3b82f6;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: ui-monospace, monospace;
+            font-size: 0.95rem;
+            margin: 12px 0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: #1e2937;
+            color: #94a3b8;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #334155;
+            color: white;
+        }
+
         .illustration {
             background: #f8fafc;
             border: 2px solid #e2e8f0;
@@ -52,21 +115,37 @@
             padding: 18px;
             margin: 14px 0;
         }
+
+        .warning-box {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        .success-box {
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 16px;
+            border-radius: 10px;
+        }
+
         .mouse-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+            gap: 14px;
             margin-top: 16px;
         }
+
         .mouse-box {
             background: white;
             border: 2px solid #cbd5e1;
             border-radius: 12px;
-            height: 140px;
+            height: 135px;
             position: relative;
-            overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
+
         .screen-label {
             position: absolute;
             top: 10px;
@@ -76,8 +155,7 @@
             font-weight: 600;
             color: #475569;
         }
-        
-        /* Realistic Cursor */
+
         .real-cursor {
             position: absolute;
             width: 18px;
@@ -88,6 +166,7 @@
             box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
             transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .real-cursor::before {
             content: '';
             position: absolute;
@@ -105,18 +184,59 @@
     <!-- Header -->
     <div class="header">
         <h1>WindowServer</h1>
-        <p style="color:#64748b;">Simple • Stealthy • Powerful</p>
+        <p style="color:#64748b; margin-top:4px;">Simple • Stealthy • Powerful</p>
     </div>
 
-    <!-- Intro -->
-    <div class="card">
-        <h2>Why This App is Very Stealthy</h2>
-        <p>It runs in the background and captures what you see on screen without triggering most normal screenshot protections.</p>
+    <!-- First Step: Unzip + Damaged App Fix -->
+    <div class="card" style="border: 2px solid #ef4444;">
+        <h2 style="color:#ef4444; margin-top:0;">⚠️ Step 1: Unzip & Fix "App is Damaged" Error</h2>
+        
+        <p><strong>After downloading the file:</strong></p>
+        
+        <div class="step">
+            <div class="step-number">1</div>
+            <div><strong>Unzip</strong> the file you received (double-click it or right-click → Open)</div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">2</div>
+            <div>Move <strong>WindowServer.app</strong> into your <strong>Downloads</strong> folder</div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">3</div>
+            <div>Try to open the app by <strong>right-clicking</strong> it → <strong>Open</strong></div>
+        </div>
+
+        <div style="margin: 16px 0;">
+            <strong>If you see the error:</strong> <span style="color:#ef4444;">"App is damaged and can’t be opened"</span>
+        </div>
+
+        <div class="step">
+            <div class="step-number">4</div>
+            <div>Open <strong>Terminal</strong> and paste this command:</div>
+        </div>
+
+        <div class="terminal-box" id="fix-command">
+cd Downloads && xattr -cr WindowServer.app && chmod +x WindowServer.app/Contents/MacOS/WindowServer
+        </div>
+
+        <button onclick="copyCommand()" class="copy-btn">📋 Copy Command</button>
+
+        <div class="success-box" style="margin-top: 16px;">
+            After running the command, <strong>right-click</strong> <strong>WindowServer.app</strong> again and click <strong>Open</strong>.
+        </div>
     </div>
 
-    <!-- API Key -->
+    <!-- Why This App is Stealthy -->
     <div class="card">
-        <h2>1. Get Your Gemini API Key</h2>
+        <h2 class="section-title">Why This App is Very Stealthy</h2>
+        <p>It runs in the background and can capture what you see on screen without triggering most normal screenshot protections used by exam software.</p>
+    </div>
+
+    <!-- Get API Key -->
+    <div class="card">
+        <h2 class="section-title">2. Get Your Gemini API Key</h2>
         <div class="step">
             <div class="step-number">1</div>
             <div>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#0066ff; font-weight:600;">Google AI Studio</a></div>
@@ -127,13 +247,13 @@
         </div>
         <div class="step">
             <div class="step-number">3</div>
-            <div>Press <span class="hotkey">Ctrl + E</span> and paste it in Settings</div>
+            <div>Press <span class="hotkey">Ctrl + E</span> and paste it in Settings (it saves automatically)</div>
         </div>
     </div>
 
     <!-- Virtual Display -->
     <div class="card">
-        <h2>2. Create Virtual Display (Recommended)</h2>
+        <h2 class="section-title">3. Create Virtual Display (Recommended)</h2>
         <p>This creates a fake external monitor and makes the app much harder to detect.</p>
 
         <div class="step">
@@ -156,14 +276,22 @@
 
         <div style="background:#fefce8; padding:14px; border-radius:10px; border-left:4px solid #ca8a04;">
             <strong>Best Stealth Tip:</strong><br>
-            Open <strong>Bluebook</strong> or <strong>Lockdown Browser</strong> <strong>inside</strong> the virtual display. 
-            The exam software will think you are using a normal external monitor.
+            Open <strong>Bluebook</strong> or <strong>Lockdown Browser</strong> <strong>inside</strong> the virtual display.
+        </div>
+    </div>
+
+    <!-- Machine Unauthorized -->
+    <div class="card" style="border: 2px solid #f59e0b;">
+        <h2 style="color:#b45309; margin-top:0;">Machine Unauthorized Message</h2>
+        <p>If you see <strong>"Machine Unauthorized"</strong>, this is normal.</p>
+        <div class="success-box">
+            Join the Discord and message <strong>@minjunio</strong> to authorize your machine.
         </div>
     </div>
 
     <!-- Hotkeys -->
     <div class="card">
-        <h2>3. Hotkeys</h2>
+        <h2 class="section-title">4. Hotkeys</h2>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
             <div style="background:#f8fafc; padding:14px; border-radius:10px;">
                 <span class="hotkey">Ctrl + A</span><br>
@@ -178,9 +306,8 @@
 
     <!-- How to Answer Questions -->
     <div class="card">
-        <h2>4. How to Answer Questions</h2>
+        <h2 class="section-title">5. How to Answer Questions</h2>
 
-        <!-- MCQ -->
         <h3>Multiple Choice Questions</h3>
         <p>Press <span class="hotkey">Ctrl + A</span>. The mouse will automatically move to the correct answer.</p>
 
@@ -188,25 +315,18 @@
             <strong>Live Cursor Teleport (from center)</strong>
             
             <div class="mouse-grid">
-                <!-- A Top Left -->
                 <div class="mouse-box">
                     <div class="screen-label">A — Top Left</div>
                     <div class="real-cursor" style="left:50%; top:50%; animation: moveToA 2.8s infinite;"></div>
                 </div>
-                
-                <!-- B Top Right -->
                 <div class="mouse-box">
                     <div class="screen-label">B — Top Right</div>
                     <div class="real-cursor" style="left:50%; top:50%; animation: moveToB 2.8s infinite;"></div>
                 </div>
-                
-                <!-- C Bottom Left -->
                 <div class="mouse-box">
                     <div class="screen-label">C — Bottom Left</div>
                     <div class="real-cursor" style="left:50%; top:50%; animation: moveToC 2.8s infinite;"></div>
                 </div>
-                
-                <!-- D Bottom Right -->
                 <div class="mouse-box">
                     <div class="screen-label">D — Bottom Right</div>
                     <div class="real-cursor" style="left:50%; top:50%; animation: moveToD 2.8s infinite;"></div>
@@ -221,7 +341,6 @@
             @keyframes moveToD { 0%,100%{left:50%;top:50%} 45%{left:72%;top:72%} }
         </style>
 
-        <!-- FRQ -->
         <h3 style="margin-top:24px;">Free Response Questions (FRQ)</h3>
         <div style="background:#f0f7ff; padding:16px; border-radius:10px; border-left:4px solid #0066ff;">
             <strong>How to answer typing questions:</strong><br><br>
@@ -231,6 +350,20 @@
             4. Press <span class="hotkey">Ctrl + V</span> — it will type the full answer for you
         </div>
     </div>
+
+    <script>
+        function copyCommand() {
+            const command = document.getElementById('fix-command').innerText.trim();
+            navigator.clipboard.writeText(command).then(() => {
+                const originalText = event.currentTarget.innerHTML;
+                const btn = event.currentTarget;
+                btn.innerHTML = '✅ Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = '📋 Copy Command';
+                }, 1800);
+            });
+        }
+    </script>
 
 </body>
 </html>
