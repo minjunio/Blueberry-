@@ -290,10 +290,19 @@ app.get('/', (req, res) => {
     });
 });
 
-// NEW TUTORIAL ROUTE - Allows any user to open the tutorial page
 app.get('/tutorial', (req, res) => {
     getActiveOrders(req, (activeOrderCount) => {
         renderSafe(res, 'tutorial', { 
+            user: req.session ? req.session.user : null, 
+            buyerEmail: req.session ? req.session.buyerEmail : null,
+            activeOrderCount
+        });
+    });
+});
+
+app.get('/casino', (req, res) => {
+    getActiveOrders(req, (activeOrderCount) => {
+        renderSafe(res, 'casino', { 
             user: req.session ? req.session.user : null, 
             buyerEmail: req.session ? req.session.buyerEmail : null,
             activeOrderCount
@@ -406,7 +415,7 @@ app.post('/api/order/:order_id/update', (req, res) => {
     });
 });
 
-// --- ADMIN & LOGIN ROUTES ---
+// --- ADMIN, DASHBOARD & LOGIN ROUTES ---
 app.get('/login', (req, res) => renderSafe(res, 'login', { error: null }));
 app.post('/login', (req, res) => {
     db.get("SELECT * FROM users WHERE username = ?", [req.body.username], async (err, user) => {
@@ -417,6 +426,11 @@ app.post('/login', (req, res) => {
     });
 });
 app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/'); });
+
+app.get('/dashboard', (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    renderSafe(res, 'dashboard', { user: req.session.user });
+});
 
 app.get('/admin', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
@@ -443,6 +457,16 @@ app.get('/admin', (req, res) => {
                 });
             });
         });
+    });
+});
+
+// Admin Whitelist Route
+app.get('/admin-whitelist', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    const machineData = readMachines();
+    renderSafe(res, 'admin-whitelist', { 
+        user: req.session.user, 
+        machines: machineData.machines 
     });
 });
 
