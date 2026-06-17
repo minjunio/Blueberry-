@@ -4,8 +4,14 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
 
+// --- ENHANCEMENT: Added compression to improve load times ---
+const compression = require('compression');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// --- ENHANCEMENT: Bind to 0.0.0.0 so the server is accessible on your local network ---
+const HOST = '0.0.0.0';
 
 // ==========================================
 // 1. App Configuration & Middleware
@@ -19,6 +25,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(helmet({
     contentSecurityPolicy: false, // Set to false if you are loading external scripts/fonts (like Google Fonts)
 }));
+
+// --- ENHANCEMENT: Compress response bodies to make the site faster ---
+app.use(compression());
 
 // Logging: Logs HTTP requests to the console
 app.use(morgan('dev'));
@@ -42,9 +51,14 @@ app.get('/', (req, res) => {
     res.render('index'); 
 });
 
-// YAP Route - Explicitly public and accessible to everyone
+// YAP Route - Explicitly public and accessible to everyone at /yap
 app.get('/yap', (req, res) => {
     // Renders views/yap.ejs without checking for authentication
+    res.render('yap'); 
+});
+
+// --- ENHANCEMENT: Fallback route just in case someone types the .ejs extension in the URL ---
+app.get('/yap.ejs', (req, res) => {
     res.render('yap'); 
 });
 
@@ -100,7 +114,9 @@ app.use((err, req, res, next) => {
 // 6. Start Server
 // ==========================================
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
-    console.log(`✅ Public route /yap is accessible to all users`);
+// --- ENHANCEMENT: Listen on HOST (0.0.0.0) ---
+app.listen(PORT, HOST, () => {
+    console.log(`🚀 Server is running locally on http://localhost:${PORT}`);
+    console.log(`🌐 Network Access: http://<Your-IPv4-Address>:${PORT} (Accessible on LAN)`);
+    console.log(`✅ Public routes /yap and /yap.ejs are accessible to all users`);
 });
