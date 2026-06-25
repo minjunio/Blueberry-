@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Confirmed • WindowServer</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700;800&display=swap');
 
         :root {
             --primary: #0066ff;
             --primary-hover: #0052cc;
             --success: #16a34a;
-            --success-light: #dcfce7;
+            --discord: #5865F2;
+            --discord-hover: #4752c4;
             --bg-gradient: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #ede9fe 100%);
             --text-main: #0f172a;
             --text-muted: #475569;
@@ -27,31 +28,69 @@
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 480px;
+            max-width: 500px;
             width: 100%;
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
-            border-radius: 28px;
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1), 
-                        0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 
+                        0 0 0 1px rgba(255, 255, 255, 0.8) inset;
             padding: 48px 40px;
             text-align: center;
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+            animation: popIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* --- Enhanced Staggered Animations --- */
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(30px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        /* --- New Checkmark Animation --- */
-        .success-animation {
+        @keyframes slideUpFade {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-item {
+            opacity: 0;
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.3s; }
+        .delay-3 { animation-delay: 0.4s; }
+        .delay-4 { animation-delay: 0.5s; }
+
+        /* --- Upgraded Success Animation --- */
+        .success-wrapper {
+            position: relative;
+            width: 96px;
+            height: 96px;
             margin: 0 auto 32px;
-            width: 88px;
-            height: 88px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-ripple {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--success);
+            border-radius: 50%;
+            opacity: 0;
+            animation: ripple 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0.8); opacity: 0.4; }
+            100% { transform: scale(1.8); opacity: 0; }
         }
 
         .checkmark {
@@ -59,17 +98,20 @@
             height: 88px;
             border-radius: 50%;
             display: block;
-            stroke-width: 3;
+            stroke-width: 3.5;
             stroke: #fff;
             stroke-miterlimit: 10;
             box-shadow: inset 0px 0px 0px var(--success);
-            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+            animation: fill .4s ease-in-out .4s forwards, popScale .5s cubic-bezier(0.175, 0.885, 0.32, 1.275) .8s both;
+            position: relative;
+            z-index: 2;
+            background: white;
         }
 
         .checkmark__circle {
             stroke-dasharray: 166;
             stroke-dashoffset: 166;
-            stroke-width: 3;
+            stroke-width: 3.5;
             stroke-miterlimit: 10;
             stroke: var(--success);
             fill: none;
@@ -83,143 +125,176 @@
             animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
         }
 
-        @keyframes stroke {
-            100% { stroke-dashoffset: 0; }
+        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+        @keyframes popScale {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
         }
-        @keyframes scale {
-            0%, 100% { transform: none; }
-            50% { transform: scale3d(1.1, 1.1, 1); }
-        }
-        @keyframes fill {
-            100% { box-shadow: inset 0px 0px 0px 50px var(--success); }
-        }
+        @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 50px var(--success); } }
 
         /* --- Typography --- */
         h1 {
             font-family: 'Space Grotesk', system-ui, sans-serif;
-            font-size: 2rem;
+            font-size: 2.2rem;
             margin: 0 0 12px 0;
             color: var(--text-main);
-            font-weight: 700;
-            letter-spacing: -0.02em;
+            font-weight: 800;
+            letter-spacing: -0.03em;
         }
 
         .subtitle {
             color: var(--text-muted);
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             margin-bottom: 32px;
             line-height: 1.5;
         }
 
-        /* --- Contact Sections --- */
-        .section {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 28px 24px;
-            margin-bottom: 28px;
-            text-align: left;
+        /* --- HUGE Discord Hero Card --- */
+        .discord-hero {
+            background: linear-gradient(135deg, var(--discord) 0%, #7289da 100%);
+            border-radius: 24px;
+            padding: 32px 24px;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            color: white;
+            box-shadow: 0 15px 35px rgba(88, 101, 242, 0.3);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 24px;
+            animation: pulseGlow 3s infinite alternate;
         }
 
-        .section h3 {
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 10px 30px rgba(88, 101, 242, 0.3), 0 0 0 0 rgba(88, 101, 242, 0.2); }
+            100% { box-shadow: 0 15px 40px rgba(88, 101, 242, 0.4), 0 0 0 10px rgba(88, 101, 242, 0); }
+        }
+
+        .discord-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg);
+            transition: 0.7s;
+        }
+
+        .discord-hero:hover {
+            transform: translateY(-5px) scale(1.02);
+            background: linear-gradient(135deg, var(--discord-hover) 0%, #5b6eae 100%);
+        }
+
+        .discord-hero:hover::before {
+            left: 200%;
+        }
+
+        .discord-hero svg {
+            width: 64px;
+            height: 64px;
+            fill: white;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+        }
+
+        .discord-hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .discord-hero-desc {
+            font-size: 1rem;
+            opacity: 0.9;
             margin: 0 0 12px 0;
-            color: var(--text-main);
-            font-size: 1.1rem;
+        }
+
+        .discord-hero-badge {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 100px;
             font-weight: 600;
-        }
-
-        .section-desc {
-            color: var(--text-muted);
             font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .contact-option {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 12px;
+        .discord-hero-badge strong {
+            color: #fff;
+        }
+
+        /* --- Secondary Contact (Email) --- */
+        .secondary-contact {
+            background: #f8fafc;
+            border: 2px dashed #e2e8f0;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 28px;
             display: flex;
             align-items: center;
             gap: 16px;
             transition: all 0.2s ease;
         }
 
-        .contact-option:hover {
-            border-color: var(--primary);
-            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.08);
-            transform: translateY(-2px);
+        .secondary-contact:hover {
+            border-color: #cbd5e1;
+            background: #f1f5f9;
         }
 
-        .contact-option:last-child {
-            margin-bottom: 0;
-        }
-
-        .contact-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+        .email-icon {
+            background: white;
+            color: var(--text-muted);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
 
-        .discord-icon { background: #EEF2FF; color: #5865F2; }
-        .email-icon { background: #FEF2F2; color: #EF4444; }
+        .contact-details { text-align: left; flex-grow: 1; }
+        .contact-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+        .contact-value { font-size: 1rem; color: var(--text-main); font-weight: 600; }
 
-        .contact-details {
-            flex-grow: 1;
-        }
-
-        .contact-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 2px;
-        }
-
-        .contact-value {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-        
-        .contact-value strong {
-            color: var(--text-main);
-        }
-
-        /* --- Button & Footer --- */
+        /* --- Buttons & Footer --- */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            background: var(--primary);
+            gap: 10px;
+            background: var(--text-main);
             color: white;
             width: 100%;
-            padding: 16px 32px;
-            border-radius: 14px;
+            padding: 18px 32px;
+            border-radius: 16px;
             text-decoration: none;
             font-weight: 600;
-            font-size: 1.05rem;
-            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.25);
-            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             box-sizing: border-box;
+            margin-bottom: 20px;
         }
 
         .btn:hover {
-            background: var(--primary-hover);
+            background: black;
             transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(0, 102, 255, 0.35);
+            box-shadow: 0 15px 30px rgba(15, 23, 42, 0.3);
         }
 
         .footer-text {
-            margin-top: 24px;
             color: #64748b;
-            font-size: 0.85rem;
-            line-height: 1.5;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 0;
         }
     </style>
 </head>
@@ -227,8 +302,9 @@
 
     <div class="container">
         
-        <!-- Smooth Animated Success Icon -->
-        <div class="success-animation">
+        <!-- Enhanced Animated Success Icon -->
+        <div class="success-wrapper">
+            <div class="success-ripple"></div>
             <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
                 <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
                 <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
@@ -236,56 +312,50 @@
         </div>
 
         <!-- Header -->
-        <h1>Payment Confirmed</h1>
-        <p class="subtitle">Thank you for purchasing <strong>WindowServer</strong>.</p>
+        <h1 class="animate-item delay-1">Payment Confirmed</h1>
+        <p class="subtitle animate-item delay-1">Thank you for purchasing <strong>WindowServer</strong>. Follow the step below to get your machine whitelisted.</p>
 
-        <!-- Next Steps -->
-        <div class="section">
-            <h3>Next Steps</h3>
-            <p class="section-desc">
-                Your payment has been successfully verified. To receive the software and get your machine whitelisted, please contact us with your proof of payment:
-            </p>
-
-            <!-- Discord Option -->
-            <div class="contact-option">
-                <div class="contact-icon discord-icon">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
-                    </svg>
-                </div>
-                <div class="contact-details">
-                    <div class="contact-title">Discord (Recommended)</div>
-                    <div class="contact-value">Message <strong>@minjunio</strong></div>
-                </div>
+        <!-- GIANT Discord Hero Section -->
+        <a href="https://discord.gg/V2pkrTuDY9" target="_blank" class="discord-hero animate-item delay-2">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+            </svg>
+            <h2 class="discord-hero-title">Join our Discord</h2>
+            <p class="discord-hero-desc">Click here to join the server and claim your software.</p>
+            <div class="discord-hero-badge">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                Message <strong>@minjunio</strong>
             </div>
+        </a>
 
-            <!-- Email Option -->
-            <div class="contact-option">
-                <div class="contact-icon email-icon">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                    </svg>
-                </div>
-                <div class="contact-details">
-                    <div class="contact-title">Email Address</div>
-                    <div class="contact-value"><strong>minjunnios@gmail.com</strong></div>
-                </div>
+        <!-- Secondary Email Option -->
+        <div class="secondary-contact animate-item delay-3">
+            <div class="email-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+            <div class="contact-details">
+                <div class="contact-title">Don't have Discord?</div>
+                <div class="contact-value">minjunnios@gmail.com</div>
             </div>
         </div>
 
-        <!-- Conditional Tutorial Button (EJS logic checks if they have the software) -->
-        <% if (locals.hasSoftware) { %>
-            <a href="https://examhub.com/tutorial" class="btn">
-                Go to Tutorial
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                </svg>
-            </a>
-        <% } %>
+        <!-- Conditional Tutorial Button -->
+        <div class="animate-item delay-4">
+            <% if (locals.hasSoftware) { %>
+                <a href="https://examhub.com/tutorial" class="btn">
+                    Go to Tutorial
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+            <% } %>
 
-        <p class="footer-text">
-            Once we verify your payment, we will send you the software securely and automatically whitelist your machine.
-        </p>
+            <p class="footer-text">
+                Send us your proof of payment via Discord. Once verified, we will securely send your software and automatically whitelist your machine.
+            </p>
+        </div>
     </div>
 
 </body>
