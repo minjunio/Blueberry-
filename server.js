@@ -266,6 +266,21 @@ app.get('/yap', (req, res) => {
     });
 });
 
+app.get('/ldb', (req, res) => {
+    // Public leaderboard page - accessible to any user (no admin/login required)
+    // Fetches top users by SOL balance and recent public casino activity for display in ldb.ejs
+    db.all("SELECT username, sol_balance, rig_percentage FROM users WHERE role != 'admin' ORDER BY sol_balance DESC LIMIT 20", (err, topUsers) => {
+        db.all("SELECT action, amount, created_at FROM casino_ledger ORDER BY created_at DESC LIMIT 50", (err2, recentLedger) => {
+            renderSafe(res, 'ldb', { 
+                user: req.session ? req.session.user : null, 
+                buyerEmail: req.session ? req.session.buyerEmail : null,
+                topUsers: topUsers || [],
+                recentLedger: recentLedger || []
+            });
+        });
+    });
+});
+
 app.get('/', (req, res) => {
     const searchQuery = req.query.q || '';
     const categoryFilter = req.query.category || '';
