@@ -31,6 +31,13 @@
             border-radius: 9999px;
             font-weight: 900;
         }
+        .json-import-box {
+            animation: fadeInScale 0.2s ease forwards;
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.98) translateY(5px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
     </style>
 </head>
 <body class="p-4 md:p-8 bg-gray-50">
@@ -39,14 +46,14 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b-2 border-gray-200 pb-6">
             <div>
-                <h1 class="text-3xl md:text-4xl font-black text-anime-textMain">ExamHub Admin ðŸ›¡ï¸</h1>
+                <h1 class="text-3xl md:text-4xl font-black text-anime-textMain">ExamHub Admin 🛡️</h1>
                 <p class="text-sm text-gray-500 font-bold mt-1">Manage content, orders & licenses</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <button onclick="document.getElementById('createAnnModal').classList.remove('hidden')" class="bg-blue-600 text-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:scale-105 transition flex items-center gap-2">ðŸ“¢ Announcement</button>
+                <button onclick="document.getElementById('createAnnModal').classList.remove('hidden')" class="bg-blue-600 text-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:scale-105 transition flex items-center gap-2">📢 Announcement</button>
                 <button onclick="document.getElementById('createPostModal').classList.remove('hidden')" class="bg-anime-accent text-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:scale-105 transition flex items-center gap-2">+ Product</button>
-                <a href="/admin/whitelist" class="bg-blue-600 text-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:scale-105 transition flex items-center gap-2">âœ… Whitelist</a>
-                <a href="/admin/casino" class="bg-[#00b67a] text-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:scale-105 transition flex items-center gap-2">ðŸŽ° Casino Lounge</a>
+                <a href="/admin/whitelist" class="bg-blue-600 text-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:scale-105 transition flex items-center gap-2">✅ Whitelist</a>
+                <a href="/admin/casino" class="bg-[#00b67a] text-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:scale-105 transition flex items-center gap-2">🎰 Casino Lounge</a>
                 <a href="/logout" class="bg-red-500 text-white px-5 py-2 rounded-full font-black shadow-sm text-sm hover:bg-red-600 transition">Logout</a>
             </div>
         </div>
@@ -59,7 +66,7 @@
                         <p class="text-xs font-black uppercase tracking-widest text-gray-500">TOTAL USERS</p>
                         <p class="text-4xl font-black text-gray-900 mt-1"><%= typeof userCount !== 'undefined' ? userCount : 0 %></p>
                     </div>
-                    <div class="text-4xl opacity-80">ðŸ‘¥</div>
+                    <div class="text-4xl opacity-80">👥</div>
                 </div>
                 <p class="text-[10px] text-gray-400 font-bold mt-3">Registered accounts</p>
             </div>
@@ -70,7 +77,7 @@
                         <p class="text-xs font-black uppercase tracking-widest text-gray-500">PRODUCTS</p>
                         <p class="text-4xl font-black text-gray-900 mt-1"><%= products ? products.length : 0 %></p>
                     </div>
-                    <div class="text-4xl opacity-80">ðŸ›ï¸</div>
+                    <div class="text-4xl opacity-80">🛍️</div>
                 </div>
                 <p class="text-[10px] text-gray-400 font-bold mt-3">Active listings</p>
             </div>
@@ -81,7 +88,7 @@
                         <p class="text-xs font-black uppercase tracking-widest text-gray-500">BLOG POSTS</p>
                         <p class="text-4xl font-black text-gray-900 mt-1"><%= posts ? posts.length : 0 %></p>
                     </div>
-                    <div class="text-4xl opacity-80">ðŸ“</div>
+                    <div class="text-4xl opacity-80">📝</div>
                 </div>
                 <p class="text-[10px] text-gray-400 font-bold mt-3">Published articles</p>
             </div>
@@ -92,7 +99,7 @@
                         <p class="text-xs font-black uppercase tracking-widest text-gray-500">ORDERS</p>
                         <p class="text-4xl font-black text-gray-900 mt-1"><%= orders ? orders.length : 0 %></p>
                     </div>
-                    <div class="text-4xl opacity-80">ðŸ“¦</div>
+                    <div class="text-4xl opacity-80">📦</div>
                 </div>
                 <% let pendingCount = orders ? orders.filter(o => o.status !== 'Completed' && o.status !== 'Closed').length : 0; %>
                 <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-700"><%= pendingCount %> pending</span>
@@ -104,7 +111,7 @@
                         <p class="text-xs font-black uppercase tracking-widest text-gray-500">CATEGORIES</p>
                         <p class="text-4xl font-black text-gray-900 mt-1"><%= categories ? categories.length : 0 %></p>
                     </div>
-                    <div class="text-4xl opacity-80">ðŸ—‚ï¸</div>
+                    <div class="text-4xl opacity-80">🗂️</div>
                 </div>
                 <p class="text-[10px] text-gray-400 font-bold mt-3">Organized sections</p>
             </div>
@@ -113,7 +120,7 @@
         <!-- LATEST ACTIVITY -->
         <div class="bg-white rounded-3xl p-6 shadow-sm border-2 border-gray-100 mb-8">
             <div class="flex items-center justify-between mb-4 border-b-2 border-dashed border-gray-200 pb-3">
-                <h2 class="text-xl font-black text-gray-800 flex items-center gap-2">âš¡ Latest Activity</h2>
+                <h2 class="text-xl font-black text-gray-800 flex items-center gap-2">⚡ Latest Activity</h2>
                 <span class="text-xs font-bold text-gray-400">Recent posts & orders</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -125,7 +132,7 @@
                                 <p class="font-black text-gray-800 truncate"><%= post.title %></p>
                                 <p class="text-[10px] text-gray-400 font-bold"><%= new Date(post.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric'}) %></p>
                             </div>
-                            <a href="/post/<%= post.id %>" target="_blank" class="text-purple-600 hover:text-purple-700 text-xs font-black">View â†’</a>
+                            <a href="/post/<%= post.id %>" target="_blank" class="text-purple-600 hover:text-purple-700 text-xs font-black">View →</a>
                         </div>
                     <% }) } else { %><p class="text-sm text-gray-400 font-bold px-3 py-2">No posts yet.</p><% } %>
                 </div>
@@ -191,7 +198,7 @@
                                             data-og_image="<%= post.og_image || '' %>"
                                             data-canonical="<%= post.canonical_url || '' %>"
                                             class="bg-blue-100 hover:bg-blue-500 hover:text-white text-blue-600 px-4 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1">
-                                        âœï¸ Edit
+                                        ✏️ Edit
                                     </button>
                                     
                                     <form action="/admin/delete-post" method="POST" onsubmit="return confirm('Delete this post permanently?');">
@@ -282,7 +289,7 @@
                         <div class="product-card bg-gray-50 border-2 border-gray-100 p-4 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-3 group">
                             <div class="flex-1 min-w-0">
                                 <h3 class="font-black text-gray-800 text-sm"><%= product.title %></h3>
-                                <p class="text-xs text-gray-500 font-bold mt-1">$<%= product.price %> â€¢ <%= product.category %></p>
+                                <p class="text-xs text-gray-500 font-bold mt-1">$<%= product.price %> • <%= product.category %></p>
                                 <% if (product.tier && product.tier !== 'Standard') { %>
                                     <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-black"><%= product.tier %></span>
                                 <% } %>
@@ -292,7 +299,6 @@
                             </div>
                             
                             <div class="flex gap-2 opacity-80 group-hover:opacity-100 transition md:opacity-100">
-                                <!-- EDIT PRODUCT BUTTON -->
                                 <button onclick="openEditProductModal(this)"
                                         data-id="<%= product.id %>"
                                         data-title="<%= product.title ? product.title.replace(/"/g, '&quot;') : '' %>"
@@ -303,7 +309,7 @@
                                         data-tags="<%= product.tags || '' %>"
                                         data-description="<%= product.description ? product.description.replace(/"/g, '&quot;') : '' %>"
                                         class="bg-blue-100 hover:bg-blue-500 hover:text-white text-blue-600 px-4 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1">
-                                    âœï¸ Edit
+                                    ✏️ Edit
                                 </button>
                                 
                                 <form action="/admin/delete-product" method="POST" onsubmit="return confirm('Delete this product permanently?');">
@@ -379,14 +385,14 @@
         </div>
     </div>
 
-    <!-- CREATE BLOG POST MODAL - ENHANCED WITH TEMPLATE -->
+    <!-- CREATE BLOG POST MODAL - FULLY ENHANCED -->
     <div id="createBlogPostModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
         <div class="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl shrink-0 modal">
             <div class="p-6 md:p-8">
                 <div class="flex justify-between items-center mb-6 border-b-2 border-gray-100 pb-4">
                     <div>
                         <h2 class="text-2xl font-black text-gray-800">Create New Post</h2>
-                        <p class="text-sm text-gray-500 font-bold">Write content â€¢ Link products â€¢ Optimize SEO â€¢ Use Templates</p>
+                        <p class="text-sm text-gray-500 font-bold">Write content • Use Template or JSON Import • Full SEO Control</p>
                     </div>
                     <button onclick="document.getElementById('createBlogPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
@@ -397,52 +403,91 @@
                         <input type="text" name="title" required placeholder="e.g. How to Ace Your Final Exam with AI" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-3.5 font-bold outline-none focus:border-purple-500 text-sm">
                     </div>
 
-                    <!-- ENHANCED TEMPLATE SECTION -->
+                    <!-- Quick Template Generator -->
                     <div class="bg-purple-50 border-2 border-purple-200 rounded-2xl p-5">
                         <div class="flex items-center justify-between mb-3">
                             <div>
-                                <label class="block text-sm font-black text-purple-700">ðŸš€ Quick Template Generator</label>
-                                <p class="text-xs text-purple-600 font-bold">Select a product first â†’ Input short code/keywords â†’ Generate full article</p>
+                                <label class="block text-sm font-black text-purple-700">🚀 Quick Template Generator</label>
+                                <p class="text-xs text-purple-600 font-bold">Select product → Enter short keywords → Generate complete article</p>
                             </div>
                             <span class="markdown-hint">Supports **bold** &amp; ## headings</span>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                            <!-- Product Selection (REQUIRED for template) -->
                             <div class="md:col-span-5 relative dropdown-container">
-                                <label class="block text-xs font-black mb-1 text-purple-600">Select Product (Required for Template)</label>
+                                <label class="block text-xs font-black mb-1 text-purple-600">Select Product (Required)</label>
                                 <input type="hidden" name="product_id" id="selectedProductId">
                                 <input type="text" id="productSearchInput" placeholder="Search &amp; select product..." class="w-full bg-white border-2 border-purple-200 rounded-xl px-4 py-2.5 font-bold outline-none focus:border-purple-500 text-sm" onfocus="document.getElementById('productDropdown').classList.remove('hidden')" onkeyup="filterDropdown('productSearchInput', 'productDropdown')">
                                 <ul id="productDropdown" class="hidden absolute z-50 w-full bg-white border-2 border-purple-200 rounded-2xl mt-1 max-h-44 overflow-y-auto shadow-xl text-sm">
-                                    <li onclick="selectItem('selectedProductId', 'productSearchInput', 'productDropdown', '', 'None')" class="px-4 py-3 hover:bg-purple-50 cursor-pointer text-sm font-bold text-gray-500">None (no product link)</li>
+                                    <li onclick="selectItem('selectedProductId', 'productSearchInput', 'productDropdown', '', 'None')" class="px-4 py-3 hover:bg-purple-50 cursor-pointer text-sm font-bold text-gray-500">None</li>
                                     <% if (typeof products !== 'undefined') products.forEach(p => { %>
                                         <li onclick="selectItem('selectedProductId', 'productSearchInput', 'productDropdown', '<%= p.id %>', '<%= p.title.replace(/'/g, "\\'") %>')" class="px-4 py-3 hover:bg-purple-50 cursor-pointer text-sm font-bold text-gray-800 border-b border-purple-100"><%= p.title %> ($<%= p.price %>)</li>
                                     <% }) %>
                                 </ul>
                             </div>
 
-                            <!-- Short Code / Keywords Input -->
                             <div class="md:col-span-5">
-                                <label class="block text-xs font-black mb-1 text-purple-600">Short Code / Keywords (e.g. "undetectable AI solver, real-time")</label>
-                                <input type="text" id="templateCodeInput" placeholder="Enter short keywords or code..." class="w-full bg-white border-2 border-purple-200 rounded-xl px-4 py-2.5 font-bold outline-none focus:border-purple-500 text-sm">
+                                <label class="block text-xs font-black mb-1 text-purple-600">Short Keywords / Code</label>
+                                <input type="text" id="templateCodeInput" placeholder="e.g. undetectable, real-time AI, honorlock" class="w-full bg-white border-2 border-purple-200 rounded-xl px-4 py-2.5 font-bold outline-none focus:border-purple-500 text-sm">
                             </div>
 
-                            <!-- Generate Button -->
                             <div class="md:col-span-2">
                                 <button type="button" onclick="generateBlogFromTemplate()" 
                                         class="template-btn w-full px-4 py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 shadow-sm">
-                                    âœ¨ Generate Full Post
+                                    ✨ Generate Full Post
                                 </button>
                             </div>
                         </div>
                         
-                        <p class="text-[10px] text-purple-500 font-bold mt-2 px-1">The template will create a complete SEO-optimized article with **bold** text and ## headings. You can still edit afterwards.</p>
+                        <p class="text-[10px] text-purple-500 font-bold mt-2 px-1">Creates a complete professional article with **bold** and ## headings. Edit after generation if needed.</p>
+                    </div>
+
+                    <!-- JSON IMPORT BUTTON + BOX -->
+                    <div class="flex justify-end">
+                        <button type="button" onclick="showJsonImportBox()"
+                                class="bg-gray-800 hover:bg-black transition text-white text-xs font-black px-5 py-2 rounded-2xl flex items-center gap-2 shadow-sm">
+                            📥 Import from JSON Code (Full Template)
+                        </button>
+                    </div>
+
+                    <div id="jsonImportSection" class="hidden json-import-box mt-3 p-5 bg-zinc-900 border border-zinc-700 rounded-3xl">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-white text-lg">Import Full Blog from JSON</span>
+                                <span class="text-[9px] bg-amber-400 text-black px-2.5 py-px rounded-full font-black tracking-wider">COMPLETE TEMPLATE</span>
+                            </div>
+                            <button type="button" onclick="hideJsonImportBox()" class="text-zinc-400 hover:text-white text-xl leading-none">&times;</button>
+                        </div>
+                        
+                        <p class="text-xs text-zinc-400 mb-2 font-bold">Paste a JSON object. It will fill Title, Content, Product, Category + all SEO fields.</p>
+                        
+                        <textarea id="jsonImportTextarea" rows="10" class="w-full font-mono text-xs bg-black border border-zinc-600 focus:border-amber-400 rounded-2xl p-4 text-emerald-400 placeholder:text-zinc-500 resize-y" 
+placeholder='{
+  "title": "How StealthAI v13 Helps You Pass Any Proctor Exam in 2026",
+  "content": "## Introduction\n\n**Your success starts here...**",
+  "product_id": 42,
+  "category_name": "Exam Tools",
+  "seo_title": "Best Undetectable Exam Helper 2026",
+  "seo_desc": "Full guide...",
+  "seo_keywords": "exam bypass, ai solver",
+  "canonical_url": "",
+  "og_image": ""
+}'></textarea>
+                        
+                        <div class="flex gap-3 mt-3">
+                            <button type="button" onclick="loadExampleJson()" 
+                                    class="flex-1 bg-amber-400 hover:bg-amber-500 text-black font-black py-3 rounded-2xl text-sm transition">Load Example JSON</button>
+                            <button type="button" onclick="parseAndFillFromJson()" 
+                                    class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-2xl text-sm transition">Parse JSON &amp; Fill Form</button>
+                        </div>
+                        
+                        <p class="text-[10px] text-center text-zinc-500 mt-2 font-bold">Tip: Select product first if you want to override product_id.</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-black mb-1.5 text-gray-600">Article Content <span class="text-purple-600">(Markdown supported: **bold**, ## headings, etc.)</span></label>
-                        <p class="text-xs text-gray-400 mb-2 font-bold">Use <code class="bg-purple-100 text-purple-600 px-1.5 rounded">[product]</code> to embed a product card. Or use the template generator above!</p>
-                        <textarea name="content" id="blogContentTextarea" required rows="9" placeholder="Start writing your guide or use the template generator above..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 font-bold outline-none focus:border-purple-500 text-sm resize-y"></textarea>
+                        <label class="block text-sm font-black mb-1.5 text-gray-600">Article Content <span class="text-purple-600">(Markdown supported: **bold**, ## headings)</span></label>
+                        <p class="text-xs text-gray-400 mb-2 font-bold">Use <code class="bg-purple-100 text-purple-600 px-1.5 rounded">[product]</code> to embed a product card.</p>
+                        <textarea name="content" id="blogContentTextarea" required rows="9" placeholder="Write your article or use Generate / JSON Import above..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 font-bold outline-none focus:border-purple-500 text-sm resize-y"></textarea>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
@@ -459,11 +504,10 @@
                         </div>
                     </div>
 
-                    <!-- SEO Configuration -->
                     <div>
                         <div class="flex items-center gap-2 mb-2">
-                            <span class="text-sm font-black text-gray-600">SEO Configuration (recommended)</span>
-                            <span class="markdown-hint">Auto-filled by template if used</span>
+                            <span class="text-sm font-black text-gray-600">SEO Configuration</span>
+                            <span class="markdown-hint">Auto-filled by Template/JSON</span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="text" name="seo_title" id="seoTitleInput" placeholder="SEO Title Tag (max 60 chars)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
@@ -474,20 +518,20 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl font-black text-sm mt-4 shadow-md hover:scale-[1.01] transition">Publish Post â†’</button>
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl font-black text-sm mt-4 shadow-md hover:scale-[1.01] transition">Publish Post →</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- EDIT POST MODAL (kept intact, minor enhancement for consistency) -->
+    <!-- EDIT POST MODAL -->
     <div id="editPostModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
         <div class="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl shrink-0 modal">
             <div class="p-6 md:p-8">
                 <div class="flex justify-between items-center mb-6 border-b-2 border-gray-100 pb-4">
                     <div>
                         <h2 class="text-2xl font-black text-gray-800">Edit Post</h2>
-                        <p class="text-sm text-gray-500 font-bold">Update content, links or SEO â€¢ Markdown supported (**bold**, ## headings)</p>
+                        <p class="text-sm text-gray-500 font-bold">Update content, links or SEO • Markdown supported (**bold**, ## headings)</p>
                     </div>
                     <button onclick="document.getElementById('editPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
@@ -771,155 +815,204 @@
             }, 300);
         }
 
-        // ========== NEW TEMPLATE GENERATOR FUNCTION ==========
+        // ========== CLEANED TEMPLATE GENERATOR ==========
         function generateBlogFromTemplate() {
             const productId = document.getElementById('selectedProductId').value;
             const productSearch = document.getElementById('productSearchInput').value;
             const templateCode = document.getElementById('templateCodeInput').value.trim();
             const contentTextarea = document.getElementById('blogContentTextarea');
             
-            // Require product selection for template generation
             if (!productId || productId === '' || productSearch === 'None' || productSearch === '') {
-                alert('âš ï¸ Please select a product from the dropdown first before using the template generator!');
+                alert('⚠️ Please select a product from the dropdown first to use the template generator.');
                 document.getElementById('productSearchInput').focus();
                 document.getElementById('productSearchInput').classList.add('border-red-400');
-                setTimeout(() => {
-                    document.getElementById('productSearchInput').classList.remove('border-red-400');
-                }, 1500);
+                setTimeout(() => document.getElementById('productSearchInput').classList.remove('border-red-400'), 1400);
                 return;
             }
             
-            // Get product details from the dropdown options (we parse the display text)
-            const productTitle = productSearch.replace(/\s*\(\$[\d.]+\)$/, '').trim();
+            const productTitle = productSearch.replace(/\s*\(\\( [\d.]+\) \)/, '').trim();
             const priceMatch = productSearch.match(/\$([\d.]+)/);
-            const productPrice = priceMatch ? priceMatch[1] : 'XX.XX';
+            const productPrice = priceMatch ? priceMatch[1] : '49.00';
             
-            // Build keywords from template code or defaults
-            let keywords = templateCode || 'exam help, undetectable, AI powered';
-            let keywordList = keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+            const keywords = templateCode || 'undetectable, AI exam help, proctor bypass';
+            const keywordList = keywords.split(',').map(k => k.trim()).filter(Boolean);
             
-            // Create a rich, full blog post template using **bold** and ## headings
-            // This demonstrates full functionality as requested
-            let generatedContent = `## Unlock Academic Success with ${productTitle}
+            const generatedContent = `## How ${productTitle} Helps You Pass Proctored Exams Undetected
 
-**Struggling with proctored exams?** You're not alone. Thousands of students are turning to smart, undetectable tools to level the playing field. In this guide, we'll show you exactly how **${productTitle}** can transform your exam experience.
+**Tired of failing proctored exams even when you know the material?** You're not alone. Many students face unfair disadvantages due to anxiety, time pressure, or overly strict monitoring systems.
 
-### Why ${productTitle} Stands Out
+**${productTitle}** changes the game. It's a powerful, undetectable exam assistance tool built specifically for modern proctoring platforms like Honorlock, ProctorU, Respondus LockDown Browser, and more.
 
-Unlike basic screen recorders or simple scripts, **${productTitle}** was built from the ground up for modern proctoring systems. It combines cutting-edge stealth technology with real-time AI assistance.
+### Why Students Choose ${productTitle}
 
-**Key Benefits:**
-- **Completely Undetectable** â€” Bypasses Honorlock, ProctorU, Respondus, and more
-- **Real-Time AI Solving** â€” Get instant answers powered by advanced multimodal models
-- **Natural Human Behavior** â€” Cursor movements, typing patterns, and timing feel 100% organic
-- **Works on ${productPrice}** â€” Affordable access to premium exam assistance
+- **100% Undetectable** — Advanced stealth technology bypasses all major proctoring systems
+- **Real-Time AI Assistance** — Multimodal AI analyzes questions and provides accurate answers instantly
+- **Human-Like Behavior** — Natural cursor movement, typing rhythm, and timing that looks completely organic
+- **Affordable at $${productPrice}** — Premium performance without the premium price tag
 
-### How It Actually Works
+### How ${productTitle} Works
 
-1. **Launch & Connect** â€” Open the tool and connect securely (no installation headaches)
-2. **Select Your Exam** â€” Point it at your test window
-3. **Let AI Take Over** â€” The system captures questions and returns accurate answers in seconds
-4. **Submit with Confidence** â€” Every action is masked as natural human input
+1. Launch the application and connect to your exam session
+2. The tool captures the question in real time
+3. Advanced AI processes the question and returns the correct answer
+4. The answer is inputted using natural human-like actions (no robotic behavior)
+5. You stay in full control while the system handles the heavy lifting
 
-**Pro Tip:** Use the built-in virtual clipboard and smart paste features to make answers appear exactly where you need them â€” without triggering any flags.
+**Pro Tip:** Use the virtual clipboard feature to copy and paste answers seamlessly without triggering any detection flags.
 
-### Real Student Results
+### Proven Results
 
-Students using **${productTitle}** consistently report:
-- **94%+ pass rates** on exams they previously struggled with
-- **Zero detection incidents** across 1000+ sessions
-- **Massive time savings** â€” finish exams 40% faster on average
+Students using **${productTitle}** report:
+- Pass rates above **94%** on exams they previously struggled with
+- Zero detection incidents in thousands of sessions
+- Average 40% faster exam completion times
 
-> "I went from failing practice tests to scoring in the top 10% of my class. This tool is a game changer." â€” Verified ExamHub User
+> "This tool helped me go from barely passing to scoring in the top percentile. I finally feel confident walking into any proctored exam." — Verified ExamHub Customer
 
-### Who This Is Perfect For
+### Who It's For
 
-- College students taking online proctored finals
-- Professional certification exam takers (AWS, Cisco, CompTIA, etc.)
-- Anyone who needs reliable, stealthy assistance without the risk
+- University students taking online finals and midterms
+- Professionals pursuing certifications (AWS, Cisco, PMP, CompTIA, etc.)
+- Anyone who wants reliable, low-risk exam assistance
 
-**${productTitle}** works across Windows, Mac, and Chromebook environments. Whether you're dealing with strict webcam monitoring or advanced browser lockdowns, we've got you covered.
+**${productTitle}** works on Windows, Mac, and Chromebook. It handles webcam monitoring, screen recording, and browser lockdowns with ease.
 
-### Getting Started Today
+### Get Started in Minutes
 
-Ready to stop stressing and start succeeding? 
 1. Purchase your license from ExamHub
-2. Download the latest version (v13+ recommended)
-3. Follow the quick-start guide included with your order
-4. Join our private Discord for live support and updates
+2. Download the latest version
+3. Follow the included quick-start guide
+4. Join our private Discord community for support and updates
 
-**Don't let another exam control your future.** With the right tools and strategy, you can walk into any test with total confidence.
+**Stop letting proctored exams control your future.** With the right tool and strategy, you can walk into any test with confidence and come out successful.
 
 ---
 
-*SEO Keywords: ${keywordList.join(', ')}, exam bypass, proctoring bypass, AI exam helper, undetectable exam tool*
+*Keywords: ${keywordList.join(', ')}, exam bypass, undetectable proctor bypass, AI exam solver*`;
 
-*Last updated: ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}*`;
-
-            // Insert into textarea
             contentTextarea.value = generatedContent;
             
-            // Auto-fill some SEO fields if empty (nice UX touch)
             const seoTitle = document.getElementById('seoTitleInput');
             const seoDesc = document.getElementById('seoDescInput');
             const seoKeywords = document.getElementById('seoKeywordsInput');
             
-            if (!seoTitle.value) {
-                seoTitle.value = `${productTitle} Review 2026 | Undetectable Exam Bypass Tool`;
-            }
-            if (!seoDesc.value) {
-                seoDesc.value = `Learn how ${productTitle} helps students pass proctored exams undetected. Real results, zero flags. Full guide + setup instructions.`;
-            }
-            if (!seoKeywords.value) {
-                seoKeywords.value = `${keywordList.join(', ')}, ${productTitle.toLowerCase()}, exam bypass, proctor bypass`;
-            }
+            if (!seoTitle.value) seoTitle.value = `${productTitle} 2026 Review — Undetectable Exam Bypass Tool`;
+            if (!seoDesc.value) seoDesc.value = `Complete guide to passing proctored exams with ${productTitle}. Real results, zero detection. Setup instructions included.`;
+            if (!seoKeywords.value) seoKeywords.value = `${keywordList.join(', ')}, ${productTitle.toLowerCase().replace(/\s+/g, ' ')}, exam bypass tool`;
             
-            // Success feedback
-            const originalText = event.currentTarget ? event.currentTarget.innerHTML : '';
             const btns = document.querySelectorAll('.template-btn');
-            if (btns.length > 0) {
+            if (btns.length) {
                 const btn = btns[0];
-                const oldText = btn.innerHTML;
-                btn.innerHTML = 'âœ… Generated! Edit below';
+                const oldHTML = btn.innerHTML;
+                btn.innerHTML = '✅ Full Article Generated';
                 btn.style.background = 'linear-gradient(135deg, #16a34a, #4ade80)';
-                
                 setTimeout(() => {
                     if (btn) {
-                        btn.innerHTML = oldText;
+                        btn.innerHTML = oldHTML;
                         btn.style.background = 'linear-gradient(135deg, #7c3aed, #a855f7)';
                     }
-                }, 2200);
+                }, 2100);
             }
             
-            // Scroll to content area
             contentTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
             contentTextarea.focus();
             contentTextarea.select();
         }
-        
-        // Bonus: Allow pressing Enter in template code input to trigger generation
-        document.addEventListener('DOMContentLoaded', function() {
-            const codeInput = document.getElementById('templateCodeInput');
-            if (codeInput) {
-                codeInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        generateBlogFromTemplate();
-                    }
-                });
+
+        // ========== JSON IMPORT FUNCTIONS ==========
+        function showJsonImportBox() {
+            const section = document.getElementById('jsonImportSection');
+            if (section) {
+                section.classList.remove('hidden');
+                section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => {
+                    const ta = document.getElementById('jsonImportTextarea');
+                    if (ta) ta.focus();
+                }, 300);
             }
-            
-            // Make sure product dropdown hides properly
-            const prodInput = document.getElementById('productSearchInput');
-            if (prodInput) {
-                prodInput.addEventListener('blur', function() {
-                    setTimeout(() => {
-                        const dd = document.getElementById('productDropdown');
-                        if (dd) dd.classList.add('hidden');
-                    }, 200);
-                });
+        }
+
+        function hideJsonImportBox() {
+            const section = document.getElementById('jsonImportSection');
+            if (section) section.classList.add('hidden');
+        }
+
+        function loadExampleJson() {
+            const textarea = document.getElementById('jsonImportTextarea');
+            if (!textarea) return;
+
+            const example = {
+                "title": "How StealthAI v13 Helps You Pass Any Proctor Exam in 2026",
+                "content": "## Introduction\n\n**Proctored exams** are becoming stricter every semester. Many students know the material but still struggle under pressure and constant monitoring.\n\n**StealthAI v13** gives you the edge you need. Built with advanced stealth technology and real-time multimodal AI, it helps you answer questions accurately while staying completely undetected.\n\n### Key Features\n- 100% undetectable on Honorlock, ProctorU, Respondus & more\n- Real-time AI question solving\n- Natural human-like cursor and typing behavior\n- Works on Windows, Mac, and Chromebook\n\n### How It Works\n1. Start your exam session\n2. The tool captures questions instantly\n3. AI returns correct answers in seconds\n4. Answers are entered using realistic human patterns\n\n**Pro Tip:** Use the smart paste and virtual clipboard to keep everything looking natural.\n\n### Real Results\nStudents report **94%+ pass rates** and zero detection across thousands of sessions.\n\n> \"I went from failing to top of my class. This changed everything for me.\" — Verified User\n\n### Getting Started\nPurchase your license, download the latest version, and join our Discord for live support.\n\nStop stressing over proctored exams. Take control of your success today.",
+                "product_id": 42,
+                "category_name": "Exam Tools",
+                "seo_title": "StealthAI v13 Review 2026 — Best Undetectable Exam Bypass Tool",
+                "seo_desc": "Learn how StealthAI v13 helps students pass proctored exams with zero detection. Full setup guide, features, and real results.",
+                "seo_keywords": "stealthai, exam bypass, undetectable proctor, ai exam helper, honorlock bypass",
+                "canonical_url": "",
+                "og_image": "https://example.com/og-image.png"
+            };
+
+            textarea.value = JSON.stringify(example, null, 2);
+        }
+
+        function parseAndFillFromJson() {
+            const textarea = document.getElementById('jsonImportTextarea');
+            if (!textarea) return;
+
+            let jsonData;
+            try {
+                jsonData = JSON.parse(textarea.value);
+            } catch (e) {
+                alert('❌ Invalid JSON. Please check your syntax and try again.\n\nError: ' + e.message);
+                return;
             }
-        });
+
+            if (jsonData.title) {
+                const titleInput = document.querySelector('#createBlogForm input[name="title"]');
+                if (titleInput) titleInput.value = jsonData.title;
+            }
+
+            if (jsonData.content) {
+                const contentTa = document.getElementById('blogContentTextarea');
+                if (contentTa) contentTa.value = jsonData.content;
+            }
+
+            if (jsonData.product_id) {
+                const hiddenProd = document.getElementById('selectedProductId');
+                const searchProd = document.getElementById('productSearchInput');
+                if (hiddenProd) hiddenProd.value = jsonData.product_id;
+                if (searchProd) searchProd.value = 'Product #' + jsonData.product_id + ' (from JSON)';
+            }
+
+            if (jsonData.category_name) {
+                const hiddenCat = document.getElementById('selectedCategoryName');
+                const searchCat = document.getElementById('categorySearchInput');
+                if (hiddenCat) hiddenCat.value = jsonData.category_name;
+                if (searchCat) searchCat.value = jsonData.category_name;
+            }
+
+            const seoFields = {
+                'seo_title': 'seoTitleInput',
+                'seo_desc': 'seoDescInput',
+                'seo_keywords': 'seoKeywordsInput',
+                'canonical_url': 'canonicalUrlInput',
+                'og_image': 'ogImageInput'
+            };
+
+            Object.keys(seoFields).forEach(key => {
+                if (jsonData[key]) {
+                    const el = document.getElementById(seoFields[key]);
+                    if (el) el.value = jsonData[key];
+                }
+            });
+
+            alert('✅ JSON parsed successfully! All fields have been filled.\nYou can now review and publish the post.');
+            hideJsonImportBox();
+
+            const modalContent = document.querySelector('#createBlogPostModal .p-6');
+            if (modalContent) modalContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     </script>
 </body>
 </html>
