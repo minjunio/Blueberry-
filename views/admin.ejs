@@ -289,6 +289,7 @@
                                         data-tier="<%= product.tier || 'Standard' %>"
                                         data-image_url="<%= product.image_url || '' %>"
                                         data-tags="<%= product.tags || '' %>"
+                                        data-platform="<%= product.platform || '' %>"
                                         data-description="<%= product.description ? product.description.replace(/"/g, '&quot;') : '' %>"
                                         class="bg-blue-100 hover:bg-blue-500 hover:text-white text-blue-600 px-4 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1">
                                     ✏️ Edit
@@ -311,7 +312,7 @@
             <div class="p-6 md:p-8">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-black text-gray-800">Edit Product</h2>
-                    <button onclick="document.getElementById('editProductModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button type="button" onclick="document.getElementById('editProductModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/edit-product" method="POST" class="space-y-4">
                     <input type="hidden" name="id" id="editProductId">
@@ -332,7 +333,9 @@
                             </select></div>
                         <div><label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
                             <input type="url" name="image_url" id="editProductImage" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Tags (comma separated)</label>
+                        <div><label class="block text-sm font-black mb-1 text-gray-600">Platform</label>
+                            <input type="text" name="platform" id="editProductPlatform" placeholder="e.g. Windows, Mac" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
+                        <div class="md:col-span-2"><label class="block text-sm font-black mb-1 text-gray-600">Tags (comma separated)</label>
                             <input type="text" name="tags" id="editProductTags" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
                     </div>
                     <div><label class="block text-sm font-black mb-1 text-gray-600">Description</label>
@@ -355,7 +358,7 @@
                         <h2 class="text-2xl font-black text-gray-800">Create New Blog Post</h2>
                         <p class="text-sm text-gray-500 font-bold">Use Template Generator or JSON Terminal • Supports **bold** and ## headings</p>
                     </div>
-                    <button onclick="document.getElementById('createBlogPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button type="button" onclick="document.getElementById('createBlogPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 
                 <form action="/admin/add-post" method="POST" class="space-y-5" id="createBlogForm">
@@ -395,10 +398,10 @@
                                 <label class="block text-xs font-black mb-1.5 text-purple-700">KEYWORDS (optional)</label>
                                 <input type="text" id="templateCodeInput" placeholder="undetectable, real-time AI" class="w-full bg-white border-2 border-purple-300 rounded-2xl px-4 py-3 font-bold outline-none focus:border-purple-600 text-sm">
                             </div>
-                            <div class="md:col-span-4">
+                            <div class="md:col-span-4 flex items-end">
                                 <button type="button" onclick="generateBlogFromTemplate()" class="generate-btn w-full h-[48px] rounded-2xl text-sm flex items-center justify-center gap-2">✨ Generate Full Article</button>
                             </div>
-                            <div class="md:col-span-3">
+                            <div class="md:col-span-3 flex items-end">
                                 <button type="button" onclick="loadDemoTemplateExample()" class="w-full h-[48px] bg-white border-2 border-purple-400 hover:bg-purple-100 text-purple-700 font-black rounded-2xl text-sm flex items-center justify-center gap-2 transition">📋 Load Demo</button>
                             </div>
                         </div>
@@ -418,7 +421,7 @@
                         <textarea name="content" id="blogContentTextarea" required rows="10" placeholder="Content will appear here from Generate or JSON Terminal..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 font-bold outline-none focus:border-purple-500 text-sm resize-y"></textarea>
                     </div>
 
-                    <!-- Category + SEO -->
+                    <!-- Category -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="relative dropdown-container">
                             <label class="block text-sm font-black mb-1.5 text-gray-600">Link Category (optional)</label>
@@ -433,12 +436,14 @@
                         </div>
                     </div>
 
+                    <!-- SEO Settings updated with canonicalUrlInput -->
                     <div>
                         <span class="text-sm font-black text-gray-600">SEO Settings</span>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                             <input type="text" name="seo_title" id="seoTitleInput" placeholder="SEO Title" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
                             <input type="text" name="seo_desc" id="seoDescInput" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
                             <input type="text" name="seo_keywords" id="seoKeywordsInput" placeholder="Keywords (comma)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="url" name="canonical_url" id="canonicalUrlInput" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
                             <input type="url" name="og_image" id="ogImageInput" placeholder="OpenGraph Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
                         </div>
                     </div>
@@ -460,7 +465,7 @@
                     <div class="w-3 h-3 rounded-full bg-green-500"></div>
                     <span class="ml-4 text-emerald-400 font-black text-sm tracking-widest">JSON IMPORT TERMINAL v2.0 — FULL TEMPLATE SUPPORT</span>
                 </div>
-                <button onclick="hideJsonTerminal()" class="text-emerald-400 hover:text-white text-2xl leading-none px-2">&times;</button>
+                <button type="button" onclick="hideJsonTerminal()" class="text-emerald-400 hover:text-white text-2xl leading-none px-2">&times;</button>
             </div>
 
             <div class="p-5">
@@ -480,12 +485,13 @@ placeholder='{
 }'></textarea>
 
                 <div class="flex gap-3 mt-4">
-                    <button onclick="loadFullJsonExample()" 
+                    <button type="button" onclick="loadFullJsonExample()" 
                             class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-black py-3 rounded-2xl text-sm transition">Load Full Example JSON</button>
-                    <button onclick="parseJsonFromTerminal()" 
-                            class="flex-1 bg-white hover:bg-gray-100 text-emerald-700 font-black py-3 rounded-2xl text-sm border-2 border-emerald-500 transition">PARSE &amp; FILL FORM</button>
+                    <!-- UPDATED: Button text matches new auto-publish behavior -->
+                    <button type="button" onclick="parseJsonFromTerminal()" 
+                            class="flex-1 bg-white hover:bg-gray-100 text-emerald-700 font-black py-3 rounded-2xl text-sm border-2 border-emerald-500 transition">PARSE &amp; PUBLISH ARTICLE</button>
                 </div>
-                <p class="text-center text-emerald-600 text-xs mt-3 font-bold">After parsing, the form will be filled. You can still edit before publishing.</p>
+                <p class="text-center text-emerald-600 text-xs mt-3 font-bold">After parsing, the form will be automatically submitted if all fields are valid.</p>
             </div>
         </div>
     </div>
@@ -499,7 +505,7 @@ placeholder='{
                         <h2 class="text-2xl font-black text-gray-800">Edit Post</h2>
                         <p class="text-sm text-gray-500 font-bold">Markdown supported: **bold** and ## headings</p>
                     </div>
-                    <button onclick="document.getElementById('editPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button type="button" onclick="document.getElementById('editPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/edit-post" method="POST" class="space-y-5">
                     <input type="hidden" name="id" id="editPostId">
@@ -550,14 +556,14 @@ placeholder='{
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-black text-gray-800">Add Category</h2>
-                    <button onclick="document.getElementById('createCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button type="button" onclick="document.getElementById('createCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/add-category" method="POST" class="space-y-3">
                     <input type="text" name="category_name" required placeholder="Category Name" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
                     <input type="text" name="seo_title" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
                     <input type="text" name="seo_desc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
                     <input type="text" name="seo_keywords" placeholder="Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
-                    <input type="text" name="canonical_url" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
+                    <input type="url" name="canonical_url" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
                     <input type="url" name="og_image" placeholder="Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
                     <button type="submit" class="w-full bg-gray-800 text-white py-3 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md mt-2">Save Category</button>
                 </form>
@@ -571,7 +577,7 @@ placeholder='{
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-black text-gray-800">Edit Category</h2>
-                    <button onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button type="button" onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/edit-category" method="POST" class="space-y-3">
                     <input type="hidden" name="original_name" id="editOriginalName">
@@ -579,7 +585,7 @@ placeholder='{
                     <input type="text" name="seo_title" id="editSeoTitle" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
                     <input type="text" name="seo_desc" id="editSeoDesc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
                     <input type="text" name="seo_keywords" id="editSeoKeywords" placeholder="Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
-                    <input type="text" name="canonical_url" id="editCanonicalUrl" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                    <input type="url" name="canonical_url" id="editCanonicalUrl" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
                     <input type="url" name="og_image" id="editOgImage" placeholder="Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
                     <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md mt-2">Update Category</button>
                 </form>
@@ -593,7 +599,7 @@ placeholder='{
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-black text-gray-800">Post Announcement</h2>
-                    <button onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button type="button" onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/add-announcement" method="POST" class="space-y-3">
                     <input type="text" name="title" required placeholder="Announcement Title" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
@@ -616,7 +622,7 @@ placeholder='{
             <div class="p-6 md:p-8">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-black text-gray-800">Add New Product</h2>
-                    <button onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button type="button" onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/add-product" method="POST" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -636,7 +642,9 @@ placeholder='{
                             </select></div>
                         <div><label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
                             <input type="url" name="image_url" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Tags (Comma separated)</label>
+                        <div><label class="block text-sm font-black mb-1 text-gray-600">Platform</label>
+                            <input type="text" name="platform" placeholder="e.g. Windows, Mac" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
+                        <div class="md:col-span-2"><label class="block text-sm font-black mb-1 text-gray-600">Tags (Comma separated)</label>
                             <input type="text" name="tags" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
                     </div>
                     <div><label class="block text-sm font-black mb-1 text-gray-600">Description</label>
@@ -720,6 +728,7 @@ placeholder='{
             document.getElementById('editProductPrice').value = element.getAttribute('data-price') || '';
             document.getElementById('editProductImage').value = element.getAttribute('data-image_url') || '';
             document.getElementById('editProductTags').value = element.getAttribute('data-tags') || '';
+            document.getElementById('editProductPlatform').value = element.getAttribute('data-platform') || '';
             document.getElementById('editProductDescription').value = element.getAttribute('data-description') || '';
             const tierSelect = document.getElementById('editProductTier');
             tierSelect.value = element.getAttribute('data-tier') || 'Standard';
@@ -901,6 +910,7 @@ Students using **${productTitle}** consistently achieve:
             textarea.value = JSON.stringify(exampleJSON, null, 2);
         }
 
+        // UPDATED: Now maps to the new canonical field and automatically submits the form.
         function parseJsonFromTerminal() {
             const textarea = document.getElementById('jsonTerminalInput');
             if (!textarea) return;
@@ -941,7 +951,7 @@ Students using **${productTitle}** consistently achieve:
                 if (searchCat) searchCat.value = jsonData.category_name;
             }
 
-            // Fill SEO
+            // Fill SEO Fields (including newly added canonical_url)
             const seoMap = {
                 'seo_title': 'seoTitleInput',
                 'seo_desc': 'seoDescInput',
@@ -957,13 +967,16 @@ Students using **${productTitle}** consistently achieve:
                 }
             });
 
-            alert('✅ JSON parsed successfully!\n\nAll fields filled: Title, Content, Product, Category, SEO.\nYou can now review and publish.');
             hideJsonTerminal();
 
-            const contentTa = document.getElementById('blogContentTextarea');
-            if (contentTa) {
-                contentTa.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                contentTa.focus();
+            // Auto-submit the form directly to the backend
+            const form = document.getElementById('createBlogForm');
+            
+            // Check if required fields (like title and content) are filled before submitting
+            if (form.reportValidity()) {
+                form.submit();
+            } else {
+                alert('JSON parsed, but some required fields are missing. Please review the form before publishing.');
             }
         }
 
