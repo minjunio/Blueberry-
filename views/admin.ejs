@@ -217,8 +217,7 @@
 
         <!-- Orders + Products Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-            
-            <!-- Active Orders -->
+            <!-- Active Orders Omitted for Brevity - Keeps Original Code -->
             <div class="bg-white rounded-3xl p-6 shadow-sm border-2 border-gray-100">
                 <h2 class="text-xl md:text-2xl font-black text-gray-800 mb-4 border-b-2 border-dashed border-gray-200 pb-2">Active Orders</h2>
                 <div class="flex flex-col gap-3 max-h-[420px] overflow-y-auto pr-2">
@@ -252,7 +251,7 @@
                 </div>
             </div>
 
-            <!-- Active Products (WITH EDIT + DELETE) -->
+            <!-- Active Products -->
             <div class="bg-white rounded-3xl p-6 shadow-sm border-2 border-gray-100">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-gray-200 pb-2">
                     <h2 class="text-xl md:text-2xl font-black text-gray-800">Active Products</h2>
@@ -274,7 +273,6 @@
                             </div>
                             
                             <div class="flex gap-2 opacity-80 group-hover:opacity-100 transition md:opacity-100">
-                                <!-- EDIT PRODUCT BUTTON -->
                                 <button onclick="openEditProductModal(this)"
                                         data-id="<%= product.id %>"
                                         data-title="<%= product.title ? product.title.replace(/"/g, '&quot;') : '' %>"
@@ -300,7 +298,168 @@
         </div>
     </div>
 
-    <!-- ==================== EDIT PRODUCT MODAL ==================== -->
+    <!-- CREATE BLOG POST MODAL (WITH JSON IMPORT TABS) -->
+    <div id="createBlogPostModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
+        <div class="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl shrink-0 modal">
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6 border-b-2 border-gray-100 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-800">Create New Post</h2>
+                        <p class="text-sm text-gray-500 font-bold">Write content • Link products • Optimize SEO</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="switchBlogTab('manual')" id="tabManualBtn" class="text-sm font-black bg-purple-100 text-purple-700 px-3 py-1.5 rounded-lg transition">Manual Entry</button>
+                        <button type="button" onclick="switchBlogTab('json')" id="tabJsonBtn" class="text-sm font-black text-gray-500 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition">JSON Import</button>
+                        <button onclick="document.getElementById('createBlogPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none ml-2">&times;</button>
+                    </div>
+                </div>
+                
+                <!-- JSON IMPORT VIEW -->
+                <div id="jsonImportView" class="hidden space-y-4">
+                    <p class="text-sm text-gray-600 font-bold">Paste a JSON object to instantly map your post data. Body content supports Markdown format (e.g. <code>**bold**</code>, <code>## titles</code>).</p>
+                    <textarea id="jsonImportInput" rows="14" class="w-full bg-gray-900 text-green-400 font-mono text-xs p-5 rounded-2xl outline-none border-2 border-transparent focus:border-purple-500 shadow-inner resize-y" placeholder='{
+  "title": "My SEO Blog Post",
+  "content": "## Main Topic\n\nThis is **bold** text and here is my content.",
+  "seo_title": "My SEO Blog Post | Hub",
+  "seo_desc": "Detailed explanation of the topic for search engines",
+  "seo_keywords": "seo, blog, post",
+  "canonical_url": "https://examhub.com/post/my-post",
+  "og_image": "https://example.com/image.jpg"
+}'></textarea>
+                    <button type="button" onclick="processJsonImport()" class="w-full bg-gray-800 hover:bg-black text-white py-4 rounded-2xl font-black text-sm shadow-md transition flex items-center justify-center gap-2">
+                        Parse & Auto-Fill Form
+                    </button>
+                </div>
+
+                <!-- MANUAL ENTRY FORM (Default) -->
+                <form id="manualEntryForm" action="/admin/add-post" method="POST" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-black mb-1.5 text-gray-600">Headline Title</label>
+                        <input type="text" id="createPostInputTitle" name="title" required placeholder="e.g. How to Ace Your Final Exam with AI" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-3.5 font-bold outline-none focus:border-purple-500 text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-black mb-1.5 text-gray-600">Article Content</label>
+                        <p class="text-xs text-gray-400 mb-2 font-bold">Use <code class="bg-purple-100 text-purple-600 px-1.5 rounded">[product]</code> to embed a product. Supports Markdown <code class="bg-gray-200 px-1.5 rounded">**bold**</code> <code class="bg-gray-200 px-1.5 rounded">## header</code></p>
+                        <textarea id="createPostInputContent" name="content" required rows="9" placeholder="Start writing your guide..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 font-bold outline-none focus:border-purple-500 text-sm resize-y"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div class="relative dropdown-container">
+                            <label class="block text-sm font-black mb-1.5 text-gray-600">Link Product (optional)</label>
+                            <input type="hidden" name="product_id" id="selectedProductId">
+                            <input type="text" id="productSearchInput" placeholder="Search products..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold outline-none focus:border-purple-500 text-sm" onfocus="document.getElementById('productDropdown').classList.remove('hidden')" onkeyup="filterDropdown('productSearchInput', 'productDropdown')">
+                            <ul id="productDropdown" class="hidden absolute z-50 w-full bg-white border-2 border-gray-100 rounded-2xl mt-1 max-h-44 overflow-y-auto shadow-xl text-sm">
+                                <li onclick="selectItem('selectedProductId', 'productSearchInput', 'productDropdown', '', 'None')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-500">None</li>
+                                <% if (typeof products !== 'undefined') products.forEach(p => { %>
+                                    <li onclick="selectItem('selectedProductId', 'productSearchInput', 'productDropdown', '<%= p.id %>', '<%= p.title.replace(/'/g, "\\'") %>')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-800 border-b border-gray-50"><%= p.title %> ($<%= p.price %>)</li>
+                                <% }) %>
+                            </ul>
+                        </div>
+
+                        <div class="relative dropdown-container">
+                            <label class="block text-sm font-black mb-1.5 text-gray-600">Link Category (optional)</label>
+                            <input type="hidden" name="category_name" id="selectedCategoryName">
+                            <input type="text" id="categorySearchInput" placeholder="Search categories..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold outline-none focus:border-purple-500 text-sm" onfocus="document.getElementById('categoryDropdown').classList.remove('hidden')" onkeyup="filterDropdown('categorySearchInput', 'categoryDropdown')">
+                            <ul id="categoryDropdown" class="hidden absolute z-50 w-full bg-white border-2 border-gray-100 rounded-2xl mt-1 max-h-44 overflow-y-auto shadow-xl text-sm">
+                                <li onclick="selectItem('selectedCategoryName', 'categorySearchInput', 'categoryDropdown', '', 'None')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-500">None</li>
+                                <% if (typeof categories !== 'undefined') categories.forEach(c => { %>
+                                    <li onclick="selectItem('selectedCategoryName', 'categorySearchInput', 'categoryDropdown', '<%= c.name.replace(/'/g, "\\'") %>', '<%= c.name.replace(/'/g, "\\'") %>')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-800 border-b border-gray-50"><%= c.name %></li>
+                                <% }) %>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <label class="block text-sm font-black mb-3 text-gray-800 border-b-2 border-gray-100 pb-2">SEO Configuration</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="createPostInputSeoTitle" name="seo_title" placeholder="SEO Title Tag (max 60 chars)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="text" id="createPostInputSeoDesc" name="seo_desc" placeholder="SEO Meta Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="text" id="createPostInputSeoKeywords" name="seo_keywords" placeholder="Keywords (comma separated)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="text" id="createPostInputCanonical" name="canonical_url" placeholder="Canonical URL (optional)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="url" id="createPostInputOgImage" name="og_image" placeholder="OpenGraph Image URL" class="md:col-span-2 w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl font-black text-sm mt-4 shadow-md hover:scale-[1.01] transition">Publish Post →</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rest of the Modals (Edit Post, Add Category, Edit Category, Add Announcement, Add Product) -->
+    <!-- EDIT POST MODAL -->
+    <div id="editPostModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
+        <div class="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl shrink-0 modal">
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6 border-b-2 border-gray-100 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-800">Edit Post</h2>
+                        <p class="text-sm text-gray-500 font-bold">Update content, links or SEO</p>
+                    </div>
+                    <button onclick="document.getElementById('editPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                </div>
+                
+                <form action="/admin/edit-post" method="POST" class="space-y-5">
+                    <input type="hidden" name="id" id="editPostId">
+                    
+                    <div>
+                        <label class="block text-sm font-black mb-1.5 text-gray-600">Headline Title</label>
+                        <input type="text" name="title" id="editPostTitle" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-3.5 font-bold outline-none focus:border-blue-500 text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-black mb-1.5 text-gray-600">Article Content</label>
+                        <textarea name="content" id="editPostContent" required rows="9" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 font-bold outline-none focus:border-blue-500 text-sm resize-y"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="relative dropdown-container">
+                            <label class="block text-sm font-black mb-1.5 text-gray-600">Linked Product</label>
+                            <input type="hidden" name="product_id" id="editSelectedProductId">
+                            <input type="text" id="editProductSearchInput" placeholder="Search or change product..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm" onfocus="document.getElementById('editProductDropdown').classList.remove('hidden')" onkeyup="filterDropdown('editProductSearchInput', 'editProductDropdown')">
+                            <ul id="editProductDropdown" class="hidden absolute z-50 w-full bg-white border-2 border-gray-100 rounded-2xl mt-1 max-h-44 overflow-y-auto shadow-xl text-sm">
+                                <li onclick="selectItem('editSelectedProductId', 'editProductSearchInput', 'editProductDropdown', '', 'None')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-500">None</li>
+                                <% if (typeof products !== 'undefined') products.forEach(p => { %>
+                                    <li onclick="selectItem('editSelectedProductId', 'editProductSearchInput', 'editProductDropdown', '<%= p.id %>', '<%= p.title.replace(/'/g, "\\'") %>')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-800 border-b border-gray-50"><%= p.title %> ($<%= p.price %>)</li>
+                                <% }) %>
+                            </ul>
+                        </div>
+
+                        <div class="relative dropdown-container">
+                            <label class="block text-sm font-black mb-1.5 text-gray-600">Linked Category</label>
+                            <input type="hidden" name="category_name" id="editSelectedCategoryName">
+                            <input type="text" id="editCategorySearchInput" placeholder="Search or change category..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm" onfocus="document.getElementById('editCategoryDropdown').classList.remove('hidden')" onkeyup="filterDropdown('editCategorySearchInput', 'editCategoryDropdown')">
+                            <ul id="editCategoryDropdown" class="hidden absolute z-50 w-full bg-white border-2 border-gray-100 rounded-2xl mt-1 max-h-44 overflow-y-auto shadow-xl text-sm">
+                                <li onclick="selectItem('editSelectedCategoryName', 'editCategorySearchInput', 'editCategoryDropdown', '', 'None')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-500">None</li>
+                                <% if (typeof categories !== 'undefined') categories.forEach(c => { %>
+                                    <li onclick="selectItem('editSelectedCategoryName', 'editCategorySearchInput', 'editCategoryDropdown', '<%= c.name.replace(/'/g, "\\'") %>', '<%= c.name.replace(/'/g, "\\'") %>')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-800 border-b border-gray-50"><%= c.name %></li>
+                                <% }) %>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <label class="block text-sm font-black mb-3 text-gray-800 border-b-2 border-gray-100 pb-2">SEO Settings</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" name="seo_title" id="editSeoTitle" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                            <input type="text" name="seo_desc" id="editSeoDesc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                            <input type="text" name="seo_keywords" id="editSeoKeywords" placeholder="Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                            <input type="text" name="canonical_url" id="editCanonicalUrl" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                            <input type="url" name="og_image" id="editOgImage" placeholder="OpenGraph Image URL" class="md:col-span-2 w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" onclick="document.getElementById('editPostModal').classList.add('hidden')" class="flex-1 bg-gray-200 text-gray-700 py-3.5 rounded-2xl font-black text-sm hover:bg-gray-300 transition">Cancel</button>
+                        <button type="submit" class="flex-1 bg-blue-600 text-white py-3.5 rounded-2xl font-black text-sm hover:bg-blue-700 transition">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
     <div id="editProductModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
         <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl shrink-0 modal">
             <div class="p-6 md:p-8">
@@ -355,142 +514,6 @@
                     <div class="flex gap-3 pt-2">
                         <button type="button" onclick="document.getElementById('editProductModal').classList.add('hidden')" class="flex-1 bg-gray-200 text-gray-700 py-3.5 rounded-2xl font-black text-sm hover:bg-gray-300 transition">Cancel</button>
                         <button type="submit" class="flex-1 bg-anime-accent text-white py-3.5 rounded-2xl font-black text-sm hover:bg-anime-accent/90 transition">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- CREATE BLOG POST MODAL -->
-    <div id="createBlogPostModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
-        <div class="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl shrink-0 modal">
-            <div class="p-6 md:p-8">
-                <div class="flex justify-between items-center mb-6 border-b-2 border-gray-100 pb-4">
-                    <div>
-                        <h2 class="text-2xl font-black text-gray-800">Create New Post</h2>
-                        <p class="text-sm text-gray-500 font-bold">Write content • Link products • Optimize SEO</p>
-                    </div>
-                    <button onclick="document.getElementById('createBlogPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
-                </div>
-                
-                <form action="/admin/add-post" method="POST" class="space-y-5">
-                    <div>
-                        <label class="block text-sm font-black mb-1.5 text-gray-600">Headline Title</label>
-                        <input type="text" name="title" required placeholder="e.g. How to Ace Your Final Exam with AI" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-3.5 font-bold outline-none focus:border-purple-500 text-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-black mb-1.5 text-gray-600">Article Content</label>
-                        <p class="text-xs text-gray-400 mb-2 font-bold">Use <code class="bg-purple-100 text-purple-600 px-1.5 rounded">[product]</code> to embed a product.</p>
-                        <textarea name="content" required rows="9" placeholder="Start writing your guide..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 font-bold outline-none focus:border-purple-500 text-sm resize-y"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                        <div class="relative dropdown-container">
-                            <label class="block text-sm font-black mb-1.5 text-gray-600">Link Product (optional)</label>
-                            <input type="hidden" name="product_id" id="selectedProductId">
-                            <input type="text" id="productSearchInput" placeholder="Search products..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold outline-none focus:border-purple-500 text-sm" onfocus="document.getElementById('productDropdown').classList.remove('hidden')" onkeyup="filterDropdown('productSearchInput', 'productDropdown')">
-                            <ul id="productDropdown" class="hidden absolute z-50 w-full bg-white border-2 border-gray-100 rounded-2xl mt-1 max-h-44 overflow-y-auto shadow-xl text-sm">
-                                <li onclick="selectItem('selectedProductId', 'productSearchInput', 'productDropdown', '', 'None')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-500">None</li>
-                                <% if (typeof products !== 'undefined') products.forEach(p => { %>
-                                    <li onclick="selectItem('selectedProductId', 'productSearchInput', 'productDropdown', '<%= p.id %>', '<%= p.title.replace(/'/g, "\\'") %>')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-800 border-b border-gray-50"><%= p.title %> ($<%= p.price %>)</li>
-                                <% }) %>
-                            </ul>
-                        </div>
-
-                        <div class="relative dropdown-container">
-                            <label class="block text-sm font-black mb-1.5 text-gray-600">Link Category (optional)</label>
-                            <input type="hidden" name="category_name" id="selectedCategoryName">
-                            <input type="text" id="categorySearchInput" placeholder="Search categories..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold outline-none focus:border-purple-500 text-sm" onfocus="document.getElementById('categoryDropdown').classList.remove('hidden')" onkeyup="filterDropdown('categorySearchInput', 'categoryDropdown')">
-                            <ul id="categoryDropdown" class="hidden absolute z-50 w-full bg-white border-2 border-gray-100 rounded-2xl mt-1 max-h-44 overflow-y-auto shadow-xl text-sm">
-                                <li onclick="selectItem('selectedCategoryName', 'categorySearchInput', 'categoryDropdown', '', 'None')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-500">None</li>
-                                <% if (typeof categories !== 'undefined') categories.forEach(c => { %>
-                                    <li onclick="selectItem('selectedCategoryName', 'categorySearchInput', 'categoryDropdown', '<%= c.name.replace(/'/g, "\\'") %>', '<%= c.name.replace(/'/g, "\\'") %>')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-800 border-b border-gray-50"><%= c.name %></li>
-                                <% }) %>
-                            </ul>
-                        </div>
-                    </div>
-
-                    **Summary:**
-SEO Configuration (recommended)
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="text" name="seo_title" placeholder="SEO Title Tag (max 60 chars)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
-                            <input type="text" name="seo_desc" placeholder="SEO Meta Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
-                            <input type="text" name="seo_keywords" placeholder="Keywords (comma separated)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
-                            <input type="text" name="canonical_url" placeholder="Canonical URL (optional)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
-                            <input type="url" name="og_image" placeholder="OpenGraph Image URL" class="md:col-span-2 w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
-                        </div>
-
-                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl font-black text-sm mt-4 shadow-md hover:scale-[1.01] transition">Publish Post →</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- EDIT POST MODAL -->
-    <div id="editPostModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
-        <div class="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl shrink-0 modal">
-            <div class="p-6 md:p-8">
-                <div class="flex justify-between items-center mb-6 border-b-2 border-gray-100 pb-4">
-                    <div>
-                        <h2 class="text-2xl font-black text-gray-800">Edit Post</h2>
-                        <p class="text-sm text-gray-500 font-bold">Update content, links or SEO</p>
-                    </div>
-                    <button onclick="document.getElementById('editPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
-                </div>
-                
-                <form action="/admin/edit-post" method="POST" class="space-y-5">
-                    <input type="hidden" name="id" id="editPostId">
-                    
-                    <div>
-                        <label class="block text-sm font-black mb-1.5 text-gray-600">Headline Title</label>
-                        <input type="text" name="title" id="editPostTitle" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-3.5 font-bold outline-none focus:border-blue-500 text-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-black mb-1.5 text-gray-600">Article Content</label>
-                        <textarea name="content" id="editPostContent" required rows="9" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 font-bold outline-none focus:border-blue-500 text-sm resize-y"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="relative dropdown-container">
-                            <label class="block text-sm font-black mb-1.5 text-gray-600">Linked Product</label>
-                            <input type="hidden" name="product_id" id="editSelectedProductId">
-                            <input type="text" id="editProductSearchInput" placeholder="Search or change product..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm" onfocus="document.getElementById('editProductDropdown').classList.remove('hidden')" onkeyup="filterDropdown('editProductSearchInput', 'editProductDropdown')">
-                            <ul id="editProductDropdown" class="hidden absolute z-50 w-full bg-white border-2 border-gray-100 rounded-2xl mt-1 max-h-44 overflow-y-auto shadow-xl text-sm">
-                                <li onclick="selectItem('editSelectedProductId', 'editProductSearchInput', 'editProductDropdown', '', 'None')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-500">None</li>
-                                <% if (typeof products !== 'undefined') products.forEach(p => { %>
-                                    <li onclick="selectItem('editSelectedProductId', 'editProductSearchInput', 'editProductDropdown', '<%= p.id %>', '<%= p.title.replace(/'/g, "\\'") %>')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-800 border-b border-gray-50"><%= p.title %> ($<%= p.price %>)</li>
-                                <% }) %>
-                            </ul>
-                        </div>
-
-                        <div class="relative dropdown-container">
-                            <label class="block text-sm font-black mb-1.5 text-gray-600">Linked Category</label>
-                            <input type="hidden" name="category_name" id="editSelectedCategoryName">
-                            <input type="text" id="editCategorySearchInput" placeholder="Search or change category..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold outline-none focus:border-blue-500 text-sm" onfocus="document.getElementById('editCategoryDropdown').classList.remove('hidden')" onkeyup="filterDropdown('editCategorySearchInput', 'editCategoryDropdown')">
-                            <ul id="editCategoryDropdown" class="hidden absolute z-50 w-full bg-white border-2 border-gray-100 rounded-2xl mt-1 max-h-44 overflow-y-auto shadow-xl text-sm">
-                                <li onclick="selectItem('editSelectedCategoryName', 'editCategorySearchInput', 'editCategoryDropdown', '', 'None')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-500">None</li>
-                                <% if (typeof categories !== 'undefined') categories.forEach(c => { %>
-                                    <li onclick="selectItem('editSelectedCategoryName', 'editCategorySearchInput', 'editCategoryDropdown', '<%= c.name.replace(/'/g, "\\'") %>', '<%= c.name.replace(/'/g, "\\'") %>')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-800 border-b border-gray-50"><%= c.name %></li>
-                                <% }) %>
-                            </ul>
-                        </div>
-                    </div>
-
-                    **Summary:**
-SEO Settings
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="text" name="seo_title" id="editSeoTitle" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
-                            <input type="text" name="seo_desc" id="editSeoDesc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
-                            <input type="text" name="seo_keywords" id="editSeoKeywords" placeholder="Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
-                            <input type="text" name="canonical_url" id="editCanonicalUrl" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
-                            <input type="url" name="og_image" id="editOgImage" placeholder="OpenGraph Image URL" class="md:col-span-2 w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
-                        </div>
-
-                    <div class="flex gap-3 pt-4">
-                        <button type="button" onclick="document.getElementById('editPostModal').classList.add('hidden')" class="flex-1 bg-gray-200 text-gray-700 py-3.5 rounded-2xl font-black text-sm hover:bg-gray-300 transition">Cancel</button>
-                        <button type="submit" class="flex-1 bg-blue-600 text-white py-3.5 rounded-2xl font-black text-sm hover:bg-blue-700 transition">Save Changes</button>
                     </div>
                 </form>
             </div>
@@ -563,7 +586,7 @@ SEO Settings
         </div>
     </div>
 
-    <!-- Original Add Product Modal -->
+    <!-- Create Product Modal -->
     <div id="createPostModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
         <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl shrink-0">
             <div class="p-6 md:p-8">
@@ -615,6 +638,54 @@ SEO Settings
     </div>
 
     <script>
+        // ============================
+        // JSON IMPORT LOGIC
+        // ============================
+        function switchBlogTab(tab) {
+            const manualBtn = document.getElementById('tabManualBtn');
+            const jsonBtn = document.getElementById('tabJsonBtn');
+            const manualForm = document.getElementById('manualEntryForm');
+            const jsonView = document.getElementById('jsonImportView');
+
+            if (tab === 'manual') {
+                manualBtn.className = "text-sm font-black bg-purple-100 text-purple-700 px-3 py-1.5 rounded-lg transition";
+                jsonBtn.className = "text-sm font-black text-gray-500 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition";
+                manualForm.classList.remove('hidden');
+                jsonView.classList.add('hidden');
+            } else {
+                jsonBtn.className = "text-sm font-black bg-gray-800 text-white px-3 py-1.5 rounded-lg transition";
+                manualBtn.className = "text-sm font-black text-gray-500 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition";
+                jsonView.classList.remove('hidden');
+                manualForm.classList.add('hidden');
+            }
+        }
+
+        function processJsonImport() {
+            try {
+                const jsonText = document.getElementById('jsonImportInput').value;
+                const data = JSON.parse(jsonText);
+                
+                // Map fields to inputs
+                if(data.title) document.getElementById('createPostInputTitle').value = data.title;
+                if(data.content) document.getElementById('createPostInputContent').value = data.content;
+                
+                if(data.seo_title) document.getElementById('createPostInputSeoTitle').value = data.seo_title;
+                if(data.seo_desc) document.getElementById('createPostInputSeoDesc').value = data.seo_desc;
+                if(data.seo_keywords) document.getElementById('createPostInputSeoKeywords').value = data.seo_keywords;
+                if(data.canonical_url) document.getElementById('createPostInputCanonical').value = data.canonical_url;
+                if(data.og_image) document.getElementById('createPostInputOgImage').value = data.og_image;
+
+                alert("JSON imported successfully! Review the content below before publishing.");
+                switchBlogTab('manual'); // Switch back to view populated inputs
+
+            } catch (error) {
+                alert("Invalid JSON Object! Please check your syntax.\nError: " + error.message);
+            }
+        }
+        
+        // ============================
+        // UI HELPERS & DROPDOWNS
+        // ============================
         function filterDropdown(inputId, dropdownId) {
             const filter = document.getElementById(inputId).value.toUpperCase();
             const ul = document.getElementById(dropdownId);
@@ -649,6 +720,9 @@ SEO Settings
             }).then(() => window.location.reload());
         }
 
+        // ============================
+        // MODAL OPENERS 
+        // ============================
         function openEditCatModal(element) {
             document.getElementById('editOriginalName').value = element.getAttribute('data-name');
             document.getElementById('editCatName').value = element.getAttribute('data-name');
