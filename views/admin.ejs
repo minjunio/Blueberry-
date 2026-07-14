@@ -13,37 +13,6 @@
         @keyframes modalPop { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         .activity-item { transition: background-color 0.1s ease; }
         .activity-item:hover { background-color: #f8fafc; }
-        .generate-btn {
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
-            color: white;
-            font-weight: 900;
-            transition: all 0.2s ease;
-        }
-        .generate-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgb(124 58 237 / 0.3); }
-        .terminal-box {
-            background: #0d0d0d;
-            border: 2px solid #22c55e;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            color: #22c55e;
-        }
-        .terminal-header {
-            background: #111;
-            border-bottom: 1px solid #22c55e;
-        }
-        .json-textarea {
-            background: #0a0a0a;
-            color: #22c55e;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            border: 1px solid #333;
-        }
-        .markdown-badge {
-            font-size: 10px;
-            background: #f3e8ff;
-            color: #6b21a8;
-            padding: 2px 10px;
-            border-radius: 9999px;
-            font-weight: 900;
-        }
     </style>
 </head>
 <body class="p-4 md:p-8 bg-gray-50">
@@ -64,45 +33,59 @@
             </div>
         </div>
 
-        <!-- STATS -->
+        <!-- STATS DASHBOARD -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
             <div class="stat-card bg-white rounded-3xl p-5 shadow-sm border-2 border-gray-100">
                 <div class="flex items-center justify-between">
-                    <div><p class="text-xs font-black uppercase tracking-widest text-gray-500">TOTAL USERS</p>
-                    <p class="text-4xl font-black text-gray-900 mt-1"><%= typeof userCount !== 'undefined' ? userCount : 0 %></p></div>
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest text-gray-500">TOTAL USERS</p>
+                        <p class="text-4xl font-black text-gray-900 mt-1"><%= typeof userCount !== 'undefined' ? userCount : 0 %></p>
+                    </div>
                     <div class="text-4xl opacity-80">👥</div>
                 </div>
                 <p class="text-[10px] text-gray-400 font-bold mt-3">Registered accounts</p>
             </div>
+
             <div class="stat-card bg-white rounded-3xl p-5 shadow-sm border-2 border-gray-100">
                 <div class="flex items-center justify-between">
-                    <div><p class="text-xs font-black uppercase tracking-widest text-gray-500">PRODUCTS</p>
-                    <p class="text-4xl font-black text-gray-900 mt-1"><%= products ? products.length : 0 %></p></div>
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest text-gray-500">PRODUCTS</p>
+                        <p class="text-4xl font-black text-gray-900 mt-1"><%= products ? products.length : 0 %></p>
+                    </div>
                     <div class="text-4xl opacity-80">🛍️</div>
                 </div>
                 <p class="text-[10px] text-gray-400 font-bold mt-3">Active listings</p>
             </div>
+
             <div class="stat-card bg-white rounded-3xl p-5 shadow-sm border-2 border-gray-100">
                 <div class="flex items-center justify-between">
-                    <div><p class="text-xs font-black uppercase tracking-widest text-gray-500">BLOG POSTS</p>
-                    <p class="text-4xl font-black text-gray-900 mt-1"><%= posts ? posts.length : 0 %></p></div>
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest text-gray-500">BLOG POSTS</p>
+                        <p class="text-4xl font-black text-gray-900 mt-1"><%= posts ? posts.length : 0 %></p>
+                    </div>
                     <div class="text-4xl opacity-80">📝</div>
                 </div>
                 <p class="text-[10px] text-gray-400 font-bold mt-3">Published articles</p>
             </div>
+
             <div class="stat-card bg-white rounded-3xl p-5 shadow-sm border-2 border-gray-100">
                 <div class="flex items-center justify-between">
-                    <div><p class="text-xs font-black uppercase tracking-widest text-gray-500">ORDERS</p>
-                    <p class="text-4xl font-black text-gray-900 mt-1"><%= orders ? orders.length : 0 %></p></div>
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest text-gray-500">ORDERS</p>
+                        <p class="text-4xl font-black text-gray-900 mt-1"><%= orders ? orders.length : 0 %></p>
+                    </div>
                     <div class="text-4xl opacity-80">📦</div>
                 </div>
                 <% let pendingCount = orders ? orders.filter(o => o.status !== 'Completed' && o.status !== 'Closed').length : 0; %>
                 <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-700"><%= pendingCount %> pending</span>
             </div>
+
             <div class="stat-card bg-white rounded-3xl p-5 shadow-sm border-2 border-gray-100">
                 <div class="flex items-center justify-between">
-                    <div><p class="text-xs font-black uppercase tracking-widest text-gray-500">CATEGORIES</p>
-                    <p class="text-4xl font-black text-gray-900 mt-1"><%= categories ? categories.length : 0 %></p></div>
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest text-gray-500">CATEGORIES</p>
+                        <p class="text-4xl font-black text-gray-900 mt-1"><%= categories ? categories.length : 0 %></p>
+                    </div>
                     <div class="text-4xl opacity-80">🗂️</div>
                 </div>
                 <p class="text-[10px] text-gray-400 font-bold mt-3">Organized sections</p>
@@ -128,6 +111,7 @@
                         </div>
                     <% }) } else { %><p class="text-sm text-gray-400 font-bold px-3 py-2">No posts yet.</p><% } %>
                 </div>
+
                 <div>
                     <p class="text-xs font-black uppercase tracking-widest text-emerald-600 mb-2 px-1">RECENT ORDERS</p>
                     <% if (orders && orders.length > 0) { orders.slice(0,4).forEach(order => { %>
@@ -148,7 +132,8 @@
 
         <!-- MAIN GRIDS -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Manage Blog Posts -->
+            
+            <!-- Manage Blog Posts (with Edit) -->
             <div class="bg-white rounded-3xl p-6 shadow-sm border-2 border-gray-100">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-gray-200 pb-2">
                     <div>
@@ -157,6 +142,7 @@
                     </div>
                     <button onclick="document.getElementById('createBlogPostModal').classList.remove('hidden')" class="bg-purple-600 text-white font-black px-5 py-2 rounded-xl text-sm hover:scale-105 transition flex items-center gap-2">+ Create Post</button>
                 </div>
+                
                 <div class="flex flex-col gap-3 max-h-[380px] overflow-y-auto pr-2">
                     <% if (typeof posts !== 'undefined' && posts.length > 0) { %>
                         <% posts.forEach(post => { %>
@@ -173,6 +159,7 @@
                                     <p class="text-xs text-gray-500 font-bold">SEO: <%= post.seo_title || 'Not set' %></p>
                                     <% if (post.category_name) { %><span class="inline-block mt-1 text-[10px] px-2 py-px rounded bg-gray-200 text-gray-600 font-black"><%= post.category_name %></span><% } %>
                                 </div>
+                                
                                 <div class="flex gap-2 opacity-80 group-hover:opacity-100 transition">
                                     <button onclick="openEditPostModal(this)"
                                             data-id="<%= post.id %>"
@@ -188,6 +175,7 @@
                                             class="bg-blue-100 hover:bg-blue-500 hover:text-white text-blue-600 px-4 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1">
                                         ✏️ Edit
                                     </button>
+                                    
                                     <form action="/admin/delete-post" method="POST" onsubmit="return confirm('Delete this post permanently?');">
                                         <input type="hidden" name="id" value="<%= post.id %>">
                                         <button type="submit" class="bg-red-100 text-red-600 px-4 py-1.5 rounded-xl text-xs font-black hover:bg-red-500 hover:text-white transition">Delete</button>
@@ -227,8 +215,10 @@
             </div>
         </div>
 
-        <!-- Orders + Products -->
+        <!-- Orders + Products Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            
+            <!-- Active Orders -->
             <div class="bg-white rounded-3xl p-6 shadow-sm border-2 border-gray-100">
                 <h2 class="text-xl md:text-2xl font-black text-gray-800 mb-4 border-b-2 border-dashed border-gray-200 pb-2">Active Orders</h2>
                 <div class="flex flex-col gap-3 max-h-[420px] overflow-y-auto pr-2">
@@ -262,11 +252,13 @@
                 </div>
             </div>
 
+            <!-- Active Products (WITH EDIT + DELETE) -->
             <div class="bg-white rounded-3xl p-6 shadow-sm border-2 border-gray-100">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-gray-200 pb-2">
                     <h2 class="text-xl md:text-2xl font-black text-gray-800">Active Products</h2>
                     <button onclick="document.getElementById('createPostModal').classList.remove('hidden')" class="bg-anime-accent text-white font-black px-4 py-2 rounded-xl text-sm hover:scale-105 transition">+ Add Product</button>
                 </div>
+                
                 <div class="flex flex-col gap-3 max-h-[420px] overflow-y-auto pr-2">
                     <% products.forEach(product => { %>
                         <div class="product-card bg-gray-50 border-2 border-gray-100 p-4 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-3 group">
@@ -280,7 +272,9 @@
                                     <p class="text-[10px] text-gray-400 mt-0.5 font-bold truncate">Tags: <%= product.tags %></p>
                                 <% } %>
                             </div>
+                            
                             <div class="flex gap-2 opacity-80 group-hover:opacity-100 transition md:opacity-100">
+                                <!-- EDIT PRODUCT BUTTON -->
                                 <button onclick="openEditProductModal(this)"
                                         data-id="<%= product.id %>"
                                         data-title="<%= product.title ? product.title.replace(/"/g, '&quot;') : '' %>"
@@ -289,11 +283,11 @@
                                         data-tier="<%= product.tier || 'Standard' %>"
                                         data-image_url="<%= product.image_url || '' %>"
                                         data-tags="<%= product.tags || '' %>"
-                                        data-platform="<%= product.platform || '' %>"
                                         data-description="<%= product.description ? product.description.replace(/"/g, '&quot;') : '' %>"
                                         class="bg-blue-100 hover:bg-blue-500 hover:text-white text-blue-600 px-4 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1">
                                     ✏️ Edit
                                 </button>
+                                
                                 <form action="/admin/delete-product" method="POST" onsubmit="return confirm('Delete this product permanently?');">
                                     <input type="hidden" name="id" value="<%= product.id %>">
                                     <button type="submit" class="bg-red-100 text-red-600 px-4 py-1.5 rounded-xl text-xs font-black hover:bg-red-500 hover:text-white transition">Delete</button>
@@ -306,40 +300,58 @@
         </div>
     </div>
 
-    <!-- EDIT PRODUCT MODAL -->
+    <!-- ==================== EDIT PRODUCT MODAL ==================== -->
     <div id="editProductModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
         <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl shrink-0 modal">
             <div class="p-6 md:p-8">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-black text-gray-800">Edit Product</h2>
-                    <button type="button" onclick="document.getElementById('editProductModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button onclick="document.getElementById('editProductModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
+                
                 <form action="/admin/edit-product" method="POST" class="space-y-4">
                     <input type="hidden" name="id" id="editProductId">
+                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Product Title</label>
-                            <input type="text" name="title" id="editProductTitle" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Category</label>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Product Title</label>
+                            <input type="text" name="title" id="editProductTitle" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Category</label>
                             <select name="category" id="editProductCategory" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
-                                <% if (typeof categories !== 'undefined') { categories.forEach(cat => { %><option value="<%= cat.name %>"><%= cat.name %></option><% }) } %>
-                            </select></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
-                            <input type="number" step="0.01" name="price" id="editProductPrice" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Tier Override</label>
+                                <% if (typeof categories !== 'undefined') { categories.forEach(cat => { %>
+                                    <option value="<%= cat.name %>"><%= cat.name %></option>
+                                <% }) } %>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
+                            <input type="number" step="0.01" name="price" id="editProductPrice" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Tier Override</label>
                             <select name="tier" id="editProductTier" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
                                 <option value="Standard">Standard (Auto)</option>
                                 <option value="Custom">Custom Method (BTC Only)</option>
                                 <option value="Ultra">Ultra ($900+ Auto)</option>
-                            </select></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
-                            <input type="url" name="image_url" id="editProductImage" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Platform</label>
-                            <input type="text" name="platform" id="editProductPlatform" placeholder="e.g. Windows, Mac" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                        <div class="md:col-span-2"><label class="block text-sm font-black mb-1 text-gray-600">Tags (comma separated)</label>
-                            <input type="text" name="tags" id="editProductTags" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
+                            <input type="url" name="image_url" id="editProductImage" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Tags (comma separated)</label>
+                            <input type="text" name="tags" id="editProductTags" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                        </div>
                     </div>
-                    <div><label class="block text-sm font-black mb-1 text-gray-600">Description</label>
-                        <textarea name="description" id="editProductDescription" required rows="4" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm resize-none"></textarea></div>
+                    
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Description</label>
+                        <textarea name="description" id="editProductDescription" required rows="4" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm resize-none"></textarea>
+                    </div>
+                    
                     <div class="flex gap-3 pt-2">
                         <button type="button" onclick="document.getElementById('editProductModal').classList.add('hidden')" class="flex-1 bg-gray-200 text-gray-700 py-3.5 rounded-2xl font-black text-sm hover:bg-gray-300 transition">Cancel</button>
                         <button type="submit" class="flex-1 bg-anime-accent text-white py-3.5 rounded-2xl font-black text-sm hover:bg-anime-accent/90 transition">Save Changes</button>
@@ -355,74 +367,37 @@
             <div class="p-6 md:p-8">
                 <div class="flex justify-between items-center mb-6 border-b-2 border-gray-100 pb-4">
                     <div>
-                        <h2 class="text-2xl font-black text-gray-800">Create New Blog Post</h2>
-                        <p class="text-sm text-gray-500 font-bold">Use Template Generator or JSON Terminal • Supports **bold** and ## headings</p>
+                        <h2 class="text-2xl font-black text-gray-800">Create New Post</h2>
+                        <p class="text-sm text-gray-500 font-bold">Write content • Link products • Optimize SEO</p>
                     </div>
-                    <button type="button" onclick="document.getElementById('createBlogPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button onclick="document.getElementById('createBlogPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 
-                <form action="/admin/add-post" method="POST" class="space-y-5" id="createBlogForm">
-
-                    <!-- Headline -->
+                <form action="/admin/add-post" method="POST" class="space-y-5">
                     <div>
                         <label class="block text-sm font-black mb-1.5 text-gray-600">Headline Title</label>
-                        <input type="text" name="title" required placeholder="e.g. How to Ace Proctored Exams with AI in 2026" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-3.5 font-bold outline-none focus:border-purple-500 text-sm">
+                        <input type="text" name="title" required placeholder="e.g. How to Ace Your Final Exam with AI" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-3.5 font-bold outline-none focus:border-purple-500 text-sm">
                     </div>
 
-                    <!-- TEMPLATE GENERATOR -->
-                    <div class="bg-purple-50 border-2 border-purple-300 rounded-3xl p-6">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="bg-purple-600 text-white w-8 h-8 rounded-2xl flex items-center justify-center text-xl font-black">T</div>
-                            <div>
-                                <span class="font-black text-xl text-purple-800">Quick Template Generator</span>
-                                <span class="ml-2 markdown-badge">**bold** + ## headings</span>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-xs font-black mb-1.5 text-purple-700">SELECT PRODUCT (Required for Template)</label>
-                            <div class="relative dropdown-container">
-                                <input type="hidden" name="product_id" id="selectedProductId">
-                                <input type="text" id="productSearchInput" placeholder="Search and select a product..." class="w-full bg-white border-2 border-purple-300 rounded-2xl px-4 py-3 font-bold outline-none focus:border-purple-600 text-sm" onfocus="document.getElementById('productDropdown').classList.remove('hidden')" onkeyup="filterDropdown('productSearchInput', 'productDropdown')">
-                                <ul id="productDropdown" class="hidden absolute z-50 w-full bg-white border-2 border-purple-300 rounded-2xl mt-1 max-h-52 overflow-y-auto shadow-xl text-sm">
-                                    <li onclick="selectItem('selectedProductId', 'productSearchInput', 'productDropdown', '', 'None')" class="px-4 py-3 hover:bg-purple-100 cursor-pointer text-sm font-bold text-gray-500">None</li>
-                                    <% if (typeof products !== 'undefined') products.forEach(p => { %>
-                                        <li onclick="selectItem('selectedProductId', 'productSearchInput', 'productDropdown', '<%= p.id %>', '<%= p.title.replace(/'/g, "\\'") %>')" class="px-4 py-3 hover:bg-purple-100 cursor-pointer text-sm font-bold text-gray-800 border-b border-purple-100"><%= p.title %> ($<%= p.price %>)</li>
-                                    <% }) %>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
-                            <div class="md:col-span-5">
-                                <label class="block text-xs font-black mb-1.5 text-purple-700">KEYWORDS (optional)</label>
-                                <input type="text" id="templateCodeInput" placeholder="undetectable, real-time AI" class="w-full bg-white border-2 border-purple-300 rounded-2xl px-4 py-3 font-bold outline-none focus:border-purple-600 text-sm">
-                            </div>
-                            <div class="md:col-span-4 flex items-end">
-                                <button type="button" onclick="generateBlogFromTemplate()" class="generate-btn w-full h-[48px] rounded-2xl text-sm flex items-center justify-center gap-2">✨ Generate Full Article</button>
-                            </div>
-                            <div class="md:col-span-3 flex items-end">
-                                <button type="button" onclick="loadDemoTemplateExample()" class="w-full h-[48px] bg-white border-2 border-purple-400 hover:bg-purple-100 text-purple-700 font-black rounded-2xl text-sm flex items-center justify-center gap-2 transition">📋 Load Demo</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- JSON TERMINAL BUTTON -->
-                    <div class="flex justify-end">
-                        <button type="button" onclick="showJsonTerminal()" 
-                                class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 py-2.5 rounded-2xl text-sm flex items-center gap-2 transition shadow-sm">
-                            🖥️ Open JSON Terminal (Full Code)
-                        </button>
-                    </div>
-
-                    <!-- Content -->
                     <div>
-                        <label class="block text-sm font-black mb-1.5 text-gray-600">Article Content (Markdown supported)</label>
-                        <textarea name="content" id="blogContentTextarea" required rows="10" placeholder="Content will appear here from Generate or JSON Terminal..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 font-bold outline-none focus:border-purple-500 text-sm resize-y"></textarea>
+                        <label class="block text-sm font-black mb-1.5 text-gray-600">Article Content</label>
+                        <p class="text-xs text-gray-400 mb-2 font-bold">Use <code class="bg-purple-100 text-purple-600 px-1.5 rounded">[product]</code> to embed a product.</p>
+                        <textarea name="content" required rows="9" placeholder="Start writing your guide..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 font-bold outline-none focus:border-purple-500 text-sm resize-y"></textarea>
                     </div>
 
-                    <!-- Category -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div class="relative dropdown-container">
+                            <label class="block text-sm font-black mb-1.5 text-gray-600">Link Product (optional)</label>
+                            <input type="hidden" name="product_id" id="selectedProductId">
+                            <input type="text" id="productSearchInput" placeholder="Search products..." class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold outline-none focus:border-purple-500 text-sm" onfocus="document.getElementById('productDropdown').classList.remove('hidden')" onkeyup="filterDropdown('productSearchInput', 'productDropdown')">
+                            <ul id="productDropdown" class="hidden absolute z-50 w-full bg-white border-2 border-gray-100 rounded-2xl mt-1 max-h-44 overflow-y-auto shadow-xl text-sm">
+                                <li onclick="selectItem('selectedProductId', 'productSearchInput', 'productDropdown', '', 'None')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-500">None</li>
+                                <% if (typeof products !== 'undefined') products.forEach(p => { %>
+                                    <li onclick="selectItem('selectedProductId', 'productSearchInput', 'productDropdown', '<%= p.id %>', '<%= p.title.replace(/'/g, "\\'") %>')" class="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm font-bold text-gray-800 border-b border-gray-50"><%= p.title %> ($<%= p.price %>)</li>
+                                <% }) %>
+                            </ul>
+                        </div>
+
                         <div class="relative dropdown-container">
                             <label class="block text-sm font-black mb-1.5 text-gray-600">Link Category (optional)</label>
                             <input type="hidden" name="category_name" id="selectedCategoryName">
@@ -436,62 +411,18 @@
                         </div>
                     </div>
 
-                    <!-- SEO Settings updated with canonicalUrlInput -->
-                    <div>
-                        <span class="text-sm font-black text-gray-600">SEO Settings</span>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                            <input type="text" name="seo_title" id="seoTitleInput" placeholder="SEO Title" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
-                            <input type="text" name="seo_desc" id="seoDescInput" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
-                            <input type="text" name="seo_keywords" id="seoKeywordsInput" placeholder="Keywords (comma)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
-                            <input type="url" name="canonical_url" id="canonicalUrlInput" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
-                            <input type="url" name="og_image" id="ogImageInput" placeholder="OpenGraph Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                    **Summary:**
+SEO Configuration (recommended)
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" name="seo_title" placeholder="SEO Title Tag (max 60 chars)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="text" name="seo_desc" placeholder="SEO Meta Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="text" name="seo_keywords" placeholder="Keywords (comma separated)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="text" name="canonical_url" placeholder="Canonical URL (optional)" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
+                            <input type="url" name="og_image" placeholder="OpenGraph Image URL" class="md:col-span-2 w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-purple-500">
                         </div>
-                    </div>
 
-                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl font-black text-sm mt-2 shadow-md hover:scale-[1.01] transition">Publish Blog Post →</button>
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl font-black text-sm mt-4 shadow-md hover:scale-[1.01] transition">Publish Post →</button>
                 </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== JSON TERMINAL POPUP (TERMINAL STYLE) ==================== -->
-    <div id="jsonTerminalModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-        <div class="terminal-box w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl">
-            <!-- Terminal Header -->
-            <div class="terminal-header px-5 py-3 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span class="ml-4 text-emerald-400 font-black text-sm tracking-widest">JSON IMPORT TERMINAL v2.0 — FULL TEMPLATE SUPPORT</span>
-                </div>
-                <button type="button" onclick="hideJsonTerminal()" class="text-emerald-400 hover:text-white text-2xl leading-none px-2">&times;</button>
-            </div>
-
-            <div class="p-5">
-                <p class="text-emerald-400 text-xs mb-2 font-bold">Paste complete JSON below. It will fill Title, Content (**bold** + ## headings), Product, Category and all SEO fields.</p>
-
-                <textarea id="jsonTerminalInput" rows="14" class="json-textarea w-full rounded-2xl p-4 text-sm resize-y focus:outline-none focus:border-emerald-400" 
-placeholder='{
-  "title": "How StealthAI v13 Helps You Pass Any Proctor Exam in 2026",
-  "content": "## Introduction\n\n**Proctored exams** are getting stricter every year...\n\n### Key Features\n- 100% undetectable\n- Real-time AI\n\n**Pro Tip:** Use the virtual clipboard.",
-  "product_id": 42,
-  "category_name": "Exam Tools",
-  "seo_title": "StealthAI v13 2026 Review",
-  "seo_desc": "Best undetectable exam bypass tool...",
-  "seo_keywords": "exam bypass, ai solver, honorlock bypass",
-  "canonical_url": "",
-  "og_image": ""
-}'></textarea>
-
-                <div class="flex gap-3 mt-4">
-                    <button type="button" onclick="loadFullJsonExample()" 
-                            class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-black py-3 rounded-2xl text-sm transition">Load Full Example JSON</button>
-                    <!-- UPDATED: Button text matches new auto-publish behavior -->
-                    <button type="button" onclick="parseJsonFromTerminal()" 
-                            class="flex-1 bg-white hover:bg-gray-100 text-emerald-700 font-black py-3 rounded-2xl text-sm border-2 border-emerald-500 transition">PARSE &amp; PUBLISH ARTICLE</button>
-                </div>
-                <p class="text-center text-emerald-600 text-xs mt-3 font-bold">After parsing, the form will be automatically submitted if all fields are valid.</p>
             </div>
         </div>
     </div>
@@ -503,20 +434,24 @@ placeholder='{
                 <div class="flex justify-between items-center mb-6 border-b-2 border-gray-100 pb-4">
                     <div>
                         <h2 class="text-2xl font-black text-gray-800">Edit Post</h2>
-                        <p class="text-sm text-gray-500 font-bold">Markdown supported: **bold** and ## headings</p>
+                        <p class="text-sm text-gray-500 font-bold">Update content, links or SEO</p>
                     </div>
-                    <button type="button" onclick="document.getElementById('editPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button onclick="document.getElementById('editPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
+                
                 <form action="/admin/edit-post" method="POST" class="space-y-5">
                     <input type="hidden" name="id" id="editPostId">
+                    
                     <div>
                         <label class="block text-sm font-black mb-1.5 text-gray-600">Headline Title</label>
                         <input type="text" name="title" id="editPostTitle" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-3.5 font-bold outline-none focus:border-blue-500 text-sm">
                     </div>
+
                     <div>
                         <label class="block text-sm font-black mb-1.5 text-gray-600">Article Content</label>
                         <textarea name="content" id="editPostContent" required rows="9" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 font-bold outline-none focus:border-blue-500 text-sm resize-y"></textarea>
                     </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="relative dropdown-container">
                             <label class="block text-sm font-black mb-1.5 text-gray-600">Linked Product</label>
@@ -529,6 +464,7 @@ placeholder='{
                                 <% }) %>
                             </ul>
                         </div>
+
                         <div class="relative dropdown-container">
                             <label class="block text-sm font-black mb-1.5 text-gray-600">Linked Category</label>
                             <input type="hidden" name="category_name" id="editSelectedCategoryName">
@@ -541,6 +477,17 @@ placeholder='{
                             </ul>
                         </div>
                     </div>
+
+                    **Summary:**
+SEO Settings
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" name="seo_title" id="editSeoTitle" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                            <input type="text" name="seo_desc" id="editSeoDesc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                            <input type="text" name="seo_keywords" id="editSeoKeywords" placeholder="Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                            <input type="text" name="canonical_url" id="editCanonicalUrl" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                            <input type="url" name="og_image" id="editOgImage" placeholder="OpenGraph Image URL" class="md:col-span-2 w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                        </div>
+
                     <div class="flex gap-3 pt-4">
                         <button type="button" onclick="document.getElementById('editPostModal').classList.add('hidden')" class="flex-1 bg-gray-200 text-gray-700 py-3.5 rounded-2xl font-black text-sm hover:bg-gray-300 transition">Cancel</button>
                         <button type="submit" class="flex-1 bg-blue-600 text-white py-3.5 rounded-2xl font-black text-sm hover:bg-blue-700 transition">Save Changes</button>
@@ -556,14 +503,14 @@ placeholder='{
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-black text-gray-800">Add Category</h2>
-                    <button type="button" onclick="document.getElementById('createCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button onclick="document.getElementById('createCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/add-category" method="POST" class="space-y-3">
                     <input type="text" name="category_name" required placeholder="Category Name" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
                     <input type="text" name="seo_title" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
                     <input type="text" name="seo_desc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
                     <input type="text" name="seo_keywords" placeholder="Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
-                    <input type="url" name="canonical_url" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
+                    <input type="text" name="canonical_url" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
                     <input type="url" name="og_image" placeholder="Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-gray-800">
                     <button type="submit" class="w-full bg-gray-800 text-white py-3 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md mt-2">Save Category</button>
                 </form>
@@ -577,7 +524,7 @@ placeholder='{
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-black text-gray-800">Edit Category</h2>
-                    <button type="button" onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button onclick="document.getElementById('editCatModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/edit-category" method="POST" class="space-y-3">
                     <input type="hidden" name="original_name" id="editOriginalName">
@@ -585,7 +532,7 @@ placeholder='{
                     <input type="text" name="seo_title" id="editSeoTitle" placeholder="SEO Title Tag" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
                     <input type="text" name="seo_desc" id="editSeoDesc" placeholder="SEO Description" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
                     <input type="text" name="seo_keywords" id="editSeoKeywords" placeholder="Keywords" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
-                    <input type="url" name="canonical_url" id="editCanonicalUrl" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
+                    <input type="text" name="canonical_url" id="editCanonicalUrl" placeholder="Canonical URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
                     <input type="url" name="og_image" id="editOgImage" placeholder="Image URL" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
                     <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md mt-2">Update Category</button>
                 </form>
@@ -599,7 +546,7 @@ placeholder='{
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-black text-gray-800">Post Announcement</h2>
-                    <button type="button" onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button onclick="document.getElementById('createAnnModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/add-announcement" method="POST" class="space-y-3">
                     <input type="text" name="title" required placeholder="Announcement Title" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-blue-500">
@@ -616,39 +563,51 @@ placeholder='{
         </div>
     </div>
 
-    <!-- Add Product Modal -->
+    <!-- Original Add Product Modal -->
     <div id="createPostModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-start z-50 p-4 pt-12 pb-20 overflow-y-auto">
         <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl shrink-0">
             <div class="p-6 md:p-8">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-black text-gray-800">Add New Product</h2>
-                    <button type="button" onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
+                    <button onclick="document.getElementById('createPostModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-black text-3xl leading-none">&times;</button>
                 </div>
                 <form action="/admin/add-product" method="POST" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Product Title</label>
-                            <input type="text" name="title" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Category</label>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Product Title</label>
+                            <input type="text" name="title" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Category</label>
                             <select name="category" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
                                 <% if (typeof categories !== 'undefined') { categories.forEach(cat => { %><option value="<%= cat.name %>"><%= cat.name %></option><% }) } %>
-                            </select></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
-                            <input type="number" step="0.01" name="price" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Tier Override</label>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Price ($)</label>
+                            <input type="number" step="0.01" name="price" required class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Tier Override</label>
                             <select name="tier" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
                                 <option value="Standard">Standard (Auto)</option>
                                 <option value="Custom">Custom Method (BTC Only)</option>
                                 <option value="Ultra">Ultra ($900+ Auto)</option>
-                            </select></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
-                            <input type="url" name="image_url" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                        <div><label class="block text-sm font-black mb-1 text-gray-600">Platform</label>
-                            <input type="text" name="platform" placeholder="e.g. Windows, Mac" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
-                        <div class="md:col-span-2"><label class="block text-sm font-black mb-1 text-gray-600">Tags (Comma separated)</label>
-                            <input type="text" name="tags" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm"></div>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Image URL</label>
+                            <input type="url" name="image_url" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black mb-1 text-gray-600">Tags (Comma separated)</label>
+                            <input type="text" name="tags" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm">
+                        </div>
                     </div>
-                    <div><label class="block text-sm font-black mb-1 text-gray-600">Description</label>
-                        <textarea name="description" required rows="4" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm resize-none"></textarea></div>
+                    <div>
+                        <label class="block text-sm font-black mb-1 text-gray-600">Description</label>
+                        <textarea name="description" required rows="4" class="w-full bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-3 font-bold outline-none focus:border-anime-accent text-sm resize-none"></textarea>
+                    </div>
                     <button type="submit" class="w-full bg-anime-accent text-white py-4 rounded-xl font-black text-sm hover:scale-[1.02] transition shadow-md mt-4">Publish Product</button>
                 </form>
             </div>
@@ -706,292 +665,57 @@ placeholder='{
             document.getElementById('editPostId').value = element.getAttribute('data-id');
             document.getElementById('editPostTitle').value = element.getAttribute('data-title') || '';
             document.getElementById('editPostContent').value = element.getAttribute('data-content') || '';
+            
             const prodId = element.getAttribute('data-product_id') || '';
             document.getElementById('editSelectedProductId').value = prodId;
             document.getElementById('editProductSearchInput').value = prodId ? 'Linked Product' : '';
+            
             const catName = element.getAttribute('data-category_name') || '';
             document.getElementById('editSelectedCategoryName').value = catName;
             document.getElementById('editCategorySearchInput').value = catName;
+            
             document.getElementById('editSeoTitle').value = element.getAttribute('data-seo_title') || '';
             document.getElementById('editSeoDesc').value = element.getAttribute('data-seo_desc') || '';
             document.getElementById('editSeoKeywords').value = element.getAttribute('data-seo_keywords') || '';
             document.getElementById('editOgImage').value = element.getAttribute('data-og_image') || '';
             document.getElementById('editCanonicalUrl').value = element.getAttribute('data-canonical') || '';
+            
             modal.classList.remove('hidden');
             setTimeout(() => { document.getElementById('editPostTitle').focus(); document.getElementById('editPostTitle').select(); }, 300);
         }
 
         function openEditProductModal(element) {
             const modal = document.getElementById('editProductModal');
+            
             document.getElementById('editProductId').value = element.getAttribute('data-id');
             document.getElementById('editProductTitle').value = element.getAttribute('data-title') || '';
             document.getElementById('editProductPrice').value = element.getAttribute('data-price') || '';
             document.getElementById('editProductImage').value = element.getAttribute('data-image_url') || '';
             document.getElementById('editProductTags').value = element.getAttribute('data-tags') || '';
-            document.getElementById('editProductPlatform').value = element.getAttribute('data-platform') || '';
             document.getElementById('editProductDescription').value = element.getAttribute('data-description') || '';
+            
             const tierSelect = document.getElementById('editProductTier');
-            tierSelect.value = element.getAttribute('data-tier') || 'Standard';
+            const tierValue = element.getAttribute('data-tier') || 'Standard';
+            tierSelect.value = tierValue;
+            
             const catSelect = document.getElementById('editProductCategory');
             const catValue = element.getAttribute('data-category') || '';
             if (catValue) {
                 for (let i = 0; i < catSelect.options.length; i++) {
-                    if (catSelect.options[i].value === catValue) { catSelect.selectedIndex = i; break; }
-                }
-            }
-            modal.classList.remove('hidden');
-            setTimeout(() => { document.getElementById('editProductTitle').focus(); document.getElementById('editProductTitle').select(); }, 300);
-        }
-
-        // TEMPLATE GENERATOR
-        function generateBlogFromTemplate() {
-            const productId = document.getElementById('selectedProductId').value;
-            const productSearch = document.getElementById('productSearchInput').value;
-            const keywords = document.getElementById('templateCodeInput').value.trim();
-            const contentTa = document.getElementById('blogContentTextarea');
-
-            if (!productId || productSearch === '' || productSearch === 'None') {
-                alert('Please select a product from the dropdown first!');
-                document.getElementById('productSearchInput').focus();
-                return;
-            }
-
-            const productTitle = productSearch.replace(/\s*\(\\( [\d.]+\) \)/, '').trim();
-            const priceMatch = productSearch.match(/\$([\d.]+)/);
-            const price = priceMatch ? priceMatch[1] : '49';
-            const kw = keywords || 'undetectable, AI powered, proctor bypass';
-            const kwList = kw.split(',').map(k => k.trim()).filter(Boolean).join(', ');
-
-            const fullContent = `## How ${productTitle} Helps You Pass Any Proctored Exam
-
-**Struggling with online proctored exams?** You’re not alone. Thousands of students use smart tools to perform at their best without getting flagged.
-
-**${productTitle}** is a powerful undetectable exam assistant built for modern proctoring systems (Honorlock, ProctorU, Respondus, etc.).
-
-### Why ${productTitle} Works So Well
-
-- **Completely Undetectable** — Advanced stealth bypasses all major platforms
-- **Real-Time AI Answers** — Get accurate solutions in seconds
-- **Human-Like Behavior** — Natural cursor movement and typing patterns
-- **Only $${price}** — Premium results at an affordable price
-
-### How It Works (Step by Step)
-
-1. Launch the tool and connect to your exam
-2. The system captures the question automatically
-3. AI analyzes and returns the correct answer instantly
-4. Answers are typed using realistic human timing
-5. You stay in control the entire time
-
-**Pro Tip:** Use the built-in virtual clipboard to paste answers naturally without raising any red flags.
-
-### Real Student Results
-
-Students using **${productTitle}** consistently achieve:
-- **94%+ pass rates** on difficult proctored exams
-- Zero detection across thousands of sessions
-- Much faster exam completion with less stress
-
-> “This tool changed everything for me. I went from failing to top of my class.” — Verified ExamHub User
-
-### Who This Is For
-
-- College students taking online finals
-- People studying for professional certifications
-- Anyone who wants reliable, low-risk exam support
-
-**${productTitle}** works on Windows, Mac, and Chromebook.
-
-### Get Started Today
-
-1. Buy your license from ExamHub
-2. Download the latest version
-3. Follow the quick start guide
-4. Join our Discord for live help
-
-**Stop letting proctored exams control your future.** Take control with ${productTitle} today.
-
----
-
-*Keywords: ${kwList}*`;
-
-            contentTa.value = fullContent;
-
-            if (!document.getElementById('seoTitleInput').value) document.getElementById('seoTitleInput').value = `${productTitle} 2026 Review — Best Undetectable Exam Tool`;
-            if (!document.getElementById('seoDescInput').value) document.getElementById('seoDescInput').value = `Complete guide to passing proctored exams using ${productTitle}. Real results, zero detection.`;
-            if (!document.getElementById('seoKeywordsInput').value) document.getElementById('seoKeywordsInput').value = kwList;
-
-            contentTa.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            contentTa.focus();
-        }
-
-        function loadDemoTemplateExample() {
-            const contentTa = document.getElementById('blogContentTextarea');
-            const demo = `## How to Pass Proctored Exams with AI in 2026
-
-**Online proctored exams** have become extremely strict. Many students know the material but still struggle because of pressure and constant monitoring.
-
-**StealthAI v13** solves this problem. It is a powerful, undetectable tool that helps you get the right answers while staying completely safe.
-
-### Why Students Love StealthAI v13
-
-- **100% Undetectable** on Honorlock, ProctorU, Respondus and more
-- **Real-time AI** that understands questions and gives correct answers
-- **Natural human behavior** — cursor moves and typing look completely normal
-- Works on **Windows, Mac, and Chromebook**
-
-### How It Actually Works
-
-1. Start your exam
-2. The tool quietly captures the question
-3. AI finds the correct answer in seconds
-4. The answer is entered using realistic human timing
-5. You stay in full control
-
-**Pro Tip:** Use the virtual clipboard feature to paste answers naturally.
-
-### Real Results from Real Students
-
-- **94%+ pass rate** on exams they previously failed
-- Zero detection incidents reported
-- Students finish exams faster with much less stress
-
-> “I finally feel confident walking into any proctored exam. This tool is a game changer.” — Verified User
-
-### Who Should Use It
-
-- University students
-- People taking certification exams (AWS, Cisco, CompTIA, etc.)
-- Anyone who wants reliable help without risk
-
-**StealthAI v13** is affordable and easy to use. Stop stressing and start succeeding.
-
----
-
-*Keywords: undetectable exam tool, AI exam helper, proctor bypass 2026*`;
-
-            contentTa.value = demo;
-            if (!document.getElementById('seoTitleInput').value) document.getElementById('seoTitleInput').value = "How to Pass Proctored Exams with AI in 2026";
-            if (!document.getElementById('seoDescInput').value) document.getElementById('seoDescInput').value = "Learn how StealthAI v13 helps students pass any proctored exam undetected. Real results + full guide.";
-            if (!document.getElementById('seoKeywordsInput').value) document.getElementById('seoKeywordsInput').value = "undetectable exam tool, AI exam helper, proctor bypass, honorlock bypass";
-
-            contentTa.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            contentTa.focus();
-            contentTa.select();
-        }
-
-        // JSON TERMINAL
-        function showJsonTerminal() {
-            const modal = document.getElementById('jsonTerminalModal');
-            if (modal) modal.classList.remove('hidden');
-        }
-
-        function hideJsonTerminal() {
-            const modal = document.getElementById('jsonTerminalModal');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        function loadFullJsonExample() {
-            const textarea = document.getElementById('jsonTerminalInput');
-            if (!textarea) return;
-
-            const exampleJSON = {
-                "title": "How StealthAI v13 Helps You Pass Any Proctor Exam in 2026",
-                "content": "## Introduction\n\n**Proctored exams** are getting stricter every year. Many students know the material but still fail due to pressure and constant monitoring.\n\n**StealthAI v13** changes everything. It is a powerful, undetectable exam assistance tool built specifically for modern proctoring platforms.\n\n### Key Features\n- 100% undetectable on Honorlock, ProctorU, Respondus & more\n- Real-time multimodal AI that reads questions and gives correct answers\n- Natural human-like cursor movement and typing patterns\n- Works on Windows, Mac, and Chromebook\n\n### How It Works\n1. Launch the tool and connect to your exam session\n2. The system captures questions in real time\n3. Advanced AI analyzes and returns accurate answers instantly\n4. Answers are entered using realistic human timing\n5. You stay in full control the entire time\n\n**Pro Tip:** Use the virtual clipboard and smart paste features to keep everything looking completely natural.\n\n### Real Student Results\nStudents using StealthAI v13 report **94%+ pass rates** with zero detection incidents across thousands of sessions.\n\n> \"This tool helped me go from failing practice tests to scoring in the top 10% of my class. It completely changed my academic life.\" — Verified ExamHub User\n\n### Who This Is Perfect For\n- College students taking online proctored finals and midterms\n- Professionals pursuing certifications (AWS, Cisco, CompTIA, PMP, etc.)\n- Anyone who needs reliable, low-risk exam assistance\n\n**StealthAI v13** is affordable and easy to use. Stop letting proctored exams control your future.\n\n---\n\n*Keywords: stealthai, exam bypass, undetectable proctor, ai exam helper, honorlock bypass 2026*",
-                "product_id": 42,
-                "category_name": "Exam Tools",
-                "seo_title": "StealthAI v13 2026 Review — Best Undetectable Exam Bypass Tool",
-                "seo_desc": "Complete guide to passing any proctored exam with StealthAI v13. Real results, zero detection, full setup instructions.",
-                "seo_keywords": "stealthai, exam bypass, undetectable exam tool, ai exam helper, honorlock bypass, proctor bypass",
-                "canonical_url": "",
-                "og_image": "https://yourdomain.com/og-stealthai.jpg"
-            };
-
-            textarea.value = JSON.stringify(exampleJSON, null, 2);
-        }
-
-        // UPDATED: Now maps to the new canonical field and automatically submits the form.
-        function parseJsonFromTerminal() {
-            const textarea = document.getElementById('jsonTerminalInput');
-            if (!textarea) return;
-
-            let jsonData;
-            try {
-                jsonData = JSON.parse(textarea.value.trim());
-            } catch (e) {
-                alert('❌ Invalid JSON!\n\nPlease check your syntax.\nError: ' + e.message);
-                return;
-            }
-
-            // Fill Title
-            if (jsonData.title) {
-                const titleInput = document.querySelector('#createBlogForm input[name="title"]');
-                if (titleInput) titleInput.value = jsonData.title;
-            }
-
-            // Fill Content
-            if (jsonData.content) {
-                const contentTa = document.getElementById('blogContentTextarea');
-                if (contentTa) contentTa.value = jsonData.content;
-            }
-
-            // Fill Product
-            if (jsonData.product_id) {
-                const hiddenProd = document.getElementById('selectedProductId');
-                const searchProd = document.getElementById('productSearchInput');
-                if (hiddenProd) hiddenProd.value = jsonData.product_id;
-                if (searchProd) searchProd.value = 'Product from JSON (ID: ' + jsonData.product_id + ')';
-            }
-
-            // Fill Category
-            if (jsonData.category_name) {
-                const hiddenCat = document.getElementById('selectedCategoryName');
-                const searchCat = document.getElementById('categorySearchInput');
-                if (hiddenCat) hiddenCat.value = jsonData.category_name;
-                if (searchCat) searchCat.value = jsonData.category_name;
-            }
-
-            // Fill SEO Fields (including newly added canonical_url)
-            const seoMap = {
-                'seo_title': 'seoTitleInput',
-                'seo_desc': 'seoDescInput',
-                'seo_keywords': 'seoKeywordsInput',
-                'canonical_url': 'canonicalUrlInput',
-                'og_image': 'ogImageInput'
-            };
-
-            Object.keys(seoMap).forEach(key => {
-                if (jsonData[key] !== undefined) {
-                    const el = document.getElementById(seoMap[key]);
-                    if (el) el.value = jsonData[key];
-                }
-            });
-
-            hideJsonTerminal();
-
-            // Auto-submit the form directly to the backend
-            const form = document.getElementById('createBlogForm');
-            
-            // Check if required fields (like title and content) are filled before submitting
-            if (form.reportValidity()) {
-                form.submit();
-            } else {
-                alert('JSON parsed, but some required fields are missing. Please review the form before publishing.');
-            }
-        }
-
-        // Enter key support
-        document.addEventListener('DOMContentLoaded', function() {
-            const kwInput = document.getElementById('templateCodeInput');
-            if (kwInput) {
-                kwInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        generateBlogFromTemplate();
+                    if (catSelect.options[i].value === catValue) {
+                        catSelect.selectedIndex = i;
+                        break;
                     }
-                });
+                }
             }
-        });
+            
+            modal.classList.remove('hidden');
+            
+            setTimeout(() => {
+                document.getElementById('editProductTitle').focus();
+                document.getElementById('editProductTitle').select();
+            }, 300);
+        }
     </script>
 </body>
 </html>
