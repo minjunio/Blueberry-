@@ -4,30 +4,39 @@ const express = require('express');
 const crypto = require('crypto');
 const crc32 = require('buffer-crc32');
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
 const router = express.Router();
 
-// === DATABASE CONNECTION (same as server.js) ===
-const path = require('path');
+// === DATABASE (same as your server.js) ===
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const db = new sqlite3.Database(path.join(DATA_DIR, 'database.sqlite'));
 
 // === CONFIGURATION ===
-const WEBHOOK_ID = process.env.PAYPAL_WEBHOOK_ID;
+const WEBHOOK_ID = process.env.PAYPAL_WEBHOOK_ID || '';
 
-// In-memory cache for PayPal certificates
+if (!WEBHOOK_ID) {
+    console.warn('⚠️  PAYPAL_WEBHOOK_ID is not set in environment variables!');
+}
+
+// Cache for PayPal certificates
 const certCache = new Map();
 
 async function getPayPalCert(certUrl) {
     if (certCache.has(certUrl)) return certCache.get(certUrl);
-    const res = await fetch(certUrl);
-    const pem = await res.text();
-    certCache.set(certUrl, pem);
-    return pem;
+    try {
+        const res = await fetch(certUrl);
+        const pem = await res.text();
+        certCache.set(certUrl, pem);
+        return pem;
+    } catch (err) {
+        console.error('Failed to fetch PayPal certificate:', err);
+        throw err;
+    }
 }
 
 /**
- * Verifies PayPal webhook signature
+ * Verify PayPal Webhook Signature
  */
 async function verifyPayPalSignature(req) {
     const headers = req.headers;
@@ -38,26 +47,44 @@ async function verifyPayPalSignature(req) {
     const transmissionSig = headers['paypal-transmission-sig'];
     const certUrl = headers['paypal-cert-url'];
 
-    if (!transmissionId || !transmissionTime || !transmissionSig || !certUrl || !WEBHOOK_ID) {
-        console.error('Missing required PayPal webhook headers or WEBHOOK_ID');
+    if (!transmissionId || !transmissionTime || !transmissionSig || !certUrl) {
+        console.error('❌ Missing required PayPal headers');
+        return false;
+    }
+
+    if (!WEBHOOK_ID) {
+        console.error('❌ PAYPAL_WEBHOOK_ID environment variable is missing');
         return false;
     }
 
     const crcValue = parseInt('0x' + crc32(rawBody).toString('hex'));
     const message = `\( {transmissionId}| \){transmissionTime}|\( {WEBHOOK_ID}| \){crcValue}`;
 
-    const signatureBuffer = Buffer.from(transmissionSig, 'base64');
-    const certPem = await getPayPalCert(certUrl);
+    console.log(`🔐 Verifying webhook using ID prefix: ${WEBHOOK_ID.substring(0, 12)}...`);
 
-    const verifier = crypto.createVerify('SHA256');
-    verifier.update(message);
+    try {
+        const certPem = await getPayPalCert(certUrl);
+        const signatureBuffer = Buffer.from(transmissionSig, 'base64');
 
-    return verifier.verify(certPem, signatureBuffer);
+        const verifier = crypto.createVerify('SHA256');
+        verifier.update(message);
+
+        const isValid = verifier.verify(certPem, signatureBuffer);
+
+        if (!isValid) {
+            console.error('❌ Signature verification FAILED');
+        }
+
+        return isValid;
+    } catch (err) {
+        console.error('Signature verification error:', err);
+        return false;
+    }
 }
 
-/**
- * Main webhook route
- */
+// ======================================================
+// MAIN WEBHOOK ENDPOINT
+// ======================================================
 router.post('/webhook', async (req, res) => {
     try {
         const isValid = await verifyPayPalSignature(req);
@@ -68,135 +95,94 @@ router.post('/webhook', async (req, res) => {
         }
 
         const event = JSON.parse(req.body.toString());
-        console.log(`✅ Verified PayPal event: ${event.event_type} | ID: ${event.id}`);
+        console.log(`✅ Verified PayPal event: ${event.event_type}`);
 
         if (event.event_type === 'PAYMENT.CAPTURE.COMPLETED') {
             await handlePaymentCaptureCompleted(event.resource);
         }
 
-        // Always respond quickly with 200
         res.sendStatus(200);
     } catch (error) {
-        console.error('PayPal webhook processing error:', error);
-        res.sendStatus(200); // Prevent PayPal from retrying
+        console.error('Webhook error:', error);
+        res.sendStatus(200);
     }
 });
 
-/**
- * Core business logic when payment is successful
- */
+// ======================================================
+// BUSINESS LOGIC
+// ======================================================
 async function handlePaymentCaptureCompleted(resource) {
     const captureId = resource.id;
     const amount = parseFloat(resource.amount?.value || 0);
-    const currency = resource.amount?.currency_code || 'USD';
     const payerEmail = (resource.payer?.email_address || '').toLowerCase().trim();
-    const createTime = resource.create_time;
 
-    console.log(`💰 Payment Captured: \[ {amount} ${currency} | Email: ${payerEmail} | Capture ID: ${captureId}`);
+    console.log(`💰 Payment received: $${amount} from ${payerEmail}`);
 
-    if (!payerEmail || amount <= 0) {
-        console.warn('Webhook missing payer email or amount');
-        return;
-    }
+    if (!payerEmail || amount <= 0) return;
 
-    // Check if we already processed this capture (idempotency)
-    db.get(
-        "SELECT * FROM orders WHERE giftcard_code = ? AND status = 'Paid'",
-        [captureId],
-        (err, existing) => {
-            if (existing) {
-                console.log(`⚠️ Capture ${captureId} already processed. Skipping.`);
-                return;
-            }
-
-            // Find recent pending order for this buyer + amount
-            const timeWindow = new Date(Date.now() - 90 * 60 * 1000).toISOString(); // last 90 minutes
-
-            db.get(
-                `SELECT * FROM orders 
-                 WHERE email = ? 
-                   AND status = 'Pending Payment' 
-                   AND created_at > ?
-                 ORDER BY created_at DESC 
-                 LIMIT 1`,
-                [payerEmail, timeWindow],
-                (err, order) => {
-                    if (!order) {
-                        console.log(`⚠️ No matching pending order found for ${payerEmail} - \]{amount}`);
-                        // You can still log the payment somewhere if needed
-                        return;
-                    }
-
-                    // Mark order as paid
-                    db.run(
-                        `UPDATE orders 
-                         SET status = 'Paid', 
-                             giftcard_code = ? 
-                         WHERE id = ?`,
-                        [captureId, order.id],
-                        (updateErr) => {
-                            if (updateErr) {
-                                console.error('Failed to update order:', updateErr);
-                                return;
-                            }
-
-                            console.log(`✅ Order #${order.order_id} marked as Paid for ${payerEmail}`);
-
-                            // === AUTO-WHITELIST / ACCESS GRANT ===
-                            // Add your custom logic here
-                            grantAccessAfterPayment(payerEmail, order);
-                        }
-                    );
-                }
-            );
+    // Idempotency check
+    db.get("SELECT id FROM orders WHERE giftcard_code = ?", [captureId], (err, row) => {
+        if (row) {
+            console.log(`⚠️ Already processed: ${captureId}`);
+            return;
         }
-    );
+
+        // Find recent pending order (last 2 hours)
+        const timeWindow = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+
+        db.get(
+            `SELECT * FROM orders 
+             WHERE email = ? 
+               AND status IN ('Pending Payment', 'Pending') 
+               AND created_at > ?
+             ORDER BY created_at DESC LIMIT 1`,
+            [payerEmail, timeWindow],
+            (err, order) => {
+                if (!order) {
+                    console.log(`⚠️ No matching pending order found for ${payerEmail}`);
+                    return;
+                }
+
+                // Mark as Paid
+                db.run(
+                    `UPDATE orders SET status = 'Paid', giftcard_code = ? WHERE id = ?`,
+                    [captureId, order.id],
+                    () => {
+                        console.log(`✅ Order ${order.order_id} marked as Paid`);
+                        grantUserAccess(payerEmail, order);
+                    }
+                );
+            }
+        );
+    });
 }
 
-/**
- * Custom function: Grant access / whitelist after successful payment
- * Customize this based on your needs
- */
-function grantAccessAfterPayment(buyerEmail, order) {
-    console.log(`🎉 Granting access to ${buyerEmail} for order ${order.order_id}`);
+// ======================================================
+// CUSTOMIZE THIS - Add your whitelist logic here
+// ======================================================
+function grantUserAccess(buyerEmail, order) {
+    console.log(`🎉 Granting access to ${buyerEmail}`);
 
-    // Example options:
-    // 1. Update order status to 'Completed'
-    // 2. Add user to whitelist/machines.json
-    // 3. Generate license key and email it
-    // 4. Update a user access table
+    // Mark as Completed
+    db.run("UPDATE orders SET status = 'Completed' WHERE id = ?", [order.id]);
 
-    // Example: Mark order as Completed
-    db.run(
-        "UPDATE orders SET status = 'Completed' WHERE id = ?",
-        [order.id]
-    );
-
-    // TODO: Add your actual whitelist logic here if needed
-    // Example: Add to machines.json or call your existing whitelist functions
+    // TODO: Add your actual logic (whitelist, license key, email, etc.)
 }
 
-/**
- * Optional: Create pending order before redirecting to PayPal
- * You can call this from frontend if you want better matching
- */
+// ======================================================
+// Optional: Create pending order from frontend
+// ======================================================
 router.post('/create-pending-order', express.json(), (req, res) => {
-    const { buyerEmail, productId, amount } = req.body;
+    const { buyerEmail, productId } = req.body;
+    if (!buyerEmail || !productId) return res.status(400).json({ success: false });
 
-    if (!buyerEmail || !productId || !amount) {
-        return res.status(400).json({ success: false, message: 'Missing fields' });
-    }
-
-    const order_id = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const order_id = 'ORD-' + Math.random().toString(36).substring(2, 10).toUpperCase();
 
     db.run(
-        `INSERT INTO orders (order_id, product_id, email, status) 
-         VALUES (?, ?, ?, 'Pending Payment')`,
+        `INSERT INTO orders (order_id, product_id, email, status) VALUES (?, ?, ?, 'Pending Payment')`,
         [order_id, productId, buyerEmail],
         function (err) {
-            if (err) {
-                return res.status(500).json({ success: false, error: err.message });
-            }
+            if (err) return res.status(500).json({ success: false });
             res.json({ success: true, order_id });
         }
     );
