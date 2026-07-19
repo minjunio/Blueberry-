@@ -8,9 +8,24 @@ const multer = require('multer');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
+require('dotenv').config();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const upload = multer({ dest: 'uploads/' });
+
+// ======================================================
+// PAYPAL WEBHOOK INTEGRATION
+// File: routes/pp.js
+// ======================================================
+const paypalRouter = require('./routes/pp');
+
+// IMPORTANT: Raw body parser for PayPal webhook signature verification
+// This MUST be registered before express.json() and express.urlencoded()
+app.use('/api/paypal/webhook', express.raw({ type: 'application/json' }));
+
+// Mount PayPal routes (webhook + any future PayPal endpoints)
+app.use('/api/paypal', paypalRouter);
 
 // --- MACHINE TRACKING CONFIGURATION & UTILITIES ---
 const DATA_DIR = path.join(__dirname, "data");
